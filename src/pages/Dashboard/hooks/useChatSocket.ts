@@ -360,6 +360,38 @@ export function useChatSocket(params: UseChatSocketParams) {
       }
     };
 
+    const onUserProfileUpdated = (data: any) => {
+      const { userId, user: updatedUser } = data;
+      
+      // Update friends list with new profile data
+      setFriends((prev: User[]) => 
+        prev.map((friend) => 
+          friend.id === userId ? { ...friend, ...updatedUser } : friend
+        )
+      );
+      
+      // Update users list if the user is there
+      setUsers((prev: User[]) => 
+        prev.map((user) => 
+          user.id === userId ? { ...user, ...updatedUser } : user
+        )
+      );
+      
+      // Update selectedChat if it's the same user
+      if (selectedChat && selectedChat.id === userId) {
+        setSelectedChat((prev) => prev ? { ...prev, ...updatedUser } : prev);
+      }
+      
+      // Update chat list with new profile data
+      setChatList((prev: ChatListItem[]) => 
+        prev.map((item) => 
+          item.friend.id === userId 
+            ? { ...item, friend: { ...item.friend, ...updatedUser } }
+            : item
+        )
+      );
+    };
+
     const onUserTyping = (data: any) => {
       if (selectedChat && data.userId === selectedChat.id) {
         setIsPartnerTyping(!!data.isTyping);
@@ -493,6 +525,7 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.off('group_message_read', onGroupMessageRead);
     socket.off('user_online', onUserOnline);
     socket.off('user_offline', onUserOffline);
+    socket.off('user_profile_updated', onUserProfileUpdated);
     socket.off('user_typing', onUserTyping);
     socket.off('group_typing', onGroupTyping as any);
     socket.off('messages_recalled');
@@ -528,6 +561,7 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('group_message_read', onGroupMessageRead);
     socket.on('user_online', onUserOnline);
     socket.on('user_offline', onUserOffline);
+    socket.on('user_profile_updated', onUserProfileUpdated);
     socket.on('user_typing', onUserTyping);
     socket.on('group_typing', onGroupTyping as any);
     socket.on('group_updated', onGroupUpdated);
@@ -587,6 +621,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('group_message_read', onGroupMessageRead);
       socket.off('user_online', onUserOnline);
       socket.off('user_offline', onUserOffline);
+      socket.off('user_profile_updated', onUserProfileUpdated);
       socket.off('user_typing', onUserTyping);
       socket.off('group_typing', onGroupTyping as any);
       socket.off('group_updated', onGroupUpdated);

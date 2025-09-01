@@ -38,7 +38,8 @@ export const loginUser = createAsyncThunk(
       return response;
     } catch (error: any) {
       const message = error.response?.data?.message || 'Đăng nhập thất bại';
-      toast.error(message);
+      // Ensure login error toast stays visible longer and avoid flicker by using a stable toast id
+      toast.error(message, { duration: 10000, id: 'login-error' });
       return rejectWithValue(message);
     }
   }
@@ -294,6 +295,8 @@ const authSlice = createSlice({
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
+        // Save updated user info to localStorage
+        localStorage.setItem('user', JSON.stringify(action.payload));
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.isLoading = false;

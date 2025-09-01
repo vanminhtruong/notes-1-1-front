@@ -24,9 +24,25 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      const reqUrl: string = error.config?.url || '';
+      const isAuthEndpoint = [
+        '/auth/login',
+        '/auth/register',
+        '/auth/google',
+        '/auth/facebook',
+        '/auth/forgot-password',
+        '/auth/verify-otp',
+        '/auth/reset-password',
+      ].some((p) => reqUrl.includes(p));
+      const hasToken = !!localStorage.getItem('token');
+      const isAlreadyOnLogin = window.location.pathname === '/login';
+
+      // Only force-redirect when a valid session likely expired on a protected API
+      if (hasToken && !isAuthEndpoint && !isAlreadyOnLogin) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
