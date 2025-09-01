@@ -403,74 +403,80 @@ const ChatView = ({
                       </div>
                     ) : (
                       <>
-                        {/* Images */}
-                        {images.length > 0 && (
-                          <div className={`grid gap-1 ${images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                            {images.map((img) => (
-                              <MessageBubble
-                                key={img.id}
-                                message={img}
-                                isOwnMessage={isOwnMessage}
-                                isRecalled={img.isDeletedForAll}
-                                menuOpenKey={menuOpenKey}
-                                messageKey={`img-${img.id}`}
-                                showMenu={false}
-                                currentUserId={currentUserId}
-                                allMessages={messages}
-                                onMenuToggle={onMenuToggle}
-                                onRecallMessage={onRecallMessage}
-                                onDownloadAttachment={onDownloadAttachment}
-                                onPreviewImage={onPreviewImage}
-                              />
-                            ))}
-                          </div>
-                        )}
+                        {/* Render all items in chronological order with proper grouping for images */}
+                        <div className="flex flex-col gap-2">
+                          {(() => {
+                            const sortedItems = group.items.sort((a, b) => {
+                              const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                              const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                              return timeA - timeB;
+                            });
 
-                        {/* Files */}
-                        {files.length > 0 && (
-                          <div className="flex flex-col gap-2">
-                            {files.map((f) => (
-                              <MessageBubble
-                                key={f.id}
-                                message={f}
-                                isOwnMessage={isOwnMessage}
-                                isRecalled={f.isDeletedForAll}
-                                menuOpenKey={menuOpenKey}
-                                messageKey={`file-${f.id}`}
-                                showMenu={false}
-                                currentUserId={currentUserId}
-                                allMessages={messages}
-                                onMenuToggle={onMenuToggle}
-                                onRecallMessage={onRecallMessage}
-                                onDownloadAttachment={onDownloadAttachment}
-                                onPreviewImage={onPreviewImage}
-                              />
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Text messages */}
-                        {texts.length > 0 && (
-                          <div className="flex flex-col gap-2">
-                            {texts.map((t) => (
-                              <MessageBubble
-                                key={t.id}
-                                message={t}
-                                isOwnMessage={isOwnMessage}
-                                isRecalled={t.isDeletedForAll}
-                                menuOpenKey={menuOpenKey}
-                                messageKey={`msg-${t.id}`}
-                                showMenu={showPerMessageTextMenu || !!t.isDeletedForAll}
-                                currentUserId={currentUserId}
-                                allMessages={messages}
-                                onMenuToggle={onMenuToggle}
-                                onRecallMessage={onRecallMessage}
-                                onDownloadAttachment={onDownloadAttachment}
-                                onPreviewImage={onPreviewImage}
-                              />
-                            ))}
-                          </div>
-                        )}
+                            const result = [];
+                            let i = 0;
+                            
+                            while (i < sortedItems.length) {
+                              const current = sortedItems[i];
+                              
+                              if (current.messageType === 'image') {
+                                // Group consecutive images into a grid
+                                const imageGroup = [current];
+                                let j = i + 1;
+                                
+                                while (j < sortedItems.length && sortedItems[j].messageType === 'image') {
+                                  imageGroup.push(sortedItems[j]);
+                                  j++;
+                                }
+                                
+                                result.push(
+                                  <div key={`img-group-${current.id}`} className={`grid gap-1 ${imageGroup.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                                    {imageGroup.map((img) => (
+                                      <MessageBubble
+                                        key={img.id}
+                                        message={img}
+                                        isOwnMessage={isOwnMessage}
+                                        isRecalled={img.isDeletedForAll}
+                                        menuOpenKey={menuOpenKey}
+                                        messageKey={`img-${img.id}`}
+                                        showMenu={true}
+                                        currentUserId={currentUserId}
+                                        allMessages={messages}
+                                        onMenuToggle={onMenuToggle}
+                                        onRecallMessage={onRecallMessage}
+                                        onDownloadAttachment={onDownloadAttachment}
+                                        onPreviewImage={onPreviewImage}
+                                      />
+                                    ))}
+                                  </div>
+                                );
+                                
+                                i = j;
+                              } else {
+                                // Render non-image items individually
+                                result.push(
+                                  <MessageBubble
+                                    key={current.id}
+                                    message={current}
+                                    isOwnMessage={isOwnMessage}
+                                    isRecalled={current.isDeletedForAll}
+                                    menuOpenKey={menuOpenKey}
+                                    messageKey={`item-${current.id}`}
+                                    showMenu={showPerMessageTextMenu || !!current.isDeletedForAll}
+                                    currentUserId={currentUserId}
+                                    allMessages={messages}
+                                    onMenuToggle={onMenuToggle}
+                                    onRecallMessage={onRecallMessage}
+                                    onDownloadAttachment={onDownloadAttachment}
+                                    onPreviewImage={onPreviewImage}
+                                  />
+                                );
+                                i++;
+                              }
+                            }
+                            
+                            return result;
+                          })()}
+                        </div>
                       </>
                     )}
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
