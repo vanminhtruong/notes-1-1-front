@@ -41,8 +41,9 @@ i18n
     ns: ['layout', 'home', 'dashboard', 'account', 'auth'],
     
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage'],
+      order: ['cookie', 'navigator', 'htmlTag'],
+      caches: ['cookie'],
+      lookupCookie: 'lang',
     },
 
     interpolation: {

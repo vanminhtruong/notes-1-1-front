@@ -25,4 +25,20 @@ export const settingsService = {
     const res = await api.put('/settings/read-status', { enabled });
     return res.data;
   },
+  async getTheme(): Promise<{ mode: 'light' | 'dark' }> {
+    const res = await api.get('/settings/theme');
+    return res.data;
+  },
+  async setTheme(mode: 'light' | 'dark'): Promise<{ message: string; mode: 'light' | 'dark' }> {
+    const res = await api.put('/settings/theme', { mode });
+    return res.data;
+  },
+  async getLanguage(): Promise<{ language: string }> {
+    const res = await api.get('/settings/language');
+    return res.data;
+  },
+  async setLanguage(language: string): Promise<{ message: string; language: string }> {
+    const res = await api.put('/settings/language', { language });
+    return res.data;
+  },
 };

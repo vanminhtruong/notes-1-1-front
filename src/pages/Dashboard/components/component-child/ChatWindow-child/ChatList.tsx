@@ -68,7 +68,11 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="font-semibold text-gray-900 dark:text-white truncate">{friend.name}</p>
+                  <p
+                    className={`${isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'font-normal text-gray-800 dark:text-gray-300'} truncate`}
+                  >
+                    {friend.name}
+                  </p>
                   <div className="flex items-center gap-1">
                     <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{time}</span>
                     {onRemoveFriend && item.friendshipId && (

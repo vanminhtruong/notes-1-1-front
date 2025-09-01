@@ -215,10 +215,16 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     // Send read receipt for all unread messages in this chat
     const unreadMessages = messages.filter(msg => 
       msg.senderId !== currentUser.id && 
-      (!msg.status || msg.status !== 'read')
+      !msg.isRead
     );
 
     if (unreadMessages.length > 0) {
+      // Clear unread count for this chat and mark as read on backend
+      markChatAsRead(selectedChat.id, () => {
+        // Refresh chat list after successfully marking as read
+        loadChatList();
+      });
+      
       // Update status immediately in UI
       setMessages((prev: any[]) => {
         return prev.map((m: any) => {
@@ -245,6 +251,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
             return { 
               ...m, 
               status: 'read',
+              isRead: true,
               readBy: updatedReadBy
             };
           }
@@ -274,6 +281,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setActiveTab,
     markChatAsRead,
     markGroupAsRead,
+    refreshChatList: loadChatList,
     setChatList,
     setMenuOpenKey,
     setMessages,

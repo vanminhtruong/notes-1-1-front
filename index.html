@@ -10,11 +10,21 @@
     <script>
       (function(){
         try {
-          var ls = localStorage.getItem('theme');
-          var osDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var isDark = ls ? ls === 'dark' : osDark;
-          if (isDark) document.documentElement.classList.add('dark');
-        } catch (e) { /* noop */ }
+          // Read theme from cookie first (set by backend), fallback to system preference
+          var cookieTheme = document.cookie.split(';').find(c => c.trim().startsWith('theme='));
+          var savedTheme = cookieTheme ? cookieTheme.split('=')[1].trim() : null;
+          
+          if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else if (savedTheme === 'light') {
+            // explicitly light, remove dark class
+            document.documentElement.classList.remove('dark');
+          } else {
+            // no saved theme, use system preference
+            var osDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (osDark) document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
       })();
     </script>
     <div id="root"></div>

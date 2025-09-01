@@ -6,6 +6,7 @@ import { loginUser, loginWithGoogle, loginWithFacebook } from '@/store/slices/au
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 declare global {
   interface Window {
@@ -20,6 +21,7 @@ interface LoginFormData {
 }
 
 const Login = () => {
+  const { t } = useTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -258,8 +260,8 @@ const Login = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
             <LogIn className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Chào mừng trở lại</h1>
-          <p className="text-gray-600 dark:text-gray-300">Đăng nhập vào tài khoản của bạn để tiếp tục</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('welcomeBack')}</h1>
+          <p className="text-gray-600 dark:text-gray-300">{t('loginSubtitle')}</p>
         </div>
 
         {/* Login Form */}
@@ -276,16 +278,16 @@ const Login = () => {
                 </div>
                 <input
                   {...register('email', {
-                    required: 'Email là bắt buộc',
+                    required: t('emailRequired'),
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Email không hợp lệ'
+                      message: t('emailInvalid')
                     }
                   })}
                   type="email"
                   id="email"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                  placeholder="Nhập email của bạn"
+                  placeholder={t('enterEmail')}
                 />
               </div>
               {errors.email && (
@@ -296,7 +298,7 @@ const Login = () => {
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Mật khẩu
+{t('password')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -304,12 +306,12 @@ const Login = () => {
                 </div>
                 <input
                   {...register('password', {
-                    required: 'Mật khẩu là bắt buộc'
+                    required: t('passwordRequired')
                   })}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   className="block w-full pl-10 pr-12 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                  placeholder="Nhập mật khẩu"
+                  placeholder={t('enterPassword')}
                 />
                 <button
                   type="button"
@@ -338,11 +340,11 @@ const Login = () => {
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-200">
-                  Ghi nhớ đăng nhập
+{t('rememberMe')}
                 </label>
               </div>
               <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200">
-                Quên mật khẩu?
+{t('forgotPasswordLink')}
               </Link>
             </div>
 
@@ -355,10 +357,10 @@ const Login = () => {
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Đang đăng nhập...
+{t('loggingIn')}
                 </div>
               ) : (
-                'Đăng nhập'
+t('login')
               )}
             </button>
 
@@ -373,12 +375,12 @@ const Login = () => {
           {/* Register Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Chưa có tài khoản?{' '}
+{t('noAccount')}{' '}
               <Link
                 to="/register"
                 className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors duration-200"
               >
-                Đăng ký ngay
+{t('signUpNow')}
               </Link>
             </p>
           </div>
@@ -391,7 +393,7 @@ const Login = () => {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-transparent text-gray-500 dark:text-gray-400">Hoặc đăng nhập với</span>
+              <span className="px-2 bg-transparent text-gray-500 dark:text-gray-400">{t('orLoginWith')}</span>
             </div>
           </div>
 

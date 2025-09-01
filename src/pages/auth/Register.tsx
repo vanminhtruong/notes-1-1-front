@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { registerUser } from '@/store/slices/authSlice';
 import { Eye, EyeOff, User, Mail, Lock, Sparkles } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useTranslation } from 'react-i18next';
 
 interface RegisterFormData {
   name: string;
@@ -14,6 +15,7 @@ interface RegisterFormData {
 }
 
 const Register = () => {
+  const { t } = useTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
@@ -60,8 +62,8 @@ const Register = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mb-4">
             <Sparkles className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Tạo tài khoản</h1>
-          <p className="text-gray-600 dark:text-gray-300">Tham gia cùng chúng tôi để quản lý ghi chú hiệu quả</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('createAccount')}</h1>
+          <p className="text-gray-600 dark:text-gray-300">{t('registerSubtitle')}</p>
         </div>
 
         {/* Registration Form */}
@@ -70,7 +72,7 @@ const Register = () => {
             {/* Name Field */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Họ và tên
+                {t('fullName')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -78,13 +80,13 @@ const Register = () => {
                 </div>
                 <input
                   {...register('name', {
-                    required: 'Họ và tên là bắt buộc',
-                    minLength: { value: 2, message: 'Tên phải có ít nhất 2 ký tự' }
+                    required: t('nameRequired'),
+                    minLength: { value: 2, message: t('nameMinLength') }
                   })}
                   type="text"
                   id="name"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                  placeholder="Nhập họ và tên của bạn"
+                  placeholder={t('enterName')}
                 />
               </div>
               {errors.name && (
@@ -95,7 +97,7 @@ const Register = () => {
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Email
+{t('email')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -103,16 +105,16 @@ const Register = () => {
                 </div>
                 <input
                   {...register('email', {
-                    required: 'Email là bắt buộc',
+                    required: t('emailRequired'),
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Email không hợp lệ'
+                      message: t('emailInvalid')
                     }
                   })}
                   type="email"
                   id="email"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                  placeholder="Nhập email của bạn"
+                  placeholder={t('enterEmail')}
                 />
               </div>
               {errors.email && (
@@ -123,7 +125,7 @@ const Register = () => {
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Mật khẩu
+{t('password')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -131,13 +133,13 @@ const Register = () => {
                 </div>
                 <input
                   {...register('password', {
-                    required: 'Mật khẩu là bắt buộc',
-                    minLength: { value: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' }
+                    required: t('passwordRequired'),
+                    minLength: { value: 6, message: t('passwordMinLength') }
                   })}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   className="block w-full pl-10 pr-12 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                  placeholder="Nhập mật khẩu"
+                  placeholder={t('enterPassword')}
                 />
                 <button
                   type="button"
@@ -159,7 +161,7 @@ const Register = () => {
             {/* Confirm Password Field */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                Xác nhận mật khẩu
+{t('confirmPassword')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -167,13 +169,13 @@ const Register = () => {
                 </div>
                 <input
                   {...register('confirmPassword', {
-                    required: 'Xác nhận mật khẩu là bắt buộc',
-                    validate: (value) => value === password || 'Mật khẩu không khớp'
+                    required: t('confirmPasswordRequired'),
+                    validate: (value) => value === password || t('passwordMismatch')
                   })}
                   type={showConfirmPassword ? 'text' : 'password'}
                   id="confirmPassword"
                   className="block w-full pl-10 pr-12 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                  placeholder="Nhập lại mật khẩu"
+                  placeholder={t('reenterPassword')}
                 />
                 <button
                   type="button"
@@ -201,10 +203,10 @@ const Register = () => {
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Đang tạo tài khoản...
+{t('creatingAccount')}
                 </div>
               ) : (
-                'Tạo tài khoản'
+t('createAccountBtn')
               )}
             </button>
 
@@ -219,12 +221,12 @@ const Register = () => {
           {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Đã có tài khoản?{' '}
+{t('hasAccount')}{' '}
               <Link
                 to="/login"
                 className="font-medium text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors duration-200"
               >
-                Đăng nhập ngay
+{t('loginNow')}
               </Link>
             </p>
           </div>
@@ -233,10 +235,10 @@ const Register = () => {
         {/* Footer */}
         <div className="text-center mt-8">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Bằng việc đăng ký, bạn đồng ý với{' '}
-            <a href="#" className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300">Điều khoản sử dụng</a>
+{t('agreeTerms')}{' '}
+            <a href="#" className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300">{t('termsOfService')}</a>
             {' '}và{' '}
-            <a href="#" className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300">Chính sách bảo mật</a>
+            <a href="#" className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300">{t('privacyPolicy')}</a>
           </p>
         </div>
       </div>

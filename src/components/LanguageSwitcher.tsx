@@ -20,9 +20,20 @@ export default function LanguageSwitcher() {
 
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
-  const handleLanguageChange = (langCode: string) => {
+  const handleLanguageChange = async (langCode: string) => {
     i18n.changeLanguage(langCode);
     setIsOpen(false);
+    
+    // Persist to backend if authenticated
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (token) {
+        const { settingsService } = await import('@/services/settingsService');
+        settingsService.setLanguage(langCode).catch(() => {
+          // Silent fail for UX
+        });
+      }
+    } catch {}
   };
 
   // Close dropdown on outside click or Escape

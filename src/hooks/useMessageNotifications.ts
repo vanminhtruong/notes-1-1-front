@@ -1,48 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getSocket } from '../services/socket';
+import { chatService } from '../services/chatService';
 
 export type UnreadMap = Record<number, number>;
 export type GroupUnreadMap = Record<number, number>;
 
-function loadPersisted(userId?: number): UnreadMap {
-  if (!userId) return {};
-  try {
-    const raw = localStorage.getItem(`chat_unread_${userId}`);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') return parsed as UnreadMap;
-  } catch {}
-  return {};
-}
-
-function loadPersistedGroup(userId?: number): GroupUnreadMap {
-  if (!userId) return {};
-  try {
-    const raw = localStorage.getItem(`group_unread_${userId}`);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') return parsed as GroupUnreadMap;
-  } catch {}
-  return {};
-}
-
-function persist(userId: number | undefined, map: UnreadMap) {
-  if (!userId) return;
-  try {
-    localStorage.setItem(`chat_unread_${userId}`, JSON.stringify(map));
-  } catch {}
-}
-
-function persistGroup(userId: number | undefined, map: GroupUnreadMap) {
-  if (!userId) return;
-  try {
-    localStorage.setItem(`group_unread_${userId}`, JSON.stringify(map));
-  } catch {}
-}
 
 export function useMessageNotifications(currentUserId?: number, selectedChatId?: number | null, selectedGroupId?: number | null) {
-  const [unreadMap, setUnreadMap] = useState<UnreadMap>(() => loadPersisted(currentUserId));
-  const [groupUnreadMap, setGroupUnreadMap] = useState<GroupUnreadMap>(() => loadPersistedGroup(currentUserId));
+  const [unreadMap, setUnreadMap] = useState<UnreadMap>({});
+  const [groupUnreadMap, setGroupUnreadMap] = useState<GroupUnreadMap>({});
   const [ring, setRing] = useState(false);
   const prevTotalRef = useRef<number>(0);
   const [ringSeq, setRingSeq] = useState(0);
@@ -67,15 +33,6 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
     } catch {}
   };
 
-  // Persist on change
-  useEffect(() => {
-    persist(currentUserId, unreadMap);
-  }, [currentUserId, unreadMap]);
-
-  // Persist group on change
-  useEffect(() => {
-    persistGroup(currentUserId, groupUnreadMap);
-  }, [currentUserId, groupUnreadMap]);
 
   const totalUnread = useMemo(() => Object.values(unreadMap).reduce((a, b) => a + (b || 0), 0), [unreadMap]);
   const totalGroupUnread = useMemo(() => Object.values(groupUnreadMap).reduce((a, b) => a + (b || 0), 0), [groupUnreadMap]);
@@ -149,22 +106,49 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
     };
   }, [currentUserId, selectedGroupId]);
 
-  const markChatAsRead = (otherUserId: number) => {
+  const markChatAsRead = async (otherUserId: number, onSuccess?: () => void) => {
+    console.log(`[markChatAsRead] Starting for userId: ${otherUserId}`);
+    
+    // Update local state immediately for UI responsiveness
     setUnreadMap((prev) => {
-      if (!prev[otherUserId]) return prev;
-      const n = { ...prev };
-      delete n[otherUserId];
-      return n;
+      if (prev[otherUserId] === 0) {
+        console.log(`[markChatAsRead] Already marked as read for userId: ${otherUserId}`);
+        return prev;
+      }
+      console.log(`[markChatAsRead] Setting local unread to 0 for userId: ${otherUserId}`);
+      return { ...prev, [otherUserId]: 0 };
     });
+    
+    // Call backend to mark messages as read
+    try {
+      console.log(`[markChatAsRead] Calling backend API for userId: ${otherUserId}`);
+      const response = await chatService.markMessagesAsRead(otherUserId);
+      console.log(`[markChatAsRead] Backend response:`, response);
+      
+      // Call success callback to refresh chat list
+      if (onSuccess) {
+        console.log(`[markChatAsRead] Calling success callback for userId: ${otherUserId}`);
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Failed to mark messages as read:', error);
+      // Revert local state on error
+      setUnreadMap((prev) => {
+        const reverted = { ...prev };
+        delete reverted[otherUserId];
+        return reverted;
+      });
+    }
   };
 
   const markGroupAsRead = (groupId: number) => {
+    // Update local state immediately for UI responsiveness
     setGroupUnreadMap((prev) => {
-      if (!prev[groupId]) return prev;
-      const n = { ...prev } as GroupUnreadMap;
-      delete n[groupId];
-      return n;
+      if (prev[groupId] === 0) return prev;
+      return { ...prev, [groupId]: 0 } as GroupUnreadMap;
     });
+    
+    // TODO: Implement backend API for group read status
   };
 
   const resetAll = () => { setUnreadMap({}); setGroupUnreadMap({}); };

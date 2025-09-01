@@ -11,8 +11,9 @@ export function useChatOpeners(params: {
   setSelectedChat: React.Dispatch<React.SetStateAction<User | null>>;
   setSelectedGroup: React.Dispatch<React.SetStateAction<GroupSummary | null>>;
   setActiveTab: React.Dispatch<React.SetStateAction<'users' | 'chats' | 'unread' | 'groups'>>;
-  markChatAsRead: (userId: number) => void;
+  markChatAsRead: (userId: number, onSuccess?: () => void) => Promise<void>;
   markGroupAsRead: (groupId: number) => void;
+  refreshChatList: () => Promise<void>;
   setChatList: React.Dispatch<React.SetStateAction<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number }>>>;
   setMenuOpenKey: React.Dispatch<React.SetStateAction<string | null>>;
   setMessages: React.Dispatch<React.SetStateAction<any[]>>;
@@ -31,6 +32,7 @@ export function useChatOpeners(params: {
     setActiveTab,
     markChatAsRead,
     markGroupAsRead,
+    refreshChatList,
     setChatList,
     setMenuOpenKey,
     setMessages,
@@ -60,8 +62,12 @@ export function useChatOpeners(params: {
     setSelectedChat(updatedUser);
     setActiveTab('chats');
 
-    markChatAsRead(user.id);
-    setChatList((prev) => prev.map((it) => (it.friend.id === user.id ? { ...it, unreadCount: 0 } : it)));
+    await markChatAsRead(user.id, () => {
+      // Optimistic local update for responsiveness
+      setChatList((prev) => prev.map((it) => (it.friend.id === user.id ? { ...it, unreadCount: 0 } : it)));
+      // And immediately fetch authoritative counts from backend
+      void refreshChatList();
+    });
 
     try {
       const response = await chatService.getChatMessages(user.id);

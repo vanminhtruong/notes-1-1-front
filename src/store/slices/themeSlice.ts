@@ -9,10 +9,8 @@ export interface ThemeState {
 
 function getInitialMode(): ThemeMode {
   try {
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('theme') as ThemeMode | null
-      if (saved === 'light' || saved === 'dark') return saved
-      // fallback to system preference
+    if (typeof window !== 'undefined') {
+      // Use system preference only; backend is source of truth
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
       return prefersDark ? 'dark' : 'light'
     }
