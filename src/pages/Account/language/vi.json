@@ -1,0 +1,22 @@
+{
+  "title": "Chi tiết tài khoản",
+  "profile": "Hồ sơ",
+  "settings": "Cài đặt",
+  "description": "Xem và chỉnh sửa thông tin tài khoản của bạn. Lưu ý: Email không thể thay đổi.",
+  "avatar": {
+    "label": "Ảnh đại diện",
+    "upload": "Chọn ảnh",
+    "uploading": "Đang tải...",
+    "remove": "Gỡ ảnh",
+    "info": "Hỗ trợ JPG, PNG, WebP. Tối đa 5MB.",
+    "maxSizeError": "Ảnh tối đa 5MB",
+    "uploadError": "Tải ảnh thất bại"
+  },
+  "form": {
+    "name": "Họ và tên",
+    "namePlaceholder": "Nhập họ và tên",
+    "email": "Email",
+    "emailNote": "Không thể thay đổi email.",
+    "save": "Lưu thay đổi"
+  }
+}

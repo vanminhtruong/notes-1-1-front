@@ -1,0 +1,275 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welcome to your dashboard",
+  "stats": {
+    "total": "Total notes",
+    "active": "Active",
+    "archived": "Archived",
+    "uptime": "Uptime"
+  },
+  "view": {
+    "active": "Active",
+    "archived": "Archived"
+  },
+  "search": {
+    "placeholder": "Search notes..."
+  },
+  "filters": {
+    "allCategories": "All categories",
+    "category": {
+      "work": "Work",
+      "personal": "Personal",
+      "general": "General"
+    },
+    "allPriorities": "All priorities",
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    }
+  },
+  "actions": {
+    "createNote": "Create note",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "clearSelection": "Clear selection",
+    "deleteSelected": "Delete selected",
+    "selectNote": "Select note",
+    "restore": "Restore",
+    "archive": "Archive",
+    "edit": "Edit",
+    "update": "Update"
+  },
+  "messages": {
+    "selectedCount": "{{count}} selected",
+    "noContent": "No content",
+    "noArchived": "No archived notes",
+    "noNotes": "No notes yet",
+    "switchToActive": "Switch to the Active tab to see current notes",
+    "createFirst": "Create your first note to get started"
+  },
+  "category": {
+    "general": "General",
+    "work": "Work",
+    "personal": "Personal"
+  },
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+  "modals": {
+    "confirm": {
+      "deleteTitle": "Delete note?",
+      "bulkDeleteTitle": "Delete selected notes?",
+      "irreversible": "This action cannot be undone."
+    },
+    "create": {
+      "title": "Create new note",
+      "fields": {
+        "title": "Title",
+        "titlePlaceholder": "Enter note title",
+        "content": "Content",
+        "contentPlaceholder": "Enter note content",
+        "category": "Category",
+        "priority": "Priority"
+      }
+    },
+    "edit": {
+      "title": "Edit note"
+    }
+  },
+  "chat": {
+    "errors": {
+      "downloadFile": "Unable to download file",
+      "recall": "Unable to recall message(s)",
+      "generic": "Something went wrong",
+      "sendMessage": "Failed to send message",
+      "oversizedFiles": "Some files exceeded size limits and were skipped"
+    },
+    "success": {
+      "recallSelf": "Recalled messages for yourself",
+      "recallAll": "Recalled messages for everyone",
+      "sentFriendRequest": "Friend request sent",
+      "acceptedFriendRequest": "Friend request accepted",
+      "rejectedFriendRequest": "Friend request rejected"
+    },
+    "notifications": {
+      "newFriendRequest": "{{name}} sent you a friend request",
+      "friendAccepted": "{{name}} accepted your friend request",
+      "friendRejected": "{{name}} rejected your friend request"
+    },
+    "notificationsBell": {
+      "bellAria": "Message notifications",
+      "title": "Notifications",
+      "markAllRead": "Mark all as read",
+      "empty": "No notifications",
+      "newMessagesCount": "{{count}} new messages"
+    },
+    "fallback": {
+      "user": "User {{id}}"
+    },
+    "header": {
+      "title": "Messenger",
+      "searchPlaceholder": "Search…",
+      "tabs": {
+        "all": "All",
+        "unread": "Unread",
+        "users": "Users",
+        "groups": "Groups"
+      }
+    },
+    "usersList": {
+      "friendRequests": "Friend requests",
+      "users": "Users",
+      "sendRequest": "Add friend",
+      "actions": {
+        "accept": "Accept",
+        "acceptRequest": "Accept friend request",
+        "reject": "Reject",
+        "rejectRequest": "Reject friend request"
+      },
+      "empty": {
+        "noResults": "No matching users",
+        "tryAnother": "Try a different name or email"
+      }
+    },
+    "groups": {
+      "title": "Groups",
+      "create": "Create group",
+      "createModal": {
+        "title": "Create new group",
+        "nameLabel": "Group name",
+        "namePlaceholder": "Enter group name",
+        "membersLabel": "Members",
+        "invitePlaceholder": "Type a name or email to invite",
+        "createButton": "Create",
+        "cancel": "Cancel"
+      },
+      "invite": {
+        "title": "Invite members",
+        "placeholder": "Search users by name or email",
+        "addButton": "Add"
+      },
+      "actions": {
+        "edit": "Edit group",
+        "leave": "Leave group",
+        "delete": "Delete group",
+        "removeMember": "Remove member",
+        "addMembers": "Add members"
+      },
+      "editor": {
+        "titleEdit": "Edit group",
+        "titleCreate": "Create group",
+        "fields": {
+          "name": "Group name",
+          "avatar": "Avatar",
+          "background": "Background"
+        },
+        "placeholders": {
+          "name": "Enter group name",
+          "avatar": "No avatar selected",
+          "background": "No background selected"
+        },
+        "actions": {
+          "chooseImage": "Choose image",
+          "cancel": "Cancel",
+          "save": "Save",
+          "create": "Create"
+        },
+        "errors": {
+          "nameRequired": "Group name is required",
+          "invalid": "Invalid group data"
+        }
+      },
+      "empty": {
+        "noGroups": "No groups yet",
+        "createFirst": "Create your first group to start chatting"
+      },
+      "status": {
+        "membersCount": "{{count}} members",
+        "you": "You"
+      },
+      "errors": {
+        "createFailed": "Failed to create group",
+        "inviteFailed": "Failed to invite member(s)",
+        "leaveFailed": "Failed to leave group",
+        "deleteFailed": "Failed to delete group",
+        "removeFailed": "Failed to remove member",
+        "loadFailed": "Unable to load groups",
+        "updateFailed": "Failed to update group"
+      },
+      "success": {
+        "created": "Group created",
+        "invited": "Invitation sent",
+        "left": "Left the group",
+        "deleted": "Group deleted",
+        "removed": "Member removed",
+        "updated": "Group updated"
+      }
+    },
+    "chatList": {
+      "empty": {
+        "noChats": "No conversations yet",
+        "addFriends": "Add friends to start chatting"
+      }
+    },
+    "preview": {
+      "recalled": "Recalled message",
+      "image": "Image",
+      "file": "File",
+      "youPrefix": "You: "
+    },
+    "chatView": {
+      "status": {
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "empty": {
+        "youAreFriends": "You and {{name}} are friends on Messenger",
+        "inGroup": "You are in group {{name}}"
+      }
+    },
+    "menu": {
+      "options": "Options",
+      "messageOptionsAria": "Message options",
+      "chatOptionsAria": "Chat options",
+      "recall": {
+        "self": "Recall for yourself",
+        "all": "Recall for everyone"
+      }
+    },
+    "recalled": {
+      "text": "Message was recalled",
+      "image": "Image was recalled",
+      "file": "File was recalled"
+    },
+    "input": {
+      "attachmentAlt": "attachment",
+      "removeImageAria": "Remove image",
+      "removeFileAria": "Remove file",
+      "attachFileAria": "Attach files",
+      "placeholder": "Aa"
+    },
+    "imagePreview": {
+      "close": "Close",
+      "imageAlt": "Preview image"
+    },
+    "message": {
+      "imageAlt": "image"
+    },
+    "attachment": {
+      "downloadImageAria": "Download image",
+      "downloadImageTitle": "Download image",
+      "downloadFileTitle": "Download",
+      "downloadFileAria": "Download file",
+      "fileFallback": "file",
+      "downloadLabel": "Download"
+    },
+    "encryption": {
+      "chatLocked": "Messages are encrypted",
+      "groupLocked": "Group content is encrypted",
+      "previewLocked": "🔒 Encrypted — unlock to preview"
+    }
+  }
+}

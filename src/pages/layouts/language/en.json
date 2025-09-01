@@ -1,0 +1,22 @@
+{
+  "appName": "NotesApp",
+  "nav": {
+    "dashboard": "Dashboard",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "user": {
+    "account": "Account",
+    "accountDetails": "Account Details",
+    "chat": "Chat",
+    "logout": "Logout",
+    "logoutConfirm": "Logout?",
+    "logoutMessage": "Are you sure you want to logout?",
+    "cancel": "Cancel"
+  },
+  "footer": {
+    "copyright": "All rights reserved",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  }
+}

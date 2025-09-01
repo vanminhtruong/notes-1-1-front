@@ -1,0 +1,275 @@
+{
+  "title": "Bảng điều khiển",
+  "welcome": "Chào mừng đến với bảng điều khiển của bạn",
+  "stats": {
+    "total": "Tổng ghi chú",
+    "active": "Đang hoạt động",
+    "archived": "Đã lưu trữ",
+    "uptime": "Hoạt động"
+  },
+  "view": {
+    "active": "Đang hoạt động",
+    "archived": "Đã lưu trữ"
+  },
+  "search": {
+    "placeholder": "Tìm kiếm ghi chú..."
+  },
+  "filters": {
+    "allCategories": "Tất cả danh mục",
+    "category": {
+      "work": "Công việc",
+      "personal": "Cá nhân",
+      "general": "Chung"
+    },
+    "allPriorities": "Tất cả mức độ",
+    "priority": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp"
+    }
+  },
+  "actions": {
+    "createNote": "Tạo ghi chú",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "clearSelection": "Bỏ chọn",
+    "deleteSelected": "Xóa đã chọn",
+    "selectNote": "Chọn ghi chú",
+    "restore": "Khôi phục",
+    "archive": "Lưu trữ",
+    "edit": "Sửa",
+    "update": "Cập nhật"
+  },
+  "messages": {
+    "selectedCount": "Đã chọn {{count}} mục",
+    "noContent": "Không có nội dung",
+    "noArchived": "Không có ghi chú lưu trữ",
+    "noNotes": "Chưa có ghi chú nào",
+    "switchToActive": "Chuyển sang tab Đang hoạt động để xem ghi chú hiện tại",
+    "createFirst": "Tạo ghi chú đầu tiên của bạn để bắt đầu"
+  },
+  "category": {
+    "general": "Chung",
+    "work": "Công việc",
+    "personal": "Cá nhân"
+  },
+  "priority": {
+    "low": "Thấp",
+    "medium": "Trung bình",
+    "high": "Cao"
+  },
+  "modals": {
+    "confirm": {
+      "deleteTitle": "Xóa ghi chú?",
+      "bulkDeleteTitle": "Xóa các ghi chú đã chọn?",
+      "irreversible": "Hành động này không thể hoàn tác."
+    },
+    "create": {
+      "title": "Tạo ghi chú mới",
+      "fields": {
+        "title": "Tiêu đề",
+        "titlePlaceholder": "Nhập tiêu đề ghi chú",
+        "content": "Nội dung",
+        "contentPlaceholder": "Nhập nội dung ghi chú",
+        "category": "Danh mục",
+        "priority": "Mức độ ưu tiên"
+      }
+    },
+    "edit": {
+      "title": "Chỉnh sửa ghi chú"
+    }
+  },
+  "chat": {
+    "errors": {
+      "downloadFile": "Không thể tải tệp",
+      "recall": "Không thể thu hồi tin nhắn",
+      "generic": "Có lỗi xảy ra",
+      "sendMessage": "Có lỗi xảy ra khi gửi tin nhắn",
+      "oversizedFiles": "Một số tệp vượt quá giới hạn dung lượng và đã bị bỏ qua"
+    },
+    "success": {
+      "recallSelf": "Đã thu hồi tin nhắn cho mình",
+      "recallAll": "Đã thu hồi tin nhắn cho mọi người",
+      "sentFriendRequest": "Đã gửi lời mời kết bạn",
+      "acceptedFriendRequest": "Đã chấp nhận lời mời kết bạn",
+      "rejectedFriendRequest": "Đã từ chối lời mời kết bạn"
+    },
+    "notifications": {
+      "newFriendRequest": "{{name}} đã gửi lời mời kết bạn",
+      "friendAccepted": "{{name}} đã chấp nhận lời mời kết bạn",
+      "friendRejected": "{{name}} đã từ chối lời mời kết bạn"
+    },
+    "notificationsBell": {
+      "bellAria": "Thông báo tin nhắn",
+      "title": "Thông báo",
+      "markAllRead": "Đánh dấu tất cả đã đọc",
+      "empty": "Không có thông báo",
+      "newMessagesCount": "{{count}} tin nhắn mới"
+    },
+    "fallback": {
+      "user": "Người dùng {{id}}"
+    },
+    "header": {
+      "title": "Messenger",
+      "searchPlaceholder": "Tìm kiếm…",
+      "tabs": {
+        "all": "Tất cả",
+        "unread": "Chưa đọc",
+        "users": "Người dùng",
+        "groups": "Nhóm"
+      }
+    },
+    "usersList": {
+      "friendRequests": "Lời mời kết bạn",
+      "users": "Người dùng",
+      "sendRequest": "Thêm bạn",
+      "actions": {
+        "accept": "Chấp nhận",
+        "acceptRequest": "Chấp nhận lời mời kết bạn",
+        "reject": "Từ chối",
+        "rejectRequest": "Từ chối lời mời kết bạn"
+      },
+      "empty": {
+        "noResults": "Không tìm thấy người dùng phù hợp",
+        "tryAnother": "Thử tên hoặc email khác"
+      }
+    },
+    "groups": {
+      "title": "Nhóm",
+      "create": "Tạo nhóm",
+      "createModal": {
+        "title": "Tạo nhóm mới",
+        "nameLabel": "Tên nhóm",
+        "namePlaceholder": "Nhập tên nhóm",
+        "membersLabel": "Thành viên",
+        "invitePlaceholder": "Nhập tên hoặc email để mời",
+        "createButton": "Tạo",
+        "cancel": "Hủy"
+      },
+      "invite": {
+        "title": "Mời thành viên",
+        "placeholder": "Tìm người dùng theo tên hoặc email",
+        "addButton": "Thêm"
+      },
+      "actions": {
+        "edit": "Chỉnh sửa nhóm",
+        "leave": "Rời nhóm",
+        "delete": "Xóa nhóm",
+        "removeMember": "Xóa thành viên",
+        "addMembers": "Thêm thành viên"
+      },
+      "editor": {
+        "titleEdit": "Chỉnh sửa nhóm",
+        "titleCreate": "Tạo nhóm",
+        "fields": {
+          "name": "Tên nhóm",
+          "avatar": "Ảnh đại diện",
+          "background": "Hình nền"
+        },
+        "placeholders": {
+          "name": "Nhập tên nhóm",
+          "avatar": "Chưa chọn ảnh đại diện",
+          "background": "Chưa chọn hình nền"
+        },
+        "actions": {
+          "chooseImage": "Chọn ảnh",
+          "cancel": "Hủy",
+          "save": "Lưu",
+          "create": "Tạo"
+        },
+        "errors": {
+          "nameRequired": "Vui lòng nhập tên nhóm",
+          "invalid": "Dữ liệu nhóm không hợp lệ"
+        }
+      },
+      "empty": {
+        "noGroups": "Chưa có nhóm nào",
+        "createFirst": "Tạo nhóm đầu tiên để bắt đầu trò chuyện"
+      },
+      "status": {
+        "membersCount": "{{count}} thành viên",
+        "you": "Bạn"
+      },
+      "errors": {
+        "createFailed": "Tạo nhóm thất bại",
+        "inviteFailed": "Mời thành viên thất bại",
+        "leaveFailed": "Không thể rời nhóm",
+        "deleteFailed": "Không thể xóa nhóm",
+        "removeFailed": "Không thể xóa thành viên",
+        "loadFailed": "Không thể tải danh sách nhóm",
+        "updateFailed": "Cập nhật nhóm thất bại"
+      },
+      "success": {
+        "created": "Tạo nhóm thành công",
+        "invited": "Đã gửi lời mời",
+        "left": "Đã rời nhóm",
+        "deleted": "Đã xóa nhóm",
+        "removed": "Đã xóa thành viên",
+        "updated": "Đã cập nhật nhóm"
+      }
+    },
+    "chatList": {
+      "empty": {
+        "noChats": "Chưa có cuộc trò chuyện",
+        "addFriends": "Thêm bạn để bắt đầu trò chuyện"
+      }
+    },
+    "preview": {
+      "recalled": "Đã thu hồi",
+      "image": "Ảnh",
+      "file": "Tệp",
+      "youPrefix": "Bạn: "
+    },
+    "chatView": {
+      "status": {
+        "online": "Đang hoạt động",
+        "offline": "Ngoại tuyến"
+      },
+      "empty": {
+        "youAreFriends": "Bạn và {{name}} hiện là bạn bè trên Messenger",
+        "inGroup": "Bạn đang ở trong nhóm {{name}}"
+      }
+    },
+    "menu": {
+      "options": "Tùy chọn",
+      "messageOptionsAria": "Tùy chọn tin nhắn",
+      "chatOptionsAria": "Tùy chọn cuộc chat",
+      "recall": {
+        "self": "Thu hồi cho mình",
+        "all": "Thu hồi cho mọi người"
+      }
+    },
+    "recalled": {
+      "text": "Tin nhắn đã bị thu hồi",
+      "image": "Ảnh đã bị thu hồi",
+      "file": "Tệp đã bị thu hồi"
+    },
+    "input": {
+      "attachmentAlt": "đính kèm",
+      "removeImageAria": "Xóa ảnh",
+      "removeFileAria": "Xóa tệp",
+      "attachFileAria": "Đính kèm tệp",
+      "placeholder": "Aa"
+    },
+    "imagePreview": {
+      "close": "Đóng",
+      "imageAlt": "Ảnh xem trước"
+    },
+    "message": {
+      "imageAlt": "ảnh"
+    },
+    "attachment": {
+      "downloadImageAria": "Tải xuống ảnh",
+      "downloadImageTitle": "Tải xuống ảnh",
+      "downloadFileTitle": "Tải xuống",
+      "downloadFileAria": "Tải xuống tệp",
+      "fileFallback": "tệp",
+      "downloadLabel": "Tải xuống"
+    },
+    "encryption": {
+      "chatLocked": "Đoạn tin nhắn đã bị mã hóa",
+      "groupLocked": "Nội dung nhóm đã bị mã hóa",
+      "previewLocked": "🔒 Encrypted — unlock to preview"
+    }
+  }
+}

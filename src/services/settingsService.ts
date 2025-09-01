@@ -1,0 +1,28 @@
+import api from './api';
+
+export const settingsService = {
+  async getE2EE(): Promise<{ enabled: boolean }> {
+    const res = await api.get('/settings/e2ee');
+    return res.data;
+  },
+  async setE2EE(enabled: boolean): Promise<{ message: string; enabled: boolean }> {
+    const res = await api.put('/settings/e2ee', { enabled });
+    return res.data;
+  },
+  async getE2EEPin(): Promise<{ pinHash: string | null }> {
+    const res = await api.get('/settings/e2ee/pin');
+    return res.data;
+  },
+  async setE2EEPin(payload: { pinHash: string | null; oldPinHash?: string }): Promise<{ message: string; pinHash: string | null }> {
+    const res = await api.put('/settings/e2ee/pin', payload);
+    return res.data;
+  },
+  async getReadStatus(): Promise<{ enabled: boolean }> {
+    const res = await api.get('/settings/read-status');
+    return res.data;
+  },
+  async setReadStatus(enabled: boolean): Promise<{ message: string; enabled: boolean }> {
+    const res = await api.put('/settings/read-status', { enabled });
+    return res.data;
+  },
+};

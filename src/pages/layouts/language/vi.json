@@ -1,0 +1,22 @@
+{
+  "appName": "NotesApp",
+  "nav": {
+    "dashboard": "Dashboard",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ"
+  },
+  "user": {
+    "account": "Tài khoản",
+    "accountDetails": "Chi tiết tài khoản",
+    "chat": "Chat",
+    "logout": "Đăng xuất",
+    "logoutConfirm": "Đăng xuất?",
+    "logoutMessage": "Bạn có chắc chắn muốn đăng xuất không?",
+    "cancel": "Hủy"
+  },
+  "footer": {
+    "copyright": "Tất cả quyền được bảo lưu",
+    "privacy": "Bảo mật",
+    "terms": "Điều khoản"
+  }
+}

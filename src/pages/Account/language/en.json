@@ -1,0 +1,22 @@
+{
+  "title": "Account Details",
+  "profile": "Profile",
+  "settings": "Settings",
+  "description": "View and edit your account information. Note: Email cannot be changed.",
+  "avatar": {
+    "label": "Avatar",
+    "upload": "Choose Image",
+    "uploading": "Uploading...",
+    "remove": "Remove Image",
+    "info": "Supports JPG, PNG, WebP. Max 5MB.",
+    "maxSizeError": "Maximum image size is 5MB",
+    "uploadError": "Failed to upload image"
+  },
+  "form": {
+    "name": "Full Name",
+    "namePlaceholder": "Enter full name",
+    "email": "Email",
+    "emailNote": "Email cannot be changed.",
+    "save": "Save Changes"
+  }
+}

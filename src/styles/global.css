@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* Global styles */
+
+/* Toast animations */
+@keyframes toast-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(16px) translateY(-8px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-slide-out {
+  0% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(16px) translateY(-8px) scale(0.98);
+  }
+}
+
+.animate-enter {
+  animation: toast-slide-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-leave {
+  animation: toast-slide-out 160ms ease forwards;
+  will-change: transform, opacity;
+}
+
+/* Bell ring animation */
+@keyframes bell-ring {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(15deg); }
+  30% { transform: rotate(-12deg); }
+  45% { transform: rotate(9deg); }
+  60% { transform: rotate(-6deg); }
+  75% { transform: rotate(3deg); }
+  100% { transform: rotate(0); }
+}
+
+.bell-shake {
+  animation: bell-ring 0.8s ease both;
+  transform-origin: top center;
+}
+
+/* Badge subtle bounce */
+@keyframes badge-bounce-key {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1px) scale(1.06); }
+}
+
+.badge-bounce {
+  animation: badge-bounce-key 1.6s ease-in-out infinite;
+}
