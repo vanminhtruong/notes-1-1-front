@@ -85,14 +85,21 @@
       "recall": "Không thể thu hồi tin nhắn",
       "generic": "Có lỗi xảy ra",
       "sendMessage": "Có lỗi xảy ra khi gửi tin nhắn",
-      "oversizedFiles": "Một số tệp vượt quá giới hạn dung lượng và đã bị bỏ qua"
+      "oversizedFiles": "Một số tệp vượt quá giới hạn dung lượng và đã bị bỏ qua",
+      "settingsUpdateFailed": "Cập nhật cài đặt thất bại",
+      "pinUpdateFailed": "Cập nhật PIN thất bại",
+      "encryptionEnableFailed": "Bật mã hóa thất bại",
+      "loadUsersFailed": "Tải danh sách người dùng thất bại"
     },
     "success": {
       "recallSelf": "Đã thu hồi tin nhắn cho mình",
       "recallAll": "Đã thu hồi tin nhắn cho mọi người",
       "sentFriendRequest": "Đã gửi lời mời kết bạn",
       "acceptedFriendRequest": "Đã chấp nhận lời mời kết bạn",
-      "rejectedFriendRequest": "Đã từ chối lời mời kết bạn"
+      "rejectedFriendRequest": "Đã từ chối lời mời kết bạn",
+      "pinUpdated": "Đã cập nhật PIN",
+      "friendRemoved": "Đã xóa {{name}} khỏi danh sách bạn bè",
+      "messagesDeletedForMe": "Đã xóa tất cả tin nhắn với {{name}} cho bạn"
     },
     "notifications": {
       "newFriendRequest": "{{name}} đã gửi lời mời kết bạn",
@@ -186,6 +193,9 @@
         "noGroups": "Chưa có nhóm nào",
         "createFirst": "Tạo nhóm đầu tiên để bắt đầu trò chuyện"
       },
+      "pendingInvites": {
+        "title": "Lời mời nhóm"
+      },
       "status": {
         "membersCount": "{{count}} thành viên",
         "you": "Bạn"
@@ -198,6 +208,10 @@
         "removeFailed": "Không thể xóa thành viên",
         "loadFailed": "Không thể tải danh sách nhóm",
         "updateFailed": "Cập nhật nhóm thất bại"
+      },
+      "confirm": {
+        "leave": "Rời nhóm?",
+        "delete": "Xóa nhóm?"
       },
       "success": {
         "created": "Tạo nhóm thành công",
@@ -239,6 +253,10 @@
         "all": "Thu hồi cho mọi người"
       }
     },
+    "actions": {
+      "deleteMessages": "Xóa tin nhắn",
+      "removeFriend": "Xóa bạn bè"
+    },
     "recalled": {
       "text": "Tin nhắn đã bị thu hồi",
       "image": "Ảnh đã bị thu hồi",
@@ -270,6 +288,29 @@
       "chatLocked": "Đoạn tin nhắn đã bị mã hóa",
       "groupLocked": "Nội dung nhóm đã bị mã hóa",
       "previewLocked": "🔒 Encrypted — unlock to preview"
+    },
+    "settings": {
+      "title": "Cài đặt Chat",
+      "back": "Quay lại",
+      "encryption": {
+        "title": "Mã hóa đầu cuối",
+        "description": "Bảo vệ tin nhắn của bạn bằng PIN trên tài khoản này",
+        "enabled": "Mã hóa đang BẬT. Tin nhắn trong tab Tất cả yêu cầu PIN mỗi lần đăng nhập để xem.",
+        "disabled": "Mã hóa đang TẮT."
+      },
+      "readStatus": {
+        "title": "Trạng thái đọc",
+        "description": "Hiển thị khi tin nhắn được đọc bởi người nhận",
+        "enabled": "Biên lai đọc được bật. Biên lai đọc chỉ hoạt động khi cả bạn và người khác đều bật cài đặt này.",
+        "disabled": "Biên lai đọc bị tắt. Người khác không thể thấy khi bạn đọc tin nhắn của họ và bạn không thể thấy khi người khác đọc tin nhắn của bạn."
+      },
+      "pin": {
+        "title": "PIN",
+        "change": "Thay đổi PIN của bạn.",
+        "set": "Đặt PIN để bật mã hóa.",
+        "changeButton": "Thay đổi PIN",
+        "setButton": "Đặt PIN"
+      }
     }
   }
 }

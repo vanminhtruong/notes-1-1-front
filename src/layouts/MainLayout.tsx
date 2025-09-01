@@ -1,7 +1,7 @@
 import { Link, Outlet } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { logoutUser } from '@/store/slices/authSlice'
+import { logoutUser, getProfile } from '@/store/slices/authSlice'
 import { User, LogOut, StickyNote, ChevronDown, Mail, MessageCircle } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
@@ -12,10 +12,17 @@ import { useTranslation } from 'react-i18next'
 export default function MainLayout() {
   const { t } = useTranslation('layout');
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user, token, isAuthenticated } = useAppSelector((state) => state.auth);
   const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Auto-fetch user profile if token exists but user data is missing
+  useEffect(() => {
+    if (isAuthenticated && token && !user) {
+      dispatch(getProfile());
+    }
+  }, [dispatch, isAuthenticated, token, user]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -89,8 +96,6 @@ export default function MainLayout() {
 
             <nav className="hidden md:flex items-center gap-6">
               <Link to="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400">{t('nav.dashboard')}</Link>
-              <Link to="/about" className="hover:text-blue-600 dark:hover:text-blue-400">{t('nav.about')}</Link>
-              <Link to="/contact" className="hover:text-blue-600 dark:hover:text-blue-400">{t('nav.contact')}</Link>
             </nav>
 
             <div className="flex items-center space-x-4">

@@ -12,8 +12,12 @@ export default function Account() {
   const { user, isLoading, isAuthenticated } = useAppSelector((s) => s.auth);
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
+  const [phone, setPhone] = useState<string>('');
+  const [birthDate, setBirthDate] = useState<string>(''); // YYYY-MM-DD
+  const [gender, setGender] = useState<'male' | 'female' | 'other' | 'unspecified'>('unspecified');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && !user) {
@@ -29,10 +33,33 @@ export default function Account() {
     if (user?.avatar) setAvatar(user.avatar);
   }, [user?.avatar]);
 
+  useEffect(() => {
+    if (user) {
+      setPhone(user.phone ?? '');
+      setBirthDate(user.birthDate ?? '');
+      setGender((user.gender as any) ?? 'unspecified');
+    }
+  }, [user]);
+
+  // Close preview on ESC
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPreviewOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    await dispatch(updateProfile({ name, avatar: avatar ?? '' }));
+    await dispatch(updateProfile({
+      name,
+      avatar: avatar ?? '',
+      phone: phone.trim() ? phone.trim() : null,
+      birthDate: birthDate || null,
+      gender,
+    }));
   };
 
   const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +100,9 @@ export default function Account() {
                 <img
                   src={avatar}
                   alt="avatar"
-                  className="w-20 h-20 rounded-full object-cover border border-gray-300 dark:border-gray-700"
+                  className="w-20 h-20 rounded-full object-cover border border-gray-300 dark:border-gray-700 cursor-zoom-in"
+                  onClick={() => setPreviewOpen(true)}
+                  title={t('avatar.preview', { defaultValue: 'Xem ảnh lớn' })}
                 />)
                 : (
                 <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-300 border border-gray-300 dark:border-gray-700">
@@ -136,6 +165,42 @@ export default function Account() {
             </div>
           </div>
 
+          {/* New fields: Phone, Birth Date, Gender */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('form.phone', { defaultValue: 'Số điện thoại' })}</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={t('form.phonePlaceholder', { defaultValue: '+84 912 345 678' })}
+              />
+            </div>
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('form.birthDate', { defaultValue: 'Ngày sinh' })}</label>
+              <input
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('form.gender', { defaultValue: 'Giới tính' })}</label>
+              <select
+                value={gender}
+                onChange={(e) => setGender(e.target.value as any)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="unspecified">{t('form.gender.unspecified', { defaultValue: 'Không tiết lộ' })}</option>
+                <option value="male">{t('form.gender.male', { defaultValue: 'Nam' })}</option>
+                <option value="female">{t('form.gender.female', { defaultValue: 'Nữ' })}</option>
+                <option value="other">{t('form.gender.other', { defaultValue: 'Khác' })}</option>
+              </select>
+            </div>
+          </div>
+
           <div className="pt-2 flex justify-end">
             <button
               type="submit"
@@ -148,6 +213,31 @@ export default function Account() {
           </div>
         </form>
       </div>
+
+      {/* Image Preview Modal */}
+      {previewOpen && avatar && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setPreviewOpen(false)}
+        >
+          <div className="relative max-w-[95vw] max-h-[95vh]" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="absolute -top-3 -right-3 bg-white text-gray-800 rounded-full w-8 h-8 flex items-center justify-center shadow hover:bg-gray-100"
+              aria-label={t('avatar.closePreview', { defaultValue: 'Đóng' })}
+              onClick={() => setPreviewOpen(false)}
+            >
+              ×
+            </button>
+            <img
+              src={avatar}
+              alt="avatar preview"
+              className="object-contain max-w-[95vw] max-h-[95vh] rounded-lg shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

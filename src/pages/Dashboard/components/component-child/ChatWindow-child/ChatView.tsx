@@ -32,6 +32,10 @@ interface ChatViewProps {
   maskMessages?: boolean;
   lockedNotice?: string;
   onUnlock?: () => void;
+  // Per-chat background (1-1)
+  backgroundUrl?: string | null;
+  onChangeBackground?: () => void;
+  onResetBackground?: () => void;
 }
 
 const ChatView = ({
@@ -58,12 +62,18 @@ const ChatView = ({
   maskMessages,
   lockedNotice,
   onUnlock,
+  backgroundUrl,
+  onChangeBackground,
+  onResetBackground,
 }: ChatViewProps) => {
   const { t } = useTranslation('dashboard');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
+  const [dmMenuOpen, setDmMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const isDarkTheme = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  const [showProfile, setShowProfile] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -125,11 +135,19 @@ const ChatView = ({
           </button>
           <div className="relative">
             <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md">
-              {selectedChat.avatar ? (
-                <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
-              ) : (
-                selectedChat.name.charAt(0)
-              )}
+              {/* Avatar clickable for 1-1 chat to open profile */}
+              <button
+                type="button"
+                onClick={() => { if (!isGroup) setShowProfile(true); }}
+                title={!isGroup ? t('chat.chatView.viewProfile', 'Xem thông tin') : ''}
+                className={`w-full h-full ${!isGroup ? 'cursor-pointer' : 'cursor-default'}`}
+              >
+                {selectedChat.avatar ? (
+                  <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
+                ) : (
+                  selectedChat.name.charAt(0)
+                )}
+              </button>
             </div>
             {(isGroup ? groupOnline === true : selectedChat.isOnline === true) && (
               <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
@@ -184,6 +202,36 @@ const ChatView = ({
                     <path d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3a1 1 0 011 1v.5a1 1 0 11-2 0V4a1 1 0 011-1zM15 4a1 1 0 011 1v.5a1 1 0 11-2 0V5a1 1 0 011-1zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zM19 8.25a1.25 1.25 0 10-2.5 0v7.5a1.25 1.25 0 102.5 0v-7.5z" />
                   </svg>
                 </button>
+                {/* Three dots menu for 1-1 chat */}
+                <button
+                  onClick={() => setDmMenuOpen((v) => !v)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                  title={t('chat.menu.options')}
+                  aria-label={t('chat.menu.chatOptionsAria')}
+                >
+                  <MoreVertical className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                </button>
+                {dmMenuOpen && (
+                  <div
+                    className="absolute right-0 top-10 z-20 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
+                    onMouseLeave={() => setDmMenuOpen(false)}
+                  >
+                    <button
+                      onClick={() => { setDmMenuOpen(false); onChangeBackground && onChangeBackground(); }}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t('chat.menu.changeBackground', 'Đổi ảnh nền')}
+                    </button>
+                    {backgroundUrl ? (
+                      <button
+                        onClick={() => { setDmMenuOpen(false); onResetBackground && onResetBackground(); }}
+                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        {t('chat.menu.resetBackground', 'Khôi phục nền mặc định')}
+                      </button>
+                    ) : null}
+                  </div>
+                )}
               </>
             )}
 
@@ -244,16 +292,23 @@ const ChatView = ({
       </div>
 
       {/* Messages */}
-      <div ref={scrollerRef} className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-800 relative">
-        {isGroup && selectedChat?.background && (
-          <div aria-hidden className="absolute inset-0">
-            <div
-              className="absolute inset-0 bg-center bg-cover"
-              style={{ backgroundImage: `url(${selectedChat.background})` }}
-            />
-            <div className="absolute inset-0 bg-white/60 dark:bg-black/40" />
-          </div>
-        )}
+      <div
+        ref={scrollerRef}
+        className="flex-1 overflow-y-auto p-4 relative"
+        style={
+          (backgroundUrl || (isGroup && selectedChat?.background))
+            ? {
+                backgroundImage: `${isDarkTheme
+                  ? 'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35))'
+                  : 'linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.15))'
+                }, url(${backgroundUrl || selectedChat.background})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed',
+              }
+            : undefined
+        }
+      >
         {maskMessages && (
           <div className="relative z-10 mb-4 flex items-center justify-center text-center select-none">
             <div>
@@ -296,7 +351,6 @@ const ChatView = ({
               const showAvatar = !isOwnMessage;
               const images = group.items.filter((i) => i.messageType === 'image');
               const files = group.items.filter((i) => i.messageType === 'file');
-              const texts = group.items.filter((i) => !i.messageType || i.messageType === 'text');
               // Use a stable, unique key per group based on sender and message id range
               const firstId = group.items[0]?.id ?? `s-${group.start}`;
               const lastId = group.items[group.items.length - 1]?.id ?? `e-${group.end}`;
@@ -533,6 +587,101 @@ const ChatView = ({
         )}
         <div ref={messagesEndRef} className="relative z-10" />
       </div>
+
+      {/* Profile Modal for 1-1 chat */}
+      {!isGroup && showProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={() => setShowProfile(false)} />
+
+          {/* Modal panel */}
+          <div className="relative mx-4 w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h4 className="text-base font-semibold text-gray-900 dark:text-white">{t('chat.chatView.profile.title', 'Thông tin người dùng')}</h4>
+              <button
+                onClick={() => setShowProfile(false)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                aria-label="Close profile"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5">
+              <div className="flex flex-col items-center gap-3 mb-4">
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-3xl font-bold shadow-md">
+                  {selectedChat.avatar ? (
+                    <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
+                  ) : (
+                    (selectedChat.name || '').charAt(0)
+                  )}
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-gray-900 dark:text-white">{selectedChat.name}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {selectedChat.isOnline ? t('chat.chatView.status.online') : t('chat.chatView.status.offline')}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3 text-sm">
+                {(() => {
+                  const notProvided = t('common.notProvided', 'Chưa cập nhật');
+                  const genderLabel = (g: any) => {
+                    switch (g) {
+                      case 'male': return t('gender.male', 'Nam');
+                      case 'female': return t('gender.female', 'Nữ');
+                      case 'other': return t('gender.other', 'Khác');
+                      case 'unspecified': return t('gender.unspecified', 'Không xác định');
+                      default: return notProvided;
+                    }
+                  };
+                  const fmtDate = (d?: string | null) => d ? new Date(d).toLocaleDateString() : notProvided;
+                  return (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500 dark:text-gray-400">Email</span>
+                        <span className="text-gray-900 dark:text-gray-200 break-all">{selectedChat.email || notProvided}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.phone', 'Số điện thoại')}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{selectedChat.phone || notProvided}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.birthDate', 'Ngày sinh')}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{fmtDate(selectedChat.birthDate)}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.gender', 'Giới tính')}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{genderLabel(selectedChat.gender)}</span>
+                      </div>
+
+                      {selectedChat.lastSeenAt && !selectedChat.isOnline && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.lastSeen', 'Hoạt động')}</span>
+                          <span className="text-gray-900 dark:text-gray-200">{new Date(selectedChat.lastSeenAt).toLocaleString()}</span>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40">
+              <p className="text-xs text-gray-500 dark:text-gray-500">
+                {t('chat.chatView.profile.privacy', 'Một số thông tin có thể không hiển thị nếu người dùng không chia sẻ.')}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

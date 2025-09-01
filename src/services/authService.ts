@@ -9,6 +9,9 @@ export interface RegisterData {
   email: string;
   password: string;
   name: string;
+  phone?: string | null;
+  birthDate?: string | null; // ISO date (YYYY-MM-DD)
+  gender?: 'male' | 'female' | 'other' | 'unspecified';
 }
 
 export interface User {
@@ -19,6 +22,9 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   avatar?: string;
+  phone?: string | null;
+  birthDate?: string | null; // ISO date
+  gender?: 'male' | 'female' | 'other' | 'unspecified';
 }
 
 export interface AuthResponse {
@@ -48,7 +54,7 @@ export const authService = {
     return response.data;
   },
 
-  async updateProfile(data: { name: string; avatar?: string }): Promise<{ message: string; user: User }> {
+  async updateProfile(data: { name?: string; avatar?: string; phone?: string | null; birthDate?: string | null; gender?: 'male' | 'female' | 'other' | 'unspecified' }): Promise<{ message: string; user: User }> {
     const response = await api.put('/auth/profile', data);
     return response.data;
   },
@@ -83,3 +89,4 @@ export const authService = {
     return response.data;
   },
 };
+

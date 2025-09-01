@@ -159,7 +159,7 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
       
     } catch (error) {
       console.error('Error loading users:', error);
-      toast.error('Failed to load users');
+      toast.error(t('chat.errors.loadUsersFailed'));
       setAvailableUsers([]);
     } finally {
       setLoadingUsers(false);

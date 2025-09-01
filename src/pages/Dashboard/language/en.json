@@ -85,14 +85,21 @@
       "recall": "Unable to recall message(s)",
       "generic": "Something went wrong",
       "sendMessage": "Failed to send message",
-      "oversizedFiles": "Some files exceeded size limits and were skipped"
+      "oversizedFiles": "Some files exceeded size limits and were skipped",
+      "settingsUpdateFailed": "Failed to update settings",
+      "pinUpdateFailed": "Failed to update PIN",
+      "encryptionEnableFailed": "Failed to enable encryption",
+      "loadUsersFailed": "Failed to load users"
     },
     "success": {
       "recallSelf": "Recalled messages for yourself",
       "recallAll": "Recalled messages for everyone",
       "sentFriendRequest": "Friend request sent",
       "acceptedFriendRequest": "Friend request accepted",
-      "rejectedFriendRequest": "Friend request rejected"
+      "rejectedFriendRequest": "Friend request rejected",
+      "pinUpdated": "PIN updated",
+      "friendRemoved": "Removed {{name}} as friend",
+      "messagesDeletedForMe": "Deleted all messages with {{name}} for you"
     },
     "notifications": {
       "newFriendRequest": "{{name}} sent you a friend request",
@@ -186,6 +193,9 @@
         "noGroups": "No groups yet",
         "createFirst": "Create your first group to start chatting"
       },
+      "pendingInvites": {
+        "title": "Group Invitations"
+      },
       "status": {
         "membersCount": "{{count}} members",
         "you": "You"
@@ -198,6 +208,10 @@
         "removeFailed": "Failed to remove member",
         "loadFailed": "Unable to load groups",
         "updateFailed": "Failed to update group"
+      },
+      "confirm": {
+        "leave": "Leave group?",
+        "delete": "Delete group?"
       },
       "success": {
         "created": "Group created",
@@ -239,6 +253,10 @@
         "all": "Recall for everyone"
       }
     },
+    "actions": {
+      "deleteMessages": "Delete Messages",
+      "removeFriend": "Remove Friend"
+    },
     "recalled": {
       "text": "Message was recalled",
       "image": "Image was recalled",
@@ -270,6 +288,29 @@
       "chatLocked": "Messages are encrypted",
       "groupLocked": "Group content is encrypted",
       "previewLocked": "🔒 Encrypted — unlock to preview"
+    },
+    "settings": {
+      "title": "Chat Settings",
+      "back": "Back",
+      "encryption": {
+        "title": "End-to-end encryption",
+        "description": "Protect your messages with a PIN on this account",
+        "enabled": "Encryption is ON. Messages in All tab require a PIN each login to view.",
+        "disabled": "Encryption is OFF."
+      },
+      "readStatus": {
+        "title": "Read Status",
+        "description": "Show when messages are read by recipients",
+        "enabled": "Read receipts are enabled. Read receipts will work only if both you and the other person have this setting enabled.",
+        "disabled": "Read receipts are disabled. Others cannot see when you read their messages and you cannot see when others read yours."
+      },
+      "pin": {
+        "title": "PIN",
+        "change": "Change your PIN.",
+        "set": "Set a PIN to enable encryption.",
+        "changeButton": "Change PIN",
+        "setButton": "Set PIN"
+      }
     }
   }
 }

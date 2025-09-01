@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import { Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -30,13 +30,39 @@ const MessageInput = ({
 }: MessageInputProps) => {
   const { t } = useTranslation('dashboard');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [showEmoji, setShowEmoji] = useState(false);
+
+  // A compact but rich emoji set (can be expanded easily)
+  const emojis = (
+    '😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🥳 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 🙄 😬 🤥 😴 🤤 😪 😷 🤒 🤕 🤧 🥴 😵 🤠 😺 😸 😹 😻 😼 😽 🙀 😿 😾 ✨ ❤️ 🧡 💛 💚 💙 💜 🤍 🤎 🖤 👍 👎 🙌 👏 🤝 ✌️ 🤞 🤟 🤘 👋 🤙 💪 🙏'
+  ).split(' ');
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (!showEmoji) return;
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowEmoji(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [showEmoji]);
 
   const handlePlusClick = () => {
     fileInputRef.current?.click();
   };
 
+  const handleEmojiClick = (emoji: string) => {
+    const next = `${newMessage}${emoji}`;
+    onMessageChange(next);
+    // Notify typing to keep UX consistent
+    onTyping();
+  };
+
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+    <div ref={containerRef} className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 relative z-50">
       {pendingImages.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-2">
           {pendingImages.map((img) => (
@@ -102,11 +128,30 @@ const MessageInput = ({
             placeholder={t('chat.input.placeholder')}
             className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 pr-12"
           />
-          <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <button
+            type="button"
+            onClick={() => setShowEmoji((s) => !s)}
+            aria-label={t('chat.input.chooseEmoji', 'Choose emoji')}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zM9 9a1 1 0 11-2 0 1 1 0 012 0zm4 0a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
             </svg>
           </button>
+          {showEmoji && (
+            <div className="absolute bottom-12 right-0 w-64 max-h-64 overflow-auto rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 grid grid-cols-8 gap-1 z-50">
+              {emojis.map((e, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleEmojiClick(e)}
+                  className="text-xl leading-none p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <button
           onClick={onSendMessage}

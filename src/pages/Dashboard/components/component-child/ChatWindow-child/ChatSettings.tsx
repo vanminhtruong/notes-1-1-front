@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ChatSettingsProps {
   enabled: boolean;
@@ -11,19 +12,21 @@ interface ChatSettingsProps {
 }
 
 const ChatSettings: React.FC<ChatSettingsProps> = ({ enabled, hasPin, readStatusEnabled, onBack, onToggle, onChangePin, onToggleReadStatus }) => {
+  const { t } = useTranslation('dashboard');
+  
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Chat Settings</h2>
-        <button onClick={onBack} className="px-3 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">Back</button>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('chat.settings.title')}</h2>
+        <button onClick={onBack} className="px-3 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">{t('chat.settings.back')}</button>
       </div>
 
       <div className="p-4 space-y-6">
         <div>
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-medium text-gray-900 dark:text-gray-100">End-to-end encryption</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Protect your messages with a PIN on this account</div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">{t('chat.settings.encryption.title')}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{t('chat.settings.encryption.description')}</div>
             </div>
             <button
               onClick={() => onToggle(!enabled)}
@@ -34,15 +37,15 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ enabled, hasPin, readStatus
             </button>
           </div>
           <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            {enabled ? 'Encryption is ON. Messages in All tab require a PIN each login to view.' : 'Encryption is OFF.'}
+            {enabled ? t('chat.settings.encryption.enabled') : t('chat.settings.encryption.disabled')}
           </div>
         </div>
 
         <div>
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-medium text-gray-900 dark:text-gray-100">Read Status</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Show when messages are read by recipients</div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">{t('chat.settings.readStatus.title')}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{t('chat.settings.readStatus.description')}</div>
             </div>
             <button
               onClick={() => onToggleReadStatus(!readStatusEnabled)}
@@ -53,20 +56,20 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ enabled, hasPin, readStatus
             </button>
           </div>
           <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            {readStatusEnabled ? 'Read receipts are enabled. Read receipts will work only if both you and the other person have this setting enabled.' : 'Read receipts are disabled. Others cannot see when you read their messages and you cannot see when others read yours.'}
+            {readStatusEnabled ? t('chat.settings.readStatus.enabled') : t('chat.settings.readStatus.disabled')}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <div>
-            <div className="font-medium text-gray-900 dark:text-gray-100">PIN</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">{hasPin ? 'Change your PIN.' : 'Set a PIN to enable encryption.'}</div>
+            <div className="font-medium text-gray-900 dark:text-gray-100">{t('chat.settings.pin.title')}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">{hasPin ? t('chat.settings.pin.change') : t('chat.settings.pin.set')}</div>
           </div>
           <button
             onClick={onChangePin}
             className="px-3 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
           >
-            {hasPin ? 'Change PIN' : 'Set PIN'}
+            {hasPin ? t('chat.settings.pin.changeButton') : t('chat.settings.pin.setButton')}
           </button>
         </div>
       </div>

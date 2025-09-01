@@ -107,7 +107,7 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                 >
                                   <Trash2 className="w-4 h-4" />
-                                  {t('chat.actions.deleteMessages', 'Delete Messages')}
+                                  {t('chat.actions.deleteMessages')}
                                 </button>
                               )}
                               <button
@@ -121,7 +121,7 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                               >
                                 <UserX className="w-4 h-4" />
-                                {t('chat.actions.removeFriend', 'Remove Friend')}
+                                {t('chat.actions.removeFriend')}
                               </button>
                             </div>
                           </>

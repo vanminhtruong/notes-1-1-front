@@ -10,8 +10,17 @@ export interface AuthState {
   error: string | null;
 }
 
+const getUserFromStorage = (): User | null => {
+  try {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch {
+    return null;
+  }
+};
+
 const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
+  user: getUserFromStorage(),
   token: localStorage.getItem('token'),
   isLoading: false,
   isAuthenticated: !!localStorage.getItem('token'),
@@ -25,7 +34,6 @@ export const loginUser = createAsyncThunk(
     try {
       const response = await authService.login(data);
       localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
       toast.success(response.message);
       return response;
     } catch (error: any) {
@@ -42,7 +50,6 @@ export const loginWithGoogle = createAsyncThunk(
     try {
       const response = await authService.loginWithGoogle(idToken);
       localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
       toast.success(response.message || 'Đăng nhập thành công');
       return response;
     } catch (error: any) {
@@ -59,7 +66,6 @@ export const loginWithFacebook = createAsyncThunk(
     try {
       const response = await authService.loginWithFacebook(accessToken);
       localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
       toast.success(response.message || 'Đăng nhập thành công');
       return response;
     } catch (error: any) {
@@ -72,12 +78,13 @@ export const loginWithFacebook = createAsyncThunk(
 
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
-  async (data: { name: string; avatar?: string }, { rejectWithValue }) => {
+  async (
+    data: { name?: string; avatar?: string; phone?: string | null; birthDate?: string | null; gender?: 'male' | 'female' | 'other' | 'unspecified' },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await authService.updateProfile(data);
       toast.success(response.message || 'Cập nhật hồ sơ thành công');
-      // Persist updated user to localStorage to keep session consistent
-      localStorage.setItem('user', JSON.stringify(response.user));
       return response.user;
     } catch (error: any) {
       const message = error.response?.data?.message || 'Cập nhật hồ sơ thất bại';
@@ -174,6 +181,8 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
+        // Save user info to localStorage
+        localStorage.setItem('user', JSON.stringify(action.payload.user));
         // Ensure E2EE starts locked on fresh login
         sessionStorage.removeItem('e2ee_unlocked');
         // Allow a single auto-prompt this session
@@ -197,6 +206,8 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
+        // Save user info to localStorage
+        localStorage.setItem('user', JSON.stringify(action.payload.user));
         // Ensure E2EE starts locked on fresh login
         sessionStorage.removeItem('e2ee_unlocked');
         // Allow a single auto-prompt this session
@@ -220,6 +231,8 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
+        // Save user info to localStorage
+        localStorage.setItem('user', JSON.stringify(action.payload.user));
         // Ensure E2EE starts locked on fresh login
         sessionStorage.removeItem('e2ee_unlocked');
         // Allow a single auto-prompt this session
@@ -266,6 +279,8 @@ const authSlice = createSlice({
       .addCase(getProfile.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
+        // Save user info to localStorage
+        localStorage.setItem('user', JSON.stringify(action.payload.user));
       })
       .addCase(getProfile.rejected, (state, action) => {
         state.isLoading = false;

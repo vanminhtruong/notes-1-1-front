@@ -133,5 +133,17 @@ export const chatService = {
   async deleteAllMessages(userId: number) {
     const response = await api.delete(`/chat/${userId}/messages`);
     return response.data;
+  },
+
+  // Get per-chat background (1-1)
+  async getChatBackground(userId: number) {
+    const response = await api.get(`/chat/${userId}/background`);
+    return response.data as { success: boolean; data: { backgroundUrl: string | null } };
+  },
+
+  // Set per-chat background (pass null to reset)
+  async setChatBackground(userId: number, backgroundUrl: string | null) {
+    const response = await api.put(`/chat/${userId}/background`, { backgroundUrl });
+    return response.data as { success: boolean; data: { backgroundUrl: string | null } };
   }
 };
