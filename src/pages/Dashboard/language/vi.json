@@ -304,6 +304,20 @@
         "enabled": "Biên lai đọc được bật. Biên lai đọc chỉ hoạt động khi cả bạn và người khác đều bật cài đặt này.",
         "disabled": "Biên lai đọc bị tắt. Người khác không thể thấy khi bạn đọc tin nhắn của họ và bạn không thể thấy khi người khác đọc tin nhắn của bạn."
       },
+      "privacy": {
+        "hidePhone": {
+          "title": "Ẩn số điện thoại",
+          "description": "Ẩn số điện thoại của bạn khỏi người khác",
+          "enabled": "Số điện thoại sẽ bị ẩn",
+          "disabled": "Số điện thoại sẽ hiển thị"
+        },
+        "hideBirthDate": {
+          "title": "Ẩn ngày sinh",
+          "description": "Ẩn ngày sinh của bạn khỏi người khác",
+          "enabled": "Ngày sinh sẽ bị ẩn",
+          "disabled": "Ngày sinh sẽ hiển thị"
+        }
+      },
       "pin": {
         "title": "PIN",
         "change": "Thay đổi PIN của bạn.",

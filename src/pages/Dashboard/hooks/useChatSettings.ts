@@ -11,6 +11,8 @@ export interface UseChatSettings {
   showSetPin: boolean;
   showEnterPin: boolean;
   readStatusEnabled: boolean;
+  hidePhone: boolean;
+  hideBirthDate: boolean;
   openSettings: () => void;
   closeSettings: () => void;
   setShowSetPin: (v: boolean) => void;
@@ -18,10 +20,14 @@ export interface UseChatSettings {
   setE2EEUnlocked: (v: boolean) => void;
   handleToggleE2EE: (next: boolean) => void;
   handleToggleReadStatus: (enabled: boolean) => Promise<void>;
+  handleToggleHidePhone: (enabled: boolean) => Promise<void>;
+  handleToggleHideBirthDate: (enabled: boolean) => Promise<void>;
   handleSetPin: (payload: { pinHash: string; oldPinHash?: string }) => Promise<void>;
   setE2EEEnabled: (v: boolean) => void;
   setE2EEPinHash: (v: string | null) => void;
   setReadStatusEnabled: (v: boolean) => void;
+  setHidePhone: (v: boolean) => void;
+  setHideBirthDate: (v: boolean) => void;
   showSettings: boolean;
 }
 
@@ -33,6 +39,8 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
   const [showSetPin, setShowSetPin] = useState(false);
   const [showEnterPin, setShowEnterPin] = useState(false);
   const [readStatusEnabled, setReadStatusEnabled] = useState<boolean>(true);
+  const [hidePhone, setHidePhone] = useState<boolean>(false);
+  const [hideBirthDate, setHideBirthDate] = useState<boolean>(false);
 
   const openSettings = () => setShowSettings(true);
   const closeSettings = () => setShowSettings(false);
@@ -59,6 +67,30 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
       toast.success(t('chat.success.settingsUpdated', 'Settings updated successfully'));
     } catch (error: any) {
       setReadStatusEnabled(!enabled);
+      toast.error(error?.response?.data?.message || t('chat.errors.settingsUpdateFailed', 'Failed to update settings'));
+    }
+  };
+
+  const handleToggleHidePhone = async (enabled: boolean) => {
+    try {
+      setHidePhone(enabled);
+      const res = await settingsService.setPrivacy({ hidePhone: enabled });
+      setHidePhone(res.hidePhone);
+      toast.success(t('chat.success.settingsUpdated', 'Settings updated successfully'));
+    } catch (error: any) {
+      setHidePhone(!enabled);
+      toast.error(error?.response?.data?.message || t('chat.errors.settingsUpdateFailed', 'Failed to update settings'));
+    }
+  };
+
+  const handleToggleHideBirthDate = async (enabled: boolean) => {
+    try {
+      setHideBirthDate(enabled);
+      const res = await settingsService.setPrivacy({ hideBirthDate: enabled });
+      setHideBirthDate(res.hideBirthDate);
+      toast.success(t('chat.success.settingsUpdated', 'Settings updated successfully'));
+    } catch (error: any) {
+      setHideBirthDate(!enabled);
       toast.error(error?.response?.data?.message || t('chat.errors.settingsUpdateFailed', 'Failed to update settings'));
     }
   };
@@ -120,10 +152,15 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
     };
     const onPinUpdated = ({ pinHash }: any) => setE2EEPinHash(pinHash);
     const onReadStatusUpdated = ({ enabled }: any) => setReadStatusEnabled(enabled);
+    const onPrivacyUpdated = ({ hidePhone, hideBirthDate }: any) => {
+      if (typeof hidePhone === 'boolean') setHidePhone(hidePhone);
+      if (typeof hideBirthDate === 'boolean') setHideBirthDate(hideBirthDate);
+    };
 
     if (socket) socket.on('e2ee_status', onStatus);
     if (socket) socket.on('e2ee_pin_updated', onPinUpdated);
     if (socket) socket.on('read_status_updated', onReadStatusUpdated);
+    if (socket) socket.on('privacy_updated', onPrivacyUpdated);
 
     return () => {
       window.removeEventListener('storage', onStorage);
@@ -131,6 +168,7 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
         socket.off('e2ee_status', onStatus);
         socket.off('e2ee_pin_updated', onPinUpdated);
         socket.off('read_status_updated', onReadStatusUpdated);
+        socket.off('privacy_updated', onPrivacyUpdated);
       }
     };
   }, []);
@@ -166,15 +204,18 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
   useEffect(() => {
     const load = async () => {
       try {
-        const [e2eeRes, pinRes, readStatusRes] = await Promise.all([
+        const [e2eeRes, pinRes, readStatusRes, privacyRes] = await Promise.all([
           settingsService.getE2EE(),
           settingsService.getE2EEPin(),
           settingsService.getReadStatus(),
+          settingsService.getPrivacy(),
         ]);
         setE2EEEnabled(e2eeRes.enabled);
         localStorage.setItem('e2ee_enabled', e2eeRes.enabled ? '1' : '0');
         setE2EEPinHash(pinRes.pinHash);
         setReadStatusEnabled(readStatusRes.enabled);
+        setHidePhone(privacyRes.hidePhone);
+        setHideBirthDate(privacyRes.hideBirthDate);
       } catch {
         // noop
       }
@@ -189,6 +230,8 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
     showSetPin,
     showEnterPin,
     readStatusEnabled,
+    hidePhone,
+    hideBirthDate,
     openSettings,
     closeSettings,
     setShowSetPin,
@@ -196,10 +239,14 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
     setE2EEUnlocked,
     handleToggleE2EE,
     handleToggleReadStatus,
+    handleToggleHidePhone,
+    handleToggleHideBirthDate,
     handleSetPin,
     setE2EEEnabled,
     setE2EEPinHash,
     setReadStatusEnabled,
+    setHidePhone,
+    setHideBirthDate,
     showSettings,
   };
 }

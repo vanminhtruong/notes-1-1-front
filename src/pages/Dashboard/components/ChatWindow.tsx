@@ -39,6 +39,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     showSetPin,
     showEnterPin,
     readStatusEnabled,
+    hidePhone,
+    hideBirthDate,
     openSettings,
     closeSettings,
     setShowSetPin,
@@ -46,6 +48,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setE2EEUnlocked,
     handleToggleE2EE,
     handleToggleReadStatus,
+    handleToggleHidePhone,
+    handleToggleHideBirthDate,
     handleSetPin,
     showSettings,
   } = useChatSettings(t);
@@ -369,10 +373,14 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
             enabled={e2eeEnabled}
             hasPin={!!e2eePinHash}
             readStatusEnabled={readStatusEnabled}
+            hidePhone={hidePhone}
+            hideBirthDate={hideBirthDate}
             onBack={closeSettings}
             onToggle={handleToggleE2EE}
             onChangePin={() => setShowSetPin(true)}
             onToggleReadStatus={handleToggleReadStatus}
+            onToggleHidePhone={handleToggleHidePhone}
+            onToggleHideBirthDate={handleToggleHideBirthDate}
           />
         ) : (
           <>

@@ -5,13 +5,17 @@ interface ChatSettingsProps {
   enabled: boolean;
   hasPin: boolean;
   readStatusEnabled: boolean;
+  hidePhone: boolean;
+  hideBirthDate: boolean;
   onBack: () => void;
   onToggle: (next: boolean) => void;
   onChangePin: () => void;
   onToggleReadStatus: (enabled: boolean) => void;
+  onToggleHidePhone: (enabled: boolean) => void;
+  onToggleHideBirthDate: (enabled: boolean) => void;
 }
 
-const ChatSettings: React.FC<ChatSettingsProps> = ({ enabled, hasPin, readStatusEnabled, onBack, onToggle, onChangePin, onToggleReadStatus }) => {
+const ChatSettings: React.FC<ChatSettingsProps> = ({ enabled, hasPin, readStatusEnabled, hidePhone, hideBirthDate, onBack, onToggle, onChangePin, onToggleReadStatus, onToggleHidePhone, onToggleHideBirthDate }) => {
   const { t } = useTranslation('dashboard');
   
   return (
@@ -57,6 +61,44 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ enabled, hasPin, readStatus
           </div>
           <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
             {readStatusEnabled ? t('chat.settings.readStatus.enabled') : t('chat.settings.readStatus.disabled')}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">{t('chat.settings.privacy.hidePhone.title', 'Ẩn số điện thoại')}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{t('chat.settings.privacy.hidePhone.description', 'Ẩn số điện thoại của bạn khỏi người khác')}</div>
+            </div>
+            <button
+              onClick={() => onToggleHidePhone(!hidePhone)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${hidePhone ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+              aria-pressed={hidePhone}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${hidePhone ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            {hidePhone ? t('chat.settings.privacy.hidePhone.enabled', 'Số điện thoại sẽ bị ẩn') : t('chat.settings.privacy.hidePhone.disabled', 'Số điện thoại sẽ hiển thị')}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">{t('chat.settings.privacy.hideBirthDate.title', 'Ẩn ngày sinh')}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{t('chat.settings.privacy.hideBirthDate.description', 'Ẩn ngày sinh của bạn khỏi người khác')}</div>
+            </div>
+            <button
+              onClick={() => onToggleHideBirthDate(!hideBirthDate)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${hideBirthDate ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+              aria-pressed={hideBirthDate}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${hideBirthDate ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            {hideBirthDate ? t('chat.settings.privacy.hideBirthDate.enabled', 'Ngày sinh sẽ bị ẩn') : t('chat.settings.privacy.hideBirthDate.disabled', 'Ngày sinh sẽ hiển thị')}
           </div>
         </div>
 

@@ -648,12 +648,12 @@ const ChatView = ({
 
                       <div className="flex items-center justify-between">
                         <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.phone', 'Số điện thoại')}</span>
-                        <span className="text-gray-900 dark:text-gray-200">{selectedChat.phone || notProvided}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{selectedChat.hidePhone ? '.....' : (selectedChat.phone || notProvided)}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.birthDate', 'Ngày sinh')}</span>
-                        <span className="text-gray-900 dark:text-gray-200">{fmtDate(selectedChat.birthDate)}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{selectedChat.hideBirthDate ? '../..' : fmtDate(selectedChat.birthDate)}</span>
                       </div>
 
                       <div className="flex items-center justify-between">

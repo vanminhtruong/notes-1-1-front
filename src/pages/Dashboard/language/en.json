@@ -304,6 +304,20 @@
         "enabled": "Read receipts are enabled. Read receipts will work only if both you and the other person have this setting enabled.",
         "disabled": "Read receipts are disabled. Others cannot see when you read their messages and you cannot see when others read yours."
       },
+      "privacy": {
+        "hidePhone": {
+          "title": "Hide phone number",
+          "description": "Hide your phone number from others",
+          "enabled": "Phone number will be hidden",
+          "disabled": "Phone number will be visible"
+        },
+        "hideBirthDate": {
+          "title": "Hide birth date",
+          "description": "Hide your birth date from others",
+          "enabled": "Birth date will be hidden",
+          "disabled": "Birth date will be visible"
+        }
+      },
       "pin": {
         "title": "PIN",
         "change": "Change your PIN.",
