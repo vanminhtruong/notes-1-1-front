@@ -18,18 +18,35 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
       const AC: any = (window as any).AudioContext || (window as any).webkitAudioContext;
       if (!AC) return;
       const ctx = new AC();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = 880; // A5
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      
+      // Create Facebook-like notification sound with two tones
+      const createTone = (frequency: number, startTime: number, duration: number, volume: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.value = frequency;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        // Envelope: quick attack, short sustain, quick release
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(volume * 0.3, startTime + duration * 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+        
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+      
       const now = ctx.currentTime;
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.03, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-      osc.start(now);
-      osc.stop(now + 0.36);
+      
+      // First tone: higher pitch (like Facebook's "pop")
+      createTone(800, now, 0.15, 0.08);
+      
+      // Second tone: slightly lower pitch with slight delay
+      createTone(600, now + 0.05, 0.2, 0.06);
+      
     } catch {}
   };
 
