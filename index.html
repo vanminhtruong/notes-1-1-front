@@ -4,29 +4,37 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-  </head>
-  <body class="bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+    <meta name="color-scheme" content="dark light" />
     <script>
       (function(){
         try {
-          // Read theme from cookie first (set by backend), fallback to system preference
-          var cookieTheme = document.cookie.split(';').find(c => c.trim().startsWith('theme='));
-          var savedTheme = cookieTheme ? cookieTheme.split('=')[1].trim() : null;
-          
-          if (savedTheme === 'dark') {
-            document.documentElement.classList.add('dark');
-          } else if (savedTheme === 'light') {
-            // explicitly light, remove dark class
-            document.documentElement.classList.remove('dark');
+          var d = document.documentElement;
+          var lsTheme = null;
+          try { lsTheme = localStorage.getItem('theme'); } catch(_) {}
+          var cookieTheme = null;
+          try {
+            var parts = document.cookie.split(';');
+            for (var i = 0; i < parts.length; i++) {
+              var c = parts[i].trim();
+              if (c.substring(0, 6) === 'theme=') { cookieTheme = decodeURIComponent(c.substring(6)); break; }
+            }
+          } catch(_) {}
+          var saved = lsTheme || cookieTheme;
+          if (saved === 'dark' || (!saved && (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches))) {
+            d.classList.add('dark');
+            d.style.colorScheme = 'dark';
+            document.body && (document.body.style.backgroundColor = '#0a0a0a');
           } else {
-            // no saved theme, use system preference
-            var osDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (osDark) document.documentElement.classList.add('dark');
+            d.classList.remove('dark');
+            d.style.colorScheme = 'light';
+            document.body && (document.body.style.backgroundColor = '#ffffff');
           }
         } catch (e) {}
       })();
     </script>
+    <title>Vite + React + TS</title>
+  </head>
+  <body class="bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

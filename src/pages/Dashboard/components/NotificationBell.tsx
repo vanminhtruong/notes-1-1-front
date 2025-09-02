@@ -24,6 +24,7 @@ export default function NotificationBell({ total, ring, ringSeq, items, onItemCl
   const [periodic, setPeriodic] = useState(false);
   const timerRef = useRef<number | null>(null);
   const pulseRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const hasUnread = total > 0;
 
@@ -49,8 +50,30 @@ export default function NotificationBell({ total, ring, ringSeq, items, onItemCl
     return () => clearTimers();
   }, [hasUnread]);
 
+  // Close when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!open) return;
+    const handlePointer = (e: MouseEvent | TouchEvent) => {
+      const el = containerRef.current;
+      if (el && e.target instanceof Node && !el.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', handlePointer);
+    document.addEventListener('touchstart', handlePointer, { passive: true });
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handlePointer);
+      document.removeEventListener('touchstart', handlePointer as any);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         key={ringSeq}
         onClick={() => setOpen((o) => !o)}

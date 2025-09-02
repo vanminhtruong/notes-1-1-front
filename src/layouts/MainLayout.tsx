@@ -95,7 +95,9 @@ export default function MainLayout() {
             </div>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400">{t('nav.dashboard')}</Link>
+              <Link to="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">{t('nav.dashboard')}</Link>
+              <Link to="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">{t('nav.about')}</Link>
+              <Link to="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">{t('nav.contact')}</Link>
             </nav>
 
             <div className="flex items-center space-x-4">

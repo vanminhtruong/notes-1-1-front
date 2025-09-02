@@ -1,9 +1,8 @@
 import { useRef, useEffect, useState } from 'react';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, ChevronDown } from 'lucide-react';
 import type { Message, MessageGroup } from './types';
 import MessageBubble from './MessageBubble';
 import { useTranslation } from 'react-i18next';
-
 
 interface ChatViewProps {
   selectedChat: any;
@@ -35,6 +34,7 @@ interface ChatViewProps {
   // Per-chat background (1-1)
   backgroundUrl?: string | null;
   onChangeBackground?: () => void;
+  onChangeBackgroundForBoth?: () => void;
   onResetBackground?: () => void;
 }
 
@@ -64,6 +64,7 @@ const ChatView = ({
   onUnlock,
   backgroundUrl,
   onChangeBackground,
+  onChangeBackgroundForBoth,
   onResetBackground,
 }: ChatViewProps) => {
   const { t } = useTranslation('dashboard');
@@ -73,7 +74,8 @@ const ChatView = ({
   const [dmMenuOpen, setDmMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const isDarkTheme = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
-  const [showProfile, setShowProfile] = useState(false);
+  const [profileUser, setProfileUser] = useState<any | null>(null);
+  const [showBackToBottom, setShowBackToBottom] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -94,6 +96,19 @@ const ChatView = ({
       setTimeout(scrollToBottom, 50);
     }
   }, [isPartnerTyping]);
+
+  // Toggle "Back to bottom" button visibility on scroll
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      setShowBackToBottom(distanceToBottom > 150);
+    };
+    onScroll();
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Update current time every second to refresh offline duration
   useEffect(() => {
@@ -138,9 +153,9 @@ const ChatView = ({
               {/* Avatar clickable for 1-1 chat to open profile */}
               <button
                 type="button"
-                onClick={() => { if (!isGroup) setShowProfile(true); }}
-                title={!isGroup ? t('chat.chatView.viewProfile', 'Xem thông tin') : ''}
-                className={`w-full h-full ${!isGroup ? 'cursor-pointer' : 'cursor-default'}`}
+                onClick={() => { setProfileUser(selectedChat); }}
+                title={t('chat.chatView.viewProfile', 'Xem thông tin')}
+                className="w-full h-full cursor-pointer"
               >
                 {selectedChat.avatar ? (
                   <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
@@ -221,6 +236,12 @@ const ChatView = ({
                       className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       {t('chat.menu.changeBackground', 'Đổi ảnh nền')}
+                    </button>
+                    <button
+                      onClick={() => { setDmMenuOpen(false); onChangeBackgroundForBoth && onChangeBackgroundForBoth(); }}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t('chat.menu.changeBackgroundForBoth', 'Đổi ảnh nền cho cả hai')}
                     </button>
                     {backgroundUrl ? (
                       <button
@@ -380,7 +401,16 @@ const ChatView = ({
               return (
                 <div key={groupKey} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
                   {showAvatar && (
-                    <div className="w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const first = group.items[0];
+                        const user = first?.sender ?? selectedChat;
+                        setProfileUser(user);
+                      }}
+                      title={t('chat.chatView.viewProfile', 'Xem thông tin')}
+                      className="w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto cursor-pointer"
+                    >
                       {(() => {
                         const first = group.items[0];
                         const avatar = first?.sender?.avatar ?? selectedChat.avatar;
@@ -391,7 +421,7 @@ const ChatView = ({
                           (name || '').charAt(0)
                         );
                       })()}
-                    </div>
+                    </button>
                   )}
                   <div className={`relative max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col gap-2`}>
                     {/* Group-level menu: only for text-only and NOT same-day */}
@@ -585,14 +615,26 @@ const ChatView = ({
             </div>
           </div>
         )}
+        {showBackToBottom && (
+          <div className="sticky bottom-4 z-20 w-full flex justify-center pointer-events-none">
+            <button
+              onClick={scrollToBottom}
+              className="px-3 py-2 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus:outline-none pointer-events-auto"
+              aria-label={t('chat.chatView.backToBottom', 'Xuống cuối')}
+              title={t('chat.chatView.backToBottom', 'Xuống cuối')}
+            >
+              <ChevronDown className="w-5 h-5" />
+            </button>
+          </div>
+        )}
         <div ref={messagesEndRef} className="relative z-10" />
       </div>
 
-      {/* Profile Modal for 1-1 chat */}
-      {!isGroup && showProfile && (
+      {/* Profile Modal */}
+      {profileUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={() => setShowProfile(false)} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={() => setProfileUser(null)} />
 
           {/* Modal panel */}
           <div className="relative mx-4 w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
@@ -600,9 +642,9 @@ const ChatView = ({
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
               <h4 className="text-base font-semibold text-gray-900 dark:text-white">{t('chat.chatView.profile.title', 'Thông tin người dùng')}</h4>
               <button
-                onClick={() => setShowProfile(false)}
+                onClick={() => setProfileUser(null)}
                 className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
-                aria-label="Close profile"
+                aria-label={t('chat.chatView.profile.close', 'Đóng thông tin')}
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
@@ -612,16 +654,16 @@ const ChatView = ({
             <div className="px-6 py-5">
               <div className="flex flex-col items-center gap-3 mb-4">
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-3xl font-bold shadow-md">
-                  {selectedChat.avatar ? (
-                    <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
+                  {profileUser.avatar ? (
+                    <img src={profileUser.avatar} alt={profileUser.name} className="w-full h-full object-cover" />
                   ) : (
-                    (selectedChat.name || '').charAt(0)
+                    (profileUser.name || '').charAt(0)
                   )}
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">{selectedChat.name}</div>
+                  <div className="text-lg font-semibold text-gray-900 dark:text-white">{profileUser.name}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {selectedChat.isOnline ? t('chat.chatView.status.online') : t('chat.chatView.status.offline')}
+                    {profileUser.isOnline ? t('chat.chatView.status.online') : t('chat.chatView.status.offline')}
                   </div>
                 </div>
               </div>
@@ -642,29 +684,29 @@ const ChatView = ({
                   return (
                     <>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-500 dark:text-gray-400">Email</span>
-                        <span className="text-gray-900 dark:text-gray-200 break-all">{selectedChat.email || notProvided}</span>
+                        <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.email', 'Email')}</span>
+                        <span className="text-gray-900 dark:text-gray-200 break-all">{profileUser.email || notProvided}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.phone', 'Số điện thoại')}</span>
-                        <span className="text-gray-900 dark:text-gray-200">{selectedChat.hidePhone ? '.....' : (selectedChat.phone || notProvided)}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{profileUser.hidePhone ? t('chat.chatView.profile.phoneHiddenMask', '.....') : (profileUser.phone || notProvided)}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.birthDate', 'Ngày sinh')}</span>
-                        <span className="text-gray-900 dark:text-gray-200">{selectedChat.hideBirthDate ? '../..' : fmtDate(selectedChat.birthDate)}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{profileUser.hideBirthDate ? t('chat.chatView.profile.birthDateHiddenMask', '../..') : fmtDate(profileUser.birthDate)}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.gender', 'Giới tính')}</span>
-                        <span className="text-gray-900 dark:text-gray-200">{genderLabel(selectedChat.gender)}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{genderLabel(profileUser.gender)}</span>
                       </div>
 
-                      {selectedChat.lastSeenAt && !selectedChat.isOnline && (
+                      {profileUser.lastSeenAt && !profileUser.isOnline && (
                         <div className="flex items-center justify-between">
                           <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.lastSeen', 'Hoạt động')}</span>
-                          <span className="text-gray-900 dark:text-gray-200">{new Date(selectedChat.lastSeenAt).toLocaleString()}</span>
+                          <span className="text-gray-900 dark:text-gray-200">{new Date(profileUser.lastSeenAt).toLocaleString()}</span>
                         </div>
                       )}
                     </>

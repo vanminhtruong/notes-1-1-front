@@ -11,12 +11,16 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  // Initialize from cookie to match index.html boot script
+  // Initialize from storage/cookie to match index.html boot script
   const getInitialTheme = (): Theme => {
     try {
-      const cookieTheme = document.cookie.split(';').find(c => c.trim().startsWith('theme='));
-      const savedTheme = cookieTheme ? cookieTheme.split('=')[1].trim() : null;
-      if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme;
+      let savedTheme: string | null = null;
+      try { savedTheme = localStorage.getItem('theme'); } catch {}
+      if (!savedTheme) {
+        const cookieTheme = document.cookie.split(';').find(c => c.trim().startsWith('theme='));
+        savedTheme = cookieTheme ? cookieTheme.split('=')[1].trim() : null;
+      }
+      if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme as Theme;
       // Fallback to system preference
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       return prefersDark ? 'dark' : 'light';
@@ -54,11 +58,17 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     return () => { mounted = false; };
   }, []);
 
-  // Apply theme class to document
+  // Apply theme class to document and persist to localStorage
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
+    try { localStorage.setItem('theme', theme); } catch {}
+    try {
+      const expires = new Date();
+      expires.setFullYear(expires.getFullYear() + 1);
+      document.cookie = `theme=${theme}; expires=${expires.toUTCString()}; path=/; samesite=lax`;
+    } catch {}
   }, [theme]);
 
   const toggleTheme = () => {
@@ -88,7 +98,27 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    // Safe fallback to avoid crashes if used outside provider during fast reloads
+    const isDark = (() => {
+      try {
+        const ls = localStorage.getItem('theme');
+        if (ls === 'dark' || ls === 'light') return ls === 'dark';
+      } catch {}
+      return document.documentElement.classList.contains('dark');
+    })();
+    const toggleTheme = () => {
+      try {
+        const next = isDark ? 'light' : 'dark';
+        const root = document.documentElement;
+        root.classList.remove('light', 'dark');
+        root.classList.add(next);
+        try { localStorage.setItem('theme', next); } catch {}
+        const expires = new Date();
+        expires.setFullYear(expires.getFullYear() + 1);
+        document.cookie = `theme=${next}; expires=${expires.toUTCString()}; path=/; samesite=lax`;
+      } catch {}
+    };
+    return { theme: isDark ? 'dark' as const : 'light' as const, toggleTheme };
   }
   return context;
 };

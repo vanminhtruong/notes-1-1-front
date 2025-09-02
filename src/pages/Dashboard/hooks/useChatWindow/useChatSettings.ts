@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getSocket } from '../../../services/socket';
-import { settingsService } from '../../../services/settingsService';
+import { getSocket } from '../../../../services/socket';
+import { settingsService } from '../../../../services/settingsService';
 import toast from 'react-hot-toast';
 import type { TFunction } from 'i18next';
 

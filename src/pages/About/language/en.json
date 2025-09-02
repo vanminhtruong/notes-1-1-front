@@ -1,0 +1,79 @@
+{
+  "hero": {
+    "title": "About Our Platform",
+    "subtitle": "A modern, intuitive note-taking application designed to boost your productivity and organize your thoughts seamlessly.",
+    "rating": "4.9/5 from 10,000+ users"
+  },
+  "stats": {
+    "users": "Active Users",
+    "notes": "Notes Created",
+    "uptime": "Uptime",
+    "support": "Support"
+  },
+  "mission": {
+    "title": "Our Mission",
+    "description": "We believe that great ideas deserve a great platform. Our mission is to provide the most intuitive and powerful note-taking experience that empowers users to capture, organize, and share their thoughts effortlessly."
+  },
+  "features": {
+    "notes": {
+      "title": "Smart Note Management",
+      "description": "Create, edit, and organize your notes with advanced categorization, priority levels, and powerful search capabilities."
+    },
+    "collaboration": {
+      "title": "Real-time Collaboration",
+      "description": "Share and collaborate on notes with your team in real-time with built-in chat and messaging features."
+    },
+    "security": {
+      "title": "Enterprise Security",
+      "description": "Your data is protected with end-to-end encryption, secure authentication, and regular security audits."
+    },
+    "performance": {
+      "title": "Lightning Fast",
+      "description": "Experience blazing-fast performance with our optimized architecture and intelligent caching systems."
+    }
+  },
+  "values": {
+    "title": "Our Core Values",
+    "subtitle": "The principles that guide everything we do and drive our commitment to excellence.",
+    "passion": {
+      "title": "Passion for Excellence",
+      "description": "We are passionate about creating the best possible user experience and continuously improving our platform."
+    },
+    "innovation": {
+      "title": "Innovation First",
+      "description": "We embrace cutting-edge technologies and innovative solutions to stay ahead of user needs."
+    },
+    "accessibility": {
+      "title": "Universal Access",
+      "description": "We believe great tools should be accessible to everyone, regardless of their technical background."
+    }
+  },
+  "whyChoose": {
+    "title": "Why Choose Us?",
+    "subtitle": "Discover what makes our platform the preferred choice for thousands of users worldwide.",
+    "items": {
+      "easy": "Easy to use interface",
+      "fast": "Lightning fast performance",
+      "secure": "Bank-level security",
+      "reliable": "99.9% uptime guarantee",
+      "support": "24/7 customer support",
+      "updates": "Regular feature updates"
+    }
+  },
+  "team": {
+    "title": "Our Team",
+    "description": "A dedicated team of passionate developers, designers, and product experts committed to delivering exceptional user experiences.",
+    "award": {
+      "title": "Award-Winning Development Team",
+      "description": "Recognized for excellence in software development and user experience design by industry leaders."
+    }
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "description": "Have questions or suggestions? We'd love to hear from you. Our team is here to help you make the most of our platform.",
+    "button": {
+      "primary": "Contact Support",
+      "secondary": "View Documentation"
+    }
+  }
+}

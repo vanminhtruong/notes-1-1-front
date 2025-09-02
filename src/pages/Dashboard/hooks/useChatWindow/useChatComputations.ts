@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { TFunction } from 'i18next';
-import type { User, Message } from '../components/component-child/ChatWindow-child/types';
-import type { GroupSummary } from '../../../services/groupService';
+import type { User, Message } from '../../components/component-child/ChatWindow-child/types';
+import type { GroupSummary } from '../../../../services/groupService';
 
 export type NotificationItem = { id: number; name: string; avatar?: string; count: number };
 

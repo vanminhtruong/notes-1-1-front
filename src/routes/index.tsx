@@ -4,6 +4,8 @@ import Login from '@pages/auth/Login'
 import Register from '@pages/auth/Register'
 import ForgotPassword from '@pages/auth/ForgotPassword'
 import Dashboard from '../pages/Dashboard/Dashboard'
+import About from '../pages/About/About'
+import Contact from '../pages/Contact/Contact'
 import ProtectedRoute from '@components/ProtectedRoute'
 import Account from '@/pages/Account/Account'
 
@@ -28,6 +30,14 @@ const router = createBrowserRouter([
             <Account />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: 'about',
+        element: <About />,
+      },
+      {
+        path: 'contact',
+        element: <Contact />,
       },
       { path: '*', element: <div className="max-w-6xl mx-auto px-4 py-10">Not Found</div> },
     ],

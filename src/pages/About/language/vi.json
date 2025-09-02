@@ -1,0 +1,79 @@
+{
+  "hero": {
+    "title": "Về Nền Tảng Của Chúng Tôi",
+    "subtitle": "Ứng dụng ghi chú hiện đại, trực quan được thiết kế để tăng năng suất và tổ chức suy nghĩ của bạn một cách liền mạch.",
+    "rating": "4.9/5 từ hơn 10,000 người dùng"
+  },
+  "stats": {
+    "users": "Người Dùng Hoạt Động",
+    "notes": "Ghi Chú Đã Tạo",
+    "uptime": "Thời Gian Hoạt Động",
+    "support": "Hỗ Trợ"
+  },
+  "mission": {
+    "title": "Sứ Mệnh Của Chúng Tôi",
+    "description": "Chúng tôi tin rằng những ý tưởng tuyệt vời xứng đáng có một nền tảng tuyệt vời. Sứ mệnh của chúng tôi là cung cấp trải nghiệm ghi chú trực quan và mạnh mẽ nhất, giúp người dùng ghi lại, tổ chức và chia sẻ suy nghĩ một cách dễ dàng."
+  },
+  "features": {
+    "notes": {
+      "title": "Quản Lý Ghi Chú Thông Minh",
+      "description": "Tạo, chỉnh sửa và tổ chức ghi chú với khả năng phân loại nâng cao, mức độ ưu tiên và tính năng tìm kiếm mạnh mẽ."
+    },
+    "collaboration": {
+      "title": "Cộng Tác Thời Gian Thực",
+      "description": "Chia sẻ và cộng tác trên ghi chú với nhóm của bạn trong thời gian thực với tính năng chat và nhắn tin tích hợp."
+    },
+    "security": {
+      "title": "Bảo Mật Doanh Nghiệp",
+      "description": "Dữ liệu của bạn được bảo vệ bằng mã hóa đầu cuối, xác thực an toàn và kiểm tra bảo mật thường xuyên."
+    },
+    "performance": {
+      "title": "Tốc Độ Chớp Nhoáng",
+      "description": "Trải nghiệm hiệu suất cực nhanh với kiến trúc được tối ưu hóa và hệ thống bộ nhớ đệm thông minh."
+    }
+  },
+  "values": {
+    "title": "Giá Trị Cốt Lõi",
+    "subtitle": "Những nguyên tắc hướng dẫn mọi thứ chúng tôi làm và thúc đẩy cam kết xuất sắc của chúng tôi.",
+    "passion": {
+      "title": "Đam Mê Xuất Sắc",
+      "description": "Chúng tôi đam mê tạo ra trải nghiệm người dùng tốt nhất có thể và liên tục cải thiện nền tảng của mình."
+    },
+    "innovation": {
+      "title": "Đổi Mới Đầu Tiên",
+      "description": "Chúng tôi chấp nhận các công nghệ tiên tiến và giải pháp sáng tạo để luôn đi trước nhu cầu người dùng."
+    },
+    "accessibility": {
+      "title": "Truy Cập Toàn Cầu",
+      "description": "Chúng tôi tin rằng các công cụ tuyệt vời nên có thể truy cập được cho mọi người, bất kể nền tảng kỹ thuật của họ."
+    }
+  },
+  "whyChoose": {
+    "title": "Tại Sao Chọn Chúng Tôi?",
+    "subtitle": "Khám phá điều gì làm cho nền tảng của chúng tôi trở thành lựa chọn ưa thích của hàng nghìn người dùng trên toàn thế giới.",
+    "items": {
+      "easy": "Giao diện dễ sử dụng",
+      "fast": "Hiệu suất chớp nhoáng",
+      "secure": "Bảo mật cấp ngân hàng",
+      "reliable": "Đảm bảo hoạt động 99.9%",
+      "support": "Hỗ trợ khách hàng 24/7",
+      "updates": "Cập nhật tính năng thường xuyên"
+    }
+  },
+  "team": {
+    "title": "Đội Ngũ Của Chúng Tôi",
+    "description": "Một đội ngũ tận tâm gồm các nhà phát triển, thiết kế và chuyên gia sản phẩm đam mê cam kết mang đến trải nghiệm người dùng đặc biệt.",
+    "award": {
+      "title": "Đội Ngũ Phát Triển Đoạt Giải Thưởng",
+      "description": "Được công nhận về sự xuất sắc trong phát triển phần mềm và thiết kế trải nghiệm người dùng bởi các nhà lãnh đạo ngành."
+    }
+  },
+  "contact": {
+    "title": "Liên Hệ Với Chúng Tôi",
+    "description": "Có câu hỏi hoặc gợi ý? Chúng tôi rất muốn nghe từ bạn. Đội ngũ của chúng tôi ở đây để giúp bạn tận dụng tối đa nền tảng của chúng tôi.",
+    "button": {
+      "primary": "Liên Hệ Hỗ Trợ",
+      "secondary": "Xem Tài Liệu"
+    }
+  }
+}

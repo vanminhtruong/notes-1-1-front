@@ -1,0 +1,38 @@
+{
+  "hero": {
+    "badge": "Chúng tôi luôn sẵn sàng hỗ trợ",
+    "title": "Liên hệ",
+    "subtitle": "Bạn có câu hỏi, góp ý hoặc ý tưởng hợp tác? Hãy gửi tin nhắn, đội ngũ của chúng tôi sẽ phản hồi sớm."
+  },
+  "cards": {
+    "email": { "title": "Email", "value": "support@notesapp.com" },
+    "phone": { "title": "Điện thoại", "value": "+84 987 654 321" },
+    "address": { "title": "Địa chỉ", "value": "123 Innovation Street, Silicon Valley, CA" }
+  },
+  "form": {
+    "title": "Gửi tin nhắn cho chúng tôi",
+    "name": "Họ và tên",
+    "email": "Email",
+    "subject": "Chủ đề",
+    "message": "Nội dung",
+    "namePh": "Nhập họ và tên",
+    "emailPh": "Nhập email",
+    "subjectPh": "Chúng tôi có thể giúp gì?",
+    "messagePh": "Viết tin nhắn của bạn...",
+    "privacyNote": "Chúng tôi tôn trọng quyền riêng tư và không bao giờ chia sẻ dữ liệu của bạn.",
+    "send": "Gửi tin nhắn",
+    "sending": "Đang gửi...",
+    "success": "Đã gửi! Chúng tôi sẽ phản hồi sớm.",
+    "error": "Gửi thất bại. Vui lòng thử lại."
+  },
+  "aside": {
+    "title": "Hỗ trợ ưu tiên",
+    "subtitle": "Đội ngũ luôn sẵn sàng hỗ trợ mọi câu hỏi kỹ thuật hoặc tài khoản.",
+    "cta": "Thường phản hồi trong 1–3 giờ."
+  },
+  "hours": {
+    "title": "Giờ làm việc",
+    "weekdays": "Thứ 2–6: 9:00 – 18:00 (GMT+7)",
+    "weekend": "Thứ 7–CN: 10:00 – 16:00 (GMT+7)"
+  }
+}

@@ -1,4 +1,4 @@
-import { chatService } from '../../../services/chatService';
+import { chatService } from '../../../../services/chatService';
 import toast from 'react-hot-toast';
 import type { TFunction } from 'i18next';
 

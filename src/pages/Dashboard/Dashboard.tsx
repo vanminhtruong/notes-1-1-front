@@ -1,8 +1,3 @@
-import { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store';
-import toast from 'react-hot-toast';
-import { fetchNotes, fetchNoteStats, createNote, deleteNote, archiveNote, setFilters, updateNote } from '@/store/slices/notesSlice';
-import { socketService } from '@/services/socketService';
 import { 
   Plus, 
   Search, 
@@ -17,232 +12,25 @@ import {
   Check,
   Pencil
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useDashboard } from '@/pages/Dashboard/hooks/useDashboard';
 
 const Dashboard = () => {
-  const { t, i18n } = useTranslation('dashboard');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedPriority, setSelectedPriority] = useState('');
-  const [showArchived, setShowArchived] = useState(false);
-  const [newNote, setNewNote] = useState({
-    title: '',
-    content: '',
-    category: 'general',
-    priority: 'medium' as 'low' | 'medium' | 'high'
-  });
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editNote, setEditNote] = useState({
-    id: 0,
-    title: '',
-    content: '',
-    category: 'general',
-    priority: 'medium' as 'low' | 'medium' | 'high',
-  });
+  const {
+    t, i18n,
+    notes, isLoading, stats,
+    searchTerm, setSearchTerm,
+    selectedCategory, setSelectedCategory,
+    selectedPriority, setSelectedPriority,
+    showArchived, setShowArchived,
+    showCreateModal, setShowCreateModal,
+    newNote, setNewNote,
+    selectedIds, toggleSelect, clearSelection, confirmBulkDelete,
+    showEditModal, setShowEditModal,
+    editNote, setEditNote,
+    handleCreateNote, handleArchiveNote, confirmDeleteNote, openEdit, handleUpdateNote,
+    getPriorityColor, getPriorityText,
+  } = useDashboard();
 
-  const dispatch = useAppDispatch();
-  const { notes, isLoading, stats } = useAppSelector((state) => state.notes);
-
-  useEffect(() => {
-    // Keep global filters in sync for realtime socket refresh
-    dispatch(setFilters({
-      search: searchTerm,
-      category: selectedCategory,
-      priority: selectedPriority,
-      isArchived: showArchived,
-    }));
-
-    dispatch(fetchNotes({ 
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-    dispatch(fetchNoteStats());
-  }, [dispatch, searchTerm, selectedCategory, selectedPriority, showArchived]);
-
-  useEffect(() => {
-    // Connect to WebSocket when component mounts
-    socketService.connect();
-
-    return () => {
-      // Disconnect when component unmounts
-      socketService.disconnect();
-    };
-  }, []);
-
-  const handleCreateNote = async () => {
-    if (!newNote.title.trim()) return;
-
-    await dispatch(createNote(newNote));
-    setNewNote({ title: '', content: '', category: 'general', priority: 'medium' });
-    setShowCreateModal(false);
-    dispatch(fetchNotes({
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  };
-
-  const handleDeleteNote = async (id: number) => {
-    await dispatch(deleteNote(id));
-    dispatch(fetchNotes({
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  };
-
-  const confirmDeleteNote = (id: number) => {
-    const tId = toast.custom((toastData) => (
-      <div className={`max-w-sm w-full rounded-xl shadow-lg border ${
-        toastData.visible ? 'animate-enter' : 'animate-leave'
-      } bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}
-      >
-        <div className="flex items-start gap-3">
-          <div className="flex-1">
-            <p className="font-semibold">{t('modals.confirm.deleteTitle')}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">{t('modals.confirm.irreversible')}</p>
-          </div>
-        </div>
-        <div className="mt-3 flex justify-end gap-2">
-          <button
-            onClick={() => toast.dismiss(toastData.id)}
-            className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
-          >
-            {t('actions.cancel')}
-          </button>
-          <button
-            onClick={async () => {
-              await handleDeleteNote(id);
-              toast.dismiss(toastData.id);
-            }}
-            className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"
-          >
-            {t('actions.delete')}
-          </button>
-        </div>
-      </div>
-    ), { duration: 8000 });
-    return tId;
-  };
-
-  const handleArchiveNote = async (id: number) => {
-    await dispatch(archiveNote(id));
-    dispatch(fetchNotes({
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  };
-
-  const openEdit = (note: typeof notes[number]) => {
-    setEditNote({
-      id: note.id,
-      title: note.title || '',
-      content: note.content || '',
-      category: note.category || 'general',
-      priority: (note.priority as 'low' | 'medium' | 'high') || 'medium',
-    });
-    setShowEditModal(true);
-  };
-
-  const handleUpdateNote = async () => {
-    if (!editNote.title.trim()) return;
-    await dispatch(updateNote({
-      id: editNote.id,
-      data: {
-        title: editNote.title,
-        content: editNote.content,
-        category: editNote.category,
-        priority: editNote.priority,
-      },
-    }));
-    setShowEditModal(false);
-    dispatch(fetchNotes({
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  };
-
-  const toggleSelect = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
-
-  const clearSelection = () => setSelectedIds([]);
-
-  const handleBulkDelete = async () => {
-    if (selectedIds.length === 0) return;
-    await Promise.all(selectedIds.map((id) => dispatch(deleteNote(id))));
-    setSelectedIds([]);
-    dispatch(fetchNotes({
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  };
-
-  const confirmBulkDelete = () => {
-    const tId = toast.custom((toastData) => (
-      <div className={`max-w-sm w-full rounded-xl shadow-lg border ${
-        toastData.visible ? 'animate-enter' : 'animate-leave'
-      } bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}
-      >
-        <div className="flex items-start gap-3">
-          <div className="flex-1">
-            <p className="font-semibold">{t('modals.confirm.bulkDeleteTitle')}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">{t('modals.confirm.irreversible')}</p>
-          </div>
-        </div>
-        <div className="mt-3 flex justify-end gap-2">
-          <button
-            onClick={() => toast.dismiss(toastData.id)}
-            className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
-          >
-            {t('actions.cancel')}
-          </button>
-          <button
-            onClick={async () => {
-              await handleBulkDelete();
-              toast.dismiss(toastData.id);
-            }}
-            className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"
-          >
-            {t('actions.delete')}
-          </button>
-        </div>
-      </div>
-    ), { duration: 8000 });
-    return tId;
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getPriorityText = (priority: string) => {
-    switch (priority) {
-      case 'high': return t('priority.high');
-      case 'medium': return t('priority.medium');
-      case 'low': return t('priority.low');
-      default: return t('priority.medium');
-    }
-  };
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 min-h-screen">
@@ -470,6 +258,12 @@ const Dashboard = () => {
                   {note.content || t('messages.noContent')}
                 </p>
 
+                {note.imageUrl && (
+                  <div className="mb-4">
+                    <img src={note.imageUrl} alt={note.title} className="w-full h-40 object-cover rounded-xl border" />
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2">
                     <span className={`px-2 py-1 text-xs font-medium rounded-lg border ${getPriorityColor(note.priority)}`}>
@@ -544,7 +338,34 @@ const Dashboard = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  {t('modals.create.fields.image')}
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        const { uploadService } = await import('@/services/uploadService');
+                        const { url } = await uploadService.uploadImage(file);
+                        setNewNote({ ...newNote, imageUrl: url });
+                      } catch (_err) {
+                        // ignore here; toasts handled in uploadService callers elsewhere if needed
+                      }
+                    }}
+                    className="block w-full text-sm text-gray-900 dark:text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {newNote.imageUrl && (
+                    <img src={newNote.imageUrl} alt="preview" className="w-12 h-12 rounded-md object-cover border" />
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     {t('modals.create.fields.category')}
@@ -627,6 +448,33 @@ const Dashboard = () => {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                   placeholder={t('modals.create.fields.contentPlaceholder')}
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  {t('modals.create.fields.image')}
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        const { uploadService } = await import('@/services/uploadService');
+                        const { url } = await uploadService.uploadImage(file);
+                        setEditNote({ ...editNote, imageUrl: url });
+                      } catch (_err) {
+                        // ignore
+                      }
+                    }}
+                    className="block w-full text-sm text-gray-900 dark:text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {editNote.imageUrl && (
+                    <img src={editNote.imageUrl} alt="preview" className="w-12 h-12 rounded-md object-cover border" />
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

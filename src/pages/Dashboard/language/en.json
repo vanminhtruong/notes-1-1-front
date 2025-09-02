@@ -40,6 +40,10 @@
     "edit": "Edit",
     "update": "Update"
   },
+  "confirm": {
+    "removeFriend": "Remove {{name}} as friend?",
+    "deleteMessages": "Delete all messages with {{name}}?"
+  },
   "messages": {
     "selectedCount": "{{count}} selected",
     "noContent": "No content",
@@ -58,6 +62,15 @@
     "medium": "Medium",
     "high": "High"
   },
+  "common": {
+    "notProvided": "Not provided"
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "unspecified": "Unspecified"
+  },
   "modals": {
     "confirm": {
       "deleteTitle": "Delete note?",
@@ -71,6 +84,7 @@
         "titlePlaceholder": "Enter note title",
         "content": "Content",
         "contentPlaceholder": "Enter note content",
+        "image": "Image",
         "category": "Category",
         "priority": "Priority"
       }
@@ -242,12 +256,29 @@
       "empty": {
         "youAreFriends": "You and {{name}} are friends on Messenger",
         "inGroup": "You are in group {{name}}"
+      },
+      "viewProfile": "View profile",
+      "backToBottom": "Back to bottom",
+      "profile": {
+        "title": "User information",
+        "close": "Close profile",
+        "email": "Email",
+        "phone": "Phone",
+        "phoneHiddenMask": ".....",
+        "birthDate": "Birth date",
+        "birthDateHiddenMask": "../..",
+        "gender": "Gender",
+        "lastSeen": "Last seen",
+        "privacy": "Some information may not be visible if the user doesn't share it."
       }
     },
     "menu": {
       "options": "Options",
       "messageOptionsAria": "Message options",
       "chatOptionsAria": "Chat options",
+      "changeBackground": "Change background",
+      "changeBackgroundForBoth": "Change background for both",
+      "resetBackground": "Reset to default background",
       "recall": {
         "self": "Recall for yourself",
         "all": "Recall for everyone"
@@ -283,6 +314,11 @@
       "downloadFileAria": "Download file",
       "fileFallback": "file",
       "downloadLabel": "Download"
+    },
+    "locked": {
+      "notice": "Messages are encrypted",
+      "hint": "Enter your PIN to unlock and view the conversation history. You can still continue messaging.",
+      "unlockCta": "Enter PIN to unlock"
     },
     "encryption": {
       "chatLocked": "Messages are encrypted",

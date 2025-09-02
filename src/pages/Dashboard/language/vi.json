@@ -40,6 +40,10 @@
     "edit": "Sửa",
     "update": "Cập nhật"
   },
+  "confirm": {
+    "removeFriend": "Xóa bạn {{name}}?",
+    "deleteMessages": "Xóa toàn bộ tin nhắn với {{name}}?"
+  },
   "messages": {
     "selectedCount": "Đã chọn {{count}} mục",
     "noContent": "Không có nội dung",
@@ -58,6 +62,15 @@
     "medium": "Trung bình",
     "high": "Cao"
   },
+  "common": {
+    "notProvided": "Chưa cập nhật"
+  },
+  "gender": {
+    "male": "Nam",
+    "female": "Nữ",
+    "other": "Khác",
+    "unspecified": "Không xác định"
+  },
   "modals": {
     "confirm": {
       "deleteTitle": "Xóa ghi chú?",
@@ -71,6 +84,7 @@
         "titlePlaceholder": "Nhập tiêu đề ghi chú",
         "content": "Nội dung",
         "contentPlaceholder": "Nhập nội dung ghi chú",
+        "image": "Hình ảnh",
         "category": "Danh mục",
         "priority": "Mức độ ưu tiên"
       }
@@ -117,7 +131,7 @@
       "user": "Người dùng {{id}}"
     },
     "header": {
-      "title": "Messenger",
+      "title": "Tin nhắn",
       "searchPlaceholder": "Tìm kiếm…",
       "tabs": {
         "all": "Tất cả",
@@ -242,12 +256,29 @@
       "empty": {
         "youAreFriends": "Bạn và {{name}} hiện là bạn bè trên Messenger",
         "inGroup": "Bạn đang ở trong nhóm {{name}}"
+      },
+      "viewProfile": "Xem thông tin",
+      "backToBottom": "Xuống cuối",
+      "profile": {
+        "title": "Thông tin người dùng",
+        "close": "Đóng thông tin",
+        "email": "Email",
+        "phone": "Số điện thoại",
+        "phoneHiddenMask": ".....",
+        "birthDate": "Ngày sinh",
+        "birthDateHiddenMask": "../..",
+        "gender": "Giới tính",
+        "lastSeen": "Hoạt động",
+        "privacy": "Một số thông tin có thể không hiển thị nếu người dùng không chia sẻ."
       }
     },
     "menu": {
       "options": "Tùy chọn",
       "messageOptionsAria": "Tùy chọn tin nhắn",
       "chatOptionsAria": "Tùy chọn cuộc chat",
+      "changeBackground": "Đổi ảnh nền",
+      "changeBackgroundForBoth": "Đổi ảnh nền cho cả hai",
+      "resetBackground": "Khôi phục nền mặc định",
       "recall": {
         "self": "Thu hồi cho mình",
         "all": "Thu hồi cho mọi người"
@@ -283,6 +314,11 @@
       "downloadFileAria": "Tải xuống tệp",
       "fileFallback": "tệp",
       "downloadLabel": "Tải xuống"
+    },
+    "locked": {
+      "notice": "Đoạn tin nhắn đã bị mã hóa",
+      "hint": "Hãy nhập PIN để mở khóa và xem lịch sử cuộc trò chuyện. Bạn vẫn có thể tiếp tục nhắn tin.",
+      "unlockCta": "Nhập PIN để mở khóa"
     },
     "encryption": {
       "chatLocked": "Đoạn tin nhắn đã bị mã hóa",

@@ -55,7 +55,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   } = useChatSettings(t);
 
   // Notifications: unread per user + group + ring animation
-  const { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, resetAll } = useMessageNotifications(
+  const { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, resetAll, hydrateFromChatList } = useMessageNotifications(
     currentUser?.id,
     selectedChat?.id ?? null,
     selectedGroup?.id ?? null
@@ -75,6 +75,13 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
 
   // Chats that currently have unread messages
   const unreadChats = useUnreadChats(chatList, unreadMap);
+
+  // Keep unreadMap in sync with backend-sourced chatList counts for persistence
+  useEffect(() => {
+    if (Array.isArray(chatList) && chatList.length >= 0) {
+      hydrateFromChatList(chatList as any);
+    }
+  }, [chatList]);
 
   // Users tab search results (exclude self, existing friends, and received requests)
   const filteredUsers = useFilteredUsers(users, friends, friendRequests, searchTerm, currentUser?.id);
@@ -105,7 +112,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   }, [currentUser?.id]);
 
   // Load per-chat background (1-1 only)
-  const { chatBackgroundUrl, changeBackground, resetBackground } = useChatBackground(selectedChat?.id ?? null, t);
+  const { chatBackgroundUrl, changeBackground, changeBackgroundForBoth, resetBackground } = useChatBackground(selectedChat?.id ?? null, t);
 
   // Update or insert a chatList entry with a new last message
   const upsertChatListWithMessage = (otherUserId: number, msg: Message) => {
@@ -418,6 +425,10 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   onChangeBackground={async () => {
                     if (!selectedChat) return;
                     await changeBackground(selectedChat.id);
+                  }}
+                  onChangeBackgroundForBoth={async () => {
+                    if (!selectedChat) return;
+                    await changeBackgroundForBoth(selectedChat.id);
                   }}
                   onResetBackground={async () => {
                     if (!selectedChat) return;

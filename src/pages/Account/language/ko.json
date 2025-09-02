@@ -1,0 +1,24 @@
+{
+  "title": "계정 상세",
+  "profile": "프로필",
+  "settings": "설정",
+  "description": "계정 정보를 확인하고 수정하세요. 참고: 이메일은 변경할 수 없습니다.",
+  "avatar": {
+    "label": "아바타",
+    "upload": "이미지 선택",
+    "uploading": "업로드 중...",
+    "remove": "이미지 제거",
+    "info": "JPG, PNG, WebP 지원. 최대 5MB",
+    "maxSizeError": "이미지 최대 크기는 5MB 입니다",
+    "uploadError": "이미지 업로드 실패"
+  },
+  "form": {
+    "name": "이름",
+    "namePlaceholder": "이름을 입력하세요",
+    "email": "이메일",
+    "emailNote": "이메일은 변경할 수 없습니다.",
+    "save": "변경 사항 저장"
+  }
+}
+
+

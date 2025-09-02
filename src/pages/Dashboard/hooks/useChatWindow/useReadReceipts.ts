@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { getSocket } from '../../../services/socket';
-import type { Message } from '../components/component-child/ChatWindow-child/types';
+import { getSocket } from '../../../../services/socket';
+import type { Message } from '../../components/component-child/ChatWindow-child/types';
 
 interface Params {
   selectedChatId: number | null;

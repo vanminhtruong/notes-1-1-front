@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Message, MessageGroup } from '../components/component-child/ChatWindow-child/types';
+import type { Message, MessageGroup } from '../../components/component-child/ChatWindow-child/types';
 
 export function useGroupedMessages(messages: Message[] | any[]): MessageGroup[] {
   return useMemo(() => {

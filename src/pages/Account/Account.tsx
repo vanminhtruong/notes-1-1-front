@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { getProfile, updateProfile } from '@/store/slices/authSlice';
-import { Mail, User, Save } from 'lucide-react';
+import { Mail, User, Save, ArrowLeft } from 'lucide-react';
 import { uploadService } from '@/services/uploadService';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 export default function Account() {
   const { t } = useTranslation('account');
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { user, isLoading, isAuthenticated } = useAppSelector((s) => s.auth);
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
@@ -85,10 +87,21 @@ export default function Account() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="rounded-2xl border border-white/20 dark:border-gray-700/30 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl shadow-xl overflow-hidden">
         <div className="px-6 py-5 border-b border-white/20 dark:border-gray-700/30 bg-gradient-to-r from-gray-50/70 to-white/50 dark:from-gray-800/60 dark:to-gray-900/60">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <User className="w-5 h-5" />
-            {t('title')}
-          </h2>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
+              aria-label={t('back', { defaultValue: 'Quay lại' })}
+              title={t('backToHome', { defaultValue: 'Về trang chính' })}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <User className="w-5 h-5" />
+              {t('title')}
+            </h2>
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{t('description')}</p>
         </div>
 

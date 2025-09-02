@@ -14,22 +14,22 @@ export { getSocket } from '../../../services/socket';
 export { useMessageNotifications } from '../../../hooks/useMessageNotifications';
 
 // local hooks
-export { useChatSocket } from '../hooks/useChatSocket';
-export { useChatData } from '../hooks/useChatData';
-export { useMessageComposer } from '../hooks/useMessageComposer';
-export { useAttachmentDownloader } from '../hooks/useAttachmentDownloader';
-export { useGroupedMessages } from '../hooks/useGroupedMessages';
-export { useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useNotificationItems } from '../hooks/useChatComputations';
-export { useBellNavigation } from '../hooks/useBellNavigation';
-export { usePreviewEscape } from '../hooks/usePreviewEscape';
-export { useVisibilityRefresh } from '../hooks/useVisibilityRefresh';
-export { useAutoScroll } from '../hooks/useAutoScroll';
-export { useChatOpeners } from '../hooks/useChatOpeners';
-export { useChatSettings } from '../hooks/useChatSettings';
-export { useChatBackground } from '../hooks/useChatBackground';
-export { useReadReceipts } from '../hooks/useReadReceipts';
-export { useFriendRequestActions } from '../hooks/useFriendRequestActions';
-export { useTypingAndGroupSync } from '../hooks/useTypingAndGroupSync';
+export { useChatSocket } from '../hooks/useChatWindow/useChatSocket.ts';
+export { useChatData } from '../hooks/useChatWindow/useChatData.ts';
+export { useMessageComposer } from '../hooks/useChatWindow/useMessageComposer.ts';
+export { useAttachmentDownloader } from '../hooks/useChatWindow/useAttachmentDownloader.ts';
+export { useGroupedMessages } from '../hooks/useChatWindow/useGroupedMessages.ts';
+export { useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useNotificationItems } from '../hooks/useChatWindow/useChatComputations.ts';
+export { useBellNavigation } from '../hooks/useChatWindow/useBellNavigation.ts';
+export { usePreviewEscape } from '../hooks/useChatWindow/usePreviewEscape.ts';
+export { useVisibilityRefresh } from '../hooks/useChatWindow/useVisibilityRefresh.ts';
+export { useAutoScroll } from '../hooks/useChatWindow/useAutoScroll.ts';
+export { useChatOpeners } from '../hooks/useChatWindow/useChatOpeners.ts';
+export { useChatSettings } from '../hooks/useChatWindow/useChatSettings.ts';
+export { useChatBackground } from '../hooks/useChatWindow/useChatBackground.ts';
+export { useReadReceipts } from '../hooks/useChatWindow/useReadReceipts.ts';
+export { useFriendRequestActions } from '../hooks/useChatWindow/useFriendRequestActions.ts';
+export { useTypingAndGroupSync } from '../hooks/useChatWindow/useTypingAndGroupSync.ts';
 
 // child components
 export { default as ChatHeader } from './component-child/ChatWindow-child/ChatHeader';

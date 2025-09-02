@@ -72,6 +72,37 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
     };
   }, [totalUnread, totalGroupUnread]);
 
+  // Seed unreadMap from backend on mount or when user changes
+  useEffect(() => {
+    let mounted = true;
+    const seedFromServer = async () => {
+      if (!currentUserId) return;
+      try {
+        const res = await chatService.getChatList();
+        if (!mounted || !res?.success) return;
+        const items = (res.data || []) as Array<{ friend?: { id: number }; unreadCount?: number; userId?: number }>;
+        setUnreadMap((prev) => {
+          const next: UnreadMap = { ...prev };
+          for (const it of items) {
+            const id = (it.friend && it.friend.id) ?? it.userId;
+            const cnt = it.unreadCount ?? 0;
+            if (typeof id === 'number' && cnt >= 0) {
+              const existing = next[id] || 0;
+              next[id] = Math.max(existing, cnt);
+            }
+          }
+          return next;
+        });
+      } catch {
+        // silent
+      }
+    };
+    void seedFromServer();
+    return () => {
+      mounted = false;
+    };
+  }, [currentUserId]);
+
   // Subscribe to new_message events for unread tracking
   useEffect(() => {
     if (!currentUserId) return;
@@ -123,6 +154,22 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
     };
   }, [currentUserId, selectedGroupId]);
 
+  // Hydrate unreadMap from a chatList snapshot (e.g., after loadChatList)
+  const hydrateFromChatList = (items: Array<{ friend: { id: number }; unreadCount?: number }>) => {
+    if (!Array.isArray(items)) return;
+    setUnreadMap((prev) => {
+      const next: UnreadMap = { ...prev };
+      for (const it of items) {
+        if (!it?.friend || typeof it.friend.id !== 'number') continue;
+        const id = it.friend.id;
+        const cnt = it.unreadCount ?? 0;
+        const existing = next[id] || 0;
+        next[id] = Math.max(existing, cnt);
+      }
+      return next;
+    });
+  };
+
   const markChatAsRead = async (otherUserId: number, onSuccess?: () => void) => {
     console.log(`[markChatAsRead] Starting for userId: ${otherUserId}`);
     
@@ -170,5 +217,5 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
 
   const resetAll = () => { setUnreadMap({}); setGroupUnreadMap({}); };
 
-  return { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, resetAll };
+  return { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, resetAll, hydrateFromChatList };
 }

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { User, Message } from './types';
 import { formatPreviewText, formatPreviewTime } from './utils';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 interface ChatListProps {
   chatList: Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number }>;
@@ -101,7 +102,32 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    onDeleteMessages(friend.id, friend.name);
+                                    toast.custom((toastData) => (
+                                      <div className={`max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}>
+                                        <div className="flex items-start gap-3">
+                                          <div className="flex-1">
+                                            <p className="font-semibold">{t('confirm.deleteMessages', { name: friend.name })}</p>
+                                          </div>
+                                        </div>
+                                        <div className="mt-3 flex justify-end gap-2">
+                                          <button
+                                            onClick={() => toast.dismiss(toastData.id)}
+                                            className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                                          >
+                                            {t('actions.cancel')}
+                                          </button>
+                                          <button
+                                            onClick={() => {
+                                              onDeleteMessages(friend.id, friend.name);
+                                              toast.dismiss(toastData.id);
+                                            }}
+                                            className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"
+                                          >
+                                            {t('actions.delete')}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ), { duration: 8000 });
                                     setOpenMenuId(null);
                                   }}
                                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -114,7 +140,32 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (item.friendshipId) {
-                                    onRemoveFriend(item.friendshipId, friend.name);
+                                    toast.custom((toastData) => (
+                                      <div className={`max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}>
+                                        <div className="flex items-start gap-3">
+                                          <div className="flex-1">
+                                            <p className="font-semibold">{t('confirm.removeFriend', { name: friend.name })}</p>
+                                          </div>
+                                        </div>
+                                        <div className="mt-3 flex justify-end gap-2">
+                                          <button
+                                            onClick={() => toast.dismiss(toastData.id)}
+                                            className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                                          >
+                                            {t('actions.cancel')}
+                                          </button>
+                                          <button
+                                            onClick={() => {
+                                              onRemoveFriend(item.friendshipId as number, friend.name);
+                                              toast.dismiss(toastData.id);
+                                            }}
+                                            className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"
+                                          >
+                                            {t('actions.delete')}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ), { duration: 8000 });
                                   }
                                   setOpenMenuId(null);
                                 }}

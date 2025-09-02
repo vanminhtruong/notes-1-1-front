@@ -1,8 +1,8 @@
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
-import { chatService } from '../../../services/chatService';
-import { groupService } from '../../../services/groupService';
-import type { User, Message } from '../components/component-child/ChatWindow-child/types';
-import type { GroupSummary } from '../../../services/groupService';
+import { chatService } from '../../../../services/chatService';
+import { groupService } from '../../../../services/groupService';
+import type { User, Message } from '../../components/component-child/ChatWindow-child/types';
+import type { GroupSummary } from '../../../../services/groupService';
 
 export type ChatListItem = {
   friend: User;
