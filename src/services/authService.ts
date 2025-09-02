@@ -3,6 +3,7 @@ import api from './api';
 export interface LoginData {
   email: string;
   password: string;
+  remember?: boolean;
 }
 
 export interface RegisterData {
@@ -64,17 +65,17 @@ export const authService = {
     return response.data;
   },
 
-  async requestPasswordReset(email: string): Promise<{ message: string }> {
-    const response = await api.post('/auth/forgot-password', { email });
+  async requestPasswordReset(payload: { email?: string; phone?: string }): Promise<{ message: string }> {
+    const response = await api.post('/auth/forgot-password', payload);
     return response.data;
   },
 
-  async verifyOtp(data: { email: string; otp: string }): Promise<{ message: string }> {
+  async verifyOtp(data: { email?: string; phone?: string; otp: string }): Promise<{ message: string }> {
     const response = await api.post('/auth/verify-otp', data);
     return response.data;
   },
 
-  async resetPassword(data: { email: string; otp: string; newPassword: string }): Promise<{ message: string }> {
+  async resetPassword(data: { email?: string; phone?: string; otp: string; newPassword: string }): Promise<{ message: string }> {
     const response = await api.post('/auth/reset-password', data);
     return response.data;
   },
@@ -86,6 +87,11 @@ export const authService = {
 
   async loginWithFacebook(accessToken: string): Promise<AuthResponse> {
     const response = await api.post('/auth/facebook', { accessToken });
+    return response.data;
+  },
+
+  async getRememberPref(email: string): Promise<{ remember: boolean }> {
+    const response = await api.post('/auth/remember-pref', { email });
     return response.data;
   },
 };

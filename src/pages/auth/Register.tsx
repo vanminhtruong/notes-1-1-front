@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { registerUser } from '@/store/slices/authSlice';
-import { Eye, EyeOff, User, Mail, Lock, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, Sparkles, Phone, Calendar, UserCircle } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useTranslation } from 'react-i18next';
 
@@ -12,6 +12,9 @@ interface RegisterFormData {
   email: string;
   password: string;
   confirmPassword: string;
+  phone?: string | null;
+  birthDate?: string | null; // YYYY-MM-DD
+  gender?: 'male' | 'female' | 'other' | 'unspecified';
 }
 
 const Register = () => {
@@ -37,11 +40,16 @@ const Register = () => {
       return;
     }
 
-    const result = await dispatch(registerUser({
+    const payload = {
       name: data.name,
       email: data.email,
       password: data.password,
-    }));
+      phone: data.phone && data.phone.trim() !== '' ? data.phone.trim() : null,
+      birthDate: data.birthDate && data.birthDate !== '' ? data.birthDate : null,
+      gender: (data.gender as RegisterFormData['gender']) || 'unspecified',
+    };
+
+    const result = await dispatch(registerUser(payload));
 
     if (registerUser.fulfilled.match(result)) {
       reset();
@@ -120,6 +128,71 @@ const Register = () => {
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
               )}
+            </div>
+
+            {/* Phone Field (optional) */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                {t('phone', 'Số điện thoại')} <span className="text-gray-400">({t('optional', 'tùy chọn')})</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Phone className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  {...register('phone', {
+                    validate: (v) => !v || v.trim() === '' || /^[+\d][\d\s\-()]{5,20}$/.test(v) || t('phoneInvalid', 'Số điện thoại không hợp lệ'),
+                  })}
+                  type="tel"
+                  id="phone"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                  placeholder={t('enterPhone', 'Nhập số điện thoại')}
+                />
+              </div>
+              {errors.phone && (
+                <p className="mt-1 text-sm text-red-600">{errors.phone.message as string}</p>
+              )}
+            </div>
+
+            {/* Birth Date Field (optional) */}
+            <div>
+              <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                {t('birthDate', 'Ngày sinh')} <span className="text-gray-400">({t('optional', 'tùy chọn')})</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Calendar className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  {...register('birthDate')}
+                  type="date"
+                  id="birthDate"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                />
+              </div>
+            </div>
+
+            {/* Gender Field (optional) */}
+            <div>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                {t('gender', 'Giới tính')} <span className="text-gray-400">({t('optional', 'tùy chọn')})</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <UserCircle className="h-5 w-5 text-gray-400" />
+                </div>
+                <select
+                  {...register('gender')}
+                  id="gender"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white"
+                  defaultValue="unspecified"
+                >
+                  <option value="unspecified">{t('genderUnspecified', 'Không tiết lộ')}</option>
+                  <option value="male">{t('genderMale', 'Nam')}</option>
+                  <option value="female">{t('genderFemale', 'Nữ')}</option>
+                  <option value="other">{t('genderOther', 'Khác')}</option>
+                </select>
+              </div>
             </div>
 
             {/* Password Field */}
@@ -203,10 +276,10 @@ const Register = () => {
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-{t('creatingAccount')}
+                    {t('creatingAccount')}
                 </div>
               ) : (
-t('createAccountBtn')
+                t('createAccountBtn')
               )}
             </button>
 
@@ -247,3 +320,4 @@ t('createAccountBtn')
 };
 
 export default Register;
+

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
+import { authService } from '@/services/authService';
 import { loginUser, loginWithGoogle, loginWithFacebook } from '@/store/slices/authSlice';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -18,6 +19,7 @@ declare global {
 interface LoginFormData {
   email: string;
   password: string;
+  remember?: boolean;
 }
 
 const Login = () => {
@@ -29,17 +31,63 @@ const Login = () => {
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
   const FACEBOOK_APP_ID = import.meta.env.VITE_FACEBOOK_APP_ID as string | undefined;
 
+  const getRememberFromCookie = () => {
+    try {
+      const m = document.cookie.match(/(?:^|; )remember_ui=([^;]+)/);
+      return m ? decodeURIComponent(m[1]) === '1' : false;
+    } catch {
+      return false;
+    }
+  };
+
+  const getEmailFromCookie = () => {
+    try {
+      const m = document.cookie.match(/(?:^|; )last_email=([^;]+)/);
+      return m ? decodeURIComponent(m[1]) : '';
+    } catch {
+      return '';
+    }
+  };
+
+  const getPasswordFromCookie = () => {
+    try {
+      const m = document.cookie.match(/(?:^|; )last_password=([^;]+)/);
+      return m ? decodeURIComponent(m[1]) : '';
+    } catch {
+      return '';
+    }
+  };
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
-  } = useForm<LoginFormData>();
+  } = useForm<LoginFormData>({
+    defaultValues: { 
+      email: getRememberFromCookie() ? getEmailFromCookie() : '', 
+      password: getRememberFromCookie() ? getPasswordFromCookie() : '',
+      remember: getRememberFromCookie() 
+    },
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
+
+  // On mount, if email cookie exists, sync remember from backend
+  useEffect(() => {
+    const email = getEmailFromCookie();
+    if (!email) return;
+    (async () => {
+      try {
+        const { remember } = await authService.getRememberPref(email);
+        setValue('remember', !!remember, { shouldDirty: true });
+      } catch {}
+    })();
+  }, []);
 
   // Map GIS/FedCM reasons to user-friendly messages
   const reasonMessage = (reason: string) => {
@@ -240,6 +288,18 @@ const Login = () => {
   };
 
   const onSubmit = async (data: LoginFormData) => {
+    // Save credentials to cookies if remember is checked
+    if (data.remember) {
+      document.cookie = `last_email=${encodeURIComponent(data.email)}; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=Strict`;
+      document.cookie = `last_password=${encodeURIComponent(data.password)}; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=Strict`;
+      document.cookie = `remember_ui=1; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=Strict`;
+    } else {
+      // Clear cookies if remember is unchecked
+      document.cookie = 'last_email=; max-age=0; path=/; SameSite=Strict';
+      document.cookie = 'last_password=; max-age=0; path=/; SameSite=Strict';
+      document.cookie = 'remember_ui=; max-age=0; path=/; SameSite=Strict';
+    }
+
     const result = await dispatch(loginUser(data));
     
     if (loginUser.fulfilled.match(result)) {
@@ -288,6 +348,17 @@ const Login = () => {
                   id="email"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                   placeholder={t('enterEmail')}
+                  onBlur={async (e) => {
+                    const email = e.target.value.trim();
+                    if (!email) return;
+                    // Quick client-side email check before calling backend
+                    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+                    if (!ok) return;
+                    try {
+                      const { remember } = await authService.getRememberPref(email);
+                      setValue('remember', !!remember, { shouldDirty: true });
+                    } catch {}
+                  }}
                 />
               </div>
               {errors.email && (
@@ -334,12 +405,12 @@ const Login = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
-                  id="remember-me"
-                  name="remember-me"
+                  id="remember"
+                  {...register('remember')}
                   type="checkbox"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-200">
+                <label htmlFor="remember" className="ml-2 block text-sm text-gray-700 dark:text-gray-200">
 {t('rememberMe')}
                 </label>
               </div>
