@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-
-interface SetPinModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  hasExisting: boolean;
-  onSet: (payload: { pinHash: string; oldPinHash?: string }) => void;
-}
+import type { SetPinModalProps } from '../../interface/ChatUI.interface';
 
 async function hashPIN(pin: string): Promise<string> {
   const enc = new TextEncoder();

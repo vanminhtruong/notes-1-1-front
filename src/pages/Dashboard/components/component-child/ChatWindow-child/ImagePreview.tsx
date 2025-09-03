@@ -1,9 +1,5 @@
 import { useTranslation } from 'react-i18next';
-
-interface ImagePreviewProps {
-  previewImage: string | null;
-  onClose: () => void;
-}
+import type { ImagePreviewProps } from '../../interface/ChatUI.interface';
 
 const ImagePreview = ({ previewImage, onClose }: ImagePreviewProps) => {
   const { t } = useTranslation('dashboard');

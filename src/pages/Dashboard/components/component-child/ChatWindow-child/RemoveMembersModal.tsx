@@ -1,14 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-export type RemovableMember = { id: number; name: string; avatar?: string };
-
-interface RemoveMembersModalProps {
-  isOpen: boolean;
-  members: RemovableMember[];
-  onClose: () => void;
-  onConfirm: (memberIds: number[]) => Promise<void> | void;
-}
+import type { RemoveMembersModalProps } from '../../interface/ChatUI.interface';
 
 const RemoveMembersModal: React.FC<RemoveMembersModalProps> = ({ isOpen, members, onClose, onConfirm }) => {
   const { t } = useTranslation('dashboard');

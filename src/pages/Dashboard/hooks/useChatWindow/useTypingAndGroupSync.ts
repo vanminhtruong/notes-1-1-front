@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { User } from '../../components/component-child/ChatWindow-child/types';
+import type { User } from '../../components/interface/ChatTypes.interface';
 
 interface Params {
   selectedChatId: number | null;

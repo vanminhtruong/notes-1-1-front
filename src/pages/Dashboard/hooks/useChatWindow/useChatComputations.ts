@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
 import type { TFunction } from 'i18next';
-import type { User, Message } from '../../components/component-child/ChatWindow-child/types';
+import type { User, Message } from '../../components/interface/ChatTypes.interface';
 import type { GroupSummary } from '../../../../services/groupService';
-
-export type NotificationItem = { id: number; name: string; avatar?: string; count: number };
+import type { NotificationItem } from '../../components/interface/NotificationBell.interface';
 
 export function useFilteredUsers(
   users: User[],

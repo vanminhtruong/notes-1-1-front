@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { User } from '../../components/component-child/ChatWindow-child/types';
+import type { User } from '../../components/interface/ChatTypes.interface';
 import type { GroupSummary } from '../../../../services/groupService';
 
 export function useBellNavigation(

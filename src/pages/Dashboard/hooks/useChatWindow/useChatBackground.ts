@@ -29,10 +29,18 @@ export function useChatBackground(selectedChatId: number | null, t: TFunction<'d
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
-    const handler = (payload: { userId: number; backgroundUrl: string | null }) => {
+    const handler = async (payload: { userId: number; backgroundUrl: string | null; persistForPeer?: boolean }) => {
       if (!selectedChatId) return;
       if (payload && payload.userId === selectedChatId) {
         setChatBackgroundUrl(payload.backgroundUrl || null);
+        // If sender requests peer persistence, save it on this client as well
+        if (payload.persistForPeer === true) {
+          try {
+            await chatService.setChatBackground(selectedChatId, payload.backgroundUrl ?? null);
+          } catch {
+            // ignore persistence errors on peer
+          }
+        }
       }
     };
     socket.off('chat_background_update', handler);
@@ -74,8 +82,34 @@ export function useChatBackground(selectedChatId: number | null, t: TFunction<'d
   };
 
   const changeBackgroundForBoth = async (selectedChatIdParam: number | null) => {
-    // For frontend, same flow as changeBackground but we explicitly broadcast to the other user as well
-    await changeBackground(selectedChatIdParam);
+    try {
+      if (!selectedChatIdParam) return;
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const loadingId = toast.loading(t('chat.background.uploading', 'Đang tải ảnh nền...'));
+        try {
+          const { url } = await uploadService.uploadImage(file);
+          const resp = await chatService.setChatBackground(selectedChatIdParam, url);
+          setChatBackgroundUrl(resp?.data?.backgroundUrl || url || null);
+          const socket = getSocket();
+          if (socket) {
+            socket.emit('chat_background_update', { userId: selectedChatIdParam, backgroundUrl: url, persistForPeer: true });
+          }
+          toast.success(t('chat.background.updated', 'Đã cập nhật ảnh nền'));
+        } catch (err: any) {
+          toast.error(err?.response?.data?.message || t('chat.errors.generic'));
+        } finally {
+          toast.dismiss(loadingId);
+        }
+      };
+      input.click();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || t('chat.errors.generic'));
+    }
   };
 
   const resetBackground = async (selectedChatIdParam: number | null) => {

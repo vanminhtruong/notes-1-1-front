@@ -1,23 +1,7 @@
 import { Search, X } from 'lucide-react';
 import NotificationBell from '../../NotificationBell';
 import { useTranslation } from 'react-i18next';
-
-interface ChatHeaderProps {
-  totalUnread: number;
-  ring: boolean;
-  ringSeq: number;
-  notificationItems: Array<{ id: number; name: string; avatar?: string; count: number }>;
-  searchTerm: string;
-  activeTab: 'users' | 'chats' | 'unread' | 'groups';
-  onClose: () => void;
-  onItemClick: (userId: number) => void;
-  onClearAll: () => void;
-  onSearchChange: (value: string) => void;
-  onTabChange: (tab: 'users' | 'chats' | 'unread' | 'groups') => void;
-  onOpenSettings: () => void;
-  showSettings: boolean;
-}
-
+import type { ChatHeaderProps } from '../../interface/ChatHeader.interface';
 const ChatHeader = ({
   totalUnread,
   ring,

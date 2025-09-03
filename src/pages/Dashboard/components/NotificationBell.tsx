@@ -1,22 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bell } from 'lucide-react';
-
-export type NotificationItem = {
-  id: number;
-  name: string;
-  avatar?: string;
-  count: number;
-};
-
-interface NotificationBellProps {
-  total: number;
-  ring?: boolean;
-  ringSeq?: number;
-  items: NotificationItem[];
-  onItemClick: (id: number) => void;
-  onClearAll?: () => void;
-}
+import type { NotificationBellProps } from './interface/NotificationBell.interface';
 
 export default function NotificationBell({ total, ring, ringSeq, items, onItemClick, onClearAll }: NotificationBellProps) {
   const { t } = useTranslation('dashboard');

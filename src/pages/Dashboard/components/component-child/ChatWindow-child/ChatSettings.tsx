@@ -1,19 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-
-interface ChatSettingsProps {
-  enabled: boolean;
-  hasPin: boolean;
-  readStatusEnabled: boolean;
-  hidePhone: boolean;
-  hideBirthDate: boolean;
-  onBack: () => void;
-  onToggle: (next: boolean) => void;
-  onChangePin: () => void;
-  onToggleReadStatus: (enabled: boolean) => void;
-  onToggleHidePhone: (enabled: boolean) => void;
-  onToggleHideBirthDate: (enabled: boolean) => void;
-}
+import type { ChatSettingsProps } from '../../interface/ChatSettings.interface';
 
 const ChatSettings: React.FC<ChatSettingsProps> = ({ enabled, hasPin, readStatusEnabled, hidePhone, hideBirthDate, onBack, onToggle, onChangePin, onToggleReadStatus, onToggleHidePhone, onToggleHideBirthDate }) => {
   const { t } = useTranslation('dashboard');

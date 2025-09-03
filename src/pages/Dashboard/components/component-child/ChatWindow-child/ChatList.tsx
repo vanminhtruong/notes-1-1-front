@@ -1,23 +1,9 @@
 import { MessageCircle, MoreVertical, UserX, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import type { User, Message } from './types';
-import { formatPreviewText, formatPreviewTime } from './utils';
+import { formatPreviewText, formatPreviewTime } from '../../../../../utils/utils';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-
-interface ChatListProps {
-  chatList: Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number }>;
-  friends: User[];
-  unreadMap: Record<number, number>;
-  currentUserId?: number;
-  onStartChat: (user: User) => void;
-  onRemoveFriend?: (friendshipId: number, friendName: string) => void;
-  onDeleteMessages?: (friendId: number, friendName: string) => void;
-  e2eeEnabled?: boolean;
-  e2eeUnlocked?: boolean;
-  lockedPlaceholder?: string;
-}
-
+import type { ChatListProps } from '../../interface/ChatList.interface';
 const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
   const { t } = useTranslation('dashboard');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);

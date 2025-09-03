@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { chatService } from '../../../../services/chatService';
 import { groupService } from '../../../../services/groupService';
-import type { User, Message } from '../../components/component-child/ChatWindow-child/types';
+import type { User, Message } from '../../components/interface/ChatTypes.interface';
 import type { GroupSummary } from '../../../../services/groupService';
 
 export function useChatOpeners(params: {

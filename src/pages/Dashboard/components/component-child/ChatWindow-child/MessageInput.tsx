@@ -1,21 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
-import type { ChangeEvent } from 'react';
 import { Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-
-interface MessageInputProps {
-  newMessage: string;
-  pendingImages: Array<{ id: string; file: File; preview: string }>;
-  pendingFiles: Array<{ id: string; file: File }>;
-  onMessageChange: (value: string) => void;
-  onSendMessage: () => void;
-  onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onRemoveImage: (id: string) => void;
-  onRemoveFile: (id: string) => void;
-  onTyping: () => void;
-  onTypingStop: () => void;
-}
-
+import type { MessageInputProps } from '../../interface/MessageInput.interface';
 const MessageInput = ({
   newMessage,
   pendingImages,

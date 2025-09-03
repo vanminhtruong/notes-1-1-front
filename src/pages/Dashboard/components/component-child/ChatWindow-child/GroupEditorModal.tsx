@@ -3,17 +3,7 @@ import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { uploadService } from '../../../../../services/uploadService';
 import { groupService } from '../../../../../services/groupService';
-import type { GroupSummary } from '../../../../../services/groupService';
-
-export type GroupEditorMode = 'create' | 'edit';
-
-interface GroupEditorModalProps {
-  isOpen: boolean;
-  mode: GroupEditorMode;
-  initial?: Partial<GroupSummary> | null;
-  onClose: () => void;
-  onSuccess?: (group: GroupSummary) => void;
-}
+import type { GroupEditorModalProps } from '../../interface/ChatUI.interface';
 
 const GroupEditorModal: React.FC<GroupEditorModalProps> = ({ isOpen, mode, initial, onClose, onSuccess }) => {
   const { t } = useTranslation('dashboard');

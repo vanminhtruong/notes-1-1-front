@@ -13,10 +13,11 @@ import {
   Pencil
 } from 'lucide-react';
 import { useDashboard } from '@/pages/Dashboard/hooks/useDashboard';
+import { formatDateMDYY } from '@/utils/utils';
 
 const Dashboard = () => {
   const {
-    t, i18n,
+    t,
     notes, isLoading, stats,
     searchTerm, setSearchTerm,
     selectedCategory, setSelectedCategory,
@@ -275,7 +276,7 @@ const Dashboard = () => {
                   </div>
                   <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                     <Clock className="w-3 h-3" />
-                    {new Date(note.createdAt).toLocaleDateString(i18n.language)}
+                    {formatDateMDYY(note.createdAt)}
                   </div>
                 </div>
               </div>

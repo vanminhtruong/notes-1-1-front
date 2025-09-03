@@ -2,36 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import { groupService } from '../../../../../services/groupService';
-import type { GroupSummary } from '../../../../../services/groupService';
 import { getSocket } from '../../../../../services/socket';
 import { chatService } from '../../../../../services/chatService';
 import toast from 'react-hot-toast';
 import { useAppSelector } from '../../../../../store';
 import GroupEditorModal from './GroupEditorModal';
-
-type GroupItem = GroupSummary;
-
-interface GroupsTabProps {
-  onSelectGroup?: (group: GroupItem) => void;
-}
-
-type PendingInvite = {
-  id: number;
-  status: 'pending' | 'accepted' | 'declined';
-  group: {
-    id: number;
-    name: string;
-    avatar?: string;
-    background?: string;
-    ownerId: number;
-  };
-  inviter: {
-    id: number;
-    name: string;
-    email: string;
-    avatar?: string;
-  };
-};
+import type { GroupsTabProps, GroupItem, PendingInvite } from '../../interface/ChatUI.interface';
 
 const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
   const { t } = useTranslation('dashboard');

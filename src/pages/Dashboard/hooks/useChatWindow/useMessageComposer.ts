@@ -4,7 +4,7 @@ import { uploadService } from '../../../../services/uploadService';
 import { chatService } from '../../../../services/chatService';
 import { groupService } from '../../../../services/groupService';
 import { getSocket } from '../../../../services/socket';
-import type { User, Message } from '../../components/component-child/ChatWindow-child/types';
+import type { User, Message } from '../../components/interface/ChatTypes.interface';
 import type { GroupSummary } from '../../../../services/groupService';
 
 interface UseMessageComposerParams {

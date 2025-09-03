@@ -1,7 +1,6 @@
 import { CheckIcon, CheckCheckIcon } from 'lucide-react';
-import type { Message } from './types';
 import { useMemo, useEffect } from 'react';
-
+import type { MessageStatusProps } from '../../interface/MessageStatus.interface';
 // CSS for smooth avatar animations
 const avatarAnimationStyles = `
   @keyframes avatarSlideIn {
@@ -74,12 +73,7 @@ const avatarAnimationStyles = `
   }
 `;
 
-interface MessageStatusProps {
-  message: Message;
-  isOwnMessage: boolean;
-  currentUserId?: number;
-  allMessages?: Message[];
-}
+ 
 
 const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] }: MessageStatusProps) => {
   // Inject custom CSS styles for animations

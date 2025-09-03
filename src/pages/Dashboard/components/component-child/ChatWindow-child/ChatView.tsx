@@ -1,43 +1,9 @@
 import { useRef, useEffect, useState } from 'react';
 import { MoreVertical, ChevronDown } from 'lucide-react';
-import type { Message, MessageGroup } from './types';
 import MessageBubble from './MessageBubble';
 import { useTranslation } from 'react-i18next';
-
-interface ChatViewProps {
-  selectedChat: any;
-  messages: Message[];
-  groupedMessages: MessageGroup[];
-  isPartnerTyping: boolean;
-  typingUsers?: Array<{ id: any; name: string; avatar?: string }>;
-  menuOpenKey: string | null;
-  currentUserId?: number;
-  onBack: () => void;
-  onMenuToggle: (key: string | null) => void;
-  onRecallMessage: (msg: Message, scope: 'self' | 'all') => void;
-  onRecallGroup: (group: MessageGroup, scope: 'self' | 'all') => void;
-  onDownloadAttachment: (url: string) => void;
-  onPreviewImage: (url: string) => void;
-  // Group mode
-  isGroup?: boolean;
-  groupOnline?: boolean;
-  onLeaveGroup?: () => void;
-  // Group editing
-  isGroupOwner?: boolean;
-  onEditGroup?: () => void;
-  onDeleteGroup?: () => void;
-  onRemoveMembers?: () => void;
-  // E2EE masking
-  maskMessages?: boolean;
-  lockedNotice?: string;
-  onUnlock?: () => void;
-  // Per-chat background (1-1)
-  backgroundUrl?: string | null;
-  onChangeBackground?: () => void;
-  onChangeBackgroundForBoth?: () => void;
-  onResetBackground?: () => void;
-}
-
+import { formatDateMDYY, formatDateTimeMDYY_HHmm } from '../../../../../utils/utils';
+import type { ChatViewProps } from '../../interface/ChatView.interface';
 const ChatView = ({
   selectedChat,
   messages,
@@ -150,12 +116,13 @@ const ChatView = ({
           </button>
           <div className="relative">
             <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md">
-              {/* Avatar clickable for 1-1 chat to open profile */}
+              {/* Avatar clickable only for 1-1 chat to open profile; disabled for group */}
               <button
                 type="button"
-                onClick={() => { setProfileUser(selectedChat); }}
-                title={t('chat.chatView.viewProfile', 'Xem thông tin')}
-                className="w-full h-full cursor-pointer"
+                onClick={!isGroup ? () => { setProfileUser(selectedChat); } : undefined}
+                title={!isGroup ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
+                aria-disabled={isGroup}
+                className={`w-full h-full ${!isGroup ? 'cursor-pointer' : 'cursor-default'}`}
               >
                 {selectedChat.avatar ? (
                   <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
@@ -680,7 +647,6 @@ const ChatView = ({
                       default: return notProvided;
                     }
                   };
-                  const fmtDate = (d?: string | null) => d ? new Date(d).toLocaleDateString() : notProvided;
                   return (
                     <>
                       <div className="flex items-center justify-between">
@@ -695,7 +661,7 @@ const ChatView = ({
 
                       <div className="flex items-center justify-between">
                         <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.birthDate', 'Ngày sinh')}</span>
-                        <span className="text-gray-900 dark:text-gray-200">{profileUser.hideBirthDate ? t('chat.chatView.profile.birthDateHiddenMask', '../..') : fmtDate(profileUser.birthDate)}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{profileUser.hideBirthDate ? t('chat.chatView.profile.birthDateHiddenMask', '../..') : (formatDateMDYY(profileUser.birthDate) || notProvided)}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
@@ -706,7 +672,7 @@ const ChatView = ({
                       {profileUser.lastSeenAt && !profileUser.isOnline && (
                         <div className="flex items-center justify-between">
                           <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.lastSeen', 'Hoạt động')}</span>
-                          <span className="text-gray-900 dark:text-gray-200">{new Date(profileUser.lastSeenAt).toLocaleString()}</span>
+                          <span className="text-gray-900 dark:text-gray-200">{formatDateTimeMDYY_HHmm(profileUser.lastSeenAt) || notProvided}</span>
                         </div>
                       )}
                     </>

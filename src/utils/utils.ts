@@ -1,4 +1,4 @@
-import type { Message } from './types';
+import type { Message } from '../pages/Dashboard/components/component-child/ChatWindow-child/types';
 
 // Helper to format timestamps for last message preview
 export const formatPreviewTime = (iso?: string) => {
@@ -11,7 +11,33 @@ export const formatPreviewTime = (iso?: string) => {
   }
   // If within this year, show day/month; otherwise include year
   const sameYear = d.getFullYear() === now.getFullYear();
-  return d.toLocaleDateString([], sameYear ? { day: '2-digit', month: '2-digit' } : { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  if (sameYear) {
+    return `${m}/${day}`;
+  }
+  return formatDateMDYY(d);
+};
+
+// Generic date helpers
+export const formatDateMDYY = (input?: string | Date | null) => {
+  if (!input) return '';
+  const d = input instanceof Date ? input : new Date(input);
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const yy = String(d.getFullYear()).slice(-2);
+  return `${m}/${day}/${yy}`;
+};
+
+export const formatDateTimeMDYY_HHmm = (input?: string | Date | null) => {
+  if (!input) return '';
+  const d = input instanceof Date ? input : new Date(input);
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const yy = String(d.getFullYear()).slice(-2);
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${m}/${day}/${yy} ${hh}:${mm}`;
 };
 
 export const formatPreviewText = (

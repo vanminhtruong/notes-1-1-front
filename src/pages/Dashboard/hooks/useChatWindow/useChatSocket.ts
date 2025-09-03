@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { getSocket } from '../../../../services/socket';
 import type { TFunction } from 'i18next';
 import type { GroupSummary } from '../../../../services/groupService';
-import type { User, Message } from '../../components/component-child/ChatWindow-child/types';
+import type { User, Message } from '../../components/interface/ChatTypes.interface';
 
 // Keep payload types loose to avoid over-constraining external events
 

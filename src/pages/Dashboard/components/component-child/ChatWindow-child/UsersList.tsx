@@ -1,14 +1,6 @@
 import { Search, Check, X, UserPlus } from 'lucide-react';
-import type { User } from './types';
 import { useTranslation } from 'react-i18next';
-
-interface UsersListProps {
-  friendRequests: User[];
-  filteredUsers: User[];
-  onAcceptFriendRequest: (userId: number) => void;
-  onRejectFriendRequest: (userId: number) => void;
-  onSendFriendRequest: (userId: number) => void;
-}
+import type { UsersListProps } from '../../interface/ChatUI.interface';
 
 const UsersList = ({
   friendRequests,
