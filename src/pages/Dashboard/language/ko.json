@@ -93,6 +93,12 @@
       "title": "노트 편집"
     }
   },
+  "success": {
+    "reminderAcknowledged": "알림이 확인되었습니다"
+  },
+  "errors": {
+    "reminderAcknowledgeFailed": "알림 확인에 실패했습니다"
+  },
   "chat": {
     "errors": {
       "downloadFile": "파일을 다운로드할 수 없습니다",

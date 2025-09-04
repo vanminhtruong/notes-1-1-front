@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { notesService, type Note, type CreateNoteData, type UpdateNoteData } from '@/services/notesService';
 import toast from 'react-hot-toast';
+import i18n from '@/libs/i18n';
 
 export interface NotesState {
   notes: Note[];
@@ -26,6 +27,8 @@ export interface NotesState {
     byPriority: Array<{ priority: string; count: number }>;
     byCategory: Array<{ category: string; count: number }>;
   };
+  // Track which notes have an active due reminder (to show ringing bell UI)
+  dueReminderNoteIds: number[];
 }
 
 const initialState: NotesState = {
@@ -52,6 +55,7 @@ const initialState: NotesState = {
     byPriority: [],
     byCategory: [],
   },
+  dueReminderNoteIds: [],
 };
 
 // Async thunks
@@ -70,6 +74,23 @@ export const fetchNotes = createAsyncThunk(
       return response;
     } catch (error: any) {
       const message = error.response?.data?.message || 'Lấy danh sách ghi chú thất bại';
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const ackReminder = createAsyncThunk(
+  'notes/ackReminder',
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response = await notesService.ackReminder(id);
+      // Use translated toast message instead of backend-provided text
+      toast.success(i18n.t('dashboard:success.reminderAcknowledged'));
+      return response.note;
+    } catch (error: any) {
+      const fallback = i18n.t('dashboard:errors.reminderAcknowledgeFailed');
+      const message = error.response?.data?.message || fallback;
+      toast.error(fallback);
       return rejectWithValue(message);
     }
   }
@@ -223,6 +244,22 @@ const notesSlice = createSlice({
         state.stats.archived = Math.max(0, state.stats.archived - 1);
       }
     },
+    // Reminder due event from server
+    noteReminderReceived: (state, action: PayloadAction<{ noteId: number; note?: Note }>) => {
+      const { noteId, note } = action.payload;
+      if (!state.dueReminderNoteIds.includes(noteId)) {
+        state.dueReminderNoteIds.push(noteId);
+      }
+      if (note) {
+        const idx = state.notes.findIndex(n => n.id === note.id);
+        if (idx !== -1) state.notes[idx] = note;
+        if (state.currentNote?.id === note.id) state.currentNote = note;
+      }
+    },
+    // UI can acknowledge a reminder to stop ringing bell
+    acknowledgeReminder: (state, action: PayloadAction<number>) => {
+      state.dueReminderNoteIds = state.dueReminderNoteIds.filter(id => id !== action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -236,6 +273,11 @@ const notesSlice = createSlice({
         state.notes = action.payload.notes;
         state.pagination = action.payload.pagination;
         state.error = null;
+        // Recompute due reminders on each fetch to persist bell state across refresh
+        const now = Date.now();
+        state.dueReminderNoteIds = action.payload.notes
+          .filter(n => !!n.reminderAt && new Date(n.reminderAt as string).getTime() <= now && !n.reminderAcknowledged)
+          .map(n => n.id);
       })
       .addCase(fetchNotes.rejected, (state, action) => {
         state.isLoading = false;
@@ -280,6 +322,13 @@ const notesSlice = createSlice({
           state.currentNote = action.payload;
         }
       })
+      // Acknowledge reminder
+      .addCase(ackReminder.fulfilled, (state, action) => {
+        const idx = state.notes.findIndex(n => n.id === action.payload.id);
+        if (idx !== -1) state.notes[idx] = action.payload;
+        if (state.currentNote?.id === action.payload.id) state.currentNote = action.payload;
+        state.dueReminderNoteIds = state.dueReminderNoteIds.filter(id => id !== action.payload.id);
+      })
       // Fetch Stats
       .addCase(fetchNoteStats.fulfilled, (state, action) => {
         state.stats = action.payload;
@@ -296,6 +345,8 @@ export const {
   updateNoteRealtime,
   deleteNoteRealtime,
   archiveNoteRealtime,
+  noteReminderReceived,
+  acknowledgeReminder,
 } = notesSlice.actions;
 
 export default notesSlice.reducer;

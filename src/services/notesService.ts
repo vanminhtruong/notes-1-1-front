@@ -8,6 +8,9 @@ export interface Note {
   category: string;
   priority: 'low' | 'medium' | 'high';
   isArchived: boolean;
+  reminderAt: string | null;
+  reminderSent: boolean;
+  reminderAcknowledged: boolean;
   userId: number;
   createdAt: string;
   updatedAt: string;
@@ -24,6 +27,7 @@ export interface CreateNoteData {
   imageUrl?: string | null;
   category?: string;
   priority?: 'low' | 'medium' | 'high';
+  reminderAt?: string | null;
 }
 
 export interface UpdateNoteData {
@@ -33,6 +37,7 @@ export interface UpdateNoteData {
   category?: string;
   priority?: 'low' | 'medium' | 'high';
   isArchived?: boolean;
+  reminderAt?: string | null;
 }
 
 export interface NotesResponse {
@@ -97,6 +102,11 @@ export const notesService = {
 
   async getNoteStats(): Promise<NoteStats> {
     const response = await api.get('/notes/stats');
+    return response.data;
+  },
+
+  async ackReminder(id: number): Promise<{ message: string; note: Note }> {
+    const response = await api.patch(`/notes/${id}/ack-reminder`);
     return response.data;
   },
 };

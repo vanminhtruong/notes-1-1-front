@@ -10,6 +10,7 @@ export default defineConfig({
     alias: (() => {
       const rootDir = fileURLToPath(new URL('.', import.meta.url))
       return {
+        '~': path.resolve(rootDir, './src'),
         '@': path.resolve(rootDir, './src'),
         '@components': path.resolve(rootDir, './src/components'),
         '@pages': path.resolve(rootDir, './src/pages'),

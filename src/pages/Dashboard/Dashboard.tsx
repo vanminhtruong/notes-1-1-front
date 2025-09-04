@@ -10,7 +10,8 @@ import {
   StickyNote,
   Clock,
   Check,
-  Pencil
+  Pencil,
+  Bell,
 } from 'lucide-react';
 import { useDashboard } from '@/pages/Dashboard/hooks/useDashboard';
 import { formatDateMDYY } from '@/utils/utils';
@@ -30,6 +31,8 @@ const Dashboard = () => {
     editNote, setEditNote,
     handleCreateNote, handleArchiveNote, confirmDeleteNote, openEdit, handleUpdateNote,
     getPriorityColor, getPriorityText,
+    dueReminderNoteIds,
+    acknowledgeReminderNote,
   } = useDashboard();
 
 
@@ -222,6 +225,15 @@ const Dashboard = () => {
                     </h3>
                   </div>
                   <div className="flex gap-2">
+                    {dueReminderNoteIds.includes(note.id) && (
+                      <button
+                        onClick={() => acknowledgeReminderNote(note.id)}
+                        className="p-1 text-amber-500"
+                        title={t('actions.reminderDue')}
+                      >
+                        <Bell className="w-4 h-4 bell-strong" />
+                      </button>
+                    )}
                     {showArchived ? (
                       <button
                         onClick={() => handleArchiveNote(note.id)}
@@ -397,6 +409,20 @@ const Dashboard = () => {
                   </select>
                 </div>
               </div>
+
+              {/* Reminder datetime */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  {t('modals.create.fields.reminderAt')}
+                </label>
+                <input
+                  type="datetime-local"
+                  value={newNote.reminderAtLocal}
+                  onChange={(e) => setNewNote({ ...newNote, reminderAtLocal: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('modals.create.fields.reminderHint')}</p>
+              </div>
             </div>
 
             <div className="flex gap-3 mt-6">
@@ -508,6 +534,20 @@ const Dashboard = () => {
                     <option value="high">{t('priority.high')}</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Reminder datetime */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  {t('modals.create.fields.reminderAt')}
+                </label>
+                <input
+                  type="datetime-local"
+                  value={editNote.reminderAtLocal}
+                  onChange={(e) => setEditNote({ ...editNote, reminderAtLocal: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('modals.create.fields.reminderHint')}</p>
               </div>
             </div>
 

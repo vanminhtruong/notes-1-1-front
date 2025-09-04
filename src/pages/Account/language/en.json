@@ -3,12 +3,18 @@
   "profile": "Profile",
   "settings": "Settings",
   "description": "View and edit your account information. Note: Email cannot be changed.",
+  "edit": "Edit",
+  "titleEdit": "Edit Profile",
+  "back": "Back",
+  "backToHome": "Back to home",
   "avatar": {
     "label": "Avatar",
     "upload": "Choose Image",
     "uploading": "Uploading...",
     "remove": "Remove Image",
     "info": "Supports JPG, PNG, WebP. Max 5MB.",
+    "preview": "Preview image",
+    "closePreview": "Close",
     "maxSizeError": "Maximum image size is 5MB",
     "uploadError": "Failed to upload image"
   },
@@ -17,6 +23,24 @@
     "namePlaceholder": "Enter full name",
     "email": "Email",
     "emailNote": "Email cannot be changed.",
-    "save": "Save Changes"
+    "save": "Save Changes",
+    "phone": "Phone",
+    "phonePlaceholder": "+84 912 345 678",
+    "birthDate": "Birth Date",
+    "gender": "Gender",
+    "gender.unspecified": "Prefer not to say",
+    "gender.male": "Male",
+    "gender.female": "Female",
+    "gender.other": "Other"
+  },
+  "actions": {
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "nameRequired": "Please enter your name",
+    "updateFailed": "Update failed"
+  },
+  "success": {
+    "updated": "Updated successfully"
   }
 }

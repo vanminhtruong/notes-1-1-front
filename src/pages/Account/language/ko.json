@@ -3,12 +3,18 @@
   "profile": "프로필",
   "settings": "설정",
   "description": "계정 정보를 확인하고 수정하세요. 참고: 이메일은 변경할 수 없습니다.",
+  "edit": "수정",
+  "titleEdit": "정보 수정",
+  "back": "뒤로",
+  "backToHome": "홈으로",
   "avatar": {
     "label": "아바타",
     "upload": "이미지 선택",
     "uploading": "업로드 중...",
     "remove": "이미지 제거",
     "info": "JPG, PNG, WebP 지원. 최대 5MB",
+    "preview": "이미지 미리보기",
+    "closePreview": "닫기",
     "maxSizeError": "이미지 최대 크기는 5MB 입니다",
     "uploadError": "이미지 업로드 실패"
   },
@@ -17,7 +23,25 @@
     "namePlaceholder": "이름을 입력하세요",
     "email": "이메일",
     "emailNote": "이메일은 변경할 수 없습니다.",
-    "save": "변경 사항 저장"
+    "save": "변경 사항 저장",
+    "phone": "전화번호",
+    "phonePlaceholder": "+82 10-1234-5678",
+    "birthDate": "생년월일",
+    "gender": "성별",
+    "gender.unspecified": "비공개",
+    "gender.male": "남성",
+    "gender.female": "여성",
+    "gender.other": "기타"
+  },
+  "actions": {
+    "cancel": "취소"
+  },
+  "errors": {
+    "nameRequired": "이름을 입력해 주세요",
+    "updateFailed": "업데이트에 실패했습니다"
+  },
+  "success": {
+    "updated": "성공적으로 업데이트되었습니다"
   }
 }
 

@@ -7,6 +7,7 @@ import {
   archiveNoteRealtime,
   fetchNoteStats,
   fetchNotes,
+  noteReminderReceived,
 } from '@/store/slices/notesSlice';
 
 class SocketService {
@@ -83,6 +84,22 @@ class SocketService {
 
     this.socket.on('online_status', (data) => {
       console.log('Online status:', data);
+    });
+
+    // Reminder notifications
+    this.socket.on('note_reminder', (payload: any) => {
+      try {
+        // Support different payload shapes
+        if (payload?.id) {
+          store.dispatch(noteReminderReceived({ noteId: payload.id, note: payload }));
+        } else if (payload?.note?.id) {
+          store.dispatch(noteReminderReceived({ noteId: payload.note.id, note: payload.note }));
+        } else if (payload?.noteId) {
+          store.dispatch(noteReminderReceived({ noteId: payload.noteId, note: payload.note }));
+        }
+      } catch (e) {
+        console.warn('Failed to handle note_reminder payload', e);
+      }
     });
   }
 

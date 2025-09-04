@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import toast from 'react-hot-toast';
-import { fetchNotes, fetchNoteStats, createNote, deleteNote, archiveNote, setFilters, updateNote } from '@/store/slices/notesSlice';
+import { fetchNotes, fetchNoteStats, createNote, deleteNote, archiveNote, setFilters, updateNote, ackReminder } from '@/store/slices/notesSlice';
 import { socketService } from '@/services/socketService';
 import { useTranslation } from 'react-i18next';
+import { startReminderRinging, stopReminderRinging } from '@/utils/notificationSound';
 
 export type Priority = 'low' | 'medium' | 'high';
 
@@ -22,6 +23,7 @@ export const useDashboard = () => {
     imageUrl: '' as string,
     category: 'general',
     priority: 'medium' as Priority,
+    reminderAtLocal: '', // YYYY-MM-DDTHH:mm for input type="datetime-local"
   });
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -32,10 +34,42 @@ export const useDashboard = () => {
     imageUrl: '' as string,
     category: 'general',
     priority: 'medium' as Priority,
+    reminderAtLocal: '',
   });
 
   const dispatch = useAppDispatch();
-  const { notes, isLoading, stats } = useAppSelector((state) => state.notes);
+  const { notes, isLoading, stats, dueReminderNoteIds } = useAppSelector((state) => state.notes);
+
+  // Continuous ringing while any due reminders exist; vibrate on new arrivals
+  const prevDueCount = useRef(0);
+  useEffect(() => {
+    if (dueReminderNoteIds.length > 0) {
+      // Start continuous ringing every 3s (plays immediately and then repeats)
+      startReminderRinging(3000);
+      // Vibrate only when count increases (new reminder comes in)
+      if (dueReminderNoteIds.length > prevDueCount.current) {
+        try {
+          (window.navigator as any).vibrate?.(150);
+        } catch {}
+      }
+    } else {
+      // No due reminders => stop ringing
+      stopReminderRinging();
+    }
+    prevDueCount.current = dueReminderNoteIds.length;
+  }, [dueReminderNoteIds]);
+
+  // If audio was blocked, start continuous ringing once audio gets unlocked
+  useEffect(() => {
+    const onUnlocked = () => {
+      if (dueReminderNoteIds.length > 0) startReminderRinging(3000);
+    };
+    window.addEventListener('audio-unlocked', onUnlocked);
+    return () => window.removeEventListener('audio-unlocked', onUnlocked);
+  }, [dueReminderNoteIds]);
+
+  // Stop ringing on unmount just in case
+  useEffect(() => () => stopReminderRinging(), []);
 
   // Sync filters + fetch notes and stats
   useEffect(() => {
@@ -63,6 +97,26 @@ export const useDashboard = () => {
     };
   }, []);
 
+  // Date helpers
+  const isoToLocalInput = (iso?: string | null) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const MM = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mm = pad(d.getMinutes());
+    return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+  };
+
+  const localInputToIso = (local: string | undefined) => {
+    if (!local) return undefined;
+    const date = new Date(local);
+    if (isNaN(date.getTime())) return undefined;
+    return date.toISOString();
+  };
+
   const handleCreateNote = async () => {
     if (!newNote.title.trim()) return;
     await dispatch(createNote({
@@ -71,8 +125,9 @@ export const useDashboard = () => {
       imageUrl: newNote.imageUrl ? newNote.imageUrl : undefined,
       category: newNote.category,
       priority: newNote.priority,
+      reminderAt: localInputToIso(newNote.reminderAtLocal),
     }));
-    setNewNote({ title: '', content: '', imageUrl: '', category: 'general', priority: 'medium' });
+    setNewNote({ title: '', content: '', imageUrl: '', category: 'general', priority: 'medium', reminderAtLocal: '' });
     setShowCreateModal(false);
     dispatch(fetchNotes({
       search: searchTerm,
@@ -154,6 +209,7 @@ export const useDashboard = () => {
       imageUrl: note.imageUrl || '',
       category: note.category || 'general',
       priority: (note.priority as Priority) || 'medium',
+      reminderAtLocal: isoToLocalInput(note.reminderAt),
     });
     setShowEditModal(true);
   };
@@ -168,6 +224,7 @@ export const useDashboard = () => {
         imageUrl: editNote.imageUrl ? editNote.imageUrl : null,
         category: editNote.category,
         priority: editNote.priority,
+        reminderAt: editNote.reminderAtLocal ? localInputToIso(editNote.reminderAtLocal) ?? null : null,
       },
     }));
     setShowEditModal(false);
@@ -276,6 +333,7 @@ export const useDashboard = () => {
     notes,
     isLoading,
     stats,
+    dueReminderNoteIds,
 
     // filters & view
     searchTerm,
@@ -307,6 +365,7 @@ export const useDashboard = () => {
     setEditNote,
     openEdit,
     handleUpdateNote,
+    acknowledgeReminderNote: (id: number) => dispatch(ackReminder(id)),
 
     // actions
     confirmDeleteNote,

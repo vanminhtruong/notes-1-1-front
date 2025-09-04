@@ -38,7 +38,8 @@
     "restore": "Restore",
     "archive": "Archive",
     "edit": "Edit",
-    "update": "Update"
+    "update": "Update",
+    "reminderDue": "Reminder due"
   },
   "confirm": {
     "removeFriend": "Remove {{name}} as friend?",
@@ -86,12 +87,20 @@
         "contentPlaceholder": "Enter note content",
         "image": "Image",
         "category": "Category",
-        "priority": "Priority"
+        "priority": "Priority",
+        "reminderAt": "Reminder at",
+        "reminderHint": "Optional — you'll see a bell when it's due"
       }
     },
     "edit": {
       "title": "Edit note"
     }
+  },
+  "success": {
+    "reminderAcknowledged": "Reminder acknowledged"
+  },
+  "errors": {
+    "reminderAcknowledgeFailed": "Failed to acknowledge reminder"
   },
   "chat": {
     "errors": {

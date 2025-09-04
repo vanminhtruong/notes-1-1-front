@@ -93,6 +93,12 @@
       "title": "Chỉnh sửa ghi chú"
     }
   },
+  "success": {
+    "reminderAcknowledged": "Đã xác nhận nhắc nhở"
+  },
+  "errors": {
+    "reminderAcknowledgeFailed": "Xác nhận nhắc nhở thất bại"
+  },
   "chat": {
     "errors": {
       "downloadFile": "Không thể tải tệp",

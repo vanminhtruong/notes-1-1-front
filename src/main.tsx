@@ -8,6 +8,10 @@ import { store } from '@store/index'
 import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import '@/libs/i18n'
+import { unlockAudioOnce } from '@/utils/notificationSound'
+
+// Prepare audio unlock on first user interaction (autoplay policy)
+unlockAudioOnce()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

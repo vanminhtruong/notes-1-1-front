@@ -52,6 +52,26 @@
   transform-origin: top center;
 }
 
+/* Stronger, looping bell animation */
+@keyframes bell-ring-strong {
+  0% { transform: rotate(0) scale(1); filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0)); }
+  10% { transform: rotate(22deg) scale(1.06); filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.9)); }
+  20% { transform: rotate(-18deg) scale(1.06); }
+  30% { transform: rotate(16deg) scale(1.06); }
+  40% { transform: rotate(-14deg) scale(1.05); }
+  50% { transform: rotate(12deg) scale(1.05); }
+  60% { transform: rotate(-10deg) scale(1.04); }
+  70% { transform: rotate(8deg) scale(1.03); }
+  80% { transform: rotate(-6deg) scale(1.02); }
+  90% { transform: rotate(3deg) scale(1.01); }
+  100% { transform: rotate(0) scale(1); filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0)); }
+}
+
+.bell-strong {
+  animation: bell-ring-strong 1s ease-in-out infinite;
+  transform-origin: top center;
+}
+
 /* Badge subtle bounce */
 @keyframes badge-bounce-key {
   0%, 100% { transform: translateY(0) scale(1); }

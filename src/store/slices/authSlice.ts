@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authService, type User, type LoginData, type RegisterData } from '@/services/authService';
 import toast from 'react-hot-toast';
+import i18n from '@/libs/i18n';
 
 export interface AuthState {
   user: User | null;
@@ -85,11 +86,11 @@ export const updateProfile = createAsyncThunk(
   ) => {
     try {
       const response = await authService.updateProfile(data);
-      toast.success(response.message || 'Cập nhật hồ sơ thành công');
+      toast.success(i18n.t('account:success.updated'));
       return response.user;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Cập nhật hồ sơ thất bại';
-      toast.error(message);
+      const message = error.response?.data?.message || i18n.t('account:errors.updateFailed');
+      toast.error(i18n.t('account:errors.updateFailed'));
       return rejectWithValue(message);
     }
   }
