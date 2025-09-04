@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { getSocket } from '../../../../services/socket';
 import { chatService } from '../../../../services/chatService';
 import { groupService } from '../../../../services/groupService';
 import type { User, Message } from '../../components/interface/ChatTypes.interface';
@@ -61,6 +62,16 @@ export function useChatOpeners(params: {
     const updatedUser = friends.find(f => f.id === user.id) || users.find(u => u.id === user.id) || user;
     setSelectedChat(updatedUser);
     setActiveTab('chats');
+
+    // Notify backend that we joined this 1-1 chat so it can mark unread and emit receipts
+    try {
+      const socket = getSocket();
+      if (socket) {
+        socket.emit('join_chat', { receiverId: user.id });
+      }
+    } catch (_e) {
+      // ignore socket errors
+    }
 
     await markChatAsRead(user.id, () => {
       // Optimistic local update for responsiveness
