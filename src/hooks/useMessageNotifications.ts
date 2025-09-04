@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getSocket } from '../services/socket';
 import { chatService } from '../services/chatService';
+import { groupService } from '../services/groupService';
 
 export type UnreadMap = Record<number, number>;
 export type GroupUnreadMap = Record<number, number>;
@@ -205,14 +206,33 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
     }
   };
 
-  const markGroupAsRead = (groupId: number) => {
+  const markGroupAsRead = async (groupId: number) => {
+    console.log(`[markGroupAsRead] Starting for groupId: ${groupId}`);
+    
     // Update local state immediately for UI responsiveness
     setGroupUnreadMap((prev) => {
-      if (prev[groupId] === 0) return prev;
+      if (prev[groupId] === 0) {
+        console.log(`[markGroupAsRead] Already marked as read for groupId: ${groupId}`);
+        return prev;
+      }
+      console.log(`[markGroupAsRead] Setting local unread to 0 for groupId: ${groupId}`);
       return { ...prev, [groupId]: 0 } as GroupUnreadMap;
     });
     
-    // TODO: Implement backend API for group read status
+    // Call backend to mark group messages as read
+    try {
+      console.log(`[markGroupAsRead] Calling backend API for groupId: ${groupId}`);
+      const response = await groupService.markGroupMessagesRead(groupId);
+      console.log(`[markGroupAsRead] Backend response:`, response);
+    } catch (error) {
+      console.error('Failed to mark group messages as read:', error);
+      // Revert local state on error
+      setGroupUnreadMap((prev) => {
+        const reverted = { ...prev };
+        delete reverted[groupId];
+        return reverted;
+      });
+    }
   };
 
   const resetAll = () => { setUnreadMap({}); setGroupUnreadMap({}); };

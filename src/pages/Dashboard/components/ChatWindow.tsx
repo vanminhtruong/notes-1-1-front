@@ -173,6 +173,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     users,
     searchTerm,
     onlineIds,
+    readStatusEnabled,
     setFriends,
     setUsers,
     setSelectedChat,

@@ -16,6 +16,22 @@ export interface GroupMessage {
   content: string;
   messageType: 'text' | 'image' | 'file';
   createdAt: string;
+  sender?: {
+    id: number;
+    name: string;
+    avatar?: string;
+  };
+  GroupMessageReads?: Array<{
+    userId: number;
+    readAt: string;
+    user: {
+      id: number;
+      name: string;
+      avatar?: string;
+    };
+  }>;
+  status?: 'sent' | 'delivered' | 'read';
+  readBy?: Array<{ userId: number; readAt: string; user?: { id: number; name: string; avatar?: string } }>;
 }
 
 export const groupService = {
@@ -77,5 +93,10 @@ export const groupService = {
   async declineGroupInvite(groupId: number, inviteId: number) {
     const res = await api.post(`/groups/${groupId}/invites/${inviteId}/decline`);
     return res.data as { success: boolean; data: { groupId: number; inviteId: number; status: 'declined' } };
+  },
+
+  async markGroupMessagesRead(groupId: number) {
+    const res = await api.put(`/groups/${groupId}/read`);
+    return res.data as { success: boolean; data: { groupId: number; markedCount: number; readReceiptsCount: number } };
   },
 };

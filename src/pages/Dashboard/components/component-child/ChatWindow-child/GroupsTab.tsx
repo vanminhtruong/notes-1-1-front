@@ -26,10 +26,14 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
   const loadGroups = async () => {
     setLoading(true);
     try {
+      console.log('[GroupsTab] Loading groups...');
       const res = await groupService.listMyGroups();
-      if (res.success) setGroups(res.data || []);
+      if (res.success) {
+        console.log('[GroupsTab] Groups loaded:', res.data);
+        setGroups(res.data || []);
+      }
     } catch (e) {
-      // noop
+      console.error('[GroupsTab] Failed to load groups:', e);
     } finally {
       setLoading(false);
     }
@@ -59,7 +63,10 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
       loadPendingInvites();
       toast(t('chat.groups.notifications.newInvite', 'You have a new group invitation'));
     };
-    const onMembersAdded = () => loadGroups();
+    const onMembersAdded = (payload: any) => {
+      console.log('[Socket] group_members_added received:', payload);
+      loadGroups();
+    };
     const onMemberLeft = () => loadGroups();
     const onGroupLeft = () => loadGroups();
     const onGroupUpdated = () => loadGroups();
@@ -121,13 +128,19 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
       }
       
       console.log('Users loaded:', users.length, users);
+
+      // Normalize users to ensure numeric IDs
+      users = (users || []).map((u: any) => ({
+        ...u,
+        id: Number(u.id),
+      })).filter((u: any) => Number.isInteger(u.id) && u.id > 0);
       
       // Filter out current group members if we have the group
       const currentGroup = groups.find(g => g.id === showInviteModal);
       console.log('Current group:', currentGroup);
       
       const filtered = currentGroup 
-        ? users.filter((u: any) => !currentGroup.members.includes(u.id))
+        ? users.filter((u: any) => !currentGroup.members.includes(Number(u.id)))
         : users;
       
       console.log('Filtered users:', filtered.length, filtered);
@@ -143,10 +156,11 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
   };
 
   const toggleUserSelection = (userId: number) => {
+    const uid = Number(userId);
     setSelectedUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+      prev.includes(uid) 
+        ? prev.filter(id => id !== uid)
+        : [...prev, uid]
     );
   };
 
@@ -159,16 +173,38 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
 
   const handleInviteMembers = async (groupId: number) => {
     if (selectedUsers.length === 0) return;
-    const grp = groups.find(g => g.id === groupId);
+    // Coerce and validate groupId to prevent malformed requests like /groups/p/invite
+    const gid = Number(groupId);
+    console.log('[InviteMembers] called with', { groupId, coerced: gid, selectedUsers });
+    if (!Number.isInteger(gid) || gid <= 0) {
+      console.warn('[InviteMembers] Invalid groupId detected', { groupId, coerced: gid });
+      toast.error(t('chat.groups.errors.inviteFailed'));
+      return;
+    }
+    const grp = groups.find(g => g.id === gid);
     if (!grp || currentUserId !== grp.ownerId) {
       toast.error(t('chat.groups.errors.inviteFailed'));
       return;
     }
     
     try {
-      const res = await groupService.inviteMembers(groupId, selectedUsers);
+      const numericMemberIds = selectedUsers.map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0);
+      console.log('[InviteMembers] sending', { gid, numericMemberIds });
+      const res = await groupService.inviteMembers(gid, numericMemberIds);
       if (res.success) {
-        toast.success(t('chat.groups.success.invited'));
+        console.log('[InviteMembers] response:', res.data);
+        const { added = [], pending = [] } = res.data || {};
+        
+        if (added.length > 0 && pending.length > 0) {
+          toast.success(`${added.length} ${t('chat.groups.success.membersAdded', 'members added')}, ${pending.length} ${t('chat.groups.success.inviteSent', 'invites sent')}`);
+        } else if (added.length > 0) {
+          toast.success(t('chat.groups.success.membersAdded', `${added.length} members added to group`));
+        } else if (pending.length > 0) {
+          toast.success(t('chat.groups.success.inviteSent', `${pending.length} invitations sent`));
+        } else {
+          toast.success(t('chat.groups.success.invited'));
+        }
+        
         closeInviteModal();
         loadGroups(); // Refresh groups to show updated member count
       }

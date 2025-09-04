@@ -21,6 +21,7 @@ interface UseChatSocketParams {
   users: User[];
   searchTerm: string;
   onlineIds: number[];
+  readStatusEnabled: boolean;
   // setters
   setFriends: React.Dispatch<React.SetStateAction<User[]>>;
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
@@ -52,6 +53,7 @@ export function useChatSocket(params: UseChatSocketParams) {
     users,
     searchTerm,
     onlineIds,
+    readStatusEnabled,
     setFriends,
     setUsers,
     setSelectedChat,
@@ -203,22 +205,27 @@ export function useChatSocket(params: UseChatSocketParams) {
 
         // Auto-send read receipt for group messages when viewing
         if (enriched.senderId !== currentUser?.id) {
-          // Mark as read immediately for group messages
-          messageWithStatus.status = 'read';
-          messageWithStatus.readBy = [{
-            userId: currentUser.id,
-            readAt: new Date().toISOString(),
-            user: currentUser
-          }];
-          
-          const socket = getSocket();
-          if (socket) {
-            socket.emit('group_message_read', { 
-              messageId: enriched.id, 
-              groupId: selectedGroup.id,
-              userId: currentUser?.id,
-              readAt: new Date().toISOString()
-            });
+          // Only send read receipts and mark with readBy if readStatusEnabled is true
+          if (readStatusEnabled) {
+            messageWithStatus.status = 'read';
+            messageWithStatus.readBy = [{
+              userId: currentUser.id,
+              readAt: new Date().toISOString(),
+              user: currentUser
+            }];
+            
+            const socket = getSocket();
+            if (socket) {
+              socket.emit('group_message_read', { 
+                messageId: enriched.id, 
+                groupId: selectedGroup.id,
+                userId: currentUser?.id,
+                readAt: new Date().toISOString()
+              });
+            }
+          } else {
+            // Still mark as delivered for unread count purposes, but no read receipts
+            messageWithStatus.status = 'delivered';
           }
         }
 

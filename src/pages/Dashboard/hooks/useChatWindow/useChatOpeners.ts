@@ -111,7 +111,25 @@ export function useChatOpeners(params: {
           const u = (currentUser && currentUser.id === m.senderId)
             ? currentUser
             : (friends.find((f) => f.id === m.senderId) || users.find((uu) => uu.id === m.senderId));
-          return u ? { ...m, sender: { id: u.id, name: u.name, avatar: u.avatar } } : m;
+          
+          // Convert GroupMessageReads to readBy format for frontend
+          let readBy: any[] = [];
+          if (m.GroupMessageReads && Array.isArray(m.GroupMessageReads)) {
+            readBy = m.GroupMessageReads.map((read: any) => ({
+              userId: read.userId,
+              readAt: read.readAt,
+              user: read.user
+            }));
+          }
+          
+          return u ? { 
+            ...m, 
+            sender: { id: u.id, name: u.name, avatar: u.avatar },
+            readBy 
+          } : { 
+            ...m, 
+            readBy 
+          };
         });
         setMessages(msgs);
         setMenuOpenKey(null);
