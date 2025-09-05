@@ -382,7 +382,25 @@
         "setButton": "PIN 설정"
       }
     }
+  },
+  "auth": {
+    "changePassword": {
+      "title": "비밀번호 변경",
+      "currentPassword": "현재 비밀번호",
+      "newPassword": "새 비밀번호",
+      "confirmPassword": "새 비밀번호 확인",
+      "submit": "비밀번호 변경",
+      "cancel": "취소",
+      "success": "비밀번호가 성공적으로 변경되었습니다",
+      "errors": {
+        "currentRequired": "현재 비밀번호는 필수입니다",
+        "newRequired": "새 비밀번호는 필수입니다",
+        "confirmRequired": "새 비밀번호를 확인하세요",
+        "passwordMismatch": "비밀번호가 일치하지 않습니다",
+        "minLength": "비밀번호는 최소 6자 이상이어야 합니다",
+        "wrongCurrentPassword": "현재 비밀번호가 올바르지 않습니다",
+        "updateFailed": "비밀번호를 업데이트할 수 없습니다"
+      }
+    }
   }
 }
-
-

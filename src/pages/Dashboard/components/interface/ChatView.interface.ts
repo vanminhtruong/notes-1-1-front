@@ -32,4 +32,6 @@ export interface ChatViewProps {
   onChangeBackground?: () => void;
   onChangeBackgroundForBoth?: () => void;
   onResetBackground?: () => void;
+  // Blocking state (1-1)
+  blocked?: boolean;
 }

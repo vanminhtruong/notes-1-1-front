@@ -480,6 +480,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                     if (!selectedChat) return;
                     await resetBackground(selectedChat.id);
                   }}
+                  blocked={blockStatus ? !!blockStatus.isEitherBlocked : true}
                 />
                 {!(blockStatus?.isEitherBlocked) ? (
                   <MessageInput

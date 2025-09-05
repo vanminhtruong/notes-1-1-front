@@ -9,6 +9,7 @@
     "account": "계정",
     "accountDetails": "계정 상세",
     "chat": "채팅",
+    "changePassword": "비밀번호 변경",
     "logout": "로그아웃",
     "logoutConfirm": "로그아웃하시겠습니까?",
     "logoutMessage": "정말 로그아웃하시겠어요?",

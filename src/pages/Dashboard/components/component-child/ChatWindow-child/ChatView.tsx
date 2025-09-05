@@ -3,6 +3,8 @@ import { MoreVertical, ChevronDown } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY, formatDateTimeMDYY_HHmm } from '../../../../../utils/utils';
+import { blockService } from '@/services/blockService';
+import { toast } from 'react-hot-toast';
 import type { ChatViewProps } from '../../interface/ChatView.interface';
 const ChatView = ({
   selectedChat,
@@ -32,6 +34,7 @@ const ChatView = ({
   onChangeBackground,
   onChangeBackgroundForBoth,
   onResetBackground,
+  blocked,
 }: ChatViewProps) => {
   const { t } = useTranslation('dashboard');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -42,6 +45,30 @@ const ChatView = ({
   const isDarkTheme = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
   const [profileUser, setProfileUser] = useState<any | null>(null);
   const [showBackToBottom, setShowBackToBottom] = useState(false);
+  // Cache block status per user in group chats to disable only blocked users' avatars
+  const [blockedUserMap, setBlockedUserMap] = useState<Record<number, boolean>>({});
+
+  // Safely open user profile: for group chats, check block status with that user before opening
+  const handleOpenProfile = async (user: any) => {
+    if (!user) return;
+    if (isGroup) {
+      try {
+        const res = await blockService.getStatus(Number(user.id));
+        if (res?.data?.isEitherBlocked) {
+          toast.error(t('chat.blocked.profileHidden', 'Bạn không thể xem thông tin vì một trong hai đã chặn nhau.'));
+          return;
+        }
+      } catch (_) {
+        // On network error, be conservative: do not open
+        toast.error(t('chat.errors.generic', 'Đã xảy ra lỗi. Vui lòng thử lại.'));
+        return;
+      }
+      setProfileUser(user);
+    } else {
+      // 1-1 chat: rely on passed blocked flag
+      if (!blocked) setProfileUser(user);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -101,6 +128,35 @@ const ChatView = ({
         .filter((g) => g.items.length > 0)
     : groupedMessages;
 
+  // Prefetch block statuses for senders present in the currently visible groups (group chat only)
+  useEffect(() => {
+    if (!isGroup) return;
+    const ids = Array.from(new Set(visibleGroups.map((g) => g.senderId).filter((id) => !!id && id !== currentUserId)));
+    const toFetch = ids.filter((id) => blockedUserMap[id as number] === undefined) as number[];
+    if (toFetch.length === 0) return;
+    (async () => {
+      try {
+        const results = await Promise.allSettled(toFetch.map((id) => blockService.getStatus(Number(id))));
+        setBlockedUserMap((prev) => {
+          const next = { ...prev };
+          results.forEach((res, idx) => {
+            const id = toFetch[idx];
+            if (res.status === 'fulfilled') {
+              next[id] = !!res.value?.data?.isEitherBlocked;
+            } else {
+              // Conservative default on error: treat as blocked (disabled)
+              next[id] = true;
+            }
+          });
+          return next;
+        });
+      } catch {
+        // Ignore; individual results handled above
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGroup, visibleGroups, currentUserId]);
+
   return (
     <>
       {/* Chat Header */}
@@ -119,10 +175,10 @@ const ChatView = ({
               {/* Avatar clickable only for 1-1 chat to open profile; disabled for group */}
               <button
                 type="button"
-                onClick={!isGroup ? () => { setProfileUser(selectedChat); } : undefined}
+                onClick={!isGroup ? () => { handleOpenProfile(selectedChat); } : undefined}
                 title={!isGroup ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
-                aria-disabled={isGroup}
-                className={`w-full h-full ${!isGroup ? 'cursor-pointer' : 'cursor-default'}`}
+                aria-disabled={!isGroup && !!blocked}
+                className={`w-full h-full ${!isGroup ? (!blocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60') : 'cursor-default'}`}
               >
                 {selectedChat.avatar ? (
                   <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
@@ -368,27 +424,35 @@ const ChatView = ({
               return (
                 <div key={groupKey} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
                   {showAvatar && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const first = group.items[0];
-                        const user = first?.sender ?? selectedChat;
-                        setProfileUser(user);
-                      }}
-                      title={t('chat.chatView.viewProfile', 'Xem thông tin')}
-                      className="w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto cursor-pointer"
-                    >
-                      {(() => {
-                        const first = group.items[0];
-                        const avatar = first?.sender?.avatar ?? selectedChat.avatar;
-                        const name = first?.sender?.name ?? selectedChat.name;
-                        return avatar ? (
-                          <img src={avatar} alt={name} className="w-full h-full object-cover" />
-                        ) : (
-                          (name || '').charAt(0)
-                        );
-                      })()}
-                    </button>
+                    (() => {
+                      const senderId = group.senderId as number;
+                      // In group chat: disable if blocked OR still loading (undefined)
+                      const isSenderBlocked = isGroup ? blockedUserMap[senderId] !== false : !!blocked;
+                      return (
+                        <button
+                          type="button"
+                          onClick={!isSenderBlocked ? () => {
+                            const first = group.items[0];
+                            const user = first?.sender ?? selectedChat;
+                            handleOpenProfile(user);
+                          } : undefined}
+                          title={!isSenderBlocked ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
+                          aria-disabled={isSenderBlocked}
+                          className={`w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto ${!isSenderBlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                        >
+                          {(() => {
+                            const first = group.items[0];
+                            const avatar = first?.sender?.avatar ?? selectedChat.avatar;
+                            const name = first?.sender?.name ?? selectedChat.name;
+                            return avatar ? (
+                              <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                            ) : (
+                              (name || '').charAt(0)
+                            );
+                          })()}
+                        </button>
+                      );
+                    })()
                   )}
                   <div className={`relative max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col gap-2`}>
                     {/* Group-level menu: only for text-only and NOT same-day */}
