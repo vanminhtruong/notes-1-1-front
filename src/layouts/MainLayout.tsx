@@ -6,6 +6,8 @@ import { User, LogOut, StickyNote, ChevronDown, Mail, MessageCircle } from 'luci
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
+import BackToTop from '@/components/BackToTop'
+import HeaderScrollProgress from '@/components/HeaderScrollProgress'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 
@@ -80,9 +82,25 @@ export default function MainLayout() {
     };
   }, []);
 
+  // Hide desktop scroll when chat is open
+  useEffect(() => {
+    if (chatOpen) {
+      // Add class to hide scrollbar
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restore scrollbar
+      document.body.style.overflow = 'auto';
+    }
+
+    // Cleanup function to restore scroll when component unmounts
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [chatOpen]);
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
-      <header className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg border-b border-white/20 dark:border-gray-700/30 sticky top-0 z-40">
+      <header className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg border-b border-white/20 dark:border-gray-700/30 sticky top-0 z-40 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
@@ -187,6 +205,8 @@ export default function MainLayout() {
             </div>
           </div>
         </div>
+        {/* Scroll progress bar at bottom of header */}
+        <HeaderScrollProgress />
       </header>
 
       <main className="flex-1">
@@ -200,6 +220,9 @@ export default function MainLayout() {
           onClose={() => setChatOpen(false)} 
         />
       )}
+
+      {/* Global Back To Top for all tabs/pages */}
+      <BackToTop threshold={300} bottomOffset="1.25rem" rightOffset="1.25rem" />
 
       <footer className="border-t border-white/20 dark:border-gray-700/30 bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-gray-600 dark:text-gray-300 flex items-center justify-between">

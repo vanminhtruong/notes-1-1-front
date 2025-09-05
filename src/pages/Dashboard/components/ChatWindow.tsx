@@ -1,4 +1,5 @@
 import { type User, type Message, type MessageGroup, type ChatWindowProps, type GroupSummary, useState, useEffect, useRef, toast, useTranslation, chatService, groupService, getSocket, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useNotificationItems, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettings, useChatBackground, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, getCachedUser } from './interface/chatWindowImports';
+import { blockService, type BlockStatus } from '@/services/blockService';
 
 const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const { t } = useTranslation('dashboard');
@@ -30,6 +31,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const [showRemoveMembers, setShowRemoveMembers] = useState(false);
   // Pending group invites
   const [pendingInvites, setPendingInvites] = useState<Array<{ id: number; status: 'pending' | 'accepted' | 'declined'; group: any; inviter: any }>>([]);
+  // Block status for currently selected direct chat
+  const [blockStatus, setBlockStatus] = useState<BlockStatus | null>(null);
 
   // Settings & E2EE state (extracted)
   const {
@@ -299,6 +302,48 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setMessages,
   });
 
+  // Fetch and keep block status in sync for the selected 1-1 chat
+  useEffect(() => {
+    let mounted = true;
+    setBlockStatus(null);
+    if (!selectedChat) return;
+    (async () => {
+      try {
+        const res = await blockService.getStatus(selectedChat.id);
+        if (mounted) setBlockStatus(res.data);
+      } catch {
+        if (mounted) setBlockStatus(null);
+      }
+    })();
+
+    const socket = getSocket();
+    const refreshIfMatch = (payload: any) => {
+      const userId = Number(payload?.userId);
+      const targetId = Number(payload?.targetId);
+      const me = Number(currentUser?.id);
+      const other = Number(selectedChat?.id);
+      if (!me || !other) return;
+      const involvesPair = (userId === me && targetId === other) || (userId === other && targetId === me);
+      if (involvesPair) {
+        blockService
+          .getStatus(other)
+          .then((res) => setBlockStatus(res.data))
+          .catch(() => {});
+      }
+    };
+    if (socket) {
+      socket.on('user_blocked', refreshIfMatch);
+      socket.on('user_unblocked', refreshIfMatch);
+    }
+    return () => {
+      mounted = false;
+      if (socket) {
+        socket.off('user_blocked', refreshIfMatch);
+        socket.off('user_unblocked', refreshIfMatch);
+      }
+    };
+  }, [selectedChat?.id, currentUser?.id]);
+
   // Friend request actions extracted
   const { sendFriendRequest, acceptFriendRequest, rejectFriendRequest } = useFriendRequestActions({
     setUsers,
@@ -436,24 +481,30 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                     await resetBackground(selectedChat.id);
                   }}
                 />
-                <MessageInput
-                  newMessage={newMessage}
-                  pendingImages={pendingImages}
-                  pendingFiles={pendingFiles}
-                  onMessageChange={setNewMessage}
-                  onSendMessage={sendMessage}
-                  onFileChange={handleFileChange}
-                  onRemoveImage={(id: string) => setPendingImages((prev) => prev.filter((p) => p.id !== id))}
-                  onRemoveFile={(id: string) => setPendingFiles((prev) => prev.filter((p) => p.id !== id))}
-                  onTyping={handleTyping}
-                  onTypingStop={() => {
-                    const socket = getSocket();
-                    if (socket && selectedChat) {
-                      socket.emit('typing_stop', { receiverId: selectedChat.id });
-                      typingSentRef.current = false;
-                    }
-                  }}
-                />
+                {!(blockStatus?.isEitherBlocked) ? (
+                  <MessageInput
+                    newMessage={newMessage}
+                    pendingImages={pendingImages}
+                    pendingFiles={pendingFiles}
+                    onMessageChange={setNewMessage}
+                    onSendMessage={sendMessage}
+                    onFileChange={handleFileChange}
+                    onRemoveImage={(id: string) => setPendingImages((prev) => prev.filter((p) => p.id !== id))}
+                    onRemoveFile={(id: string) => setPendingFiles((prev) => prev.filter((p) => p.id !== id))}
+                    onTyping={handleTyping}
+                    onTypingStop={() => {
+                      const socket = getSocket();
+                      if (socket && selectedChat) {
+                        socket.emit('typing_stop', { receiverId: selectedChat.id });
+                        typingSentRef.current = false;
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="p-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                    {t('chat.blocked.inputHidden', 'You cannot send messages or upload files in this conversation because one of you has blocked the other.')}
+                  </div>
+                )}
               </>
             ) : (
               <ChatList
@@ -549,7 +600,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   isOpen={showRemoveMembers}
                   onClose={() => setShowRemoveMembers(false)}
                   members={removableMembers}
-                  onConfirm={async (memberIds) => {
+                  onConfirm={async (memberIds: number[]) => {
                     if (!selectedGroup) return;
                     try {
                       const res = await groupService.removeMembers(selectedGroup.id, memberIds);

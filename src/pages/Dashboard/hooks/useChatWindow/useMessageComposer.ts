@@ -156,7 +156,19 @@ export function useMessageComposer({
         }
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || t('chat.errors.sendMessage'));
+      const status = error?.response?.status;
+      if (status === 403) {
+        // Messaging blocked either by you or the recipient
+        toast.error(error?.response?.data?.message || t('chat.errors.messageBlockedCurrent', 'Message not sent. Messaging between you and this user is blocked.'));
+        // Stop typing indicator locally to avoid stale state
+        const socket = getSocket();
+        if (socket && typingSentRef.current && selectedChat) {
+          try { socket.emit('typing_stop', { receiverId: selectedChat.id }); } catch {}
+          typingSentRef.current = false;
+        }
+      } else {
+        toast.error(error?.response?.data?.message || t('chat.errors.sendMessage'));
+      }
     }
   };
 

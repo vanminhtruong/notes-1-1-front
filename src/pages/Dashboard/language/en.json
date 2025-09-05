@@ -43,7 +43,10 @@
   },
   "confirm": {
     "removeFriend": "Remove {{name}} as friend?",
-    "deleteMessages": "Delete all messages with {{name}}?"
+    "deleteMessages": "Delete all messages with {{name}}?",
+    "blockUser": "Block {{name}}?",
+    "blockUserHint": "You and this user will not be able to message each other.",
+    "unblockUser": "Unblock {{name}}?"
   },
   "messages": {
     "selectedCount": "{{count}} selected",
@@ -112,7 +115,11 @@
       "settingsUpdateFailed": "Failed to update settings",
       "pinUpdateFailed": "Failed to update PIN",
       "encryptionEnableFailed": "Failed to enable encryption",
-      "loadUsersFailed": "Failed to load users"
+      "block": "Failed to block user",
+      "unblock": "Failed to unblock user",
+      "loadUsersFailed": "Failed to load users",
+      "messageBlocked": "Message not sent due to blocking.",
+      "messageBlockedCurrent": "Message not sent. Messaging between you and this user is blocked."
     },
     "success": {
       "recallSelf": "Recalled messages for yourself",
@@ -127,7 +134,11 @@
     "notifications": {
       "newFriendRequest": "{{name}} sent you a friend request",
       "friendAccepted": "{{name}} accepted your friend request",
-      "friendRejected": "{{name}} rejected your friend request"
+      "friendRejected": "{{name}} rejected your friend request",
+      "youBlocked": "You blocked {{name}}",
+      "youWereBlocked": "You were blocked by {{name}}",
+      "youUnblocked": "You unblocked {{name}}",
+      "unblockedYou": "{{name}} unblocked you"
     },
     "notificationsBell": {
       "bellAria": "Message notifications",
@@ -295,7 +306,9 @@
     },
     "actions": {
       "deleteMessages": "Delete Messages",
-      "removeFriend": "Remove Friend"
+      "removeFriend": "Remove Friend",
+      "block": "Block",
+      "unblock": "Unblock"
     },
     "recalled": {
       "text": "Message was recalled",
@@ -308,6 +321,13 @@
       "removeFileAria": "Remove file",
       "attachFileAria": "Attach files",
       "placeholder": "Aa"
+    },
+    "blocked": {
+      "inputHidden": "You cannot send messages or upload files in this conversation because one of you has blocked the other."
+    },
+    "toast": {
+      "blocked": "Blocked {{name}}. They will no longer be able to message you, and you cannot message them.",
+      "unblocked": "Unblocked {{name}}"
     },
     "imagePreview": {
       "close": "Close",

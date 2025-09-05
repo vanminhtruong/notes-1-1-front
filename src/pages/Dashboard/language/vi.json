@@ -42,7 +42,10 @@
   },
   "confirm": {
     "removeFriend": "Xóa bạn {{name}}?",
-    "deleteMessages": "Xóa toàn bộ tin nhắn với {{name}}?"
+    "deleteMessages": "Xóa toàn bộ tin nhắn với {{name}}?",
+    "blockUser": "Chặn {{name}}?",
+    "blockUserHint": "Bạn và người này sẽ không thể nhắn tin cho nhau.",
+    "unblockUser": "Bỏ chặn {{name}}?"
   },
   "messages": {
     "selectedCount": "Đã chọn {{count}} mục",
@@ -109,7 +112,11 @@
       "settingsUpdateFailed": "Cập nhật cài đặt thất bại",
       "pinUpdateFailed": "Cập nhật PIN thất bại",
       "encryptionEnableFailed": "Bật mã hóa thất bại",
-      "loadUsersFailed": "Tải danh sách người dùng thất bại"
+      "block": "Chặn người dùng thất bại",
+      "unblock": "Bỏ chặn thất bại",
+      "loadUsersFailed": "Tải danh sách người dùng thất bại",
+      "messageBlocked": "Không thể gửi do một trong hai đã chặn.",
+      "messageBlockedCurrent": "Không thể gửi tin nhắn. Bạn và người này đã chặn nhau."
     },
     "success": {
       "recallSelf": "Đã thu hồi tin nhắn cho mình",
@@ -124,7 +131,11 @@
     "notifications": {
       "newFriendRequest": "{{name}} đã gửi lời mời kết bạn",
       "friendAccepted": "{{name}} đã chấp nhận lời mời kết bạn",
-      "friendRejected": "{{name}} đã từ chối lời mời kết bạn"
+      "friendRejected": "{{name}} đã từ chối lời mời kết bạn",
+      "youBlocked": "Bạn đã chặn {{name}}",
+      "youWereBlocked": "Bạn đã bị {{name}} chặn",
+      "youUnblocked": "Bạn đã bỏ chặn {{name}}",
+      "unblockedYou": "{{name}} đã bỏ chặn bạn"
     },
     "notificationsBell": {
       "bellAria": "Thông báo tin nhắn",
@@ -292,7 +303,9 @@
     },
     "actions": {
       "deleteMessages": "Xóa tin nhắn",
-      "removeFriend": "Xóa bạn bè"
+      "removeFriend": "Xóa bạn bè",
+      "block": "Chặn",
+      "unblock": "Bỏ chặn"
     },
     "recalled": {
       "text": "Tin nhắn đã bị thu hồi",
@@ -305,6 +318,13 @@
       "removeFileAria": "Xóa tệp",
       "attachFileAria": "Đính kèm tệp",
       "placeholder": "Aa"
+    },
+    "blocked": {
+      "inputHidden": "Bạn không thể gửi tin nhắn hoặc tải tệp lên trong cuộc trò chuyện này vì một trong hai đã chặn người kia."
+    },
+    "toast": {
+      "blocked": "Đã chặn {{name}}. Họ sẽ không thể nhắn tin cho bạn và bạn cũng không thể nhắn tin cho họ.",
+      "unblocked": "Đã bỏ chặn {{name}}"
     },
     "imagePreview": {
       "close": "Đóng",

@@ -1,12 +1,61 @@
-import { MessageCircle, MoreVertical, UserX, Trash2 } from 'lucide-react';
+import { MessageCircle, MoreVertical, UserX, Trash2, Ban } from 'lucide-react';
 import { useState } from 'react';
 import { formatPreviewText, formatPreviewTime } from '../../../../../utils/utils';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import type { ChatListProps } from '../../interface/ChatList.interface';
+import { blockService, type BlockStatus } from '@/services/blockService';
 const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
   const { t } = useTranslation('dashboard');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [blockStatusMap, setBlockStatusMap] = useState<Record<number, BlockStatus | undefined>>({});
+  const [loadingBlockFor, setLoadingBlockFor] = useState<number | null>(null);
+
+  const fetchBlockStatus = async (userId: number) => {
+    try {
+      setLoadingBlockFor(userId);
+      const res = await blockService.getStatus(userId);
+      setBlockStatusMap((prev) => ({ ...prev, [userId]: res.data }));
+    } catch (e: any) {
+      // Non-blocking: show a subtle toast but keep menu usable
+      const msg = e?.response?.data?.message || 'Failed to fetch block status';
+      toast.error(msg);
+    } finally {
+      setLoadingBlockFor(null);
+    }
+  };
+
+  const handleMenuToggle = async (friendId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = openMenuId === friendId ? null : friendId;
+    setOpenMenuId(next);
+    if (next) {
+      // On open, fetch latest block status for this friend
+      fetchBlockStatus(friendId);
+    }
+  };
+
+  const handleBlock = async (userId: number) => {
+    try {
+      await blockService.block(userId);
+      setBlockStatusMap((prev) => ({ ...prev, [userId]: { blockedByMe: true, blockedMe: prev[userId]?.blockedMe ?? false, isEitherBlocked: true, blockId: prev[userId]?.blockId ?? null } }));
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || t('chat.errors.block', 'Failed to block user'));
+    } finally {
+      setOpenMenuId(null);
+    }
+  };
+
+  const handleUnblock = async (userId: number) => {
+    try {
+      await blockService.unblock(userId);
+      setBlockStatusMap((prev) => ({ ...prev, [userId]: { blockedByMe: false, blockedMe: prev[userId]?.blockedMe ?? false, isEitherBlocked: !!(prev[userId]?.blockedMe), blockId: null } }));
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || t('chat.errors.unblock', 'Failed to unblock user'));
+    } finally {
+      setOpenMenuId(null);
+    }
+  };
   const isLocked = !!e2eeEnabled && !e2eeUnlocked;
   return (
     <div className="h-full overflow-y-auto">
@@ -65,10 +114,7 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                     {onRemoveFriend && item.friendshipId && (
                       <div className="relative">
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenMenuId(openMenuId === friend.id ? null : friend.id);
-                          }}
+                          onClick={(e) => handleMenuToggle(friend.id, e)}
                           className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
                         >
                           <MoreVertical className="w-4 h-4 text-gray-400" />
@@ -83,7 +129,60 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                                 setOpenMenuId(null);
                               }}
                             />
-                            <div className="absolute right-0 top-8 z-20 min-w-[160px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                            <div className="absolute right-0 top-8 z-20 min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                              {/* Block / Unblock */}
+                              <button
+                                disabled={loadingBlockFor === friend.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const status = blockStatusMap[friend.id];
+                                  const isBlockedByMe = !!status?.blockedByMe;
+                                  if (isBlockedByMe) {
+                                    // Confirm unblocking
+                                    toast.custom((toastData) => (
+                                      <div className={`max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}>
+                                        <div className="flex items-start gap-3">
+                                          <div className="flex-1">
+                                            <p className="font-semibold">{t('confirm.unblockUser', 'Unblock {{name}}?', { name: friend.name })}</p>
+                                          </div>
+                                        </div>
+                                        <div className="mt-3 flex justify-end gap-2">
+                                          <button onClick={() => toast.dismiss(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                                            {t('actions.cancel')}
+                                          </button>
+                                          <button onClick={() => { handleUnblock(friend.id); toast.dismiss(toastData.id); }} className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm">
+                                            {t('actions.confirm', 'Confirm')}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ), { duration: 8000 });
+                                  } else {
+                                    // Confirm blocking
+                                    toast.custom((toastData) => (
+                                      <div className={`max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}>
+                                        <div className="flex items-start gap-3">
+                                          <div className="flex-1">
+                                            <p className="font-semibold">{t('confirm.blockUser', 'Block {{name}}?', { name: friend.name })}</p>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300">{t('confirm.blockUserHint', 'You and this user will not be able to message each other.')}</p>
+                                          </div>
+                                        </div>
+                                        <div className="mt-3 flex justify-end gap-2">
+                                          <button onClick={() => toast.dismiss(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                                            {t('actions.cancel')}
+                                          </button>
+                                          <button onClick={() => { handleBlock(friend.id); toast.dismiss(toastData.id); }} className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm">
+                                            {t('actions.confirm', 'Confirm')}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ), { duration: 8000 });
+                                  }
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
+                              >
+                                <Ban className="w-4 h-4" />
+                                {blockStatusMap[friend.id]?.blockedByMe ? t('chat.actions.unblock', 'Unblock') : t('chat.actions.block', 'Block')}
+                              </button>
                               {onDeleteMessages && (
                                 <button
                                   onClick={(e) => {

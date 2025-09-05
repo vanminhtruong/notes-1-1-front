@@ -239,10 +239,12 @@ export function useChatSocket(params: UseChatSocketParams) {
     };
 
     const onMessageSent = (data: any) => {
-      // Update message status to sent
+      // Update message status to what's provided by backend (sent/delivered)
       setMessages((prev: any[]) => {
+        const targetId = data?.messageId ?? data?.id;
+        const status = data?.status || 'sent';
         return prev.map((m: any) => 
-          m.id === data.messageId ? { ...m, status: 'sent' } : m
+          m.id === targetId ? { ...m, status } : m
         );
       });
     };
@@ -289,6 +291,62 @@ export function useChatSocket(params: UseChatSocketParams) {
           return m;
         });
       });
+    };
+
+    const onMessageBlocked = (data: any) => {
+      try {
+        const isCurrentChat = !!(selectedChat && data && data.receiverId === selectedChat.id);
+        const msg = isCurrentChat
+          ? String(t('chat.errors.messageBlockedCurrent', { defaultValue: 'Message not sent. Messaging between you and this user is blocked.' } as any))
+          : String(t('chat.errors.messageBlocked', { defaultValue: 'Message not sent due to blocking.' } as any));
+        toast.error(msg);
+      } catch (_err) {
+        /* ignore */
+      }
+    };
+
+    const onUserBlocked = (data: { userId: number; targetId: number }) => {
+      try {
+        if (!data) return;
+        const iAmBlocker = !!(currentUser && data.userId === currentUser.id);
+        const iAmBlocked = !!(currentUser && data.targetId === currentUser.id);
+        const otherId = iAmBlocker ? data.targetId : data.userId;
+        const other = resolveUser(otherId) as any;
+
+        if (iAmBlocker) {
+          toast(String(t('chat.notifications.youBlocked', { name: other?.name, defaultValue: `You blocked ${other?.name || 'this user'}` } as any)));
+        } else if (iAmBlocked) {
+          toast.error(String(t('chat.notifications.youWereBlocked', { name: other?.name, defaultValue: `You were blocked by ${other?.name || 'this user'}` } as any)));
+        }
+
+        if (typeof loadChatList === 'function') {
+          loadChatList();
+        }
+      } catch (_err) {
+        /* ignore */
+      }
+    };
+
+    const onUserUnblocked = (data: { userId: number; targetId: number }) => {
+      try {
+        if (!data) return;
+        const iAmUnblocker = !!(currentUser && data.userId === currentUser.id);
+        const iAmUnblocked = !!(currentUser && data.targetId === currentUser.id);
+        const otherId = iAmUnblocker ? data.targetId : data.userId;
+        const other = resolveUser(otherId) as any;
+
+        if (iAmUnblocker) {
+          toast.success(String(t('chat.notifications.youUnblocked', { name: other?.name, defaultValue: `You unblocked ${other?.name || 'this user'}` } as any)));
+        } else if (iAmUnblocked) {
+          toast.success(String(t('chat.notifications.unblockedYou', { name: other?.name, defaultValue: `${other?.name || 'This user'} unblocked you` } as any)));
+        }
+
+        if (typeof loadChatList === 'function') {
+          loadChatList();
+        }
+      } catch (_err) {
+        /* ignore */
+      }
     };
 
     const onGroupMessageDelivered = (data: any) => {
@@ -528,6 +586,9 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.off('message_sent', onMessageSent);
     socket.off('message_delivered', onMessageDelivered);
     socket.off('message_read', onMessageRead);
+    socket.off('message_blocked', onMessageBlocked);
+    socket.off('user_blocked', onUserBlocked as any);
+    socket.off('user_unblocked', onUserUnblocked as any);
     socket.off('group_message_delivered', onGroupMessageDelivered);
     socket.off('group_message_read', onGroupMessageRead);
     socket.off('user_online', onUserOnline);
@@ -564,6 +625,9 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('message_sent', onMessageSent);
     socket.on('message_delivered', onMessageDelivered);
     socket.on('message_read', onMessageRead);
+    socket.on('message_blocked', onMessageBlocked);
+    socket.on('user_blocked', onUserBlocked as any);
+    socket.on('user_unblocked', onUserUnblocked as any);
     socket.on('group_message_delivered', onGroupMessageDelivered);
     socket.on('group_message_read', onGroupMessageRead);
     socket.on('user_online', onUserOnline);
@@ -624,6 +688,9 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('message_sent', onMessageSent);
       socket.off('message_delivered', onMessageDelivered);
       socket.off('message_read', onMessageRead);
+      socket.off('message_blocked', onMessageBlocked);
+      socket.off('user_blocked', onUserBlocked as any);
+      socket.off('user_unblocked', onUserUnblocked as any);
       socket.off('group_message_delivered', onGroupMessageDelivered);
       socket.off('group_message_read', onGroupMessageRead);
       socket.off('user_online', onUserOnline);
