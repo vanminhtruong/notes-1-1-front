@@ -388,5 +388,25 @@
         "setButton": "Đặt PIN"
       }
     }
+  },
+  "auth": {
+    "changePassword": {
+      "title": "Đổi mật khẩu",
+      "currentPassword": "Mật khẩu hiện tại",
+      "newPassword": "Mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu mới",
+      "submit": "Đổi mật khẩu",
+      "cancel": "Hủy",
+      "success": "Đổi mật khẩu thành công",
+      "errors": {
+        "currentRequired": "Vui lòng nhập mật khẩu hiện tại",
+        "newRequired": "Vui lòng nhập mật khẩu mới",
+        "confirmRequired": "Vui lòng xác nhận mật khẩu mới",
+        "passwordMismatch": "Mật khẩu không khớp",
+        "minLength": "Mật khẩu phải có ít nhất 6 ký tự",
+        "wrongCurrentPassword": "Mật khẩu hiện tại không đúng",
+        "updateFailed": "Cập nhật mật khẩu thất bại"
+      }
+    }
   }
 }

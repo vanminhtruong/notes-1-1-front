@@ -8,6 +8,7 @@ import About from '../pages/About/About'
 import Contact from '../pages/Contact/Contact'
 import ProtectedRoute from '@components/ProtectedRoute'
 import Account from '@/pages/Account/Account'
+import ChangePassword from '@/pages/ChangePassword/ChangePassword'
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Account />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'change-password',
+        element: (
+          <ProtectedRoute>
+            <ChangePassword />
           </ProtectedRoute>
         ),
       },

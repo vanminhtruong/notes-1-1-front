@@ -34,6 +34,16 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export const changePassword = async (data: ChangePasswordData): Promise<{ message: string }> => {
+  const response = await api.put('/auth/change-password', data);
+  return response.data;
+};
+
 export const authService = {
   async login(data: LoginData): Promise<AuthResponse> {
     const response = await api.post('/auth/login', data);

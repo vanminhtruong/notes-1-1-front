@@ -9,6 +9,7 @@
     "account": "Account",
     "accountDetails": "Account Details",
     "chat": "Chat",
+    "changePassword": "Change Password",
     "logout": "Logout",
     "logoutConfirm": "Logout?",
     "logoutMessage": "Are you sure you want to logout?",

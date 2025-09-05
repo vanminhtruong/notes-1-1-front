@@ -391,5 +391,25 @@
         "setButton": "Set PIN"
       }
     }
+  },
+  "auth": {
+    "changePassword": {
+      "title": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "submit": "Change Password",
+      "cancel": "Cancel",
+      "success": "Password changed successfully",
+      "errors": {
+        "currentRequired": "Current password is required",
+        "newRequired": "New password is required",
+        "confirmRequired": "Please confirm your new password",
+        "passwordMismatch": "Passwords do not match",
+        "minLength": "Password must be at least 6 characters",
+        "wrongCurrentPassword": "Current password is incorrect",
+        "updateFailed": "Failed to update password"
+      }
+    }
   }
 }

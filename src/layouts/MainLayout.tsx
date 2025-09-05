@@ -2,7 +2,7 @@ import { Link, Outlet } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile } from '@/store/slices/authSlice'
-import { User, LogOut, StickyNote, ChevronDown, Mail, MessageCircle } from 'lucide-react'
+import { User, LogOut, StickyNote, ChevronDown, Mail, MessageCircle, Key } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
@@ -185,6 +185,15 @@ export default function MainLayout() {
                         <MessageCircle className="w-4 h-4" />
                         <span>{t('user.chat')}</span>
                       </button>
+
+                      <Link
+                        to="/change-password"
+                        onClick={() => setMenuOpen(false)}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors"
+                      >
+                        <Key className="w-4 h-4" />
+                        <span>{t('user.changePassword')}</span>
+                      </Link>
 
                       <div className="my-2 h-px bg-white/30 dark:bg-gray-700/50" />
 
