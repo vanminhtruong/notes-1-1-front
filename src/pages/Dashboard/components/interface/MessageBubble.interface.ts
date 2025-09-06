@@ -11,6 +11,10 @@ export interface MessageBubbleProps {
   allMessages?: Message[];
   onMenuToggle: (key: string | null) => void;
   onRecallMessage: (msg: Message, scope: 'self' | 'all') => void;
+  onEditMessage: (msg: Message, content: string) => void | Promise<void>;
   onDownloadAttachment: (url: string) => void;
   onPreviewImage: (url: string) => void;
+  // Pin/unpin support
+  pinnedIdSet?: Set<number> | number[];
+  onTogglePinMessage?: (messageId: number, nextPinned: boolean) => void;
 }

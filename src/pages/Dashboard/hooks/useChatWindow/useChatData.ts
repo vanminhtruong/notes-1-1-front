@@ -9,6 +9,7 @@ export type ChatListItem = {
   lastMessage: Message | null;
   unreadCount?: number;
   friendshipId?: number;
+  isPinned?: boolean;
 };
 
 interface UseChatDataParams {
@@ -66,13 +67,8 @@ export function useChatData({
           lastMessage: it.lastMessage as Message | null,
           unreadCount: it.unreadCount as number | undefined,
           friendshipId: it.friendshipId as number | undefined,
+          isPinned: !!it.isPinned,
         }));
-        // Sort by lastMessage time desc (nulls last)
-        items.sort((a: any, b: any) => {
-          const at = a.lastMessage ? new Date(a.lastMessage.createdAt).getTime() : 0;
-          const bt = b.lastMessage ? new Date(b.lastMessage.createdAt).getTime() : 0;
-          return bt - at;
-        });
         setChatList(items);
       }
     } catch (error) {

@@ -146,7 +146,8 @@
       "friendRemoved": "Đã xóa {{name}} khỏi danh sách bạn bè",
       "messagesDeletedForMe": "Đã xóa tất cả tin nhắn với {{name}} cho bạn",
       "sharedToUser": "Đã chia sẻ ghi chú tới bạn bè",
-      "sharedToGroup": "Đã chia sẻ ghi chú tới nhóm"
+      "sharedToGroup": "Đã chia sẻ ghi chú tới nhóm",
+      "edit": "Đã cập nhật tin nhắn"
     },
     "notifications": {
       "newFriendRequest": "{{name}} đã gửi lời mời kết bạn",
@@ -319,7 +320,15 @@
       "recall": {
         "self": "Thu hồi cho mình",
         "all": "Thu hồi cho mọi người"
-      }
+      },
+      "edit": "Sửa tin nhắn",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "pinMessage": "Ghim tin nhắn",
+      "unpinMessage": "Bỏ ghim tin nhắn",
+      "pinned": "Đã ghim",
+      "unpinned": "Đã bỏ ghim",
+      "pinnedMessages": "Tin nhắn đã ghim"
     },
     "actions": {
       "deleteMessages": "Xóa tin nhắn",

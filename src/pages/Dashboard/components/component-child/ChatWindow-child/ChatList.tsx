@@ -1,15 +1,18 @@
-import { MessageCircle, MoreVertical, UserX, Trash2, Ban } from 'lucide-react';
+import { MessageCircle, MoreVertical, UserX, Trash2, Ban, Pin, PinOff } from 'lucide-react';
 import { useState } from 'react';
 import { formatPreviewText, formatPreviewTime } from '../../../../../utils/utils';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import type { ChatListProps } from '../../interface/ChatList.interface';
 import { blockService, type BlockStatus } from '@/services/blockService';
-const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
+import { pinService } from '@/services/pinService';
+const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
   const { t } = useTranslation('dashboard');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [blockStatusMap, setBlockStatusMap] = useState<Record<number, BlockStatus | undefined>>({});
   const [loadingBlockFor, setLoadingBlockFor] = useState<number | null>(null);
+  const [pinStatusMap, setPinStatusMap] = useState<Record<number, boolean>>({});
+  const [loadingPinFor, setLoadingPinFor] = useState<number | null>(null);
 
   const fetchBlockStatus = async (userId: number) => {
     try {
@@ -25,13 +28,23 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
     }
   };
 
+  const fetchPinStatus = async (userId: number) => {
+    try {
+      const res = await pinService.getChatPinStatus(userId);
+      setPinStatusMap((prev) => ({ ...prev, [userId]: res.data.pinned }));
+    } catch (e: any) {
+      console.error('Failed to fetch pin status:', e);
+    }
+  };
+
   const handleMenuToggle = async (friendId: number, e: React.MouseEvent) => {
     e.stopPropagation();
     const next = openMenuId === friendId ? null : friendId;
     setOpenMenuId(next);
     if (next) {
-      // On open, fetch latest block status for this friend
+      // On open, fetch latest block status and pin status for this friend
       fetchBlockStatus(friendId);
+      fetchPinStatus(friendId);
     }
   };
 
@@ -54,6 +67,27 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
       toast.error(e?.response?.data?.message || t('chat.errors.unblock', 'Failed to unblock user'));
     } finally {
       setOpenMenuId(null);
+    }
+  };
+
+  const handleTogglePin = async (userId: number) => {
+    try {
+      setLoadingPinFor(userId);
+      const currentPinStatus = pinStatusMap[userId] || false;
+      const newPinStatus = !currentPinStatus;
+      
+      await pinService.togglePinChat(userId, newPinStatus);
+      setPinStatusMap((prev) => ({ ...prev, [userId]: newPinStatus }));
+      
+      toast.success(newPinStatus ? t('chat.actions.pinned', 'Chat pinned') : t('chat.actions.unpinned', 'Chat unpinned'));
+      setOpenMenuId(null);
+      
+      // Refresh chat list to show new pin order
+      onRefreshChatList?.();
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || t('chat.errors.pin', 'Failed to update pin status'));
+    } finally {
+      setLoadingPinFor(null);
     }
   };
   const isLocked = !!e2eeEnabled && !e2eeUnlocked;
@@ -104,11 +138,16 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <p
-                    className={`${isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'font-normal text-gray-800 dark:text-gray-300'} truncate`}
-                  >
-                    {friend.name}
-                  </p>
+                  <div className="flex items-center gap-1">
+                    <p
+                      className={`${isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'font-normal text-gray-800 dark:text-gray-300'} truncate`}
+                    >
+                      {friend.name}
+                    </p>
+                    {(item as any).isPinned || pinStatusMap[friend.id] ? (
+                      <Pin className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                    ) : null}
+                  </div>
                   <div className="flex items-center gap-1">
                     <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{time}</span>
                     {onRemoveFriend && item.friendshipId && (
@@ -130,6 +169,27 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                               }}
                             />
                             <div className="absolute right-0 top-8 z-20 min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                              {/* Pin / Unpin */}
+                              <button
+                                disabled={loadingPinFor === friend.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTogglePin(friend.id);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
+                              >
+                                {pinStatusMap[friend.id] ? (
+                                  <>
+                                    <PinOff className="w-4 h-4" />
+                                    {t('chat.actions.unpin', 'Unpin')}
+                                  </>
+                                ) : (
+                                  <>
+                                    <Pin className="w-4 h-4" />
+                                    {t('chat.actions.pin', 'Pin')}
+                                  </>
+                                )}
+                              </button>
                               {/* Block / Unblock */}
                               <button
                                 disabled={loadingBlockFor === friend.id}

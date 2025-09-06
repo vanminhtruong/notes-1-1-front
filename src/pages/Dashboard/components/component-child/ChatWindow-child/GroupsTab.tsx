@@ -7,6 +7,8 @@ import { chatService } from '../../../../../services/chatService';
 import toast from 'react-hot-toast';
 import { useAppSelector } from '../../../../../store';
 import GroupEditorModal from './GroupEditorModal';
+import { pinService } from '../../../../../services/pinService';
+import { MoreVertical, Pin, PinOff } from 'lucide-react';
 import type { GroupsTabProps, GroupItem, PendingInvite } from '../../interface/ChatUI.interface';
 
 const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
@@ -21,6 +23,9 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
   const [availableUsers, setAvailableUsers] = useState<any[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [pinStatusMap, setPinStatusMap] = useState<Record<number, boolean>>({});
+  const [loadingPinFor, setLoadingPinFor] = useState<number | null>(null);
   const currentUserId = useAppSelector((state) => state.auth.user?.id);
 
   const loadGroups = async () => {
@@ -30,7 +35,15 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
       const res = await groupService.listMyGroups();
       if (res.success) {
         console.log('[GroupsTab] Groups loaded:', res.data);
-        setGroups(res.data || []);
+        const data = res.data || [];
+        setGroups(data);
+        // Initialize pin status map from server (supports either isPinned or pinned flags)
+        const initialPins: Record<number, boolean> = {};
+        for (const g of data) {
+          // @ts-expect-error server may return isPinned or pinned
+          initialPins[g.id] = !!(g.isPinned || g.pinned);
+        }
+        setPinStatusMap(initialPins);
       }
     } catch (e) {
       console.error('[GroupsTab] Failed to load groups:', e);
@@ -247,6 +260,45 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
     }
   };
 
+  const fetchGroupPinStatus = async (groupId: number) => {
+    try {
+      const res = await pinService.getGroupPinStatus(groupId);
+      setPinStatusMap((prev) => ({ ...prev, [groupId]: res.data.pinned }));
+    } catch (e: any) {
+      console.error('Failed to fetch group pin status:', e);
+    }
+  };
+
+  const handleToggleGroupPin = async (groupId: number) => {
+    try {
+      setLoadingPinFor(groupId);
+      const currentPinStatus = pinStatusMap[groupId] || false;
+      const newPinStatus = !currentPinStatus;
+      
+      await pinService.togglePinGroup(groupId, newPinStatus);
+      setPinStatusMap((prev) => ({ ...prev, [groupId]: newPinStatus }));
+      
+      toast.success(newPinStatus ? t('chat.groups.pinned', 'Group pinned') : t('chat.groups.unpinned', 'Group unpinned'));
+      setOpenMenuId(null);
+      
+      // Refresh groups to show new pin order
+      loadGroups();
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || t('chat.groups.errors.pin', 'Failed to update pin status'));
+    } finally {
+      setLoadingPinFor(null);
+    }
+  };
+
+  const handleGroupMenuToggle = async (groupId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = openMenuId === groupId ? null : groupId;
+    setOpenMenuId(next);
+    if (next) {
+      fetchGroupPinStatus(groupId);
+    }
+  };
+
   const onCreateGroup = () => setShowCreateModal(true);
 
 
@@ -334,7 +386,12 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 dark:text-white truncate">{g.name}</div>
+                    <div className="flex items-center gap-1 font-semibold text-gray-900 dark:text-white">
+                      <span className="truncate">{g.name}</span>
+                      {(pinStatusMap[g.id] || (g as any).isPinned || (g as any).pinned) && (
+                        <Pin className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                      )}
+                    </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       {t('chat.groups.status.membersCount', { count: g.members.length })}
                     </div>
@@ -350,6 +407,50 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
                       {t('chat.groups.actions.addMembers')}
                     </button>
                   )}
+                  
+                  {/* Group Options Menu */}
+                  <div className="relative">
+                    <button
+                      onClick={(e) => handleGroupMenuToggle(g.id, e)}
+                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                    >
+                      <MoreVertical className="w-4 h-4 text-gray-400" />
+                    </button>
+                    {openMenuId === g.id && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setOpenMenuId(null);
+                          }}
+                        />
+                        <div className="absolute right-0 top-8 z-20 min-w-[160px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                          <button
+                            disabled={loadingPinFor === g.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleGroupPin(g.id);
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
+                          >
+                            {pinStatusMap[g.id] ? (
+                              <>
+                                <PinOff className="w-4 h-4" />
+                                {t('chat.groups.actions.unpin', 'Unpin')}
+                              </>
+                            ) : (
+                              <>
+                                <Pin className="w-4 h-4" />
+                                {t('chat.groups.actions.pin', 'Pin')}
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </li>
             ))}

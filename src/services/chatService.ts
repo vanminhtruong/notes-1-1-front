@@ -123,6 +123,12 @@ export const chatService = {
     return response.data;
   },
 
+  // Edit a text message
+  async editMessage(messageId: number, content: string) {
+    const response = await api.put(`/chat/message/${messageId}`, { content });
+    return response.data as { success: boolean; data: { id: number; content: string; updatedAt: string } };
+  },
+
   // Remove friend
   async removeFriend(friendshipId: number) {
     const response = await api.delete(`/friends/${friendshipId}`);

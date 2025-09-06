@@ -183,6 +183,10 @@ export function useChatSocket(params: UseChatSocketParams) {
       const otherId = isOwn ? data.receiverId : data.senderId;
       if (otherId != null) {
         upsertChatListWithMessage(otherId, data as Message);
+        // Ensure ordering matches backend logic (pinned first)
+        if (typeof loadChatList === 'function') {
+          loadChatList();
+        }
       }
     };
 
@@ -622,6 +626,9 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('group_member_removed', onGroupMemberRemoved);
     socket.on('group_member_left', onGroupMemberLeft);
     socket.on('group_deleted', onGroupDeleted);
+    socket.on('message_edited', (payload: { id: number; content: string; updatedAt?: string }) => {
+      setMessages((prev: any[]) => prev.map((m: any) => (m.id === payload.id ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m)));
+    });
     socket.on('group_messages_recalled', (payload: { groupId: number; scope: 'self'|'all'; messageIds: number[] }) => {
       if (!payload || !selectedGroup || payload.groupId !== selectedGroup.id) return;
       setMessages((prev: any[]) => {
@@ -632,6 +639,10 @@ export function useChatSocket(params: UseChatSocketParams) {
         }
         return prev.map((m: any) => (idSet.has(m.id) ? { ...m, isDeletedForAll: true } : m));
       });
+    });
+    socket.on('group_message_edited', (payload: { id: number; groupId: number; content: string; updatedAt?: string }) => {
+      if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
+      setMessages((prev: any[]) => prev.map((m: any) => (m.id === payload.id ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m)));
     });
     socket.on('message_sent', onMessageSent);
     socket.on('message_delivered', onMessageDelivered);
@@ -696,7 +707,9 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('group_member_removed', onGroupMemberRemoved);
       socket.off('group_member_left', onGroupMemberLeft);
       socket.off('group_deleted', onGroupDeleted);
+      socket.off('message_edited');
       socket.off('group_messages_recalled');
+      socket.off('group_message_edited');
       socket.off('message_sent', onMessageSent);
       socket.off('message_delivered', onMessageDelivered);
       socket.off('message_read', onMessageRead);

@@ -147,7 +147,8 @@
       "friendRemoved": "Removed {{name}} as friend",
       "messagesDeletedForMe": "Deleted all messages with {{name}} for you",
       "sharedToUser": "Shared note to friend",
-      "sharedToGroup": "Shared note to group"
+      "sharedToGroup": "Shared note to group",
+      "edit": "Message updated"
     },
     "notifications": {
       "newFriendRequest": "{{name}} sent you a friend request",
@@ -320,7 +321,15 @@
       "recall": {
         "self": "Recall for yourself",
         "all": "Recall for everyone"
-      }
+      },
+      "edit": "Edit message",
+      "save": "Save",
+      "cancel": "Cancel",
+      "pinMessage": "Pin message",
+      "unpinMessage": "Unpin message",
+      "pinned": "Pinned",
+      "unpinned": "Unpinned",
+      "pinnedMessages": "Pinned messages"
     },
     "actions": {
       "deleteMessages": "Delete Messages",

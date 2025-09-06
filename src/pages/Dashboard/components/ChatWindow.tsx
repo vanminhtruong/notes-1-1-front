@@ -25,7 +25,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   // Track online user IDs for presence aggregation
   const [onlineIds, setOnlineIds] = useState<number[]>([]);
   // Chat list for last message previews
-  const [chatList, setChatList] = useState<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number }>>([]);
+  const [chatList, setChatList] = useState<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean }>>([]);
   // Group editor modal visibility
   const [showGroupEditor, setShowGroupEditor] = useState(false);
   const [showRemoveMembers, setShowRemoveMembers] = useState(false);
@@ -122,18 +122,14 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setChatList((prev) => {
       const friend = friends.find((f) => f.id === otherUserId) || users.find((u) => u.id === otherUserId);
       if (!friend) return prev;
-      const rest = prev.filter((it) => it.friend.id !== otherUserId);
-      const existing = prev.find((it) => it.friend.id === otherUserId);
-      const next = [
-        { friend: friend as User, lastMessage: msg, unreadCount: existing?.unreadCount, friendshipId: existing?.friendshipId },
-        ...rest,
-      ];
-      next.sort((a, b) => {
-        const at = a.lastMessage ? new Date(a.lastMessage.createdAt).getTime() : 0;
-        const bt = b.lastMessage ? new Date(b.lastMessage.createdAt).getTime() : 0;
-        return bt - at;
-      });
-      return next;
+      // Only update the existing item's lastMessage; do not reorder on client.
+      const exists = prev.some((it) => it.friend.id === otherUserId);
+      if (!exists) return prev;
+      return prev.map((it) => (
+        it.friend.id === otherUserId 
+          ? { ...it, lastMessage: msg } 
+          : it
+      ));
     });
   };
 
@@ -147,6 +143,33 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setPendingInvites,
     setMyGroups,
   });
+
+  // Edit a single message (1-1 or group)
+  const editMessage = async (msg: Message, content: string) => {
+    try {
+      if (selectedGroup) {
+        const res = await groupService.editGroupMessage(selectedGroup.id, msg.id, content);
+        if (res.success) {
+          setMessages((prev) => prev.map((m: any) => (m.id === msg.id ? { ...m, content: res.data.content, updatedAt: res.data.updatedAt } : m)));
+          toast.success(t('chat.success.edit', 'Đã cập nhật tin nhắn'));
+        }
+      } else if (selectedChat) {
+        const res = await chatService.editMessage(msg.id, content);
+        if (res.success) {
+          setMessages((prev) => prev.map((m: any) => (m.id === msg.id ? { ...m, content: res.data.content, updatedAt: res.data.updatedAt } : m)));
+          // Reflect in chat list preview if this was the last message
+          setChatList((prev) => prev.map((it) => {
+            const lm = it.lastMessage;
+            if (!lm || lm.id !== msg.id) return it;
+            return { ...it, lastMessage: { ...lm, content: res.data.content } };
+          }));
+          toast.success(t('chat.success.edit', 'Đã cập nhật tin nhắn'));
+        }
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || t('chat.errors.generic'));
+    }
+  };
 
   const { downloadAttachment } = useAttachmentDownloader(t);
 
@@ -478,6 +501,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   onMenuToggle={setMenuOpenKey}
                   onRecallMessage={recallMessage}
                   onRecallGroup={recallGroup}
+                  onEditMessage={editMessage}
                   onDownloadAttachment={downloadAttachment}
                   onPreviewImage={setPreviewImage}
                   maskMessages={e2eeEnabled && !e2eeUnlocked}
@@ -532,6 +556,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                 onStartChat={startChat}
                 onRemoveFriend={handleRemoveFriend}
                 onDeleteMessages={handleDeleteMessages}
+                onRefreshChatList={loadChatList}
                 e2eeEnabled={e2eeEnabled}
                 e2eeUnlocked={e2eeUnlocked}
                 lockedPlaceholder={t('chat.encryption.previewLocked')}
@@ -550,6 +575,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
               onStartChat={startChat}
               onRemoveFriend={handleRemoveFriend}
               onDeleteMessages={handleDeleteMessages}
+              onRefreshChatList={loadChatList}
               e2eeEnabled={e2eeEnabled}
               e2eeUnlocked={e2eeUnlocked}
               lockedPlaceholder={"\uD83D\uDD12 Encrypted — unlock to preview"}
@@ -573,6 +599,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   onMenuToggle={setMenuOpenKey}
                   onRecallMessage={recallMessage}
                   onRecallGroup={recallGroup}
+                  onEditMessage={editMessage}
                   onDownloadAttachment={downloadAttachment}
                   onPreviewImage={setPreviewImage}
                   isGroup

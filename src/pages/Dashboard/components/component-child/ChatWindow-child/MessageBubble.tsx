@@ -1,4 +1,5 @@
-import { MoreVertical, Clock } from 'lucide-react';
+import { MoreVertical, Clock, Pin } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MessageStatus from './MessageStatus';
 import type { MessageBubbleProps } from '../../interface/MessageBubble.interface';
@@ -15,10 +16,24 @@ const MessageBubble = ({
   allMessages,
   onMenuToggle,
   onRecallMessage,
+  onEditMessage,
   onDownloadAttachment,
-  onPreviewImage
+  onPreviewImage,
+  pinnedIdSet,
+  onTogglePinMessage,
 }: MessageBubbleProps) => {
   const { t } = useTranslation('dashboard');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState<string>(String(message.content || ''));
+  const isPinned = (() => {
+    if (!message?.id) return false;
+    if (!Array.isArray(pinnedIdSet) && !(pinnedIdSet instanceof Set)) return false;
+    if (Array.isArray(pinnedIdSet)) return pinnedIdSet.includes(message.id as any);
+    return (pinnedIdSet as Set<number>).has(message.id as any);
+  })();
+  
+  // Check if this is a shared message (shared note)
+  const isSharedMessage = typeof message.content === 'string' && message.content.startsWith('NOTE_SHARE::');
   const renderImageMessage = () => (
     <div className="relative">
       <img
@@ -116,15 +131,53 @@ const MessageBubble = ({
       }
 
       return (
-        <div
-          className={`px-3 py-1.5 rounded-2xl text-sm break-words whitespace-pre-wrap w-fit ${
-            isOwnMessage
-              ? 'bg-blue-600 text-white rounded-br-md'
-              : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
-          }`}
-        >
-          {message.content}
-        </div>
+        <>
+          {isEditing ? (
+            <div className={`w-full max-w-[420px] ${isOwnMessage ? '' : ''}`}>
+              <textarea
+                className={`w-full px-3 py-2 rounded-xl text-sm border focus:outline-none focus:ring-2 ${
+                  isOwnMessage
+                    ? 'border-blue-300 focus:ring-blue-400'
+                    : 'border-gray-300 dark:border-gray-600 focus:ring-gray-400'
+                }`}
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                rows={3}
+                autoFocus
+              />
+              <div className="mt-2 flex items-center gap-2">
+                <button
+                  className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                  onClick={async () => {
+                    const val = editValue?.trim();
+                    if (!val) return;
+                    await onEditMessage(message, val);
+                    setIsEditing(false);
+                    onMenuToggle(null);
+                  }}
+                >
+                  {t('chat.menu.save', 'Lưu')}
+                </button>
+                <button
+                  className="px-3 py-1.5 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-sm"
+                  onClick={() => { setIsEditing(false); setEditValue(String(message.content)); onMenuToggle(null); }}
+                >
+                  {t('chat.menu.cancel', 'Hủy')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div
+              className={`px-3 py-1.5 rounded-2xl text-sm break-words whitespace-pre-wrap w-fit ${
+                isOwnMessage
+                  ? 'bg-blue-600 text-white rounded-br-md'
+                  : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
+              }`}
+            >
+              {message.content}
+            </div>
+          )}
+        </>
       );
     })()
   );
@@ -151,10 +204,16 @@ const MessageBubble = ({
   };
 
   return (
-    <div className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'}`}>
+    <div id={`message-${message.id}`} className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'}`}>
       <div className="relative">
-        <div className="flex flex-col">
+        <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
           {renderContent()}
+          {isPinned && (
+            <div className={`mt-1 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full ${isOwnMessage ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
+              <Pin className="w-3 h-3" />
+              {t('chat.menu.pinned', 'Đã ghim')}
+            </div>
+          )}
           <MessageStatus 
             message={message} 
             isOwnMessage={isOwnMessage} 
@@ -174,15 +233,31 @@ const MessageBubble = ({
               <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
             </button>
             {menuOpenKey === messageKey && (
-              <div className={`absolute z-10 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
+              <div className={`absolute z-50 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
                 onMouseLeave={() => onMenuToggle(null)}
               >
+                {typeof onTogglePinMessage === 'function' && (
+                  <button
+                    onClick={() => onTogglePinMessage(message.id as any, !isPinned)}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    {isPinned ? t('chat.menu.unpinMessage', 'Bỏ ghim tin nhắn') : t('chat.menu.pinMessage', 'Ghim tin nhắn')}
+                  </button>
+                )}
                 <button
                   onClick={() => onRecallMessage(message, 'self')}
                   className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   {t('chat.menu.recall.self')}
                 </button>
+                {isOwnMessage && !isRecalled && (message.messageType === undefined || message.messageType === 'text') && !isSharedMessage && (
+                  <button
+                    onClick={() => { setIsEditing(true); setEditValue(String(message.content)); }}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    {t('chat.menu.edit', 'Sửa tin nhắn')}
+                  </button>
+                )}
                 {isOwnMessage && !isRecalled && (
                   <button
                     onClick={() => onRecallMessage(message, 'all')}

@@ -104,4 +104,9 @@ export const groupService = {
     const res = await api.post(`/groups/${groupId}/message/recall`, { messageIds, scope });
     return res.data as { success: boolean; data: { groupId: number; scope: 'self' | 'all'; messageIds: number[] } };
   },
+
+  async editGroupMessage(groupId: number, messageId: number, content: string) {
+    const res = await api.put(`/groups/${groupId}/message/${messageId}`, { content });
+    return res.data as { success: boolean; data: { id: number; groupId: number; content: string; updatedAt: string } };
+  },
 };

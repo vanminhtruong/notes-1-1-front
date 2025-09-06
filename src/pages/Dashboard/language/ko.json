@@ -111,7 +111,8 @@
     }
   },
   "success": {
-    "reminderAcknowledged": "알림이 확인되었습니다"
+    "reminderAcknowledged": "알림이 확인되었습니다",
+    "edit": "메시지가 수정되었습니다"
   },
   "errors": {
     "reminderAcknowledgeFailed": "알림 확인에 실패했습니다"
@@ -138,7 +139,8 @@
       "rejectedFriendRequest": "친구 요청을 거절했습니다",
       "pinUpdated": "PIN이 업데이트되었습니다",
       "friendRemoved": "{{name}}님을 친구에서 제거했습니다",
-      "messagesDeletedForMe": "{{name}}님과의 모든 메시지를 본인에게서 삭제했습니다"
+      "messagesDeletedForMe": "{{name}}님과의 모든 메시지를 본인에게서 삭제했습니다",
+      "edit": "메시지가 수정되었습니다"
     },
     "notifications": {
       "newFriendRequest": "{{name}}님이 친구 요청을 보냈습니다",
@@ -307,7 +309,15 @@
       "recall": {
         "self": "나만 회수",
         "all": "모두에게서 회수"
-      }
+      },
+      "edit": "메시지 수정",
+      "save": "저장",
+      "cancel": "취소",
+      "pinMessage": "메시지 고정",
+      "unpinMessage": "고정 해제",
+      "pinned": "고정됨",
+      "unpinned": "고정 해제됨",
+      "pinnedMessages": "고정된 메시지"
     },
     "actions": {
       "deleteMessages": "메시지 삭제",

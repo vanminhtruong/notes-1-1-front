@@ -4,6 +4,8 @@ import MessageBubble from './MessageBubble';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY, formatDateTimeMDYY_HHmm } from '../../../../../utils/utils';
 import { blockService } from '@/services/blockService';
+import { pinService } from '@/services/pinService';
+import { getSocket } from '@/services/socket';
 import { toast } from 'react-hot-toast';
 import type { ChatViewProps } from '../../interface/ChatView.interface';
 const ChatView = ({
@@ -18,6 +20,7 @@ const ChatView = ({
   onMenuToggle,
   onRecallMessage,
   onRecallGroup,
+  onEditMessage,
   onDownloadAttachment,
   onPreviewImage,
   isGroup,
@@ -47,6 +50,7 @@ const ChatView = ({
   const [showBackToBottom, setShowBackToBottom] = useState(false);
   // Cache block status per user in group chats to disable only blocked users' avatars
   const [blockedUserMap, setBlockedUserMap] = useState<Record<number, boolean>>({});
+  const [pinnedMessages, setPinnedMessages] = useState<Array<{ id: number; content?: string; messageType?: string; createdAt?: string }>>([]);
 
   // Safely open user profile: for group chats, check block status with that user before opening
   const handleOpenProfile = async (user: any) => {
@@ -74,10 +78,106 @@ const ChatView = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const scrollToMessage = (messageId: number) => {
+    const el = document.getElementById(`message-${messageId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // brief highlight
+      el.classList.add('ring-2', 'ring-yellow-400');
+      setTimeout(() => el.classList.remove('ring-2', 'ring-yellow-400'), 1200);
+    }
+  };
+
+  const loadPinnedMessages = async () => {
+    try {
+      if (isGroup) {
+        const res = await pinService.listGroupPinnedMessages(Number((selectedChat as any)?.id));
+        if (res?.success) setPinnedMessages(res.data || []);
+      } else {
+        const res = await pinService.listPinnedMessages(Number((selectedChat as any)?.id));
+        if (res?.success) setPinnedMessages(res.data || []);
+      }
+    } catch (e) {
+      // silent
+    }
+  };
+
+  const handleTogglePinMessage = async (messageId: number, nextPinned: boolean) => {
+    try {
+      if (isGroup) {
+        const gid = Number((selectedChat as any)?.id);
+        await pinService.togglePinGroupMessage(gid, messageId, nextPinned);
+      } else {
+        await pinService.togglePinMessage(messageId, nextPinned);
+      }
+      await loadPinnedMessages();
+      toast.success(nextPinned ? t('chat.menu.pinned', 'Đã ghim') : t('chat.menu.unpinned', 'Đã bỏ ghim'));
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || t('chat.errors.generic'));
+    }
+  };
+
   useEffect(() => {
     // Always scroll to bottom when messages change to ensure new messages are visible
     scrollToBottom();
   }, [messages]);
+
+  // Load pinned when switching chat/group
+  useEffect(() => {
+    loadPinnedMessages();
+  }, [isGroup, (selectedChat as any)?.id]);
+
+  // Realtime: refresh banner when someone pins/unpins
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const onPinnedDM = (payload: { messageId: number; participants: number[]; pinned: boolean }) => {
+      try {
+        const otherId = Number((selectedChat as any)?.id);
+        if (isGroup) return;
+        if (!Array.isArray(payload?.participants)) return;
+        // current chat participants are [currentUserId, otherId]
+        if (payload.participants.includes(Number(currentUserId)) && payload.participants.includes(otherId)) {
+          loadPinnedMessages();
+        }
+      } catch {}
+    };
+
+    const onPinnedGroup = (payload: { messageId: number; groupId: number; pinned: boolean }) => {
+      try {
+        const gid = Number((selectedChat as any)?.id);
+        if (!isGroup) return;
+        if (payload?.groupId === gid) {
+          loadPinnedMessages();
+        }
+      } catch {}
+    };
+
+    socket.on('message_pinned', onPinnedDM);
+    socket.on('group_message_pinned', onPinnedGroup);
+    // Also refresh on message recalls so stale pins disappear
+    const onDmRecalled = (_payload: { scope: 'self' | 'all'; messageIds: number[] }) => {
+      if (isGroup) return;
+      // Event is emitted only to involved participants; safe to reload
+      loadPinnedMessages();
+    };
+    const onGroupRecalled = (payload: { groupId: number; scope: 'self' | 'all'; messageIds: number[] }) => {
+      if (!isGroup) return;
+      const gid = Number((selectedChat as any)?.id);
+      if (payload?.groupId === gid) {
+        loadPinnedMessages();
+      }
+    };
+    socket.on('messages_recalled', onDmRecalled);
+    socket.on('group_messages_recalled', onGroupRecalled);
+    return () => {
+      socket.off('message_pinned', onPinnedDM);
+      socket.off('group_message_pinned', onPinnedGroup);
+      socket.off('messages_recalled', onDmRecalled);
+      socket.off('group_messages_recalled', onGroupRecalled);
+    };
+  }, [isGroup, (selectedChat as any)?.id, currentUserId]);
 
   useEffect(() => {
     if (!isPartnerTyping) return;
@@ -251,7 +351,7 @@ const ChatView = ({
                 </button>
                 {dmMenuOpen && (
                   <div
-                    className="absolute right-0 top-10 z-20 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
+                    className="absolute right-0 top-10 z-50 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
                     onMouseLeave={() => setDmMenuOpen(false)}
                   >
                     <button
@@ -290,7 +390,7 @@ const ChatView = ({
                   <MoreVertical className="w-5 h-5 text-gray-700 dark:text-gray-200" />
                 </button>
                 {headerMenuOpen && (
-                  <div className="absolute right-0 top-10 z-20 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
+                  <div className="absolute right-0 top-10 z-50 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
                        onMouseLeave={() => setHeaderMenuOpen(false)}
                   >
                     {isGroupOwner && onEditGroup && (
@@ -338,7 +438,7 @@ const ChatView = ({
       {/* Messages */}
       <div
         ref={scrollerRef}
-        className="flex-1 overflow-y-auto p-4 relative"
+        className="flex-1 overflow-y-auto px-4 pb-4 pt-0 relative"
         style={
           (backgroundUrl || (isGroup && selectedChat?.background))
             ? {
@@ -353,6 +453,28 @@ const ChatView = ({
             : undefined
         }
       >
+        {/* Pinned banner */}
+        {!maskMessages && pinnedMessages.length > 0 && (
+          <div className="sticky top-0 z-30 mb-2 py-1 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-gray-900/70 border-b border-yellow-200/60 dark:border-yellow-700/40">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold text-yellow-800 dark:text-yellow-300">
+                <span className="inline-block w-2.5 h-2.5 bg-yellow-500 rounded-full" />
+                {t('chat.menu.pinnedMessages', 'Tin nhắn đã ghim')}
+              </span>
+              {pinnedMessages.map((pm) => (
+                <button
+                  key={`pin-${pm.id}`}
+                  onClick={() => scrollToMessage(pm.id)}
+                  className="inline-flex items-center gap-1 max-w-[220px] px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800/60 border border-yellow-300/60 dark:border-yellow-700/40"
+                  title={String(pm.content || '')}
+                >
+                  <span className="truncate">{pm.messageType === 'image' ? t('chat.preview.image') : pm.messageType === 'file' ? t('chat.preview.file') : (pm.content || '')}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {maskMessages && (
           <div className="relative z-10 mb-4 flex items-center justify-center text-center select-none">
             <div>
@@ -467,7 +589,7 @@ const ChatView = ({
                           <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                         </button>
                         {menuOpenKey === groupKey && (
-                          <div className={`absolute z-10 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
+                          <div className={`absolute z-40 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
                             onMouseLeave={() => onMenuToggle(null)}
                           >
                             <button
@@ -558,8 +680,11 @@ const ChatView = ({
                                         allMessages={messages}
                                         onMenuToggle={onMenuToggle}
                                         onRecallMessage={onRecallMessage}
+                                        onEditMessage={onEditMessage}
                                         onDownloadAttachment={onDownloadAttachment}
                                         onPreviewImage={onPreviewImage}
+                                        pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
+                                        onTogglePinMessage={handleTogglePinMessage}
                                       />
                                     ))}
                                   </div>
@@ -581,8 +706,11 @@ const ChatView = ({
                                     allMessages={messages}
                                     onMenuToggle={onMenuToggle}
                                     onRecallMessage={onRecallMessage}
+                                    onEditMessage={onEditMessage}
                                     onDownloadAttachment={onDownloadAttachment}
                                     onPreviewImage={onPreviewImage}
+                                    pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
+                                    onTogglePinMessage={handleTogglePinMessage}
                                   />
                                 );
                                 i++;
