@@ -39,7 +39,9 @@
     "archive": "Archive",
     "edit": "Edit",
     "update": "Update",
-    "reminderDue": "Reminder due"
+    "reminderDue": "Reminder due",
+    "close": "Close",
+    "viewDetails": "View details"
   },
   "confirm": {
     "removeFriend": "Remove {{name}} as friend?",
@@ -97,6 +99,18 @@
     },
     "edit": {
       "title": "Edit note"
+    },
+    "view": {
+      "title": "Note details",
+      "share": {
+        "title": "Share to chat",
+        "modeUser": "1-1",
+        "modeGroup": "Group",
+        "selectFriend": "Select friend",
+        "selectGroup": "Select group",
+        "shareButton": "Share",
+        "hint": "Content will be sent as text including title, content, image URL (if any), and basic info."
+      }
     }
   },
   "success": {
@@ -119,7 +133,9 @@
       "unblock": "Failed to unblock user",
       "loadUsersFailed": "Failed to load users",
       "messageBlocked": "Message not sent due to blocking.",
-      "messageBlockedCurrent": "Message not sent. Messaging between you and this user is blocked."
+      "messageBlockedCurrent": "Message not sent. Messaging between you and this user is blocked.",
+      "shareForbidden": "Cannot send due to blocking or insufficient permissions",
+      "shareFailed": "Failed to share, please try again"
     },
     "success": {
       "recallSelf": "Recalled messages for yourself",
@@ -129,7 +145,9 @@
       "rejectedFriendRequest": "Friend request rejected",
       "pinUpdated": "PIN updated",
       "friendRemoved": "Removed {{name}} as friend",
-      "messagesDeletedForMe": "Deleted all messages with {{name}} for you"
+      "messagesDeletedForMe": "Deleted all messages with {{name}} for you",
+      "sharedToUser": "Shared note to friend",
+      "sharedToGroup": "Shared note to group"
     },
     "notifications": {
       "newFriendRequest": "{{name}} sent you a friend request",

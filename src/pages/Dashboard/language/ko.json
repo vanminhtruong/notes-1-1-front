@@ -38,7 +38,9 @@
     "restore": "복원",
     "archive": "보관",
     "edit": "편집",
-    "update": "업데이트"
+    "update": "업데이트",
+    "close": "닫기",
+    "viewDetails": "자세히 보기"
   },
   "confirm": {
     "removeFriend": "{{name}}님을 친구에서 삭제하시겠습니까?",
@@ -94,6 +96,18 @@
     },
     "edit": {
       "title": "노트 편집"
+    },
+    "view": {
+      "title": "노트 상세",
+      "share": {
+        "title": "채팅에 공유",
+        "modeUser": "1-1",
+        "modeGroup": "그룹",
+        "selectFriend": "친구 선택",
+        "selectGroup": "그룹 선택",
+        "shareButton": "공유",
+        "hint": "제목, 내용, 이미지 URL(있는 경우) 및 기본 정보를 텍스트로 전송합니다."
+      }
     }
   },
   "success": {

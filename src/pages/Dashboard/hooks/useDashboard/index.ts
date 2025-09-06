@@ -37,6 +37,10 @@ export const useDashboard = () => {
     reminderAtLocal: '',
   });
 
+  // View note modal state
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewNote, setViewNote] = useState<any | null>(null);
+
   const dispatch = useAppDispatch();
   const { notes, isLoading, stats, dueReminderNoteIds } = useAppSelector((state) => state.notes);
 
@@ -214,6 +218,11 @@ export const useDashboard = () => {
     setShowEditModal(true);
   };
 
+  const openView = (note: any) => {
+    setViewNote(note);
+    setShowViewModal(true);
+  };
+
   const handleUpdateNote = async () => {
     if (!editNote.title.trim()) return;
     await dispatch(updateNote({
@@ -366,6 +375,12 @@ export const useDashboard = () => {
     openEdit,
     handleUpdateNote,
     acknowledgeReminderNote: (id: number) => dispatch(ackReminder(id)),
+
+    // view modal
+    showViewModal,
+    setShowViewModal,
+    viewNote,
+    openView,
 
     // actions
     confirmDeleteNote,

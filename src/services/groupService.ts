@@ -99,4 +99,9 @@ export const groupService = {
     const res = await api.put(`/groups/${groupId}/read`);
     return res.data as { success: boolean; data: { groupId: number; markedCount: number; readReceiptsCount: number } };
   },
+  
+  async recallGroupMessages(groupId: number, messageIds: number[], scope: 'self' | 'all') {
+    const res = await api.post(`/groups/${groupId}/message/recall`, { messageIds, scope });
+    return res.data as { success: boolean; data: { groupId: number; scope: 'self' | 'all'; messageIds: number[] } };
+  },
 };

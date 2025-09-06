@@ -38,7 +38,9 @@
     "restore": "Khôi phục",
     "archive": "Lưu trữ",
     "edit": "Sửa",
-    "update": "Cập nhật"
+    "update": "Cập nhật",
+    "close": "Đóng",
+    "viewDetails": "Xem chi tiết"
   },
   "confirm": {
     "removeFriend": "Xóa bạn {{name}}?",
@@ -89,11 +91,25 @@
         "contentPlaceholder": "Nhập nội dung ghi chú",
         "image": "Hình ảnh",
         "category": "Danh mục",
-        "priority": "Mức độ ưu tiên"
+        "priority": "Mức độ ưu tiên",
+        "reminderAt": "Thời điểm nhắc",
+        "reminderHint": "Tùy chọn — bạn sẽ thấy chuông khi đến hạn"
       }
     },
     "edit": {
       "title": "Chỉnh sửa ghi chú"
+    },
+    "view": {
+      "title": "Chi tiết ghi chú",
+      "share": {
+        "title": "Chia sẻ vào chat",
+        "modeUser": "1-1",
+        "modeGroup": "Nhóm",
+        "selectFriend": "Chọn bạn",
+        "selectGroup": "Chọn nhóm",
+        "shareButton": "Chia sẻ",
+        "hint": "Nội dung sẽ được gửi dưới dạng văn bản bao gồm tiêu đề, nội dung, ảnh (nếu có) và thông tin cơ bản."
+      }
     }
   },
   "success": {
@@ -116,7 +132,9 @@
       "unblock": "Bỏ chặn thất bại",
       "loadUsersFailed": "Tải danh sách người dùng thất bại",
       "messageBlocked": "Không thể gửi do một trong hai đã chặn.",
-      "messageBlockedCurrent": "Không thể gửi tin nhắn. Bạn và người này đã chặn nhau."
+      "messageBlockedCurrent": "Không thể gửi tin nhắn. Bạn và người này đã chặn nhau.",
+      "shareForbidden": "Không thể gửi do bị chặn hoặc không đủ quyền",
+      "shareFailed": "Chia sẻ thất bại, vui lòng thử lại"
     },
     "success": {
       "recallSelf": "Đã thu hồi tin nhắn cho mình",
@@ -126,7 +144,9 @@
       "rejectedFriendRequest": "Đã từ chối lời mời kết bạn",
       "pinUpdated": "Đã cập nhật PIN",
       "friendRemoved": "Đã xóa {{name}} khỏi danh sách bạn bè",
-      "messagesDeletedForMe": "Đã xóa tất cả tin nhắn với {{name}} cho bạn"
+      "messagesDeletedForMe": "Đã xóa tất cả tin nhắn với {{name}} cho bạn",
+      "sharedToUser": "Đã chia sẻ ghi chú tới bạn bè",
+      "sharedToGroup": "Đã chia sẻ ghi chú tới nhóm"
     },
     "notifications": {
       "newFriendRequest": "{{name}} đã gửi lời mời kết bạn",

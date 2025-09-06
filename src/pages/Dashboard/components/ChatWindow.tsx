@@ -236,13 +236,21 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setActiveTab,
   });
 
-  // Recall a group of messages
+  // Recall a group of messages (works for both 1-1 grouped and group chat)
   const recallGroup = async (group: MessageGroup, scope: 'self' | 'all') => {
-    if (!selectedChat) return;
     const ids = group.items.map((i) => i.id);
     try {
-      const resp = await chatService.recallMessages(ids, scope);
-      if (resp.success) {
+      let ok = false;
+      if (selectedGroup) {
+        const resp = await groupService.recallGroupMessages(selectedGroup.id, ids, scope);
+        ok = !!resp.success;
+      } else if (selectedChat) {
+        const resp = await chatService.recallMessages(ids, scope);
+        ok = !!resp.success;
+      } else {
+        return;
+      }
+      if (ok) {
         if (scope === 'self') {
           setMessages((prev) => prev.filter((m) => !ids.includes(m.id)));
           toast.success(t('chat.success.recallSelf'));
@@ -257,12 +265,20 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     }
   };
 
-  // Recall a single message (used for text-only groups to recall individually)
+  // Recall a single message (works for both 1-1 and group)
   const recallMessage = async (msg: Message, scope: 'self' | 'all') => {
-    if (!selectedChat) return;
     try {
-      const resp = await chatService.recallMessages([msg.id], scope);
-      if (resp.success) {
+      let ok = false;
+      if (selectedGroup) {
+        const resp = await groupService.recallGroupMessages(selectedGroup.id, [msg.id], scope);
+        ok = !!resp.success;
+      } else if (selectedChat) {
+        const resp = await chatService.recallMessages([msg.id], scope);
+        ok = !!resp.success;
+      } else {
+        return;
+      }
+      if (ok) {
         if (scope === 'self') {
           setMessages((prev) => prev.filter((m) => m.id !== msg.id));
           toast.success(t('chat.success.recallSelf'));

@@ -622,6 +622,17 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('group_member_removed', onGroupMemberRemoved);
     socket.on('group_member_left', onGroupMemberLeft);
     socket.on('group_deleted', onGroupDeleted);
+    socket.on('group_messages_recalled', (payload: { groupId: number; scope: 'self'|'all'; messageIds: number[] }) => {
+      if (!payload || !selectedGroup || payload.groupId !== selectedGroup.id) return;
+      setMessages((prev: any[]) => {
+        if (!Array.isArray(prev) || prev.length === 0) return prev;
+        const idSet = new Set(payload.messageIds);
+        if (payload.scope === 'self') {
+          return prev.filter((m: any) => !idSet.has(m.id));
+        }
+        return prev.map((m: any) => (idSet.has(m.id) ? { ...m, isDeletedForAll: true } : m));
+      });
+    });
     socket.on('message_sent', onMessageSent);
     socket.on('message_delivered', onMessageDelivered);
     socket.on('message_read', onMessageRead);
@@ -685,6 +696,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('group_member_removed', onGroupMemberRemoved);
       socket.off('group_member_left', onGroupMemberLeft);
       socket.off('group_deleted', onGroupDeleted);
+      socket.off('group_messages_recalled');
       socket.off('message_sent', onMessageSent);
       socket.off('message_delivered', onMessageDelivered);
       socket.off('message_read', onMessageRead);

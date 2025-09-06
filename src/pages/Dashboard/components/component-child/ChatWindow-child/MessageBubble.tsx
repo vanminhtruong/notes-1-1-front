@@ -1,7 +1,8 @@
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import MessageStatus from './MessageStatus';
 import type { MessageBubbleProps } from '../../interface/MessageBubble.interface';
+import { formatDateMDYY } from '@/utils/utils';
 
 const MessageBubble = ({
   message,
@@ -64,15 +65,68 @@ const MessageBubble = ({
   );
 
   const renderTextMessage = () => (
-    <div
-      className={`px-3 py-1.5 rounded-2xl text-sm break-words whitespace-pre-wrap w-fit ${
-        isOwnMessage
-          ? 'bg-blue-600 text-white rounded-br-md'
-          : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
-      }`}
-    >
-      {message.content}
-    </div>
+    (() => {
+      // Detect shared note payload encoded as NOTE_SHARE::<uri-encoded json>
+      const prefix = 'NOTE_SHARE::';
+      if (typeof message.content === 'string' && message.content.startsWith(prefix)) {
+        try {
+          const raw = message.content.slice(prefix.length);
+          const obj = JSON.parse(decodeURIComponent(raw));
+          if (obj && (obj.type === 'note' || obj.v === 1)) {
+            const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
+            const priorityChip = (p: string) => {
+              const base = 'px-2 py-1 text-xs font-medium rounded-lg border';
+              switch (p) {
+                case 'high':
+                  return `${base} bg-red-100 text-red-800 border-red-200`;
+                case 'medium':
+                  return `${base} bg-yellow-100 text-yellow-800 border-yellow-200`;
+                case 'low':
+                default:
+                  return `${base} bg-green-100 text-green-800 border-green-200`;
+              }
+            };
+            return (
+              <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 max-w-[360px]">
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2">{note.title}</h3>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">{note.content || t('messages.noContent')}</p>
+                {note.imageUrl && (
+                  <div className="mb-4">
+                    <img src={note.imageUrl} alt={note.title} className="w-full h-40 object-cover rounded-xl border" />
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-2">
+                    <span className={priorityChip(note.priority)}>{
+                      note.priority === 'high' ? t('priority.high') : note.priority === 'medium' ? t('priority.medium') : t('priority.low')
+                    }</span>
+                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600">{t(`category.${note.category}`)}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                    <Clock className="w-3 h-3" />
+                    {formatDateMDYY(note.createdAt)}
+                  </div>
+                </div>
+              </div>
+            );
+          }
+        } catch {}
+      }
+
+      return (
+        <div
+          className={`px-3 py-1.5 rounded-2xl text-sm break-words whitespace-pre-wrap w-fit ${
+            isOwnMessage
+              ? 'bg-blue-600 text-white rounded-br-md'
+              : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
+          }`}
+        >
+          {message.content}
+        </div>
+      );
+    })()
   );
 
   const renderRecalledMessage = () => (
