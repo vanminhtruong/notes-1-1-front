@@ -39,7 +39,7 @@ const ChatView = ({
   onResetBackground,
   blocked,
 }: ChatViewProps) => {
-  const { t } = useTranslation('dashboard');
+  const { t, i18n } = useTranslation('dashboard');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
@@ -122,7 +122,6 @@ const ChatView = ({
     scrollToBottom();
   }, [messages]);
 
-  // Load pinned when switching chat/group
   useEffect(() => {
     loadPinnedMessages();
   }, [isGroup, (selectedChat as any)?.id]);
@@ -157,25 +156,47 @@ const ChatView = ({
     socket.on('message_pinned', onPinnedDM);
     socket.on('group_message_pinned', onPinnedGroup);
     // Also refresh on message recalls so stale pins disappear
-    const onDmRecalled = (_payload: { scope: 'self' | 'all'; messageIds: number[] }) => {
+    const onDmRecalled = (payload: { scope: 'self' | 'all'; messageIds: number[] }) => {
       if (isGroup) return;
-      // Event is emitted only to involved participants; safe to reload
+      // Optimistically drop recalled IDs from local banner to reflect instantly
+      if (Array.isArray(payload?.messageIds) && payload.messageIds.length > 0) {
+        setPinnedMessages((prev) => prev.filter((pm) => !payload.messageIds.includes(pm.id)));
+      }
+      // Then re-fetch to ensure server truth (handles cross-device and cleanup)
       loadPinnedMessages();
     };
     const onGroupRecalled = (payload: { groupId: number; scope: 'self' | 'all'; messageIds: number[] }) => {
       if (!isGroup) return;
       const gid = Number((selectedChat as any)?.id);
       if (payload?.groupId === gid) {
+        // Optimistically remove recalled IDs
+        if (Array.isArray(payload?.messageIds) && payload.messageIds.length > 0) {
+          setPinnedMessages((prev) => prev.filter((pm) => !payload.messageIds.includes(pm.id)));
+        }
         loadPinnedMessages();
       }
     };
+    // When user clears 1-1 chat history (delete for me), server emits 'messages_deleted' only to current user
+    const onDmDeleted = (payload: { deletedWith: number; deletedBy: number; count: number; scope: 'self' }) => {
+      try {
+        if (isGroup) return;
+        const otherId = Number((selectedChat as any)?.id);
+        if (Number(payload?.deletedWith) === otherId) {
+          // Optimistically clear banner when user clears history for this DM
+          setPinnedMessages([]);
+          loadPinnedMessages();
+        }
+      } catch {}
+    };
     socket.on('messages_recalled', onDmRecalled);
     socket.on('group_messages_recalled', onGroupRecalled);
+    socket.on('messages_deleted', onDmDeleted);
     return () => {
       socket.off('message_pinned', onPinnedDM);
       socket.off('group_message_pinned', onPinnedGroup);
       socket.off('messages_recalled', onDmRecalled);
       socket.off('group_messages_recalled', onGroupRecalled);
+      socket.off('messages_deleted', onDmDeleted);
     };
   }, [isGroup, (selectedChat as any)?.id, currentUserId]);
 
@@ -300,27 +321,40 @@ const ChatView = ({
                   if (!selectedChat.lastSeenAt) {
                     return t('chat.chatView.status.offline');
                   }
-                  
                   const lastSeen = new Date(selectedChat.lastSeenAt);
                   const diffMs = currentTime.getTime() - lastSeen.getTime();
                   const diffSeconds = Math.floor(diffMs / 1000);
-                  
-                  // Only show if offline for more than 20 seconds
                   if (diffSeconds < 20) {
                     return t('chat.chatView.status.offline');
                   }
-                  
-                  if (diffSeconds < 60) {
-                    return '20 giây trước';
-                  } else if (diffSeconds < 3600) { // Less than 1 hour
-                    const minutes = Math.floor(diffSeconds / 60);
-                    return `${minutes} phút trước`;
-                  } else if (diffSeconds < 86400) { // Less than 24 hours
-                    const hours = Math.floor(diffSeconds / 3600);
-                    return `${hours} giờ trước`;
-                  } else {
-                    const days = Math.floor(diffSeconds / 86400);
-                    return `${days} ngày trước`;
+                  try {
+                    const rtf = new Intl.RelativeTimeFormat(i18n.language || undefined, { numeric: 'auto' });
+                    if (diffSeconds < 60) {
+                      return rtf.format(-diffSeconds, 'second');
+                    } else if (diffSeconds < 3600) {
+                      const minutes = Math.floor(diffSeconds / 60);
+                      return rtf.format(-minutes, 'minute');
+                    } else if (diffSeconds < 86400) {
+                      const hours = Math.floor(diffSeconds / 3600);
+                      return rtf.format(-hours, 'hour');
+                    } else {
+                      const days = Math.floor(diffSeconds / 86400);
+                      return rtf.format(-days, 'day');
+                    }
+                  } catch {
+                    // Fallback if Intl.RelativeTimeFormat not available
+                    if (diffSeconds < 60) {
+                      return `${diffSeconds}s ago`;
+                    } else if (diffSeconds < 3600) {
+                      const minutes = Math.floor(diffSeconds / 60);
+                      return `${minutes}m ago`;
+                    } else if (diffSeconds < 86400) {
+                      const hours = Math.floor(diffSeconds / 3600);
+                      return `${hours}h ago`;
+                    } else {
+                      const days = Math.floor(diffSeconds / 86400);
+                      return `${days}d ago`;
+                    }
                   }
                 })()
               }
@@ -438,7 +472,7 @@ const ChatView = ({
       {/* Messages */}
       <div
         ref={scrollerRef}
-        className="flex-1 overflow-y-auto px-4 pb-4 pt-0 relative"
+        className="flex-1 overflow-y-auto px-0 pb-4 pt-0 relative"
         style={
           (backgroundUrl || (isGroup && selectedChat?.background))
             ? {
@@ -455,8 +489,8 @@ const ChatView = ({
       >
         {/* Pinned banner */}
         {!maskMessages && pinnedMessages.length > 0 && (
-          <div className="sticky top-0 z-30 mb-2 py-1 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-gray-900/70 border-b border-yellow-200/60 dark:border-yellow-700/40">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="sticky top-0 z-30 pt-2 pb-2 mb-2 py-0 w-full backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-gray-900/70 border-b border-yellow-200/60 dark:border-yellow-700/40">
+            <div className="px-4 flex items-center gap-2 flex-wrap">
               <span className="inline-flex items-center gap-2 text-xs font-semibold text-yellow-800 dark:text-yellow-300">
                 <span className="inline-block w-2.5 h-2.5 bg-yellow-500 rounded-full" />
                 {t('chat.menu.pinnedMessages', 'Tin nhắn đã ghim')}
@@ -511,7 +545,7 @@ const ChatView = ({
             </div>
           ) : null
         ) : (
-          <div className="space-y-4 relative z-10">
+          <div className="space-y-4 relative z-10 mt-4 px-4">
             {visibleGroups.map((group) => {
               const isOwnMessage = group.senderId === currentUserId;
               const showAvatar = !isOwnMessage;
@@ -723,7 +757,7 @@ const ChatView = ({
                       </>
                     )}
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
-                      {new Date(group.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(group.end).toLocaleTimeString(i18n.language || undefined, { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                 </div>

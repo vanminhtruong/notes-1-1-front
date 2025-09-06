@@ -569,6 +569,43 @@ export function useChatSocket(params: UseChatSocketParams) {
       (socket as any).onAny(onAnyLogger);
     }
 
+    // Dedicated handlers for recall events so we can off() them specifically
+    const dmRecalledHandler = (payload: { scope: 'self' | 'all'; messageIds: number[] }) => {
+      setMessages((prev: any[]) => {
+        if (!Array.isArray(prev) || prev.length === 0) return prev;
+        const idSet = new Set(payload.messageIds);
+        if (payload.scope === 'self') {
+          return prev.filter((m: any) => !idSet.has(m.id));
+        } else {
+          return prev.map((m: any) => (idSet.has(m.id) ? { ...m, isDeletedForAll: true } : m));
+        }
+      });
+      setChatList((prev: any) => {
+        const idSet = new Set(payload.messageIds);
+        return prev.map((it: any) => {
+          const lm = it.lastMessage;
+          if (!lm) return it;
+          if (!idSet.has(lm.id)) return it;
+          if (payload.scope === 'all') {
+            return { ...it, lastMessage: { ...lm, isDeletedForAll: true } };
+          }
+          return it;
+        });
+      });
+    };
+
+    const groupRecalledHandler = (payload: { groupId: number; scope: 'self'|'all'; messageIds: number[] }) => {
+      if (!payload || !selectedGroup || payload.groupId !== selectedGroup.id) return;
+      setMessages((prev: any[]) => {
+        if (!Array.isArray(prev) || prev.length === 0) return prev as any[];
+        const idSet = new Set(payload.messageIds);
+        if (payload.scope === 'self') {
+          return prev.filter((m: any) => !idSet.has(m.id));
+        }
+        return prev.map((m: any) => (idSet.has(m.id) ? { ...m, isDeletedForAll: true } : m));
+      });
+    };
+
     // Clear listeners then register
     socket.off('new_friend_request', onNewFriendReq);
     socket.off('friend_request_accepted', onFriendAccepted);
@@ -600,7 +637,8 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.off('user_profile_updated', onUserProfileUpdated);
     socket.off('user_typing', onUserTyping);
     socket.off('group_typing', onGroupTyping as any);
-    socket.off('messages_recalled');
+    socket.off('messages_recalled', dmRecalledHandler);
+    socket.off('group_messages_recalled', groupRecalledHandler);
     socket.off('group_updated', onGroupUpdated);
     socket.off('group_invited', onGroupInvited);
     socket.off('group_member_left', onGroupMemberLeft);
@@ -629,17 +667,7 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('message_edited', (payload: { id: number; content: string; updatedAt?: string }) => {
       setMessages((prev: any[]) => prev.map((m: any) => (m.id === payload.id ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m)));
     });
-    socket.on('group_messages_recalled', (payload: { groupId: number; scope: 'self'|'all'; messageIds: number[] }) => {
-      if (!payload || !selectedGroup || payload.groupId !== selectedGroup.id) return;
-      setMessages((prev: any[]) => {
-        if (!Array.isArray(prev) || prev.length === 0) return prev;
-        const idSet = new Set(payload.messageIds);
-        if (payload.scope === 'self') {
-          return prev.filter((m: any) => !idSet.has(m.id));
-        }
-        return prev.map((m: any) => (idSet.has(m.id) ? { ...m, isDeletedForAll: true } : m));
-      });
-    });
+    socket.on('group_messages_recalled', groupRecalledHandler);
     socket.on('group_message_edited', (payload: { id: number; groupId: number; content: string; updatedAt?: string }) => {
       if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
       setMessages((prev: any[]) => prev.map((m: any) => (m.id === payload.id ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m)));
@@ -660,29 +688,7 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('group_updated', onGroupUpdated);
     socket.on('group_invited', onGroupInvited);
     socket.on('friend_removed', onFriendRemoved);
-    socket.on('messages_recalled', (payload: { scope: 'self' | 'all'; messageIds: number[] }) => {
-      setMessages((prev: any[]) => {
-        if (!Array.isArray(prev) || prev.length === 0) return prev;
-        const idSet = new Set(payload.messageIds);
-        if (payload.scope === 'self') {
-          return prev.filter((m: any) => !idSet.has(m.id));
-        } else {
-          return prev.map((m: any) => (idSet.has(m.id) ? { ...m, isDeletedForAll: true } : m));
-        }
-      });
-      setChatList((prev: ChatListItem[]) => {
-        const idSet = new Set(payload.messageIds);
-        return prev.map((it) => {
-          const lm = it.lastMessage;
-          if (!lm) return it;
-          if (!idSet.has(lm.id)) return it;
-          if (payload.scope === 'all') {
-            return { ...it, lastMessage: { ...lm, isDeletedForAll: true } } as ChatListItem;
-          }
-          return it;
-        });
-      });
-    });
+    socket.on('messages_recalled', dmRecalledHandler);
 
     return () => {
       socket.off('new_friend_request', onNewFriendReq);
@@ -708,7 +714,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('group_member_left', onGroupMemberLeft);
       socket.off('group_deleted', onGroupDeleted);
       socket.off('message_edited');
-      socket.off('group_messages_recalled');
+      socket.off('group_messages_recalled', groupRecalledHandler);
       socket.off('group_message_edited');
       socket.off('message_sent', onMessageSent);
       socket.off('message_delivered', onMessageDelivered);
@@ -725,7 +731,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('group_typing', onGroupTyping as any);
       socket.off('group_updated', onGroupUpdated);
       socket.off('group_invited', onGroupInvited);
-      socket.off('messages_recalled');
+      socket.off('messages_recalled', dmRecalledHandler);
       if ((socket as any).offAny) {
         try {
           (socket as any).offAny(onAnyLogger);

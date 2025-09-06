@@ -371,6 +371,10 @@
       "fileFallback": "file",
       "downloadLabel": "Download"
     },
+    "readBy": {
+      "title": "{{name}} viewed at {{time}}",
+      "more": "+{{count}} others viewed"
+    },
     "locked": {
       "notice": "Messages are encrypted",
       "hint": "Enter your PIN to unlock and view the conversation history. You can still continue messaging.",

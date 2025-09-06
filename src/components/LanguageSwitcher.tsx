@@ -1,17 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe, ChevronDown } from 'lucide-react';
+import type { ComponentType, SVGProps } from 'react';
+import { VN, US, KR } from 'country-flag-icons/react/3x2';
 
 interface Language {
   code: string;
   name: string;
-  flag: string;
+  Flag: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
 const languages: Language[] = [
-  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'ko', name: '한국어', flag: '🇰🇷' },
+  { code: 'vi', name: 'Tiếng Việt', Flag: VN },
+  { code: 'en', name: 'English', Flag: US },
+  { code: 'ko', name: '한국어', Flag: KR },
 ];
 
 export default function LanguageSwitcher() {
@@ -69,7 +71,9 @@ export default function LanguageSwitcher() {
         aria-haspopup="menu"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg leading-none">{currentLanguage.flag}</span>
+          <span className="leading-none inline-flex items-center">
+            <currentLanguage.Flag className="h-4 w-auto rounded-[2px] shadow-sm" />
+          </span>
           <span className="hidden sm:block text-sm font-medium text-gray-900 dark:text-white">
             {currentLanguage.code.toUpperCase()}
           </span>
@@ -103,7 +107,9 @@ export default function LanguageSwitcher() {
                 }`}
                 role="menuitem"
               >
-                <span className="text-lg leading-none">{language.flag}</span>
+                <span className="leading-none inline-flex items-center">
+                  <language.Flag className="h-4 w-auto rounded-[2px] shadow-sm" />
+                </span>
                 <span className="flex-1 text-left">{language.name}</span>
                 {currentLanguage.code === language.code && (
                   <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full" />

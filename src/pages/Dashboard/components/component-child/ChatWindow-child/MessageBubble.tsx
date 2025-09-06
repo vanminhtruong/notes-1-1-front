@@ -236,7 +236,7 @@ const MessageBubble = ({
               <div className={`absolute z-50 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
                 onMouseLeave={() => onMenuToggle(null)}
               >
-                {typeof onTogglePinMessage === 'function' && (
+                {typeof onTogglePinMessage === 'function' && !isRecalled && (
                   <button
                     onClick={() => onTogglePinMessage(message.id as any, !isPinned)}
                     className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"

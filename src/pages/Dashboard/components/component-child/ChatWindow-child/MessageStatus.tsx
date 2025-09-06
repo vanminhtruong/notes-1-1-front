@@ -1,6 +1,8 @@
 import { CheckIcon, CheckCheckIcon } from 'lucide-react';
 import { useMemo, useEffect } from 'react';
 import type { MessageStatusProps } from '../../interface/MessageStatus.interface';
+import { useTranslation } from 'react-i18next';
+
 // CSS for smooth avatar animations
 const avatarAnimationStyles = `
   @keyframes avatarSlideIn {
@@ -76,6 +78,7 @@ const avatarAnimationStyles = `
  
 
 const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] }: MessageStatusProps) => {
+  const { t, i18n } = useTranslation('dashboard');
   // Inject custom CSS styles for animations
   useEffect(() => {
     const styleId = 'avatar-animations';
@@ -163,6 +166,7 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
       <div className="flex -space-x-1 ml-1 transform transition-all duration-300 ease-out">
         {avatarsToShow.slice(0, 3).map((readInfo, index) => {
           const user = readInfo.user;
+          const displayName = user?.name || t('chat.fallback.user', { id: readInfo.userId });
           return (
             <div
               key={readInfo.userId}
@@ -171,7 +175,7 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
                 zIndex: avatarsToShow.length - index,
                 animationDelay: `${index * 150}ms`
               }}
-              title={`${user?.name || `User ${readInfo.userId}`} đã xem lúc ${new Date(readInfo.readAt).toLocaleTimeString()}`}
+              title={t('chat.readBy.title', { name: displayName, time: new Date(readInfo.readAt).toLocaleTimeString(i18n.language) })}
             >
               {user?.avatar ? (
                 <img 
@@ -189,7 +193,7 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
           <div 
             className="w-4 h-4 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center text-white text-xs avatar-container animate-avatarSlideIn animate-avatarFloat"
             style={{ animationDelay: `${avatarsToShow.length * 150}ms` }}
-            title={`+${avatarsToShow.length - 3} người khác đã xem`}
+            title={t('chat.readBy.more', { count: avatarsToShow.length - 3 })}
           >
             +{avatarsToShow.length - 3}
           </div>

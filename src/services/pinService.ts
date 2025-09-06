@@ -33,7 +33,7 @@ export const pinService = {
 
   // List pinned messages for a 1-1 chat with specific user
   listPinnedMessages: async (userId: number) => {
-    const response = await api.get(`/chat/${userId}/pins`);
+    const response = await api.get(`/chat/${userId}/pins`, { params: { t: Date.now() } });
     return response.data;
   },
 
@@ -45,7 +45,7 @@ export const pinService = {
 
   // List pinned messages in a group
   listGroupPinnedMessages: async (groupId: number) => {
-    const response = await api.get(`/groups/${groupId}/pins`);
+    const response = await api.get(`/groups/${groupId}/pins`, { params: { t: Date.now() } });
     return response.data;
   },
 };

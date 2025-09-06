@@ -370,6 +370,10 @@
       "fileFallback": "tệp",
       "downloadLabel": "Tải xuống"
     },
+    "readBy": {
+      "title": "{{name}} đã xem lúc {{time}}",
+      "more": "+{{count}} người khác đã xem"
+    },
     "locked": {
       "notice": "Đoạn tin nhắn đã bị mã hóa",
       "hint": "Hãy nhập PIN để mở khóa và xem lịch sử cuộc trò chuyện. Bạn vẫn có thể tiếp tục nhắn tin.",

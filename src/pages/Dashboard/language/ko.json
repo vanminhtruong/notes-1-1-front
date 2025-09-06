@@ -359,6 +359,10 @@
       "fileFallback": "파일",
       "downloadLabel": "다운로드"
     },
+    "readBy": {
+      "title": "{{name}}님이 {{time}}에 읽음",
+      "more": "+{{count}}명 더 읽음"
+    },
     "locked": {
       "notice": "메시지가 암호화되었습니다",
       "hint": "대화 기록을 보려면 PIN을 입력하세요. 계속 대화는 가능합니다.",
