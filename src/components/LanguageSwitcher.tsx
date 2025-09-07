@@ -88,10 +88,10 @@ export default function LanguageSwitcher() {
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-48 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl overflow-hidden z-50"
+          className="absolute right-0 mt-2 w-56 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl overflow-hidden z-50"
         >
           <div className="p-2">
-            <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
               <Globe className="w-3.5 h-3.5" />
               Ngôn ngữ / Language
             </div>

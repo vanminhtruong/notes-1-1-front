@@ -83,7 +83,42 @@ export function useChatOpeners(params: {
     try {
       const response = await chatService.getChatMessages(user.id);
       if (response.success) {
-        setMessages(response.data);
+        // Normalize DM read receipts for persistence across reloads
+        const msgs = (response.data as any[]).map((m: any) => {
+          // Prefer existing readBy if already provided
+          if (Array.isArray(m.readBy)) return m;
+          // Backend variations: MessageReads / messageReads / reads
+          const rawReads = (m && (m.MessageReads || m.messageReads || m.reads)) as any[] | undefined;
+          let readBy: any[] = [];
+          if (Array.isArray(rawReads)) {
+            readBy = rawReads.map((read: any) => {
+              const fallbackUser = friends.find((f) => f.id === read.userId) || users.find((uu) => uu.id === read.userId);
+              return {
+                userId: read.userId,
+                readAt: read.readAt || read.createdAt || new Date().toISOString(),
+                user: read.user || fallbackUser,
+              };
+            });
+          }
+          const isOwn = !!currentUser && m.senderId === currentUser.id;
+          const readByOthers = readBy.filter((rb: any) => rb.userId !== currentUser?.id);
+          let status = isOwn && readByOthers.length > 0 ? 'read' : m.status;
+
+          // If backend marks message as read but didn't include readBy yet (after reload),
+          // synthesize a minimal readBy entry using the other participant so avatars persist.
+          if (isOwn && status === 'read' && readByOthers.length === 0 && user?.id) {
+            const other = friends.find((f) => f.id === user.id) || users.find((uu) => uu.id === user.id) || user;
+            const synthetic = {
+              userId: other.id,
+              readAt: m.updatedAt || m.readAt || m.createdAt || new Date().toISOString(),
+              user: { id: other.id, name: other.name, avatar: (other as any).avatar },
+            };
+            readBy = [...readBy, synthetic];
+            status = 'read';
+          }
+          return { ...m, readBy, status };
+        });
+        setMessages(msgs);
         setMenuOpenKey(null);
         setTimeout(scrollToBottom, 100);
       } else {
@@ -121,14 +156,20 @@ export function useChatOpeners(params: {
               user: read.user
             }));
           }
-          
+          // If it's our own message and someone else has read it, mark status as 'read'
+          const isOwn = !!currentUser && m.senderId === currentUser.id;
+          const readByOthers = readBy.filter((rb: any) => rb.userId !== currentUser?.id);
+          const status = isOwn && readByOthers.length > 0 ? 'read' : m.status;
+
           return u ? { 
             ...m, 
             sender: { id: u.id, name: u.name, avatar: u.avatar },
-            readBy 
+            readBy,
+            status,
           } : { 
             ...m, 
-            readBy 
+            readBy,
+            status,
           };
         });
         setMessages(msgs);
