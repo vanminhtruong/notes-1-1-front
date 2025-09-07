@@ -224,14 +224,34 @@ const ChatView = ({
     return () => el.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Update current time every second to refresh offline duration
+  // Update current time every minute to refresh offline duration
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
-
+    }, 60_000);
     return () => clearInterval(timer);
   }, []);
+
+  // One-shot ticks anchored to lastSeen: at 20s (to reveal "20 seconds ago") and at next minute boundary
+  useEffect(() => {
+    if (isGroup) return;
+    const lastSeenAt = (selectedChat as any)?.lastSeenAt;
+    if (!lastSeenAt) return;
+    const last = new Date(lastSeenAt).getTime();
+    const now = Date.now();
+    const ageSec = Math.floor((now - last) / 1000);
+    const timers: number[] = [] as unknown as number[];
+    if (ageSec < 20) {
+      timers.push(setTimeout(() => setCurrentTime(new Date()), (20 - ageSec) * 1000) as unknown as number);
+    }
+    // Schedule a tick at the next minute boundary after lastSeen
+    const remainder = ageSec % 60;
+    const msUntilNextMinute = ((remainder === 0 ? 60 : 60 - remainder) * 1000);
+    timers.push(setTimeout(() => setCurrentTime(new Date()), msUntilNextMinute) as unknown as number);
+    return () => {
+      timers.forEach((t) => clearTimeout(t as unknown as number));
+    };
+  }, [isGroup, (selectedChat as any)?.lastSeenAt]);
 
   // When messages are masked (locked), still allow showing only my own outgoing messages
   // so the sender can see what they just sent. Otherwise show all grouped messages.
@@ -324,13 +344,15 @@ const ChatView = ({
                   const lastSeen = new Date(selectedChat.lastSeenAt);
                   const diffMs = currentTime.getTime() - lastSeen.getTime();
                   const diffSeconds = Math.floor(diffMs / 1000);
+                  // Show plain offline for the first 0-19s
                   if (diffSeconds < 20) {
                     return t('chat.chatView.status.offline');
                   }
                   try {
                     const rtf = new Intl.RelativeTimeFormat(i18n.language || undefined, { numeric: 'auto' });
+                    // Between 20s and 59s, always show "20 seconds ago" (fixed)
                     if (diffSeconds < 60) {
-                      return rtf.format(-diffSeconds, 'second');
+                      return rtf.format(-20, 'second');
                     } else if (diffSeconds < 3600) {
                       const minutes = Math.floor(diffSeconds / 60);
                       return rtf.format(-minutes, 'minute');
@@ -344,7 +366,7 @@ const ChatView = ({
                   } catch {
                     // Fallback if Intl.RelativeTimeFormat not available
                     if (diffSeconds < 60) {
-                      return `${diffSeconds}s ago`;
+                      return '20s ago';
                     } else if (diffSeconds < 3600) {
                       const minutes = Math.floor(diffSeconds / 60);
                       return `${minutes}m ago`;
