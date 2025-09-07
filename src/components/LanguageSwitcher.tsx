@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Globe, ChevronDown } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
@@ -20,6 +21,7 @@ export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [previewLang, setPreviewLang] = useState<Language | null>(null);
 
   const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
@@ -61,6 +63,16 @@ export default function LanguageSwitcher() {
       document.removeEventListener('keydown', handleEscape);
     };
   }, []);
+
+  // Close flag preview on Escape
+  useEffect(() => {
+    if (!previewLang) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPreviewLang(null);
+    };
+    document.addEventListener('keydown', onEsc);
+    return () => document.removeEventListener('keydown', onEsc);
+  }, [previewLang]);
 
   return (
     <div ref={dropdownRef} className="relative">
@@ -107,7 +119,16 @@ export default function LanguageSwitcher() {
                 }`}
                 role="menuitem"
               >
-                <span className="leading-none inline-flex items-center">
+                <span
+                  className="leading-none inline-flex items-center cursor-zoom-in"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setPreviewLang(language);
+                  }}
+                  title={language.name}
+                  aria-label={`Preview ${language.name} flag`}
+                >
                   <language.Flag className="h-4 w-auto rounded-[2px] shadow-sm" />
                 </span>
                 <span className="flex-1 text-left">{language.name}</span>
@@ -118,6 +139,38 @@ export default function LanguageSwitcher() {
             ))}
           </div>
         </div>
+      )}
+      {previewLang && createPortal(
+        <div
+          className="fixed inset-0 z-[9999] bg-black/60"
+          onClick={() => setPreviewLang(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-5 w-[90%] max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-4">
+              <span className="inline-flex items-center justify-center rounded-md overflow-hidden">
+                <previewLang.Flag className="h-24 w-auto rounded-md shadow" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-lg font-semibold text-gray-900 dark:text-white truncate">{previewLang.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{previewLang.code.toUpperCase()}</p>
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end">
+              <button
+                onClick={() => setPreviewLang(null)}
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );
