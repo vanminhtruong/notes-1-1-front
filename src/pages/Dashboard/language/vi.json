@@ -314,6 +314,7 @@
       "options": "Tùy chọn",
       "messageOptionsAria": "Tùy chọn tin nhắn",
       "chatOptionsAria": "Tùy chọn cuộc chat",
+      "searchMessages": "Tìm kiếm tin nhắn",
       "changeBackground": "Đổi ảnh nền",
       "changeBackgroundForBoth": "Đổi ảnh nền cho cả hai",
       "resetBackground": "Khôi phục nền mặc định",
@@ -329,6 +330,12 @@
       "pinned": "Đã ghim",
       "unpinned": "Đã bỏ ghim",
       "pinnedMessages": "Tin nhắn đã ghim"
+    },
+    "search": {
+      "placeholder": "Tìm kiếm tin nhắn…",
+      "searching": "Đang tìm kiếm...",
+      "hint": "Nhập để tìm kiếm tin nhắn",
+      "noResults": "Không có tin nhắn phù hợp"
     },
     "actions": {
       "deleteMessages": "Xóa tin nhắn",
@@ -373,6 +380,23 @@
     "readBy": {
       "title": "{{name}} đã xem lúc {{time}}",
       "more": "+{{count}} người khác đã xem"
+    },
+    "reactions": {
+      "modal": {
+        "title": "Biểu cảm",
+        "empty": "Chưa có biểu cảm",
+        "tabs": {
+          "all": "Tất cả"
+        }
+      },
+      "types": {
+        "like": "Thích",
+        "love": "Yêu thích",
+        "haha": "Haha",
+        "wow": "Wow",
+        "sad": "Buồn",
+        "angry": "Tức giận"
+      }
     },
     "locked": {
       "notice": "Đoạn tin nhắn đã bị mã hóa",

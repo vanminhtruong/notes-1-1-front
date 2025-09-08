@@ -1,9 +1,13 @@
 import { MoreVertical, Clock, Pin } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import MessageStatus from './MessageStatus';
+import ReactionDetailsModal from './ReactionDetailsModal';
 import type { MessageBubbleProps } from '../../interface/MessageBubble.interface';
 import { formatDateMDYY } from '@/utils/utils';
+import { chatService } from '@/services/chatService';
+import { groupService } from '@/services/groupService';
+import * as Tooltip from '@radix-ui/react-tooltip';
 
 const MessageBubble = ({
   message,
@@ -25,6 +29,128 @@ const MessageBubble = ({
   const { t } = useTranslation('dashboard');
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState<string>(String(message.content || ''));
+  const [showReactions, setShowReactions] = useState(false);
+  const [reactions, setReactions] = useState<Array<{ userId: number; type: any }>>(message.Reactions || []);
+  const [showReactionModal, setShowReactionModal] = useState(false);
+  const myTypes = useMemo<string[]>(() => {
+    const list = Array.isArray(message.Reactions) ? message.Reactions : [];
+    return list.filter((r: any) => r.userId === currentUserId).map((r: any) => r.type);
+  }, [message.Reactions, currentUserId]);
+  // No local burst counting; rely on server-persisted counts for accuracy
+  const [floatItems, setFloatItems] = useState<Array<{ id: number; emoji: string; dx: number }>>([]);
+  const EMOJI: Record<'like'|'love'|'haha'|'wow'|'sad'|'angry', string> = {
+    like: '👍',
+    love: '❤️',
+    haha: '😂',
+    wow: '😮',
+    sad: '😢',
+    angry: '😡',
+  };
+  
+  // Clear my specific reaction type (and reset local burst for that type)
+  const clearMyReactionType = async (type: 'like'|'love'|'haha'|'wow'|'sad'|'angry') => {
+    try {
+      setReactions(prev => (Array.isArray(prev) ? prev.filter(r => !(r.userId === currentUserId && r.type === type)) : prev));
+      if (message.groupId) await groupService.unreactGroupMessage(message.groupId, message.id, type);
+      else await chatService.unreactMessage(message.id, type);
+    } catch {}
+  };
+
+  // Resolve display name for tooltips from available data
+  const resolveUserName = (uid: number): string => {
+    if (uid === currentUserId) return 'Bạn';
+    if ((message as any)?.sender?.id === uid) return (message as any).sender.name || `User ${uid}`;
+    if ((message as any)?.receiver?.id === uid) return (message as any).receiver.name || `User ${uid}`;
+    const found = (allMessages || []).find((m: any) => (m?.sender?.id === uid) || (m as any)?.receiver?.id === uid) as any;
+    if (found?.sender?.id === uid && found?.sender?.name) return found.sender.name as string;
+    if ((found as any)?.receiver?.id === uid && (found as any)?.receiver?.name) return (found as any).receiver.name as string;
+    return `User ${uid}`;
+  };
+
+  // Resolve user info for modal list
+  const resolveUserInfo = (uid: number) => {
+    if (uid === currentUserId) return { id: uid, name: 'Bạn', avatar: undefined };
+    if ((message as any)?.sender?.id === uid) {
+      return { id: uid, name: (message as any).sender.name, avatar: (message as any).sender.avatar };
+    }
+    if ((message as any)?.receiver?.id === uid) {
+      return { id: uid, name: (message as any).receiver.name, avatar: (message as any).receiver.avatar };
+    }
+    const found = (allMessages || []).find((m: any) => (m?.sender?.id === uid) || (m as any)?.receiver?.id === uid) as any;
+    if (found?.sender?.id === uid) return { id: uid, name: found.sender.name, avatar: (found.sender as any)?.avatar };
+    if ((found as any)?.receiver?.id === uid) return { id: uid, name: (found as any).receiver.name, avatar: (found as any).receiver?.avatar };
+    return { id: uid, name: `User ${uid}`, avatar: undefined };
+  };
+
+  // Keep local state in sync when parent updates message (e.g., via sockets)
+  useEffect(() => {
+    const list = message.Reactions || [];
+    setReactions(list);
+    // myTypes is derived via useMemo
+  }, [message.Reactions, message.id, currentUserId]);
+
+  const handleReact = async (next: any | null, allowBurst = false) => {
+    try {
+      // For repeated same-type clicks, optimistically increment count and still call backend
+      if (allowBurst && next && myTypes.includes(next)) {
+        setReactions(prev => {
+          const list = Array.isArray(prev) ? prev : [];
+          const idx = list.findIndex(r => r.userId === currentUserId && r.type === next);
+          if (idx >= 0) {
+            const updated = [...list];
+            const prevCount = Number((updated[idx] as any).count || 1);
+            updated[idx] = { ...updated[idx], count: prevCount + 1 } as any;
+            return updated as any;
+          }
+          return [...list, { userId: currentUserId as number, type: next, count: 1 }];
+        });
+        // proceed to backend call below
+      }
+
+      // Optimistic update only if adding same type or still under 3
+      if (next == null) {
+        setReactions(prev => (Array.isArray(prev) ? prev.filter(r => r.userId !== currentUserId) : prev));
+      } else if (myTypes.includes(next) || myTypes.length < 3) {
+        setReactions(prev => {
+          const list = Array.isArray(prev) ? prev : [];
+          const idx = list.findIndex(r => r.userId === currentUserId && r.type === next);
+          if (idx >= 0) return list; // already optimistically incremented above for burst
+          return [...list, { userId: currentUserId as number, type: next, count: 1 }];
+        });
+      }
+
+      if (message.groupId) {
+        if (next == null) await groupService.unreactGroupMessage(message.groupId, message.id);
+        else await groupService.reactGroupMessage(message.groupId, message.id, next);
+      } else {
+        if (next == null) await chatService.unreactMessage(message.id);
+        else await chatService.reactMessage(message.id, next);
+      }
+    } catch (_err) {
+      // rollback UI on error could be added; minimal toast for now
+      // no toast to keep UI clean; server socket will resync
+    }
+  };
+  
+  // Flying emoji spawner for burst effect
+  const spawnFloat = (emoji: string) => {
+    // Cap concurrent floating items of the same emoji to 3
+    let addedId: number | null = null;
+    setFloatItems((prev) => {
+      const same = prev.filter((it) => it.emoji === emoji).length;
+      if (same >= 3) return prev;
+      const id = Date.now() + Math.random();
+      addedId = id;
+      const dx = Math.round(Math.random() * 24 - 12); // -12..12 px horizontal offset
+      return [...prev, { id, emoji, dx }];
+    });
+    // Auto-remove after animation ends
+    setTimeout(() => {
+      if (addedId != null) {
+        setFloatItems((prev) => prev.filter((it) => it.id !== addedId));
+      }
+    }, 950);
+  };
   const isPinned = (() => {
     if (!message?.id) return false;
     if (!Array.isArray(pinnedIdSet) && !(pinnedIdSet instanceof Set)) return false;
@@ -204,7 +330,9 @@ const MessageBubble = ({
   };
 
   return (
-    <div id={`message-${message.id}`} className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'}`}>
+    <Tooltip.Provider delayDuration={150} skipDelayDuration={250}>
+    <div id={`message-${message.id}`} className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'}`}
+         onMouseLeave={() => setShowReactions(false)}>
       <div className="relative">
         <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
           {renderContent()}
@@ -214,6 +342,48 @@ const MessageBubble = ({
               {t('chat.menu.pinned', 'Đã ghim')}
             </div>
           )}
+          {/* Aggregated reactions display */}
+          {Array.isArray(reactions) && reactions.length > 0 && (
+            <div
+              className={`mt-1 inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 border ${isOwnMessage ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200'} cursor-pointer select-none`}
+              onClick={() => setShowReactionModal(true)}
+              role="button"
+              aria-label={String(t('chat.reactions.modal.title', { defaultValue: 'Reactions' } as any))}
+            >
+            {(() => {
+              const counts: Record<string, number> = {};
+              for (const r of reactions) counts[r.type] = (counts[r.type] || 0) + Number((r as any).count || 1);
+              const order = ['like','love','haha','wow','sad','angry'];
+              return order
+                .filter(k => (counts[k] || 0))
+                .map((k) => {
+                  const total = counts[k] || 0;
+                  // Tooltip: list users who reacted of this type
+                  const users = reactions
+                    .filter(r => r.type === k)
+                    .map(r => (r.userId === currentUserId ? 'Bạn' : resolveUserName(r.userId)));
+                  const title = users.length > 0 
+                    ? String(t('chat.reactions.tooltip.reactedBy', { names: users.join(', '), defaultValue: `${users.join(', ')} reacted` } as any))
+                    : String(t('chat.reactions.tooltip.default', { defaultValue: 'Reacted' } as any));
+                  return (
+                    <Tooltip.Root key={k}>
+                      <Tooltip.Trigger asChild>
+                        <span className={myTypes.includes(k) ? 'font-semibold' : ''}>
+                          {EMOJI[k as keyof typeof EMOJI]} {total}
+                        </span>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content side="top" align="center" className="z-50 select-none rounded-md bg-black/80 px-2 py-1 text-xs text-white shadow-md">
+                          {title}
+                          <Tooltip.Arrow className="fill-black/80" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  );
+                });
+            })()}
+          </div>
+        )}
           <MessageStatus 
             message={message} 
             isOwnMessage={isOwnMessage} 
@@ -221,6 +391,111 @@ const MessageBubble = ({
             allMessages={allMessages}
           />
         </div>
+      </div>
+      {/* Reaction trigger */}
+      {!isRecalled && (
+        <div className={`absolute ${isOwnMessage ? 'right-0' : 'left-0'} -bottom-3 flex items-center gap-2`}>
+          {/* Quick heart */}
+          <button
+            type="button"
+            className="p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-sm opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
+            onMouseEnter={() => setShowReactions(true)}
+            onFocus={() => setShowReactions(true)}
+            onClick={() => {
+              const already = myTypes.includes('love');
+              handleReact('love', already);
+              spawnFloat('❤️');
+            }}
+            title={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
+            aria-label={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
+          >
+            <span className="inline-block text-xs">❤️</span>
+          </button>
+
+          {/* Emoji picker on hover */}
+          {showReactions && (
+            <div className={`relative z-20 px-2 py-1 rounded-2xl shadow-lg border ${isDarkMode() ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'}`}
+                 onMouseEnter={() => setShowReactions(true)} onMouseLeave={() => setShowReactions(false)}>
+              <div className="flex items-center gap-2">
+                {(['like','love','haha','wow','sad','angry'] as const).map((k) => {
+                  const label = String(t(`chat.reactions.types.${k}`, { defaultValue: k } as any));
+                  return (
+                    <div key={k} className="relative inline-flex">
+                      <Tooltip.Root>
+                        <Tooltip.Trigger asChild>
+                          <button
+                            className={`text-xl leading-none hover:scale-110 transition-transform ${myTypes.includes(k) ? 'ring-2 ring-blue-400 rounded-full' : ''}`}
+                            onClick={(e) => { e.stopPropagation(); handleReact(k, true); spawnFloat(EMOJI[k]); }}
+                          >
+                            {EMOJI[k]}
+                          </button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Portal>
+                          <Tooltip.Content side="top" align="center" className="z-50 select-none rounded-md bg-black/80 px-2 py-1 text-xs text-white shadow-md">
+                            {label}
+                            <Tooltip.Arrow className="fill-black/80" />
+                          </Tooltip.Content>
+                        </Tooltip.Portal>
+                      </Tooltip.Root>
+                      {myTypes.includes(k) && (
+                        <Tooltip.Root>
+                          <Tooltip.Trigger asChild>
+                            <button
+                              className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                              onClick={(e) => { e.stopPropagation(); clearMyReactionType(k); setShowReactions(false); }}
+                              aria-label={String(t('chat.reactions.removeType', { type: label, defaultValue: `Remove ${label}` } as any))}
+                            >
+                              ×
+                            </button>
+                          </Tooltip.Trigger>
+                          <Tooltip.Portal>
+                            <Tooltip.Content side="top" align="center" className="z-50 select-none rounded-md bg-black/80 px-2 py-1 text-xs text-white shadow-md">
+                              {String(t('chat.reactions.removeType', { type: label, defaultValue: `Remove ${label}` } as any))}
+                              <Tooltip.Arrow className="fill-black/80" />
+                            </Tooltip.Content>
+                          </Tooltip.Portal>
+                        </Tooltip.Root>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Floating emojis container */}
+          <div className="pointer-events-none absolute -bottom-1 left-0 right-0">
+            {floatItems.map((it) => {
+              const style = (isOwnMessage
+                ? ({ right: 0, marginLeft: `${it.dx}px` } as React.CSSProperties)
+                : ({ left: 0, marginLeft: `${it.dx}px` } as React.CSSProperties)
+              );
+              return (
+                <span key={it.id} className="emoji-float select-none" style={style}>
+                  {it.emoji}
+                </span>
+              );
+            })}
+          </div>
+
+          {/* Local styles for float animation */}
+          <style>{`
+            @keyframes emoji-float-up {
+              0%   { transform: translateY(0) scale(0.9);   opacity: 0.9; }
+              70%  { transform: translateY(-40px) scale(1.05); opacity: 1; }
+              100% { transform: translateY(-68px) scale(1.15); opacity: 0; }
+            }
+            .emoji-float {
+              position: absolute;
+              bottom: 0;
+              color: #e0245e;
+              font-size: 14px;
+              animation: emoji-float-up 900ms ease-out forwards;
+              text-shadow: 0 1px 1px rgba(0,0,0,0.12);
+            }
+          `}</style>
+        </div>
+      )}
         {/* Menu button */}
         {showMenu && (
           <>
@@ -271,8 +546,23 @@ const MessageBubble = ({
           </>
         )}
       </div>
-    </div>
+    {/* Reaction details modal */}
+    {showReactionModal && (
+      <ReactionDetailsModal
+        open={showReactionModal}
+        onClose={() => setShowReactionModal(false)}
+        reactions={(reactions as any[]) || []}
+        resolveUser={(uid: number) => resolveUserInfo(uid)}
+        t={(key: any, opts?: any) => String(t(key, opts))}
+      />
+    )}
+    </Tooltip.Provider>
   );
 };
+
+function isDarkMode() {
+  if (typeof document === 'undefined') return false;
+  return document.documentElement.classList.contains('dark');
+}
 
 export default MessageBubble;

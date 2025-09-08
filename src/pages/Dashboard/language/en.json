@@ -315,6 +315,7 @@
       "options": "Options",
       "messageOptionsAria": "Message options",
       "chatOptionsAria": "Chat options",
+      "searchMessages": "Search messages",
       "changeBackground": "Change background",
       "changeBackgroundForBoth": "Change background for both",
       "resetBackground": "Reset to default background",
@@ -330,6 +331,12 @@
       "pinned": "Pinned",
       "unpinned": "Unpinned",
       "pinnedMessages": "Pinned messages"
+    },
+    "search": {
+      "placeholder": "Search messages…",
+      "searching": "Searching...",
+      "hint": "Type to search messages",
+      "noResults": "No matching messages"
     },
     "actions": {
       "deleteMessages": "Delete Messages",
@@ -374,6 +381,23 @@
     "readBy": {
       "title": "{{name}} viewed at {{time}}",
       "more": "+{{count}} others viewed"
+    },
+    "reactions": {
+      "modal": {
+        "title": "Reactions",
+        "empty": "No reactions yet",
+        "tabs": {
+          "all": "All"
+        }
+      },
+      "types": {
+        "like": "Like",
+        "love": "Love",
+        "haha": "Haha",
+        "wow": "Wow",
+        "sad": "Sad",
+        "angry": "Angry"
+      }
     },
     "locked": {
       "notice": "Messages are encrypted",

@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { formatDateMDYY, formatDateTimeMDYY_HHmm } from '../../../../../utils/utils';
 import { blockService } from '@/services/blockService';
 import { pinService } from '@/services/pinService';
+import { chatService } from '@/services/chatService';
+import { groupService } from '@/services/groupService';
 import { getSocket } from '@/services/socket';
 import { toast } from 'react-hot-toast';
 import type { ChatViewProps } from '../../interface/ChatView.interface';
@@ -51,6 +53,11 @@ const ChatView = ({
   // Cache block status per user in group chats to disable only blocked users' avatars
   const [blockedUserMap, setBlockedUserMap] = useState<Record<number, boolean>>({});
   const [pinnedMessages, setPinnedMessages] = useState<Array<{ id: number; content?: string; messageType?: string; createdAt?: string }>>([]);
+  // Inline message search panel state
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<Array<{ id: number; content: string; messageType?: string; createdAt: string; senderId?: number }>>([]);
 
   // Safely open user profile: for group chats, check block status with that user before opening
   const handleOpenProfile = async (user: any) => {
@@ -87,6 +94,38 @@ const ChatView = ({
       setTimeout(() => el.classList.remove('ring-2', 'ring-yellow-400'), 1200);
     }
   };
+
+  // Perform live search when query changes
+  useEffect(() => {
+    let canceled = false;
+    const q = searchQuery.trim();
+    if (!showSearch) return;
+    if (q.length === 0) {
+      setSearchResults([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const run = async () => {
+      try {
+        if (isGroup) {
+          const gid = Number((selectedChat as any)?.id);
+          const res = await groupService.searchGroupMessages(gid, q, 30);
+          if (!canceled) setSearchResults(res.success ? (res.data as any) : []);
+        } else {
+          const uid = Number((selectedChat as any)?.id);
+          const res = await chatService.searchMessages(uid, q, 30);
+          if (!canceled) setSearchResults(res.success ? (res.data as any) : []);
+        }
+      } catch {
+        if (!canceled) setSearchResults([]);
+      } finally {
+        if (!canceled) setSearching(false);
+      }
+    };
+    const t = setTimeout(run, 200);
+    return () => { canceled = true; clearTimeout(t); };
+  }, [showSearch, searchQuery, isGroup, (selectedChat as any)?.id]);
 
   const loadPinnedMessages = async () => {
     try {
@@ -411,6 +450,12 @@ const ChatView = ({
                     onMouseLeave={() => setDmMenuOpen(false)}
                   >
                     <button
+                      onClick={() => { setDmMenuOpen(false); setShowSearch(true); setSearchQuery(''); setSearchResults([]); }}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t('chat.menu.searchMessages', 'Search messages')}
+                    </button>
+                    <button
                       onClick={() => { setDmMenuOpen(false); onChangeBackground && onChangeBackground(); }}
                       className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
@@ -449,6 +494,12 @@ const ChatView = ({
                   <div className="absolute right-0 top-10 z-50 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
                        onMouseLeave={() => setHeaderMenuOpen(false)}
                   >
+                    <button
+                      onClick={() => { setHeaderMenuOpen(false); setShowSearch(true); setSearchQuery(''); setSearchResults([]); }}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t('chat.menu.searchMessages', 'Search messages')}
+                    </button>
                     {isGroupOwner && onEditGroup && (
                       <button
                         onClick={() => { setHeaderMenuOpen(false); onEditGroup(); }}
@@ -490,6 +541,68 @@ const ChatView = ({
           </div>
         </div>
       </div>
+
+      {/* Search Panel */}
+      {showSearch && (
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90 backdrop-blur sticky top-0 z-50">
+          <div className="flex items-center gap-2">
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('chat.search.placeholder', 'Search messages…')}
+              className="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoFocus
+            />
+            <button
+              onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }}
+              className="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-sm"
+            >
+              {t('actions.close', 'Close')}
+            </button>
+          </div>
+          <div className="mt-3 max-h-[46vh] overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 p-2">
+            {searching ? (
+              <div className="px-3 py-6 text-sm text-gray-500 dark:text-gray-400">{t('chat.search.searching', 'Searching...')}</div>
+            ) : searchQuery.trim().length === 0 ? (
+              <div className="px-3 py-6 text-sm text-gray-500 dark:text-gray-400">{t('chat.search.hint', 'Type to search messages')}</div>
+            ) : searchResults.length === 0 ? (
+              <div className="px-3 py-6 text-sm text-gray-500 dark:text-gray-400">{t('chat.search.noResults', 'No matching messages')}</div>
+            ) : (
+              <ul className="space-y-1">
+                {searchResults.map((m) => {
+                  const ts = new Date(m.createdAt);
+                  const renderHighlighted = () => {
+                    const q = searchQuery.trim();
+                    const parts = String(m.content || '').split(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+                    return (
+                      <span>
+                        {parts.map((p, idx) => (
+                          <span key={idx} className={p.toLowerCase() === q.toLowerCase() ? 'bg-yellow-200 dark:bg-yellow-800/60 rounded px-0.5' : ''}>{p}</span>
+                        ))}
+                      </span>
+                    );
+                  };
+                  return (
+                    <li key={`sr-${m.id}`}>
+                      <button
+                        onClick={() => { setShowSearch(false); scrollToMessage(m.id); }}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      >
+                        <div className="text-sm text-gray-900 dark:text-gray-100 line-clamp-2">
+                          {m.messageType === 'image' ? t('chat.preview.image') : m.messageType === 'file' ? t('chat.preview.file') : renderHighlighted()}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          {ts.toLocaleString(i18n.language || undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div

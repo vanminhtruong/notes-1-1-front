@@ -303,6 +303,7 @@
       "options": "옵션",
       "messageOptionsAria": "메시지 옵션",
       "chatOptionsAria": "채팅 옵션",
+      "searchMessages": "메시지 검색",
       "changeBackground": "배경 변경",
       "changeBackgroundForBoth": "양쪽 배경 변경",
       "resetBackground": "기본 배경으로 초기화",
@@ -318,6 +319,12 @@
       "pinned": "고정됨",
       "unpinned": "고정 해제됨",
       "pinnedMessages": "고정된 메시지"
+    },
+    "search": {
+      "placeholder": "메시지 검색…",
+      "searching": "검색 중...",
+      "hint": "메시지를 검색하려면 입력하세요",
+      "noResults": "일치하는 메시지가 없습니다"
     },
     "actions": {
       "deleteMessages": "메시지 삭제",

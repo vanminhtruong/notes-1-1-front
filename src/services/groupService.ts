@@ -75,6 +75,14 @@ export const groupService = {
     return res.data as { success: boolean; data: GroupMessage[] };
   },
 
+  async searchGroupMessages(groupId: number, q: string, limit = 20) {
+    const params = new URLSearchParams();
+    params.append('q', q);
+    params.append('limit', String(limit));
+    const res = await api.get(`/groups/${groupId}/messages/search?${params.toString()}`);
+    return res.data as { success: boolean; data: Array<{ id: number; groupId: number; senderId: number; content: string; messageType: 'text'|'image'|'file'; createdAt: string }>; };
+  },
+
   async sendGroupMessage(groupId: number, content: string, messageType: 'text' | 'image' | 'file' = 'text') {
     const res = await api.post(`/groups/${groupId}/message`, { content, messageType });
     return res.data as { success: boolean; data: GroupMessage };
@@ -108,5 +116,19 @@ export const groupService = {
   async editGroupMessage(groupId: number, messageId: number, content: string) {
     const res = await api.put(`/groups/${groupId}/message/${messageId}`, { content });
     return res.data as { success: boolean; data: { id: number; groupId: number; content: string; updatedAt: string } };
+  },
+
+  // React to a group message
+  async reactGroupMessage(groupId: number, messageId: number, type: 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') {
+    const res = await api.post(`/groups/${groupId}/message/${messageId}/react`, { type });
+    return res.data as { success: boolean; data: { groupId: number; messageId: number; type: string } };
+  },
+
+  // Remove reaction from a group message (optionally a specific type)
+  async unreactGroupMessage(groupId: number, messageId: number, type?: 'like'|'love'|'haha'|'wow'|'sad'|'angry') {
+    const res = await api.delete(`/groups/${groupId}/message/${messageId}/react`, {
+      params: type ? { type } : undefined,
+    });
+    return res.data as { success: boolean; data: { groupId: number; messageId: number; type?: string } };
   },
 };

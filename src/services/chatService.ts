@@ -95,6 +95,15 @@ export const chatService = {
     return response.data;
   },
 
+  // Search chat messages with a specific user
+  async searchMessages(userId: number, q: string, limit = 20) {
+    const params = new URLSearchParams();
+    params.append('q', q);
+    params.append('limit', String(limit));
+    const response = await api.get(`/chat/${userId}/search?${params.toString()}`);
+    return response.data as { success: boolean; data: Array<{ id: number; senderId: number; receiverId: number; content: string; messageType: 'text'|'image'|'file'; createdAt: string }>; };
+  },
+
   // Send message
   async sendMessage(receiverId: number, content: string, messageType: 'text' | 'image' | 'file' = 'text') {
     const response = await api.post('/chat/message', {
@@ -127,6 +136,20 @@ export const chatService = {
   async editMessage(messageId: number, content: string) {
     const response = await api.put(`/chat/message/${messageId}`, { content });
     return response.data as { success: boolean; data: { id: number; content: string; updatedAt: string } };
+  },
+
+  // React to a DM message
+  async reactMessage(messageId: number, type: 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') {
+    const res = await api.post(`/chat/message/${messageId}/react`, { type });
+    return res.data as { success: boolean; data: { messageId: number; type: string } };
+  },
+
+  // Remove reaction from a DM message (optionally a specific type)
+  async unreactMessage(messageId: number, type?: 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry') {
+    const res = await api.delete(`/chat/message/${messageId}/react`, {
+      params: type ? { type } : undefined,
+    });
+    return res.data as { success: boolean; data: { messageId: number; type?: string } };
   },
 
   // Remove friend

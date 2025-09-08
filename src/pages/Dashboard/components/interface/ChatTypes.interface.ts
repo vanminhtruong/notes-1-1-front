@@ -10,6 +10,7 @@ export interface Message {
   id: number;
   senderId: number;
   receiverId: number;
+  groupId?: number;
   content: string;
   messageType?: 'text' | 'image' | 'file' | 'system';
   isDeletedForAll?: boolean;
@@ -19,6 +20,8 @@ export interface Message {
   // Message status tracking
   status?: 'sent' | 'delivered' | 'read';
   readBy?: Array<{ userId: number; readAt: string; user?: User }>;
+  // Reactions (added by backend include)
+  Reactions?: Array<{ userId: number; type: 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' }>;  
 }
 
 export interface MessageGroup {

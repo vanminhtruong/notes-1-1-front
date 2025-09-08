@@ -138,6 +138,17 @@ export function useChatSocket(params: UseChatSocketParams) {
       loadFriendRequests();
     };
 
+    // Friend removed handler (restore original)
+    const onFriendRemoved = (data: any) => {
+      toast.error(String(t('chat.notifications.friendRemoved', { name: data.removedBy?.name, defaultValue: `${data.removedBy?.name} removed you as friend` } as any)));
+      setFriends((prev: User[]) => prev.filter((f) => f.id !== data.removedBy?.id));
+      setChatList((prev: ChatListItem[]) => prev.filter((item) => item.friend.id !== data.removedBy?.id));
+      if (selectedChat && selectedChat.id === data.removedBy?.id) {
+        setSelectedChat(null);
+        setMessages([]);
+      }
+    };
+
     const onGroupInvited = () => {
       loadPendingInvites();
       toast(String(t('chat.groups.notifications.newInvite', { defaultValue: 'You have a new group invitation' })));
@@ -542,15 +553,60 @@ export function useChatSocket(params: UseChatSocketParams) {
         setMessages([]);
       }
     };
+    const onMessageReacted = (payload: { messageId: number; userId: number; type: 'like'|'love'|'haha'|'wow'|'sad'|'angry'; count?: number }) => {
+      setMessages((prev: any[]) => prev.map((m: any) => {
+        if (m.id !== payload.messageId) return m;
+        const list = Array.isArray(m.Reactions) ? m.Reactions : [];
+        const idx = list.findIndex((r: any) => r.userId === payload.userId && r.type === payload.type);
+        if (idx >= 0) {
+          const updated = [...list];
+          const prevCount = Number(updated[idx].count || 1);
+          updated[idx] = { ...updated[idx], count: payload.count ?? (prevCount + 1) };
+          return { ...m, Reactions: updated };
+        }
+        return { ...m, Reactions: [...list, { userId: payload.userId, type: payload.type, count: payload.count ?? 1 }] };
+      }));
+    };
 
-    const onFriendRemoved = (data: any) => {
-      toast.error(String(t('chat.notifications.friendRemoved', { name: data.removedBy?.name, defaultValue: `${data.removedBy?.name} removed you as friend` })));
-      setFriends((prev: User[]) => prev.filter((f) => f.id !== data.removedBy?.id));
-      setChatList((prev: ChatListItem[]) => prev.filter((item) => item.friend.id !== data.removedBy?.id));
-      if (selectedChat && selectedChat.id === data.removedBy?.id) {
-        setSelectedChat(null);
-        setMessages([]);
-      }
+    const onMessageUnreacted = (payload: { messageId: number; userId: number; type?: 'like'|'love'|'haha'|'wow'|'sad'|'angry' }) => {
+      setMessages((prev: any[]) => prev.map((m: any) => {
+        if (m.id !== payload.messageId) return m;
+        const list = Array.isArray(m.Reactions) ? m.Reactions : [];
+        if (payload.type) {
+          return { ...m, Reactions: list.filter((r: any) => !(r.userId === payload.userId && r.type === payload.type)) };
+        }
+        // Fallback: remove all reactions by user if type not provided
+        return { ...m, Reactions: list.filter((r: any) => r.userId !== payload.userId) };
+      }));
+    };
+
+    // Reactions: group messages
+    const onGroupMessageReacted = (payload: { groupId: number; messageId: number; userId: number; type: 'like'|'love'|'haha'|'wow'|'sad'|'angry'; count?: number }) => {
+      if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
+      setMessages((prev: any[]) => prev.map((m: any) => {
+        if (m.id !== payload.messageId) return m;
+        const list = Array.isArray(m.Reactions) ? m.Reactions : [];
+        const idx = list.findIndex((r: any) => r.userId === payload.userId && r.type === payload.type);
+        if (idx >= 0) {
+          const updated = [...list];
+          const prevCount = Number(updated[idx].count || 1);
+          updated[idx] = { ...updated[idx], count: payload.count ?? (prevCount + 1) };
+          return { ...m, Reactions: updated };
+        }
+        return { ...m, Reactions: [...list, { userId: payload.userId, type: payload.type, count: payload.count ?? 1 }] };
+      }));
+    };
+
+    const onGroupMessageUnreacted = (payload: { groupId: number; messageId: number; userId: number; type?: 'like'|'love'|'haha'|'wow'|'sad'|'angry' }) => {
+      if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
+      setMessages((prev: any[]) => prev.map((m: any) => {
+        if (m.id !== payload.messageId) return m;
+        const list = Array.isArray(m.Reactions) ? m.Reactions : [];
+        if (payload.type) {
+          return { ...m, Reactions: list.filter((r: any) => !(r.userId === payload.userId && r.type === payload.type)) };
+        }
+        return { ...m, Reactions: list.filter((r: any) => r.userId !== payload.userId) };
+      }));
     };
 
     const onAnyLogger = (...args: any[]) => {
@@ -664,6 +720,11 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('group_member_removed', onGroupMemberRemoved);
     socket.on('group_member_left', onGroupMemberLeft);
     socket.on('group_deleted', onGroupDeleted);
+    socket.on('message_reacted', onMessageReacted);
+    socket.on('message_unreacted', onMessageUnreacted);
+    socket.on('group_message_reacted', onGroupMessageReacted);
+    socket.on('group_message_unreacted', onGroupMessageUnreacted);
+    socket.on('friend_removed', onFriendRemoved);
     socket.on('message_edited', (payload: { id: number; content: string; updatedAt?: string }) => {
       setMessages((prev: any[]) => prev.map((m: any) => (m.id === payload.id ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m)));
     });
@@ -685,10 +746,14 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('user_profile_updated', onUserProfileUpdated);
     socket.on('user_typing', onUserTyping);
     socket.on('group_typing', onGroupTyping as any);
-    socket.on('group_updated', onGroupUpdated);
-    socket.on('group_invited', onGroupInvited);
-    socket.on('friend_removed', onFriendRemoved);
-    socket.on('messages_recalled', dmRecalledHandler);
+
+    // Reactions: direct messages
+    socket.on('message_reacted', onMessageReacted);
+    socket.on('message_unreacted', onMessageUnreacted);
+
+    // Reactions: group messages
+    socket.on('group_message_reacted', onGroupMessageReacted);
+    socket.on('group_message_unreacted', onGroupMessageUnreacted);
 
     return () => {
       socket.off('new_friend_request', onNewFriendReq);
@@ -713,6 +778,10 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('group_member_removed', onGroupMemberRemoved);
       socket.off('group_member_left', onGroupMemberLeft);
       socket.off('group_deleted', onGroupDeleted);
+      socket.off('message_reacted', onMessageReacted);
+      socket.off('message_unreacted', onMessageUnreacted);
+      socket.off('group_message_reacted', onGroupMessageReacted);
+      socket.off('group_message_unreacted', onGroupMessageUnreacted);
       socket.off('message_edited');
       socket.off('group_messages_recalled', groupRecalledHandler);
       socket.off('group_message_edited');
