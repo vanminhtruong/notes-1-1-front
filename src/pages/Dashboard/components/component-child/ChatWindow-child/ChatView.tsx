@@ -1082,7 +1082,7 @@ const ChatView = ({
 
       {/* Profile Modal */}
       {profileUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center" role="dialog" aria-modal="true">
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={() => setProfileUser(null)} />
 

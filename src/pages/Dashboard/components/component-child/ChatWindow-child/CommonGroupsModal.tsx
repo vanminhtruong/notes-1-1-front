@@ -113,7 +113,7 @@ export default function CommonGroupsModal({ open, onClose, userId }: CommonGroup
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-2" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[75] flex items-center justify-center px-2" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-2xl rounded-3xl border border-white/20 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 shadow-[0_10px_40px_rgba(0,0,0,0.25)] overflow-hidden">
         <div className="relative px-6 py-5">
