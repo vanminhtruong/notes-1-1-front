@@ -1,3 +1,4 @@
+import '@/polyfills/global'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@/styles/global.css'
@@ -9,16 +10,21 @@ import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import '@/libs/i18n'
 import { unlockAudioOnce } from '@/utils/notificationSound'
+import { CallProvider, GlobalCallUI } from '@/contexts/CallContext'
+import { getCachedUser } from '@pages/Dashboard/components/interface/chatWindowImports'
 
 // Prepare audio unlock on first user interaction (autoplay policy)
 unlockAudioOnce()
+
+const currentUser = getCachedUser();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
       <Provider store={store}>
-        <RouterProvider router={router} />
-        <Toaster
+        <CallProvider currentUserId={currentUser?.id ?? null}>
+          <RouterProvider router={router} />
+          <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,
@@ -39,7 +45,9 @@ createRoot(document.getElementById('root')!).render(
               },
             },
           }}
-        />
+          />
+          <GlobalCallUI />
+        </CallProvider>
       </Provider>
     </ThemeProvider>
   </StrictMode>,

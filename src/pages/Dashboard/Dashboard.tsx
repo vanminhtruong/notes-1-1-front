@@ -5,7 +5,6 @@ import {
   ArchiveRestore,
   Trash2, 
   Star,
-  BookOpen,
   BarChart3,
   StickyNote,
   Clock,
@@ -14,7 +13,7 @@ import {
   Bell,
   Eye,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDashboard } from '@/pages/Dashboard/hooks/useDashboard';
 import { formatDateMDYY } from '@/utils/utils';
 import toast from 'react-hot-toast';
@@ -68,17 +67,7 @@ const Dashboard = () => {
     })();
   }, [showViewModal]);
 
-  const shareContent = useMemo(() => {
-    if (!viewNote) return '';
-    const parts: string[] = [];
-    parts.push(`📌 ${viewNote.title}`);
-    if (viewNote.content) parts.push(viewNote.content);
-    if (viewNote.imageUrl) parts.push(`Ảnh: ${viewNote.imageUrl}`);
-    parts.push(`Danh mục: ${t(`category.${viewNote.category}`)}`);
-    parts.push(`Ưu tiên: ${getPriorityText(viewNote.priority)}`);
-    parts.push(`Tạo lúc: ${formatDateMDYY(viewNote.createdAt)}`);
-    return parts.join('\n\n');
-  }, [viewNote, t, getPriorityText]);
+  // (removed unused shareContent)
 
   const handleShare = async () => {
     if (!viewNote) return;
@@ -127,19 +116,7 @@ const Dashboard = () => {
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('stats.total')}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30">
             <div className="flex items-center justify-between">
               <div>
@@ -151,7 +128,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
           <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30">
             <div className="flex items-center justify-between">
               <div>
@@ -163,7 +139,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
           <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30">
             <div className="flex items-center justify-between">
               <div>
