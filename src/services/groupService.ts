@@ -7,6 +7,7 @@ export interface GroupSummary {
   members: number[];
   avatar?: string;
   background?: string;
+  isPinned?: boolean;
 }
 
 export interface GroupMessage {
@@ -37,6 +38,14 @@ export interface GroupMessage {
 export const groupService = {
   async listMyGroups() {
     const res = await api.get('/groups');
+    return res.data as { success: boolean; data: GroupSummary[] };
+  },
+  async getUserGroups(userId: number) {
+    const res = await api.get(`/groups/user/${userId}`);
+    return res.data as { success: boolean; data: GroupSummary[] };
+  },
+  async getCommonGroups(userId: number) {
+    const res = await api.get(`/groups/common/${userId}`);
     return res.data as { success: boolean; data: GroupSummary[] };
   },
 
@@ -106,6 +115,11 @@ export const groupService = {
   async markGroupMessagesRead(groupId: number) {
     const res = await api.put(`/groups/${groupId}/read`);
     return res.data as { success: boolean; data: { groupId: number; markedCount: number; readReceiptsCount: number } };
+  },
+  
+  async getGroupMembers(groupId: number) {
+    const res = await api.get(`/groups/${groupId}/members`);
+    return res.data as { success: boolean; data: Array<{ id: number; name: string; avatar?: string | null; email?: string | null; phone?: string | null; birthDate?: string | null; gender?: string; role: 'member'|'admin'|'owner' }>; };
   },
   
   async recallGroupMessages(groupId: number, messageIds: number[], scope: 'self' | 'all') {

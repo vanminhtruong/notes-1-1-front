@@ -216,7 +216,8 @@
         "leave": "Leave group",
         "delete": "Delete group",
         "removeMember": "Remove member",
-        "addMembers": "Add members"
+        "addMembers": "Add members",
+        "viewMembers": "View members"
       },
       "editor": {
         "titleEdit": "Edit group",
@@ -273,6 +274,15 @@
         "deleted": "Group deleted",
         "removed": "Member removed",
         "updated": "Group updated"
+      },
+      "members": {
+        "title": "Group members",
+        "empty": "No members yet"
+      },
+      "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "member": "Member"
       }
     },
     "chatList": {
@@ -309,6 +319,17 @@
         "gender": "Gender",
         "lastSeen": "Last seen",
         "privacy": "Some information may not be visible if the user doesn't share it."
+      }
+    },
+    "commonGroups": {
+      "title": "Common groups",
+      "tabs": {
+        "all": "All",
+        "my": "My groups"
+      },
+      "empty": {
+        "all": "This user hasn't joined any groups",
+        "my": "No common groups yet"
       }
     },
     "menu": {
@@ -413,6 +434,14 @@
       "chatLocked": "Messages are encrypted",
       "groupLocked": "Group content is encrypted",
       "previewLocked": "🔒 Encrypted — unlock to preview"
+    },
+    "nickname": {
+      "title": "Set nickname",
+      "description": "Set an easy-to-remember name for {{name}}. Note: The nickname is only visible to you.",
+      "inputPlaceholder": "Enter nickname",
+      "confirm": "Confirm",
+      "setButton": "Set nickname",
+      "saved": "Nickname saved"
     },
     "settings": {
       "title": "Chat Settings",

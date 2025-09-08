@@ -11,7 +11,7 @@ import type { User, Message } from '../../components/interface/ChatTypes.interfa
 
 type TypingUser = { id: any; name: string; avatar?: string };
 
-type ChatListItem = { friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number };
+type ChatListItem = { friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; nickname?: string | null };
 
 interface UseChatSocketParams {
   currentUser: User | null | undefined;
@@ -566,6 +566,20 @@ export function useChatSocket(params: UseChatSocketParams) {
         }
         return { ...m, Reactions: [...list, { userId: payload.userId, type: payload.type, count: payload.count ?? 1 }] };
       }));
+      // Also reflect in chat list if this message is currently the lastMessage for a chat
+      setChatList((prev: any[]) => prev.map((it: any) => {
+        const lm = it?.lastMessage;
+        if (!lm || lm.id !== payload.messageId) return it;
+        const list = Array.isArray(lm.Reactions) ? lm.Reactions : [];
+        const idx = list.findIndex((r: any) => r.userId === payload.userId && r.type === payload.type);
+        if (idx >= 0) {
+          const updated = [...list];
+          const prevCount = Number(updated[idx].count || 1);
+          updated[idx] = { ...updated[idx], count: payload.count ?? (prevCount + 1) };
+          return { ...it, lastMessage: { ...lm, Reactions: updated } };
+        }
+        return { ...it, lastMessage: { ...lm, Reactions: [...list, { userId: payload.userId, type: payload.type, count: payload.count ?? 1 }] } };
+      }));
     };
 
     const onMessageUnreacted = (payload: { messageId: number; userId: number; type?: 'like'|'love'|'haha'|'wow'|'sad'|'angry' }) => {
@@ -577,6 +591,16 @@ export function useChatSocket(params: UseChatSocketParams) {
         }
         // Fallback: remove all reactions by user if type not provided
         return { ...m, Reactions: list.filter((r: any) => r.userId !== payload.userId) };
+      }));
+      // Update chat list mirrors
+      setChatList((prev: any[]) => prev.map((it: any) => {
+        const lm = it?.lastMessage;
+        if (!lm || lm.id !== payload.messageId) return it;
+        const list = Array.isArray(lm.Reactions) ? lm.Reactions : [];
+        if (payload.type) {
+          return { ...it, lastMessage: { ...lm, Reactions: list.filter((r: any) => !(r.userId === payload.userId && r.type === payload.type)) } };
+        }
+        return { ...it, lastMessage: { ...lm, Reactions: list.filter((r: any) => r.userId !== payload.userId) } };
       }));
     };
 
@@ -607,6 +631,23 @@ export function useChatSocket(params: UseChatSocketParams) {
         }
         return { ...m, Reactions: list.filter((r: any) => r.userId !== payload.userId) };
       }));
+    };
+
+    // Real-time nickname update for current user's view
+    const onNicknameUpdated = (payload: { otherUserId: number; nickname: string | null }) => {
+      try {
+        if (!payload || typeof payload.otherUserId !== 'number') return;
+        setChatList((prev: ChatListItem[]) => prev.map((it) => (
+          it.friend.id === payload.otherUserId
+            ? { ...it, nickname: payload.nickname ?? null }
+            : it
+        )));
+        if (typeof loadChatList === 'function') {
+          loadChatList();
+        }
+      } catch (_e) {
+        /* ignore */
+      }
     };
 
     const onAnyLogger = (...args: any[]) => {
@@ -724,6 +765,7 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('message_unreacted', onMessageUnreacted);
     socket.on('group_message_reacted', onGroupMessageReacted);
     socket.on('group_message_unreacted', onGroupMessageUnreacted);
+    socket.on('nickname_updated', onNicknameUpdated);
     socket.on('friend_removed', onFriendRemoved);
     socket.on('message_edited', (payload: { id: number; content: string; updatedAt?: string }) => {
       setMessages((prev: any[]) => prev.map((m: any) => (m.id === payload.id ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m)));
@@ -782,6 +824,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('message_unreacted', onMessageUnreacted);
       socket.off('group_message_reacted', onGroupMessageReacted);
       socket.off('group_message_unreacted', onGroupMessageUnreacted);
+      socket.off('nickname_updated', onNicknameUpdated);
       socket.off('message_edited');
       socket.off('group_messages_recalled', groupRecalledHandler);
       socket.off('group_message_edited');

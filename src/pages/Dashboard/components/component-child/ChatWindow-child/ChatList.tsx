@@ -4,6 +4,7 @@ import { formatPreviewText, formatPreviewTime } from '../../../../../utils/utils
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import type { ChatListProps } from '../../interface/ChatList.interface';
+import type { User, Message } from '../../interface/ChatTypes.interface';
 import { blockService, type BlockStatus } from '@/services/blockService';
 import { pinService } from '@/services/pinService';
 const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
@@ -96,8 +97,9 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
       {/* Chat List when no chat is selected */}
       <div className="p-2">
         {/* Conversations List with previews */}
-        {chatList.map((item) => {
+        {chatList.map((item: { friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean; nickname?: string | null }) => {
           const friend = item.friend;
+          const displayName = (item as any).nickname && (item as any).nickname.trim().length > 0 ? (item as any).nickname : friend.name;
           const online = friends.find((f) => f.id === friend.id)?.isOnline ?? friend.isOnline;
           const preview = isLocked
             ? (lockedPlaceholder || t('chat.preview.locked', '🔒 Encrypted — unlock to preview'))
@@ -110,6 +112,28 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
           const time = formatPreviewTime(item.lastMessage?.createdAt);
           const count = (unreadMap[friend.id] ?? item.unreadCount ?? 0) as number;
           const isUnread = count > 0;
+          // Aggregate reactions of last message (any user, any type)
+          const reactionCounts = (() => {
+            const res: Record<string, number> = {};
+            const list = Array.isArray(item.lastMessage?.Reactions) ? (item.lastMessage!.Reactions as any[]) : [];
+            for (const r of list) {
+              const key = r?.type;
+              if (!key) continue;
+              res[key] = (res[key] || 0) + Number(r?.count || 1);
+            }
+            return res;
+          })();
+          const reactionOrder = ['like','love','haha','wow','sad','angry'];
+          const REACTION_EMOJI: Record<string, string> = { like: '👍', love: '❤️', haha: '😂', wow: '😮', sad: '😢', angry: '😡' };
+          const reactionItems = reactionOrder
+            .filter((k) => (reactionCounts[k] || 0) > 0)
+            .map((k) => (
+              <span key={k} className="inline-flex items-center gap-0.5">
+                <span className={isUnread ? 'leading-none' : 'leading-none opacity-80'}>{REACTION_EMOJI[k]}</span>
+                <span className={`text-[11px] leading-none ${isUnread ? 'font-semibold' : ''}`}>{reactionCounts[k]}</span>
+              </span>
+            ));
+          const reactionContainerClass = `inline-flex items-center gap-1 text-xs ${isUnread ? 'text-gray-900 dark:text-white font-semibold' : 'text-gray-600 dark:text-gray-300'}`;
           const previewClass = `text-sm truncate ${
             isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
           }`;
@@ -122,9 +146,9 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
               <div className="relative">
                 <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-md">
                   {friend.avatar ? (
-                    <img src={friend.avatar} alt={friend.name} className="w-full h-full object-cover" />
+                    <img src={friend.avatar} alt={displayName} className="w-full h-full object-cover" />
                   ) : (
-                    friend.name.charAt(0)
+                    (displayName || '').charAt(0)
                   )}
                 </div>
                 {online && (
@@ -142,7 +166,7 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                     <p
                       className={`${isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'font-normal text-gray-800 dark:text-gray-300'} truncate`}
                     >
-                      {friend.name}
+                      {displayName}
                     </p>
                     {(item as any).isPinned || pinStatusMap[friend.id] ? (
                       <Pin className="w-4 h-4 text-yellow-500 flex-shrink-0" />
@@ -326,7 +350,14 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                     )}
                   </div>
                 </div>
-                <p className={previewClass}>{preview}</p>
+                <div className="flex items-center gap-2">
+                  {reactionItems.length > 0 && (
+                    <div className={reactionContainerClass}>
+                      {reactionItems}
+                    </div>
+                  )}
+                  <p className={previewClass}>{preview}</p>
+                </div>
               </div>
             </div>
           );

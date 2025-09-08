@@ -174,5 +174,17 @@ export const chatService = {
   async setChatBackground(userId: number, backgroundUrl: string | null) {
     const response = await api.put(`/chat/${userId}/background`, { backgroundUrl });
     return response.data as { success: boolean; data: { backgroundUrl: string | null } };
+  },
+
+  // Get per-chat nickname
+  async getChatNickname(userId: number) {
+    const response = await api.get(`/chat/${userId}/nickname`);
+    return response.data as { success: boolean; data: { nickname: string | null } };
+  },
+
+  // Set per-chat nickname (pass empty string or null to clear)
+  async setChatNickname(userId: number, nickname: string | null) {
+    const response = await api.put(`/chat/${userId}/nickname`, { nickname });
+    return response.data as { success: boolean; data: { nickname: string | null } };
   }
 };

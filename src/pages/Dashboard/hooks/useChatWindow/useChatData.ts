@@ -10,6 +10,7 @@ export type ChatListItem = {
   unreadCount?: number;
   friendshipId?: number;
   isPinned?: boolean;
+  nickname?: string | null;
 };
 
 interface UseChatDataParams {
@@ -68,6 +69,7 @@ export function useChatData({
           unreadCount: it.unreadCount as number | undefined,
           friendshipId: it.friendshipId as number | undefined,
           isPinned: !!it.isPinned,
+          nickname: it.nickname ?? null,
         }));
         setChatList(items);
       }

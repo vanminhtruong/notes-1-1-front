@@ -1,4 +1,7 @@
 import React from 'react';
+import NicknameModal from './NicknameModal';
+import { chatService } from '@/services/chatService';
+import { toast } from 'react-hot-toast';
 
 type ReactionType = 'like'|'love'|'haha'|'wow'|'sad'|'angry';
 
@@ -13,6 +16,7 @@ type Props = {
   resolveUser: (userId: number) => UserInfo | null;
   t: (k: string, def?: any) => string;
   onOpenProfile?: (user: UserInfo) => void;
+  currentUserId?: number;
 };
 
 const EMOJI: Record<ReactionType, string> = {
@@ -24,7 +28,7 @@ const EMOJI: Record<ReactionType, string> = {
   angry: '😡',
 };
 
-export default function ReactionDetailsModal({ open, onClose, reactions, resolveUser, t, onOpenProfile }: Props) {
+export default function ReactionDetailsModal({ open, onClose, reactions, resolveUser, t, onOpenProfile, currentUserId }: Props) {
   if (!open) return null;
 
   const list = Array.isArray(reactions) ? reactions : [];
@@ -47,6 +51,9 @@ export default function ReactionDetailsModal({ open, onClose, reactions, resolve
 
   const title = t('chat.reactions.modal.title', { defaultValue: 'Reactions' } as any);
   const empty = t('chat.reactions.modal.empty', { defaultValue: 'No reactions yet' } as any);
+  const [nicknameTarget, setNicknameTarget] = React.useState<UserInfo | null>(null);
+  const [showNickname, setShowNickname] = React.useState(false);
+  const [initialNickname, setInitialNickname] = React.useState<string>('');
 
   return (
     <div className="fixed inset-0 z-[1000]">
@@ -57,7 +64,13 @@ export default function ReactionDetailsModal({ open, onClose, reactions, resolve
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
           <div className="text-sm font-semibold">{title}</div>
-          <button onClick={onClose} className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Close">✕</button>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </div>
         {/* Body */}
         <div className="flex h-[380px]">
@@ -99,7 +112,12 @@ export default function ReactionDetailsModal({ open, onClose, reactions, resolve
                         type="button"
                         className="flex items-center gap-3 hover:opacity-90"
                         onClick={() => {
-                          if (onOpenProfile && resolved?.id) {
+                          if (!resolved?.id) return;
+                          if (currentUserId && resolved.id === currentUserId) {
+                            // Do not open profile modal for self from reactions list
+                            return;
+                          }
+                          if (onOpenProfile) {
                             onOpenProfile(resolved as UserInfo);
                             onClose();
                           }
@@ -110,9 +128,29 @@ export default function ReactionDetailsModal({ open, onClose, reactions, resolve
                         <Avatar src={resolved?.avatar ?? null} name={resolved?.name || `User ${it.userId}`} />
                         <div className="text-sm font-medium">{resolved?.name || `User ${it.userId}`}</div>
                       </button>
-                      <div className="min-w-[48px] text-sm">
-                        <span className="mr-1">{EMOJI[it.type]}</span>
-                        <span>{it.count}</span>
+                      <div className="flex items-center gap-3">
+                        {currentUserId && resolved?.id !== currentUserId ? (
+                          <button
+                            className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const res = await chatService.getChatNickname(resolved.id);
+                                setInitialNickname(res?.data?.nickname || '');
+                              } catch {
+                                setInitialNickname('');
+                              }
+                              setNicknameTarget(resolved as UserInfo);
+                              setShowNickname(true);
+                            }}
+                          >
+                            {String(t('chat.nickname.setButton', 'Đặt tên gọi nhớ'))}
+                          </button>
+                        ) : null}
+                        <div className="min-w-[48px] text-sm">
+                          <span className="mr-1">{EMOJI[it.type]}</span>
+                          <span>{it.count}</span>
+                        </div>
                       </div>
                     </li>
                   );
@@ -121,6 +159,22 @@ export default function ReactionDetailsModal({ open, onClose, reactions, resolve
             )}
           </div>
         </div>
+        {/* Nickname Modal */}
+        <NicknameModal
+          open={showNickname}
+          onClose={() => setShowNickname(false)}
+          user={nicknameTarget}
+          initialNickname={initialNickname}
+          onConfirm={async (nick) => {
+            try {
+              if (!nicknameTarget) return;
+              await chatService.setChatNickname(nicknameTarget.id, nick);
+              toast.success(String(t('chat.nickname.saved', 'Đã lưu tên gọi nhớ')));
+            } catch (e: any) {
+              toast.error(e?.response?.data?.message || String(t('chat.errors.generic')));
+            }
+          }}
+        />
       </div>
     </div>
   );

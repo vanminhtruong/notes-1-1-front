@@ -497,6 +497,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   isPartnerTyping={isPartnerTyping}
                   menuOpenKey={menuOpenKey}
                   currentUserId={currentUser?.id}
+                  initialAlias={(chatList.find((c) => c.friend.id === selectedChat.id) as any)?.nickname ?? null}
                   onBack={() => { setSelectedChat(null); setActiveTab('chats'); }}
                   onMenuToggle={setMenuOpenKey}
                   onRecallMessage={recallMessage}

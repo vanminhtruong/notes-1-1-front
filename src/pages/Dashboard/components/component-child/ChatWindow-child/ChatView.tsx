@@ -1,12 +1,15 @@
 import { useRef, useEffect, useState } from 'react';
-import { MoreVertical, ChevronDown } from 'lucide-react';
+import { MoreVertical, ChevronDown, Pencil, Users } from 'lucide-react';
 import MessageBubble from './MessageBubble';
+import NicknameModal from './NicknameModal';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY, formatDateTimeMDYY_HHmm } from '../../../../../utils/utils';
 import { blockService } from '@/services/blockService';
 import { pinService } from '@/services/pinService';
 import { chatService } from '@/services/chatService';
 import { groupService } from '@/services/groupService';
+import GroupMembersPanel from './GroupMembersPanel';
+import CommonGroupsModal from './CommonGroupsModal';
 import { getSocket } from '@/services/socket';
 import { toast } from 'react-hot-toast';
 import type { ChatViewProps } from '../../interface/ChatView.interface';
@@ -18,6 +21,7 @@ const ChatView = ({
   typingUsers,
   menuOpenKey,
   currentUserId,
+  initialAlias,
   onBack,
   onMenuToggle,
   onRecallMessage,
@@ -49,15 +53,29 @@ const ChatView = ({
   const [currentTime, setCurrentTime] = useState(new Date());
   const isDarkTheme = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
   const [profileUser, setProfileUser] = useState<any | null>(null);
+  const [aliasName, setAliasName] = useState<string>(initialAlias || '');
   const [showBackToBottom, setShowBackToBottom] = useState(false);
   // Cache block status per user in group chats to disable only blocked users' avatars
   const [blockedUserMap, setBlockedUserMap] = useState<Record<number, boolean>>({});
   const [pinnedMessages, setPinnedMessages] = useState<Array<{ id: number; content?: string; messageType?: string; createdAt?: string }>>([]);
+  // Nickname editor state
+  const [showNickname, setShowNickname] = useState(false);
+  const [nicknameValue, setNicknameValue] = useState('');
   // Inline message search panel state
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<Array<{ id: number; content: string; messageType?: string; createdAt: string; senderId?: number }>>([]);
+  // Common groups modal state
+  const [showCommonGroups, setShowCommonGroups] = useState(false);
+
+  // Group members side panel state
+  const [showMembersPanel, setShowMembersPanel] = useState(false);
+  const openMembersPanel = () => {
+    setHeaderMenuOpen(false);
+    if (!isGroup) return;
+    setShowMembersPanel(true);
+  };
 
   // Safely open user profile: for group chats, check block status with that user before opening
   const handleOpenProfile = async (user: any) => {
@@ -75,9 +93,20 @@ const ChatView = ({
         return;
       }
       setProfileUser(user);
+      // Fetch alias (nickname) for this user (only visible to me)
+      try {
+        const r = await chatService.getChatNickname(Number(user.id));
+        setAliasName(r?.data?.nickname || '');
+      } catch { setAliasName(''); }
     } else {
       // 1-1 chat: rely on passed blocked flag
-      if (!blocked) setProfileUser(user);
+      if (!blocked) {
+        setProfileUser(user);
+        try {
+          const r = await chatService.getChatNickname(Number(user.id));
+          setAliasName(r?.data?.nickname || '');
+        } catch { setAliasName(''); }
+      }
     }
   };
 
@@ -165,6 +194,30 @@ const ChatView = ({
     loadPinnedMessages();
   }, [isGroup, (selectedChat as any)?.id]);
 
+  // Fetch alias (nickname) for current 1-1 chat.
+  // Show initialAlias immediately, then refresh in background without overriding if input is already set.
+  useEffect(() => {
+    let canceled = false;
+    (async () => {
+      try {
+        if (isGroup) { if (!canceled) setAliasName(''); return; }
+        const id = Number((selectedChat as any)?.id);
+        if (!id) { if (!canceled) setAliasName(''); return; }
+        const r = await chatService.getChatNickname(id);
+        if (!canceled) {
+          const fresh = r?.data?.nickname || '';
+          // Only update if no initial alias or value differs and user hasn't typed
+          if (!initialAlias || initialAlias !== fresh) {
+            setAliasName(fresh);
+          }
+        }
+      } catch {
+        if (!canceled) setAliasName((prev) => prev);
+      }
+    })();
+    return () => { canceled = true; };
+  }, [isGroup, (selectedChat as any)?.id, initialAlias]);
+
   // Realtime: refresh banner when someone pins/unpins
   useEffect(() => {
     const socket = getSocket();
@@ -194,6 +247,17 @@ const ChatView = ({
 
     socket.on('message_pinned', onPinnedDM);
     socket.on('group_message_pinned', onPinnedGroup);
+    // Real-time nickname update across tabs/devices for current user
+    const onNicknameUpdated = (payload: { otherUserId: number; nickname: string | null }) => {
+      try {
+        if (isGroup) return;
+        const currentId = Number((selectedChat as any)?.id);
+        if (payload?.otherUserId === currentId) {
+          setAliasName(payload?.nickname || '');
+        }
+      } catch {}
+    };
+    socket.on('nickname_updated', onNicknameUpdated);
     // Also refresh on message recalls so stale pins disappear
     const onDmRecalled = (payload: { scope: 'self' | 'all'; messageIds: number[] }) => {
       if (isGroup) return;
@@ -236,6 +300,7 @@ const ChatView = ({
       socket.off('messages_recalled', onDmRecalled);
       socket.off('group_messages_recalled', onGroupRecalled);
       socket.off('messages_deleted', onDmDeleted);
+      socket.off('nickname_updated', onNicknameUpdated);
     };
   }, [isGroup, (selectedChat as any)?.id, currentUserId]);
 
@@ -355,10 +420,10 @@ const ChatView = ({
               {/* Avatar clickable only for 1-1 chat to open profile; disabled for group */}
               <button
                 type="button"
-                onClick={!isGroup ? () => { handleOpenProfile(selectedChat); } : undefined}
-                title={!isGroup ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
-                aria-disabled={!isGroup && !!blocked}
-                className={`w-full h-full ${!isGroup ? (!blocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60') : 'cursor-default'}`}
+                onClick={() => { handleOpenProfile(selectedChat); }}
+                title={t('chat.chatView.viewProfile', 'Xem thông tin')}
+                aria-disabled={!!blocked}
+                className={`w-full h-full ${!blocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
               >
                 {selectedChat.avatar ? (
                   <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
@@ -372,7 +437,7 @@ const ChatView = ({
             )}
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white">{selectedChat.name}</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {(isGroup ? groupOnline : selectedChat.isOnline) ? 
                 t('chat.chatView.status.online') : 
@@ -420,6 +485,7 @@ const ChatView = ({
                 })()
               }
             </p>
+            {/* Set nickname action for 1-1 chats only; place a small button under name in profile modal as requested */}
           </div>
           <div className="flex items-center gap-2 relative">
             {/* Keep existing header icons if needed */}
@@ -494,6 +560,12 @@ const ChatView = ({
                   <div className="absolute right-0 top-10 z-50 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
                        onMouseLeave={() => setHeaderMenuOpen(false)}
                   >
+                    <button
+                      onClick={() => { openMembersPanel(); }}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t('chat.groups.actions.viewMembers', 'Xem thành viên')}
+                    </button>
                     <button
                       onClick={() => { setHeaderMenuOpen(false); setShowSearch(true); setSearchQuery(''); setSearchResults([]); }}
                       className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -604,6 +676,25 @@ const ChatView = ({
         </div>
       )}
 
+      {/* Dedicated Nickname Modal */}
+      <NicknameModal
+        open={!!profileUser && showNickname}
+        onClose={() => setShowNickname(false)}
+        user={profileUser ? { id: Number(profileUser.id), name: String(profileUser.name || ''), avatar: profileUser.avatar || null } : null}
+        initialNickname={nicknameValue}
+        onConfirm={async (nick) => {
+          try {
+            const otherId = Number(profileUser?.id || (selectedChat as any)?.id);
+            await chatService.setChatNickname(otherId, nick);
+            toast.success(String(t('chat.nickname.saved', 'Đã lưu tên gọi nhớ')));
+            setAliasName(nick || '');
+          } catch (e: any) {
+            toast.error(e?.response?.data?.message || String(t('chat.errors.generic')));
+          }
+        }}
+      />
+
+
       {/* Messages */}
       <div
         ref={scrollerRef}
@@ -675,7 +766,7 @@ const ChatView = ({
                   selectedChat.name.charAt(0)
                 )}
               </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{selectedChat.name}</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">{t('chat.chatView.empty.youAreFriends', { name: selectedChat.name })}</p>
             </div>
           ) : null
@@ -991,10 +1082,41 @@ const ChatView = ({
                   )}
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">{profileUser.name}</div>
+                  <div className="text-lg font-semibold text-gray-900 dark:text-white">{aliasName || profileUser.name}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {profileUser.isOnline ? t('chat.chatView.status.online') : t('chat.chatView.status.offline')}
                   </div>
+                  {Number(profileUser?.id) !== Number(currentUserId) && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <button
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-900/50 shadow-sm transition-colors"
+                        onClick={async () => {
+                          try {
+                            const otherId = Number(profileUser.id || (selectedChat as any)?.id);
+                            const res = await chatService.getChatNickname(otherId);
+                            setNicknameValue(res?.data?.nickname || '');
+                          } catch {
+                            setNicknameValue('');
+                          }
+                          setShowNickname(true);
+                        }}
+                        title={String(t('chat.nickname.setButton', { defaultValue: 'Đặt tên gọi nhớ' } as any))}
+                        aria-label={String(t('chat.nickname.setButton', { defaultValue: 'Đặt tên gọi nhớ' } as any))}
+                      >
+                        <Pencil className="w-4 h-4" />
+                        <span className="text-xs font-medium">{String(t('chat.nickname.setButton', { defaultValue: 'Đặt tên gọi nhớ' } as any))}</span>
+                      </button>
+                      <button
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:border-blue-300 hover:text-blue-700 dark:hover:text-blue-300 shadow-sm transition-colors"
+                        onClick={() => setShowCommonGroups(true)}
+                        title={String(t('chat.commonGroups.title', { defaultValue: 'Nhóm chung' } as any))}
+                        aria-label={String(t('chat.commonGroups.title', { defaultValue: 'Nhóm chung' } as any))}
+                      >
+                        <Users className="w-4 h-4" />
+                        <span className="text-xs font-medium">{String(t('chat.commonGroups.title', { defaultValue: 'Nhóm chung' } as any))}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1053,6 +1175,21 @@ const ChatView = ({
           </div>
         </div>
       )}
+
+      {/* Group Members Sidebar */}
+      <GroupMembersPanel
+        open={!!(isGroup && showMembersPanel)}
+        groupId={isGroup ? Number((selectedChat as any)?.id) : null}
+        onClose={() => setShowMembersPanel(false)}
+        onOpenProfile={(user) => handleOpenProfile(user)}
+      />
+
+      {/* Common Groups Modal */}
+      <CommonGroupsModal
+        open={!!(profileUser && showCommonGroups)}
+        onClose={() => setShowCommonGroups(false)}
+        userId={profileUser ? Number(profileUser.id) : null}
+      />
     </>
   );
 };

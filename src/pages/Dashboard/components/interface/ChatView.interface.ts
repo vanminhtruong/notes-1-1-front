@@ -8,6 +8,7 @@ export interface ChatViewProps {
   typingUsers?: Array<{ id: any; name: string; avatar?: string }>;
   menuOpenKey: string | null;
   currentUserId?: number;
+  initialAlias?: string | null;
   onBack: () => void;
   onMenuToggle: (key: string | null) => void;
   onRecallMessage: (msg: Message, scope: 'self' | 'all') => void;

@@ -1,7 +1,7 @@
 import type { User, Message } from './ChatTypes.interface';
 
 export interface ChatListProps {
-  chatList: Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean }>;
+  chatList: Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean; nickname?: string | null }>;
   friends: User[];
   unreadMap: Record<number, number>;
   currentUserId?: number;

@@ -21,7 +21,7 @@ export interface Message {
   status?: 'sent' | 'delivered' | 'read';
   readBy?: Array<{ userId: number; readAt: string; user?: User }>;
   // Reactions (added by backend include)
-  Reactions?: Array<{ userId: number; type: 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry' }>;  
+  Reactions?: Array<{ userId: number; type: 'like' | 'love' | 'haha' | 'wow' | 'sad' | 'angry'; count?: number }>;  
 }
 
 export interface MessageGroup {

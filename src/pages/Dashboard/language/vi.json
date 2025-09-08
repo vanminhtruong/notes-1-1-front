@@ -215,7 +215,8 @@
         "leave": "Rời nhóm",
         "delete": "Xóa nhóm",
         "removeMember": "Xóa thành viên",
-        "addMembers": "Thêm thành viên"
+        "addMembers": "Thêm thành viên",
+        "viewMembers": "Xem thành viên"
       },
       "editor": {
         "titleEdit": "Chỉnh sửa nhóm",
@@ -272,6 +273,15 @@
         "deleted": "Đã xóa nhóm",
         "removed": "Đã xóa thành viên",
         "updated": "Đã cập nhật nhóm"
+      },
+      "members": {
+        "title": "Thành viên nhóm",
+        "empty": "Chưa có thành viên"
+      },
+      "roles": {
+        "owner": "Chủ nhóm",
+        "admin": "Quản trị",
+        "member": "Thành viên"
       }
     },
     "chatList": {
@@ -308,6 +318,17 @@
         "gender": "Giới tính",
         "lastSeen": "Hoạt động",
         "privacy": "Một số thông tin có thể không hiển thị nếu người dùng không chia sẻ."
+      }
+    },
+    "commonGroups": {
+      "title": "Nhóm chung",
+      "tabs": {
+        "all": "Tất cả",
+        "my": "Nhóm của tôi"
+      },
+      "empty": {
+        "all": "Người này chưa tham gia nhóm nào",
+        "my": "Chưa có nhóm chung nào"
       }
     },
     "menu": {
@@ -412,6 +433,14 @@
       "chatLocked": "Đoạn tin nhắn đã bị mã hóa",
       "groupLocked": "Nội dung nhóm đã bị mã hóa",
       "previewLocked": "🔒 Encrypted — unlock to preview"
+    },
+    "nickname": {
+      "title": "Đặt tên gọi nhớ",
+      "description": "Hãy đặt cho {{name}} một cái tên dễ nhớ. Lưu ý: Tên gọi nhớ sẽ chỉ hiển thị riêng với bạn.",
+      "inputPlaceholder": "Nhập tên gọi nhớ",
+      "confirm": "Xác nhận",
+      "setButton": "Đặt tên gọi nhớ",
+      "saved": "Đã lưu tên gọi nhớ"
     },
     "settings": {
       "title": "Cài đặt Chat",
