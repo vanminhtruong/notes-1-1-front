@@ -26,6 +26,7 @@ const MessageBubble = ({
   pinnedIdSet,
   onTogglePinMessage,
   onOpenProfile,
+  disableReactions,
 }: MessageBubbleProps) => {
   const { t } = useTranslation('dashboard');
   const [isEditing, setIsEditing] = useState(false);
@@ -91,6 +92,7 @@ const MessageBubble = ({
   }, [message.Reactions, message.id, currentUserId]);
 
   const handleReact = async (next: any | null, allowBurst = false) => {
+    if (disableReactions) return;
     try {
       // For repeated same-type clicks, optimistically increment count and still call backend
       if (allowBurst && next && myTypes.includes(next)) {
@@ -135,6 +137,7 @@ const MessageBubble = ({
   
   // Flying emoji spawner for burst effect
   const spawnFloat = (emoji: string) => {
+    if (disableReactions) return;
     // Cap concurrent floating items of the same emoji to 3
     let addedId: number | null = null;
     setFloatItems((prev) => {
@@ -394,7 +397,7 @@ const MessageBubble = ({
         </div>
       </div>
       {/* Reaction trigger */}
-      {!isRecalled && (
+      {!isRecalled && !disableReactions && (
         <div className={`absolute ${isOwnMessage ? 'right-0' : 'left-0'} -bottom-3 flex items-center gap-2`}>
           {/* Quick heart */}
           <button
@@ -414,7 +417,7 @@ const MessageBubble = ({
           </button>
 
           {/* Emoji picker on hover */}
-          {showReactions && (
+          {showReactions && !disableReactions && (
             <div className={`relative z-20 px-2 py-1 rounded-2xl shadow-lg border ${isDarkMode() ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'}`}
                  onMouseEnter={() => setShowReactions(true)} onMouseLeave={() => setShowReactions(false)}>
               <div className="flex items-center gap-2">

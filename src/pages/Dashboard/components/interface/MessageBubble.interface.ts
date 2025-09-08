@@ -19,4 +19,6 @@ export interface MessageBubbleProps {
   onTogglePinMessage?: (messageId: number, nextPinned: boolean) => void;
   // Open user info modal
   onOpenProfile?: (user: { id: number; name?: string; avatar?: string | null }) => void;
+  // Disable reactions UI (e.g., when blocked in 1-1 chat)
+  disableReactions?: boolean;
 }

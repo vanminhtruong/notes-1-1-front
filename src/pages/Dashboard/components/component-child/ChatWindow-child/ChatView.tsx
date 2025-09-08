@@ -946,6 +946,7 @@ const ChatView = ({
                                         pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
                                         onTogglePinMessage={handleTogglePinMessage}
                                         onOpenProfile={handleOpenProfile}
+                                        disableReactions={!isGroup && !!blocked}
                                       />
                                     ))}
                                   </div>
@@ -973,6 +974,7 @@ const ChatView = ({
                                     pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
                                     onTogglePinMessage={handleTogglePinMessage}
                                     onOpenProfile={handleOpenProfile}
+                                    disableReactions={!isGroup && !!blocked}
                                   />
                                 );
                                 i++;
