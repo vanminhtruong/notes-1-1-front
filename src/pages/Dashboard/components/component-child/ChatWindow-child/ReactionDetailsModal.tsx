@@ -12,6 +12,7 @@ type Props = {
   reactions: ReactionEntry[];
   resolveUser: (userId: number) => UserInfo | null;
   t: (k: string, def?: any) => string;
+  onOpenProfile?: (user: UserInfo) => void;
 };
 
 const EMOJI: Record<ReactionType, string> = {
@@ -23,7 +24,7 @@ const EMOJI: Record<ReactionType, string> = {
   angry: '😡',
 };
 
-export default function ReactionDetailsModal({ open, onClose, reactions, resolveUser, t }: Props) {
+export default function ReactionDetailsModal({ open, onClose, reactions, resolveUser, t, onOpenProfile }: Props) {
   if (!open) return null;
 
   const list = Array.isArray(reactions) ? reactions : [];
@@ -91,12 +92,24 @@ export default function ReactionDetailsModal({ open, onClose, reactions, resolve
                 {filtered.map((it, idx) => {
                   const fallback = resolveUser(it.userId);
                   const u = it.user ? { id: it.user.id, name: it.user.name || fallback?.name || `User ${it.userId}`, avatar: it.user.avatar ?? fallback?.avatar } : fallback;
+                  const resolved = u || { id: it.userId, name: fallback?.name || `User ${it.userId}`, avatar: fallback?.avatar ?? null };
                   return (
                     <li key={`${it.userId}-${it.type}-${idx}`} className="flex items-center justify-between gap-3 p-2">
-                      <div className="flex items-center gap-3">
-                        <Avatar src={u?.avatar ?? null} name={u?.name || `User ${it.userId}`} />
-                        <div className="text-sm font-medium">{u?.name || `User ${it.userId}`}</div>
-                      </div>
+                      <button
+                        type="button"
+                        className="flex items-center gap-3 hover:opacity-90"
+                        onClick={() => {
+                          if (onOpenProfile && resolved?.id) {
+                            onOpenProfile(resolved as UserInfo);
+                            onClose();
+                          }
+                        }}
+                        title={t('chat.chatView.viewProfile', 'Xem thông tin')}
+                        aria-label={t('chat.chatView.viewProfile', 'Xem thông tin')}
+                      >
+                        <Avatar src={resolved?.avatar ?? null} name={resolved?.name || `User ${it.userId}`} />
+                        <div className="text-sm font-medium">{resolved?.name || `User ${it.userId}`}</div>
+                      </button>
                       <div className="min-w-[48px] text-sm">
                         <span className="mr-1">{EMOJI[it.type]}</span>
                         <span>{it.count}</span>

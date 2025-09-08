@@ -25,6 +25,7 @@ const MessageBubble = ({
   onPreviewImage,
   pinnedIdSet,
   onTogglePinMessage,
+  onOpenProfile,
 }: MessageBubbleProps) => {
   const { t } = useTranslation('dashboard');
   const [isEditing, setIsEditing] = useState(false);
@@ -554,6 +555,7 @@ const MessageBubble = ({
         reactions={(reactions as any[]) || []}
         resolveUser={(uid: number) => resolveUserInfo(uid)}
         t={(key: any, opts?: any) => String(t(key, opts))}
+        onOpenProfile={onOpenProfile as any}
       />
     )}
     </Tooltip.Provider>

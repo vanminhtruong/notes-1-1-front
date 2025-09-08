@@ -854,6 +854,7 @@ const ChatView = ({
                                         onPreviewImage={onPreviewImage}
                                         pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
                                         onTogglePinMessage={handleTogglePinMessage}
+                                        onOpenProfile={handleOpenProfile}
                                       />
                                     ))}
                                   </div>
@@ -880,6 +881,7 @@ const ChatView = ({
                                     onPreviewImage={onPreviewImage}
                                     pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
                                     onTogglePinMessage={handleTogglePinMessage}
+                                    onOpenProfile={handleOpenProfile}
                                   />
                                 );
                                 i++;

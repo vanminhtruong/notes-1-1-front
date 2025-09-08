@@ -17,4 +17,6 @@ export interface MessageBubbleProps {
   // Pin/unpin support
   pinnedIdSet?: Set<number> | number[];
   onTogglePinMessage?: (messageId: number, nextPinned: boolean) => void;
+  // Open user info modal
+  onOpenProfile?: (user: { id: number; name?: string; avatar?: string | null }) => void;
 }
