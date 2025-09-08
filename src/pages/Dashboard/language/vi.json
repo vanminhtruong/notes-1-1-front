@@ -396,7 +396,12 @@
         "wow": "Wow",
         "sad": "Buồn",
         "angry": "Tức giận"
-      }
+      },
+      "tooltip": {
+        "reactedBy": "{{names}} đã bày tỏ cảm xúc",
+        "default": "Đã bày tỏ cảm xúc"
+      },
+      "removeType": "Gỡ {{type}}"
     },
     "locked": {
       "notice": "Đoạn tin nhắn đã bị mã hóa",

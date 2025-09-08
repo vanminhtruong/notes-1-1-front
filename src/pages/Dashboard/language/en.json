@@ -397,7 +397,12 @@
         "wow": "Wow",
         "sad": "Sad",
         "angry": "Angry"
-      }
+      },
+      "tooltip": {
+        "reactedBy": "{{names}} reacted",
+        "default": "Reacted"
+      },
+      "removeType": "Remove {{type}}"
     },
     "locked": {
       "notice": "Messages are encrypted",

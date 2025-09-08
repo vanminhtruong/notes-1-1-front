@@ -370,6 +370,28 @@
       "title": "{{name}}님이 {{time}}에 읽음",
       "more": "+{{count}}명 더 읽음"
     },
+    "reactions": {
+      "modal": {
+        "title": "반응",
+        "empty": "아직 반응이 없습니다",
+        "tabs": {
+          "all": "전체"
+        }
+      },
+      "types": {
+        "like": "좋아요",
+        "love": "하트",
+        "haha": "웃겨요",
+        "wow": "놀라워요",
+        "sad": "슬퍼요",
+        "angry": "화나요"
+      },
+      "tooltip": {
+        "reactedBy": "{{names}}님이 반응함",
+        "default": "반응함"
+      },
+      "removeType": "{{type}} 제거"
+    },
     "locked": {
       "notice": "메시지가 암호화되었습니다",
       "hint": "대화 기록을 보려면 PIN을 입력하세요. 계속 대화는 가능합니다.",
