@@ -3,17 +3,30 @@ import { useTranslation } from 'react-i18next';
 import { groupService } from '@/services/groupService';
 import { toast } from 'react-hot-toast';
 
+interface GroupMemberInfo {
+  id: number;
+  name: string;
+  avatar?: string | null;
+  role: 'member'|'admin'|'owner';
+  email?: string | null;
+  phone?: string | null;
+  birthDate?: string | null;
+  gender?: string | 'unspecified';
+  hidePhone?: boolean;
+  hideBirthDate?: boolean;
+}
+
 interface GroupMembersPanelProps {
   open: boolean;
   groupId: number | null;
   onClose: () => void;
-  onOpenProfile: (user: { id: number; name: string; avatar?: string | null }) => void;
+  onOpenProfile: (user: GroupMemberInfo) => void;
 }
 
 export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfile }: GroupMembersPanelProps) {
   const { t } = useTranslation('dashboard');
   const [loading, setLoading] = useState(false);
-  const [members, setMembers] = useState<Array<{ id: number; name: string; avatar?: string | null; role: 'member'|'admin'|'owner' }>>([]);
+  const [members, setMembers] = useState<GroupMemberInfo[]>([]);
 
   useEffect(() => {
     let canceled = false;
@@ -23,7 +36,18 @@ export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfil
       try {
         const res = await groupService.getGroupMembers(groupId);
         if (!canceled) {
-          const list = (res?.data || []).map((u: any) => ({ id: u.id, name: u.name, avatar: u.avatar || null, role: u.role }));
+          const list: GroupMemberInfo[] = (res?.data || []).map((u: any) => ({
+            id: Number(u.id),
+            name: String(u.name || ''),
+            avatar: u.avatar || null,
+            role: u.role,
+            email: u.email ?? null,
+            phone: u.phone ?? null,
+            birthDate: u.birthDate ?? null,
+            gender: u.gender ?? 'unspecified',
+            hidePhone: !!u.hidePhone,
+            hideBirthDate: !!u.hideBirthDate,
+          }));
           setMembers(list);
         }
       } catch (e: any) {
@@ -70,7 +94,7 @@ export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfil
                   <button
                     type="button"
                     className="flex items-center gap-3 hover:opacity-90"
-                    onClick={() => onOpenProfile({ id: m.id, name: m.name, avatar: m.avatar })}
+                    onClick={() => onOpenProfile(m)}
                     title={t('chat.chatView.viewProfile', 'Xem thông tin') as any}
                   >
                     <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-sm font-semibold">

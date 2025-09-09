@@ -119,7 +119,7 @@ export const groupService = {
   
   async getGroupMembers(groupId: number) {
     const res = await api.get(`/groups/${groupId}/members`);
-    return res.data as { success: boolean; data: Array<{ id: number; name: string; avatar?: string | null; email?: string | null; phone?: string | null; birthDate?: string | null; gender?: string; role: 'member'|'admin'|'owner' }>; };
+    return res.data as { success: boolean; data: Array<{ id: number; name: string; avatar?: string | null; email?: string | null; phone?: string | null; birthDate?: string | null; gender?: string; role: 'member'|'admin'|'owner'; hidePhone?: boolean; hideBirthDate?: boolean }>; };
   },
   
   async recallGroupMessages(groupId: number, messageIds: number[], scope: 'self' | 'all') {

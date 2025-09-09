@@ -96,7 +96,24 @@ const ChatView = ({
         toast.error(t('chat.errors.generic', 'Đã xảy ra lỗi. Vui lòng thử lại.'));
         return;
       }
-      setProfileUser(user);
+      // Enrich with privacy-aware member info from backend
+      try {
+        const gid = Number((selectedChat as any)?.id);
+        if (gid) {
+          const membersRes = await groupService.getGroupMembers(gid);
+          const found = (membersRes?.data || []).find((m: any) => Number(m.id) === Number(user.id));
+          if (found) {
+            // Prefer backend-shaped object which already respects privacy
+            setProfileUser(found);
+          } else {
+            setProfileUser(user);
+          }
+        } else {
+          setProfileUser(user);
+        }
+      } catch {
+        setProfileUser(user);
+      }
       // Fetch alias (nickname) for this user (only visible to me)
       try {
         const r = await chatService.getChatNickname(Number(user.id));
@@ -423,13 +440,13 @@ const ChatView = ({
           </button>
           <div className="relative">
             <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md">
-              {/* Avatar clickable only for 1-1 chat to open profile; disabled for group */}
+              {/* DM: open user profile. Group: open members panel */}
               <button
                 type="button"
-                onClick={() => { handleOpenProfile(selectedChat); }}
-                title={t('chat.chatView.viewProfile', 'Xem thông tin')}
-                aria-disabled={!!blocked}
-                className={`w-full h-full ${!blocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                onClick={() => { if (isGroup) { openMembersPanel(); } else { handleOpenProfile(selectedChat); } }}
+                title={isGroup ? t('chat.groups.actions.viewMembers', 'Xem thành viên') : t('chat.chatView.viewProfile', 'Xem thông tin')}
+                aria-disabled={isGroup ? false : !!blocked}
+                className={`w-full h-full ${isGroup ? 'cursor-pointer' : (!blocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60')}`}
               >
                 {selectedChat.avatar ? (
                   <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
@@ -859,12 +876,12 @@ const ChatView = ({
                             >
                               {(() => {
                                 const first = group.items[0];
-                                const avatar = first?.sender?.avatar ?? selectedChat.avatar;
-                                const name = first?.sender?.name ?? selectedChat.name;
-                                return avatar ? (
-                                  <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                                const senderName = (first?.sender?.name) || `User ${first?.senderId ?? ''}`;
+                                const senderAvatar = first?.sender?.avatar || null;
+                                return senderAvatar ? (
+                                  <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
                                 ) : (
-                                  (name || '').charAt(0)
+                                  (senderName || '').charAt(0)
                                 );
                               })()}
                             </button>
@@ -1020,22 +1037,28 @@ const ChatView = ({
         {isGroup && typingUsers && typingUsers.length > 0 && !maskMessages && (
           <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
             <div className="w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto">
-              {selectedChat.avatar ? (
-                <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
-              ) : (
-                selectedChat.name.charAt(0)
-              )}
+              {(() => {
+                const first = typingUsers[0] as any;
+                const name = String(first?.name || '').trim() || 'U';
+                const avatar = (first as any)?.avatar || null;
+                return avatar ? (
+                  <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                ) : (
+                  name.charAt(0)
+                );
+              })()}
             </div>
-            <div className="max-w-[70%] flex flex-col items-start">
-              <div className="px-4 py-2 rounded-2xl text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm">
-                <div className="text-xs text-gray-600 dark:text-gray-300 mb-1">
-                  {typingUsers.map(u => u.name).join(', ')}
-                </div>
-                <div className="flex items-center gap-1 py-1">
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                </div>
+            <div className="flex items-end gap-1">
+              <div className="px-3 py-1.5 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs shadow-sm">
+                {t('chat.chatView.typing', 'Đang nhập...')}
+              </div>
+              <div className="flex gap-0.5 pb-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400">{typingUsers.map(u => u.name).join(', ')}</span>
+              </div>
+              <div className="flex items-center gap-1 py-1">
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
               </div>
             </div>
           </div>
@@ -1136,6 +1159,9 @@ const ChatView = ({
                       default: return notProvided;
                     }
                   };
+                  const viewingSelf = Number(profileUser?.id) === Number(currentUserId);
+                  const shouldMaskPhone = !viewingSelf && (profileUser.hidePhone === true || (typeof profileUser.hidePhone === 'undefined' && (profileUser.phone == null || profileUser.phone === '')));
+                  const shouldMaskBirth = !viewingSelf && (profileUser.hideBirthDate === true || (typeof profileUser.hideBirthDate === 'undefined' && (profileUser.birthDate == null || profileUser.birthDate === '')));
                   return (
                     <>
                       <div className="flex items-center justify-between">
@@ -1145,12 +1171,12 @@ const ChatView = ({
 
                       <div className="flex items-center justify-between">
                         <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.phone', 'Số điện thoại')}</span>
-                        <span className="text-gray-900 dark:text-gray-200">{profileUser.hidePhone ? t('chat.chatView.profile.phoneHiddenMask', '.....') : (profileUser.phone || notProvided)}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{shouldMaskPhone ? t('chat.chatView.profile.phoneHiddenMask', '.....') : (profileUser.phone || notProvided)}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span className="text-gray-500 dark:text-gray-400">{t('chat.chatView.profile.birthDate', 'Ngày sinh')}</span>
-                        <span className="text-gray-900 dark:text-gray-200">{profileUser.hideBirthDate ? t('chat.chatView.profile.birthDateHiddenMask', '../..') : (formatDateMDYY(profileUser.birthDate) || notProvided)}</span>
+                        <span className="text-gray-900 dark:text-gray-200">{shouldMaskBirth ? t('chat.chatView.profile.birthDateHiddenMask', '../..') : (formatDateMDYY(profileUser.birthDate) || notProvided)}</span>
                       </div>
 
                       <div className="flex items-center justify-between">

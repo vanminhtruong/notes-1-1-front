@@ -140,12 +140,23 @@ export function useChatOpeners(params: {
     markGroupAsRead(group.id);
 
     try {
+      // Preload members to resolve sender avatars accurately
+      let memberMap: Record<number, { id: number; name: string; avatar?: string | null }> = {};
+      try {
+        const memRes = await groupService.getGroupMembers(group.id);
+        for (const u of (memRes?.data || [])) {
+          const id = Number(u.id);
+          if (!Number.isFinite(id)) continue;
+          memberMap[id] = { id, name: String(u.name || `User ${id}`), avatar: u.avatar || null };
+        }
+      } catch {}
+
       const response = await groupService.getGroupMessages(group.id);
       if (response.success) {
         const msgs = (response.data as any[]).map((m: any) => {
           const u = (currentUser && currentUser.id === m.senderId)
             ? currentUser
-            : (friends.find((f) => f.id === m.senderId) || users.find((uu) => uu.id === m.senderId));
+            : (memberMap[m.senderId] || friends.find((f) => f.id === m.senderId) || users.find((uu) => uu.id === m.senderId));
           
           // Convert GroupMessageReads to readBy format for frontend
           let readBy: any[] = [];
@@ -163,7 +174,7 @@ export function useChatOpeners(params: {
 
           return u ? { 
             ...m, 
-            sender: { id: u.id, name: u.name, avatar: u.avatar },
+            sender: { id: Number((u as any).id), name: String((u as any).name), avatar: (u as any).avatar },
             readBy,
             status,
           } : { 
