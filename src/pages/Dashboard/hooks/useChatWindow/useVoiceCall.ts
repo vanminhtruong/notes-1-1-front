@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSocket } from '../../../../services/socket';
+import { chatService } from '@/services/chatService';
 import { toast } from 'react-hot-toast';
 import i18n from '@/libs/i18n';
 
@@ -51,6 +52,8 @@ export function useVoiceCall(currentUserId: number | null) {
   const dialStartAtRef = useRef<number | null>(null);
   const dialTickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [dialProgress, setDialProgress] = useState(0);
+  // Track who initiated to determine direction in call logs
+  const isCallerRef = useRef<boolean>(false);
 
   // Prepare audio elements lazily
   useEffect(() => {
@@ -105,6 +108,15 @@ export function useVoiceCall(currentUserId: number | null) {
     const socket = getSocket();
     const to = peerUser?.id;
     const callId = activeCallId;
+    // If call had been connected and this end is initiated locally (notifyPeer=true), log answered with duration
+    try {
+      // Only the caller logs the answered summary to avoid duplicate cards
+      if (notifyPeer && isCallerRef.current && peerUser && callStartedAtRef.current) {
+        const dur = Math.max(0, Math.floor((Date.now() - callStartedAtRef.current) / 1000));
+        const payloadLog = { v: 1, media: mediaType, direction: isCallerRef.current ? 'outgoing' as const : 'incoming' as const, result: 'answered' as const, durationSec: dur, at: new Date().toISOString() };
+        chatService.sendMessage(Number(peerUser.id), `CALL_LOG::${encodeURIComponent(JSON.stringify(payloadLog))}`, 'text').catch(() => {});
+      }
+    } catch {}
     cleanupMedia();
     setInCall(false);
     setConnecting(false);
@@ -118,7 +130,7 @@ export function useVoiceCall(currentUserId: number | null) {
   }, [peerUser?.id, activeCallId]);
 
   // Cancel outgoing call while ringing (before connected)
-  const cancelOutgoing = useCallback(() => {
+  const cancelOutgoing = useCallback((reason?: 'user'|'timeout') => {
     const socket = getSocket();
     const to = peerUser?.id;
     const callId = activeCallId;
@@ -133,6 +145,21 @@ export function useVoiceCall(currentUserId: number | null) {
     if (dialTickerRef.current) { try { clearInterval(dialTickerRef.current); } catch {} dialTickerRef.current = null; }
     dialStartAtRef.current = null;
     setDialProgress(0);
+    // Log outcome for outgoing call (before connect)
+    try {
+      if (peerUser) {
+        const result: 'missed' | 'cancelled' = (reason === 'timeout' ? 'missed' : 'cancelled');
+        const payload = {
+          v: 1,
+          media: mediaType,
+          direction: 'outgoing' as const,
+          result,
+          reason: (reason || 'user'),
+          at: new Date().toISOString(),
+        };
+        chatService.sendMessage(Number(peerUser.id), `CALL_LOG::${encodeURIComponent(JSON.stringify(payload))}`, 'text').catch(() => {});
+      }
+    } catch {}
   }, [peerUser?.id, activeCallId]);
 
   const startPeer = async (initiator: boolean, other: CallUserInfo, callId: string, withVideo: boolean) => {
@@ -283,6 +310,7 @@ export function useVoiceCall(currentUserId: number | null) {
     setMediaType(media);
     setCameraOn(media === 'video');
     setMicOn(true);
+    isCallerRef.current = true;
     // start dialing ring progress
     dialStartAtRef.current = Date.now();
     setDialProgress(0);
@@ -294,7 +322,7 @@ export function useVoiceCall(currentUserId: number | null) {
       setDialProgress(p);
       // Safety: if progress reached 100% and still not connected, cancel now
       if (p >= 1 && !inCall && connecting) {
-        try { cancelOutgoing(); } catch {}
+        try { cancelOutgoing('timeout'); } catch {}
       }
     }, 100);
     // auto-cancel if peer doesn't accept within timeout
@@ -302,7 +330,7 @@ export function useVoiceCall(currentUserId: number | null) {
     dialCancelTimeoutRef.current = setTimeout(() => {
       if (!inCall && connecting) {
         toast.error('Người nhận không bắt máy');
-        cancelOutgoing();
+        cancelOutgoing('timeout');
       }
     }, CONNECT_TIMEOUT_MS);
     try {
@@ -326,6 +354,7 @@ export function useVoiceCall(currentUserId: number | null) {
     setCameraOn(incomingCall.media === 'video');
     setMicOn(true);
     setIncomingCall(null);
+    isCallerRef.current = false;
   }, [incomingCall]);
 
   const rejectCall = useCallback((reason?: string) => {
@@ -368,6 +397,13 @@ export function useVoiceCall(currentUserId: number | null) {
       setConnecting(false);
       setActiveCallId(null);
       setPeerUser(null);
+      // For caller, consider as missed by callee
+      try {
+        if (peerUser) {
+          const payloadLog = { v: 1, media: mediaType, direction: 'outgoing' as const, result: 'cancelled' as const, at: new Date().toISOString() };
+          chatService.sendMessage(Number(peerUser.id), `CALL_LOG::${encodeURIComponent(JSON.stringify(payloadLog))}`, 'text').catch(() => {});
+        }
+      } catch {}
     };
 
     const onSignal = async (payload: { callId: string; from: CallUserInfo; data: SignalPayload }) => {
@@ -439,6 +475,15 @@ export function useVoiceCall(currentUserId: number | null) {
     const onEnded = (payload: { callId: string; by: CallUserInfo }) => {
       if (!activeCallId || payload.callId !== activeCallId) return;
       toast(i18n.t('dashboard:chat.call.toast.ended'));
+      // Remote ended; if had been connected, log answered with duration
+      try {
+        // Only caller logs a single answered record
+        if (isCallerRef.current && peerUser) {
+          const dur = callStartedAtRef.current ? Math.max(0, Math.floor((Date.now() - callStartedAtRef.current) / 1000)) : callSeconds;
+          const payloadLog = { v: 1, media: mediaType, direction: isCallerRef.current ? 'outgoing' as const : 'incoming' as const, result: 'answered' as const, durationSec: dur, at: new Date().toISOString() };
+          chatService.sendMessage(Number(peerUser.id), `CALL_LOG::${encodeURIComponent(JSON.stringify(payloadLog))}`, 'text').catch(() => {});
+        }
+      } catch {}
       endCall(false);
     };
 

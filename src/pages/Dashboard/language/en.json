@@ -97,6 +97,19 @@
         "reminderHint": "Optional — you'll see a bell when it's due"
       }
     },
+    "callLog": {
+      "incomingVideo": "Incoming video call",
+      "incomingAudio": "Incoming audio call",
+      "outgoingVideo": "Outgoing video call",
+      "outgoingAudio": "Outgoing audio call",
+      "missedYou": "Missed call",
+      "youCancelled": "You cancelled the call",
+      "cancelled": "Call was cancelled",
+      "video": "Video call",
+      "audio": "Audio call",
+      "redial": "Call again",
+      "duration": "{{m}} minutes {{s}} seconds"
+    },
     "edit": {
       "title": "Edit note"
     },
@@ -313,6 +326,10 @@
         "videoCall": "Video call"
       },
       "backToBottom": "Back to bottom",
+      "daySeparator": {
+        "today": "Today",
+        "yesterday": "Yesterday"
+      },
       "profile": {
         "title": "User information",
         "close": "Close profile",
@@ -392,6 +409,19 @@
     "imagePreview": {
       "close": "Close",
       "imageAlt": "Preview image"
+    },
+    "callLog": {
+      "incomingVideo": "Incoming video call",
+      "incomingAudio": "Incoming audio call",
+      "outgoingVideo": "Outgoing video call",
+      "outgoingAudio": "Outgoing audio call",
+      "missedYou": "Missed call",
+      "youCancelled": "You cancelled the call",
+      "cancelled": "Call was cancelled",
+      "video": "Video call",
+      "audio": "Audio call",
+      "redial": "Call again",
+      "duration": "{{m}} minutes {{s}} seconds"
     },
     "call": {
       "title": {

@@ -22,7 +22,7 @@ export interface CallContextValue {
   acceptCall: () => Promise<void> | void;
   rejectCall: (reason?: string) => void;
   endCall: () => void;
-  cancelOutgoing: () => void;
+  cancelOutgoing: (reason?: 'user' | 'timeout') => void;
   toggleCamera?: () => Promise<void> | void;
   toggleMic?: () => Promise<void> | void;
 }
@@ -44,6 +44,11 @@ export function useCall() {
   return ctx;
 }
 
+// Optional accessor: returns null if CallProvider is not present
+export function useOptionalCall() {
+  return useContext(CallContext);
+}
+
 // Global call UI that listens to context and renders modal regardless of ChatWindow visibility
 export function GlobalCallUI() {
   const { incomingCall, inCall, connecting, peerUser, callSeconds, dialProgress, mediaType, localStream, remoteStream, cameraOn, micOn, toggleCamera, toggleMic, acceptCall, rejectCall, endCall, cancelOutgoing } = useCall();
@@ -61,7 +66,7 @@ export function GlobalCallUI() {
   // Safety: auto-cancel when progress reaches 100% but still in outgoing mode
   useEffect(() => {
     if (mode === 'outgoing' && (dialProgress ?? 0) >= 1) {
-      try { cancelOutgoing(); } catch {}
+      try { cancelOutgoing('timeout'); } catch {}
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, dialProgress]);

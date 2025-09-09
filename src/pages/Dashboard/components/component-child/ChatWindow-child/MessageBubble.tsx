@@ -1,4 +1,4 @@
-import { MoreVertical, Clock, Pin } from 'lucide-react';
+import { MoreVertical, Clock, Pin, Phone, Video } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import MessageStatus from './MessageStatus';
@@ -8,6 +8,7 @@ import { formatDateMDYY } from '@/utils/utils';
 import { chatService } from '@/services/chatService';
 import { groupService } from '@/services/groupService';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import { useOptionalCall } from '@/contexts/CallContext';
 
 const MessageBubble = ({
   message,
@@ -29,6 +30,8 @@ const MessageBubble = ({
   disableReactions,
 }: MessageBubbleProps) => {
   const { t } = useTranslation('dashboard');
+  // Call controls for redial from call-log cards (optional)
+  const callCtx = useOptionalCall();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState<string>(String(message.content || ''));
   const [showReactions, setShowReactions] = useState(false);
@@ -257,6 +260,81 @@ const MessageBubble = ({
               </div>
             );
           }
+        } catch {}
+      }
+
+      // Detect call log payload encoded as CALL_LOG::<uri-encoded json>
+      const callPrefix = 'CALL_LOG::';
+      if (typeof message.content === 'string' && message.content.startsWith(callPrefix)) {
+        try {
+          const raw = message.content.slice(callPrefix.length);
+          const obj = JSON.parse(decodeURIComponent(raw));
+          const media: 'audio'|'video' = obj.media === 'video' ? 'video' : 'audio';
+          const direction: 'incoming'|'outgoing' = obj.direction === 'incoming' ? 'incoming' : 'outgoing';
+          // Show direction from the current viewer's perspective
+          const viewDir: 'incoming'|'outgoing' = isOwnMessage ? direction : (direction === 'incoming' ? 'outgoing' : 'incoming');
+          const result: 'answered'|'missed'|'cancelled' = (['answered','missed','cancelled'].includes(obj.result) ? obj.result : 'answered');
+          const durationSec: number | undefined = typeof obj.durationSec === 'number' ? obj.durationSec : undefined;
+          const otherId = isOwnMessage ? (message as any).receiverId : (message as any).senderId;
+          // Duration text
+          const fmtDuration = (sec?: number) => {
+            if (!sec || sec <= 0) return null;
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return (
+              <div className="mt-1 text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                {media === 'video' ? <Video className="w-4 h-4" /> : <Phone className="w-4 h-4" />}
+                <span>{String(t('chat.callLog.duration', { m, s, defaultValue: `${m} minutes ${s} seconds` } as any))}</span>
+              </div>
+            );
+          };
+          const header = (() => {
+            if (result === 'missed') return (
+              isOwnMessage
+                ? <span className="font-semibold">{media === 'video' ? t('chat.callLog.incomingVideo', 'Cuộc gọi video đến') : t('chat.callLog.incomingAudio', 'Cuộc gọi thoại đến')}</span>
+                : <span className="text-red-600 dark:text-red-400 font-semibold">{t('chat.callLog.missedYou', 'Bạn bị nhỡ')}</span>
+            );
+            if (result === 'cancelled') return (
+              <span className={`${isOwnMessage ? 'text-red-600 dark:text-red-400' : ''} font-semibold`}>
+                {isOwnMessage ? t('chat.callLog.youCancelled', 'Bạn đã hủy cuộc gọi') : t('chat.callLog.cancelled', 'Cuộc gọi đã bị hủy')}
+              </span>
+            );
+            if (viewDir === 'incoming') return <span className="font-semibold">{media === 'video' ? t('chat.callLog.incomingVideo', 'Cuộc gọi video đến') : t('chat.callLog.incomingAudio', 'Cuộc gọi thoại đến')}</span>;
+            return <span className="font-semibold">{media === 'video' ? t('chat.callLog.outgoingVideo', 'Cuộc gọi video đi') : t('chat.callLog.outgoingAudio', 'Cuộc gọi thoại đi')}</span>;
+          })();
+          const label = media === 'video' ? t('chat.callLog.video', 'Cuộc gọi video') : t('chat.callLog.audio', 'Cuộc gọi thoại');
+          return (
+            <div className={`w-[200px] md:w-[220px] bg-white/80 dark:bg-gray-800/90 backdrop-blur rounded-xl p-3 border ${result === 'missed' ? 'border-red-200 dark:border-red-900/40' : 'border-white/20 dark:border-gray-700/30'} ${isOwnMessage ? 'rounded-br-md' : 'rounded-bl-md'} shadow-sm`}
+                 role="group" aria-label="call-log">
+              <div className="text-gray-900 dark:text-white mb-0.5 flex items-center gap-1.5 text-sm">
+                {media === 'video' ? <Video className={`w-3.5 h-3.5 ${result==='missed' ? 'text-red-600 dark:text-red-400' : 'text-blue-600'}`} /> : <Phone className={`w-3.5 h-3.5 ${result==='missed' ? 'text-red-600 dark:text-red-400' : 'text-blue-600'}`} />}
+                {header}
+              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
+                {media === 'video' ? <Video className="w-3.5 h-3.5 opacity-70" /> : <Phone className="w-3.5 h-3.5 opacity-70" />}
+                <span>{label}</span>
+              </div>
+              {fmtDuration(durationSec)}
+              <div className="mt-1 pt-1 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-xs font-medium"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    try {
+                      const id = Number(otherId);
+                      if (!id) return;
+                      if (!callCtx) return;
+                      if (media === 'video') callCtx.startVideoCall && callCtx.startVideoCall({ id, name: (message as any)?.receiver?.name || (message as any)?.sender?.name || `User ${id}`, avatar: ((message as any)?.receiver?.avatar || (message as any)?.sender?.avatar) || null });
+                      else callCtx.startCall({ id, name: (message as any)?.receiver?.name || (message as any)?.sender?.name || `User ${id}`, avatar: ((message as any)?.receiver?.avatar || (message as any)?.sender?.avatar) || null });
+                    } catch {}
+                  }}
+                >
+                  {t('chat.callLog.redial', 'Gọi lại')}
+                </button>
+              </div>
+            </div>
+          );
         } catch {}
       }
 

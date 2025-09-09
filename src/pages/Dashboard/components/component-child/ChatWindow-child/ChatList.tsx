@@ -107,7 +107,16 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                 recalled: t('chat.preview.recalled'),
                 image: t('chat.preview.image'),
                 file: t('chat.preview.file'),
-                youPrefix: t('chat.preview.youPrefix')
+                youPrefix: t('chat.preview.youPrefix'),
+                callLog: {
+                  incomingVideo: t('chat.callLog.incomingVideo', 'Incoming video call') as string,
+                  incomingAudio: t('chat.callLog.incomingAudio', 'Incoming audio call') as string,
+                  outgoingVideo: t('chat.callLog.outgoingVideo', 'Outgoing video call') as string,
+                  outgoingAudio: t('chat.callLog.outgoingAudio', 'Outgoing audio call') as string,
+                  missedYou: t('chat.callLog.missedYou', 'Missed call') as string,
+                  youCancelled: t('chat.callLog.youCancelled', 'You cancelled the call') as string,
+                  cancelled: t('chat.callLog.cancelled', 'Call was cancelled') as string,
+                }
               });
           const time = formatPreviewTime(item.lastMessage?.createdAt);
           const count = (unreadMap[friend.id] ?? item.unreadCount ?? 0) as number;

@@ -1,4 +1,4 @@
-import type { Message } from '../pages/Dashboard/components/component-child/ChatWindow-child/types';
+import type { Message } from '../pages/Dashboard/components/interface/ChatTypes.interface';
 
 // Helper to format timestamps for last message preview
 export const formatPreviewTime = (iso?: string) => {
@@ -43,7 +43,21 @@ export const formatDateTimeMDYY_HHmm = (input?: string | Date | null) => {
 export const formatPreviewText = (
   msg: Message | null | undefined,
   currentUserId?: number,
-  labels?: { recalled: string; image: string; file: string; youPrefix: string }
+  labels?: {
+    recalled: string;
+    image: string;
+    file: string;
+    youPrefix: string;
+    callLog?: {
+      incomingVideo: string;
+      incomingAudio: string;
+      outgoingVideo: string;
+      outgoingAudio: string;
+      missedYou: string;
+      youCancelled: string;
+      cancelled: string;
+    };
+  }
 ) => {
   if (!msg) return '';
   if ((msg as any).isDeletedForAll) return labels?.recalled ?? 'Message recalled';
@@ -58,6 +72,33 @@ export const formatPreviewText = (
       break;
     default:
       body = msg.content || '';
+      // Friendly preview for encoded call logs
+      if (typeof body === 'string' && body.startsWith('CALL_LOG::')) {
+        try {
+          const raw = body.slice('CALL_LOG::'.length);
+          const obj = JSON.parse(decodeURIComponent(raw));
+          const media: 'audio'|'video' = obj.media === 'video' ? 'video' : 'audio';
+          const direction: 'incoming'|'outgoing' = obj.direction === 'incoming' ? 'incoming' : 'outgoing';
+          const result: 'answered'|'missed'|'cancelled' = (['answered','missed','cancelled'].includes(obj.result) ? obj.result : 'answered');
+          // Perspective: if I'm not the sender, invert direction for my view
+          const viewDir: 'incoming'|'outgoing' = isOwn ? direction : (direction === 'incoming' ? 'outgoing' : 'incoming');
+          const L = labels?.callLog;
+          if (result === 'missed') {
+            return isOwn
+              ? (media === 'video' ? (L?.incomingVideo ?? 'Incoming video call') : (L?.incomingAudio ?? 'Incoming audio call'))
+              : (L?.missedYou ?? 'Missed call');
+          }
+          if (result === 'cancelled') {
+            return isOwn ? (L?.youCancelled ?? 'You cancelled the call') : (L?.cancelled ?? 'Call was cancelled');
+          }
+          // answered or general
+          return viewDir === 'incoming'
+            ? (media === 'video' ? (L?.incomingVideo ?? 'Incoming video call') : (L?.incomingAudio ?? 'Incoming audio call'))
+            : (media === 'video' ? (L?.outgoingVideo ?? 'Outgoing video call') : (L?.outgoingAudio ?? 'Outgoing audio call'));
+        } catch {
+          // fall through: show raw text if parsing fails
+        }
+      }
   }
   if (isOwn) body = `${labels?.youPrefix ?? 'You:'} ${body}`;
   return body.replace(/\s+/g, ' ');

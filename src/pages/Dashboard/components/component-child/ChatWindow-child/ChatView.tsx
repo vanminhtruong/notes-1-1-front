@@ -11,7 +11,7 @@ import { groupService } from '@/services/groupService';
 import GroupMembersPanel from './GroupMembersPanel';
 import CommonGroupsModal from './CommonGroupsModal';
 import { getSocket } from '@/services/socket';
-import { useCall } from '@/contexts/CallContext';
+import { useOptionalCall } from '@/contexts/CallContext';
 import { toast } from 'react-hot-toast';
 import type { ChatViewProps } from '../../interface/ChatView.interface';
 const ChatView = ({
@@ -70,8 +70,8 @@ const ChatView = ({
   // Common groups modal state
   const [showCommonGroups, setShowCommonGroups] = useState(false);
 
-  // Voice/Video call controls used in header
-  const { startCall, startVideoCall } = useCall();
+  // Voice/Video call controls used in header (optional if provider not mounted)
+  const callCtx = useOptionalCall();
 
   // Group members side panel state
   const [showMembersPanel, setShowMembersPanel] = useState(false);
@@ -309,15 +309,17 @@ const ChatView = ({
   }, [isGroup, (selectedChat as any)?.id, currentUserId]);
 
   useEffect(() => {
-    if (!isPartnerTyping) return;
-    const el = scrollerRef.current;
-    if (!el) return;
-    const threshold = 80; // px
-    const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    if (distanceToBottom <= threshold) {
-      setTimeout(scrollToBottom, 50);
-    }
-  }, [isPartnerTyping]);
+    // Always bring the view to the bottom to reveal typing indicator in 1-1 chat
+    if (!isPartnerTyping || maskMessages) return;
+    setTimeout(scrollToBottom, 50);
+  }, [isPartnerTyping, maskMessages]);
+
+  useEffect(() => {
+    // Always bring the view to the bottom to reveal typing indicator in group chat
+    if (!isGroup) return;
+    if (!typingUsers || typingUsers.length === 0 || maskMessages) return;
+    setTimeout(scrollToBottom, 50);
+  }, [typingUsers, isGroup, maskMessages]);
 
   // Toggle "Back to bottom" button visibility on scroll
   useEffect(() => {
@@ -501,7 +503,8 @@ const ChatView = ({
                       if (blocked) { toast.error(t('chat.errors.callBlocked', 'Không thể gọi do hai bên đã chặn nhau')); return; }
                       const otherId = Number((selectedChat as any)?.id);
                       if (!otherId) return;
-                      startCall({ id: otherId, name: selectedChat.name, avatar: selectedChat.avatar || null });
+                      if (!callCtx) return;
+                      callCtx.startCall({ id: otherId, name: selectedChat.name, avatar: selectedChat.avatar || null });
                     } catch {}
                   }}
                   title={t('chat.chatView.actions.voiceCall', 'Gọi thoại')}
@@ -518,7 +521,8 @@ const ChatView = ({
                       if (blocked) { toast.error(t('chat.errors.callBlocked', 'Không thể gọi do hai bên đã chặn nhau')); return; }
                       const otherId = Number((selectedChat as any)?.id);
                       if (!otherId) return;
-                      startVideoCall && startVideoCall({ id: otherId, name: selectedChat.name, avatar: selectedChat.avatar || null });
+                      if (!callCtx?.startVideoCall) return;
+                      callCtx.startVideoCall({ id: otherId, name: selectedChat.name, avatar: selectedChat.avatar || null });
                     } catch {}
                   }}
                   title={t('chat.chatView.actions.videoCall', 'Gọi video')}
@@ -798,170 +802,169 @@ const ChatView = ({
           ) : null
         ) : (
           <div className="space-y-4 relative z-10 mt-4 px-4">
-            {visibleGroups.map((group) => {
-              const isOwnMessage = group.senderId === currentUserId;
-              const showAvatar = !isOwnMessage;
-              const images = group.items.filter((i) => i.messageType === 'image');
-              const files = group.items.filter((i) => i.messageType === 'file');
-              // Use a stable, unique key per group based on sender and message id range
-              const firstId = group.items[0]?.id ?? `s-${group.start}`;
-              const lastId = group.items[group.items.length - 1]?.id ?? `e-${group.end}`;
-              const groupKey = `g-${group.senderId}-${firstId}-${lastId}`;
-              const hasMedia = images.length > 0 || files.length > 0;
-              const isSameDayGroup = new Date(group.start).toDateString() === new Date(group.end).toDateString();
-              const showGroupMenu = !hasMedia && !isSameDayGroup;
-              const showPerMessageTextMenu = isSameDayGroup;
-              const allRecalled = group.items.every((i) => i.isDeletedForAll);
+            {(() => {
+              let lastDateKey: string | null = null;
+              return visibleGroups.map((group) => {
+                const date = new Date(group.start);
+                const dateKey = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+                const showSep = lastDateKey !== dateKey;
+                if (showSep) lastDateKey = dateKey;
 
-              // System messages: render centered notices
-              const isSystemGroup = group.items.every((i) => i.messageType === 'system');
-              if (isSystemGroup) {
+                const isOwnMessage = group.senderId === currentUserId;
+                const showAvatar = !isOwnMessage;
+                const images = group.items.filter((i) => i.messageType === 'image');
+                const files = group.items.filter((i) => i.messageType === 'file');
+                const firstId = group.items[0]?.id ?? `s-${group.start}`;
+                const lastId = group.items[group.items.length - 1]?.id ?? `e-${group.end}`;
+                const groupKey = `g-${group.senderId}-${firstId}-${lastId}`;
+                const hasMedia = images.length > 0 || files.length > 0;
+                const isSameDayGroup = new Date(group.start).toDateString() === new Date(group.end).toDateString();
+                const showGroupMenu = !hasMedia && !isSameDayGroup;
+                const showPerMessageTextMenu = isSameDayGroup;
+                const allRecalled = group.items.every((i) => i.isDeletedForAll);
+
+                const today = new Date();
+                const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate());
+                const diffDays = Math.floor((startOf(today).getTime() - startOf(date).getTime()) / (24 * 60 * 60 * 1000));
+                const sepLabel = diffDays === 0
+                  ? t('chat.chatView.daySeparator.today', 'Hôm nay')
+                  : diffDays === 1
+                    ? t('chat.chatView.daySeparator.yesterday', 'Hôm qua')
+                    : date.toLocaleDateString(i18n.language || undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
+
                 return (
-                  <div key={groupKey} className="flex justify-center">
-                    <div className="max-w-[80%] text-center text-xs italic text-gray-600 dark:text-gray-300">
-                      {group.items.map((it) => (
-                        <div key={`sys-${it.id}`} className="py-1">
-                          {it.content}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
-
-              return (
-                <div key={groupKey} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                  {showAvatar && (
-                    (() => {
-                      const senderId = group.senderId as number;
-                      // In group chat: disable if blocked OR still loading (undefined)
-                      const isSenderBlocked = isGroup ? blockedUserMap[senderId] !== false : !!blocked;
-                      return (
-                        <button
-                          type="button"
-                          onClick={!isSenderBlocked ? () => {
-                            const first = group.items[0];
-                            const user = first?.sender ?? selectedChat;
-                            handleOpenProfile(user);
-                          } : undefined}
-                          title={!isSenderBlocked ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
-                          aria-disabled={isSenderBlocked}
-                          className={`w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto ${!isSenderBlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
-                        >
-                          {(() => {
-                            const first = group.items[0];
-                            const avatar = first?.sender?.avatar ?? selectedChat.avatar;
-                            const name = first?.sender?.name ?? selectedChat.name;
-                            return avatar ? (
-                              <img src={avatar} alt={name} className="w-full h-full object-cover" />
-                            ) : (
-                              (name || '').charAt(0)
-                            );
-                          })()}
-                        </button>
-                      );
-                    })()
-                  )}
-                  <div className={`relative max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col gap-2`}>
-                    {/* Group-level menu: only for text-only and NOT same-day */}
-                    {showGroupMenu && (
-                      <>
-                        <button
-                          onClick={() => onMenuToggle(menuOpenKey === groupKey ? null : groupKey)}
-                          className={`absolute -top-3 ${isOwnMessage ? '-right-3' : '-left-3'} p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity`}
-                          title={t('chat.menu.options')}
-                          aria-label={t('chat.menu.messageOptionsAria')}
-                        >
-                          <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                        </button>
-                        {menuOpenKey === groupKey && (
-                          <div className={`absolute z-40 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
-                            onMouseLeave={() => onMenuToggle(null)}
-                          >
-                            <button
-                              onClick={() => onRecallGroup(group, 'self')}
-                              className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                            >
-                              {t('chat.menu.recall.self')}
-                            </button>
-                            {isOwnMessage && !allRecalled && (
-                              <button
-                                onClick={() => onRecallGroup(group, 'all')}
-                                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                              >
-                                {t('chat.menu.recall.all')}
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {/* Content */}
-                    {allRecalled ? (
-                      <div className="relative group">
-                        <div className={`px-4 py-2 rounded-2xl text-xs italic text-gray-500 bg-gray-100 dark:bg-gray-700 ${isOwnMessage ? 'rounded-br-md' : 'rounded-bl-md'} shadow-sm`}>
-                          {t('chat.recalled.text')}
-                        </div>
-                        <button
-                          onClick={() => onMenuToggle(menuOpenKey === groupKey ? null : groupKey)}
-                          className={`absolute -top-2 ${isOwnMessage ? '-right-2' : '-left-2'} z-30 p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 transition-opacity`}
-                          title={t('chat.menu.options')}
-                          aria-label={t('chat.menu.messageOptionsAria')}
-                        >
-                          <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                        </button>
-                        {menuOpenKey === groupKey && (
-                          <div className={`absolute z-10 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
-                            onMouseLeave={() => onMenuToggle(null)}
-                          >
-                            <button
-                              onClick={() => onRecallGroup(group, 'self')}
-                              className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                            >
-                              {t('chat.menu.recall.self')}
-                            </button>
-                          </div>
-                        )}
+                  <>
+                    {showSep && (
+                      <div className="w-full flex items-center justify-center py-2" key={`sep-${dateKey}`}>
+                        <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{sepLabel}</span>
                       </div>
-                    ) : (
-                      <>
-                        {/* Render all items in chronological order with proper grouping for images */}
-                        <div className="flex flex-col gap-2">
-                          {(() => {
-                            const sortedItems = group.items.sort((a, b) => {
-                              const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
-                              const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
-                              return timeA - timeB;
-                            });
-
-                            const result = [];
-                            let i = 0;
-                            
-                            while (i < sortedItems.length) {
-                              const current = sortedItems[i];
-                              
-                              if (current.messageType === 'image') {
-                                // Group consecutive images into a grid
-                                const imageGroup = [current];
-                                let j = i + 1;
-                                
-                                while (j < sortedItems.length && sortedItems[j].messageType === 'image') {
-                                  imageGroup.push(sortedItems[j]);
-                                  j++;
-                                }
-                                
-                                result.push(
-                                  <div key={`img-group-${current.id}`} className={`grid gap-1 ${imageGroup.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                                    {imageGroup.map((img) => (
+                    )}
+                    {/* Original group rendering */}
+                    <div key={groupKey} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+                      {showAvatar && (
+                        (() => {
+                          const senderId = group.senderId as number;
+                          const isSenderBlocked = isGroup ? blockedUserMap[senderId] !== false : !!blocked;
+                          return (
+                            <button
+                              type="button"
+                              onClick={!isSenderBlocked ? () => {
+                                const first = group.items[0];
+                                const user = first?.sender ?? selectedChat;
+                                handleOpenProfile(user);
+                              } : undefined}
+                              title={!isSenderBlocked ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
+                              aria-disabled={isSenderBlocked}
+                              className={`w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto ${!isSenderBlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                            >
+                              {(() => {
+                                const first = group.items[0];
+                                const avatar = first?.sender?.avatar ?? selectedChat.avatar;
+                                const name = first?.sender?.name ?? selectedChat.name;
+                                return avatar ? (
+                                  <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                                ) : (
+                                  (name || '').charAt(0)
+                                );
+                              })()}
+                            </button>
+                          );
+                        })()
+                      )}
+                      <div className={`relative max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col gap-2`}>
+                        {showGroupMenu && (
+                          <>
+                            <button
+                              onClick={() => onMenuToggle(menuOpenKey === groupKey ? null : groupKey)}
+                              className={`absolute -top-3 ${isOwnMessage ? '-right-3' : '-left-3'} p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity`}
+                              title={t('chat.menu.options')}
+                              aria-label={t('chat.menu.messageOptionsAria')}
+                            >
+                              <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                            </button>
+                            {menuOpenKey === groupKey && (
+                              <div className={`absolute z-40 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
+                                onMouseLeave={() => onMenuToggle(null)}
+                              >
+                                <button
+                                  onClick={() => onRecallGroup(group, 'self')}
+                                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                                >
+                                  {t('chat.menu.recall.self')}
+                                </button>
+                                {isOwnMessage && !group.items.every((i) => i.isDeletedForAll) && (
+                                  <button
+                                    onClick={() => onRecallGroup(group, 'all')}
+                                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                  >
+                                    {t('chat.menu.recall.all')}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </>
+                        )}
+                        {/* Content */}
+                        {allRecalled ? (
+                          <div className="relative group">
+                            <div className={`px-4 py-2 rounded-2xl text-xs italic text-gray-500 bg-gray-100 dark:bg-gray-700 ${isOwnMessage ? 'rounded-br-md' : 'rounded-bl-md'} shadow-sm`}>
+                              {t('chat.recalled.text')}
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex flex-col gap-2">
+                              {(() => {
+                                const sortedItems = group.items.sort((a, b) => {
+                                  const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                                  const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                                  return timeA - timeB;
+                                });
+                                const result: any[] = [];
+                                let i = 0;
+                                while (i < sortedItems.length) {
+                                  const current = sortedItems[i];
+                                  if (current.messageType === 'image') {
+                                    const imageGroup = [current];
+                                    let j = i + 1;
+                                    while (j < sortedItems.length && sortedItems[j].messageType === 'image') { imageGroup.push(sortedItems[j]); j++; }
+                                    result.push(
+                                      <div key={`img-group-${current.id}`} className={`grid gap-1 ${imageGroup.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                                        {imageGroup.map((img) => (
+                                          <MessageBubble
+                                            key={img.id}
+                                            message={img}
+                                            isOwnMessage={isOwnMessage}
+                                            isRecalled={img.isDeletedForAll}
+                                            menuOpenKey={menuOpenKey}
+                                            messageKey={`img-${img.id}`}
+                                            showMenu={true}
+                                            currentUserId={currentUserId}
+                                            allMessages={messages}
+                                            onMenuToggle={onMenuToggle}
+                                            onRecallMessage={onRecallMessage}
+                                            onEditMessage={onEditMessage}
+                                            onDownloadAttachment={onDownloadAttachment}
+                                            onPreviewImage={onPreviewImage}
+                                            pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
+                                            onTogglePinMessage={handleTogglePinMessage}
+                                            onOpenProfile={handleOpenProfile}
+                                            disableReactions={!isGroup && !!blocked}
+                                          />
+                                        ))}
+                                      </div>
+                                    );
+                                    i = j;
+                                  } else {
+                                    result.push(
                                       <MessageBubble
-                                        key={img.id}
-                                        message={img}
+                                        key={current.id}
+                                        message={current}
                                         isOwnMessage={isOwnMessage}
-                                        isRecalled={img.isDeletedForAll}
+                                        isRecalled={current.isDeletedForAll}
                                         menuOpenKey={menuOpenKey}
-                                        messageKey={`img-${img.id}`}
-                                        showMenu={true}
+                                        messageKey={`item-${current.id}`}
+                                        showMenu={showPerMessageTextMenu || !!current.isDeletedForAll}
                                         currentUserId={currentUserId}
                                         allMessages={messages}
                                         onMenuToggle={onMenuToggle}
@@ -974,55 +977,28 @@ const ChatView = ({
                                         onOpenProfile={handleOpenProfile}
                                         disableReactions={!isGroup && !!blocked}
                                       />
-                                    ))}
-                                  </div>
-                                );
-                                
-                                i = j;
-                              } else {
-                                // Render non-image items individually
-                                result.push(
-                                  <MessageBubble
-                                    key={current.id}
-                                    message={current}
-                                    isOwnMessage={isOwnMessage}
-                                    isRecalled={current.isDeletedForAll}
-                                    menuOpenKey={menuOpenKey}
-                                    messageKey={`item-${current.id}`}
-                                    showMenu={showPerMessageTextMenu || !!current.isDeletedForAll}
-                                    currentUserId={currentUserId}
-                                    allMessages={messages}
-                                    onMenuToggle={onMenuToggle}
-                                    onRecallMessage={onRecallMessage}
-                                    onEditMessage={onEditMessage}
-                                    onDownloadAttachment={onDownloadAttachment}
-                                    onPreviewImage={onPreviewImage}
-                                    pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
-                                    onTogglePinMessage={handleTogglePinMessage}
-                                    onOpenProfile={handleOpenProfile}
-                                    disableReactions={!isGroup && !!blocked}
-                                  />
-                                );
-                                i++;
-                              }
-                            }
-                            
-                            return result;
-                          })()}
-                        </div>
-                      </>
-                    )}
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
-                      {new Date(group.end).toLocaleTimeString(i18n.language || undefined, { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+                                    );
+                                    i++;
+                                  }
+                                }
+                                return result;
+                              })()}
+                            </div>
+                          </>
+                        )}
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
+                          {new Date(group.end).toLocaleTimeString(i18n.language || undefined, { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                );
+              });
+            })()}
           </div>
         )}
         {!isGroup && isPartnerTyping && !maskMessages && (
-          <div className="mt-3 flex gap-2 justify-start relative z-10">
+          <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
             <div className="w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto">
               {selectedChat.avatar ? (
                 <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
@@ -1042,7 +1018,7 @@ const ChatView = ({
           </div>
         )}
         {isGroup && typingUsers && typingUsers.length > 0 && !maskMessages && (
-          <div className="mt-3 flex gap-2 justify-start relative z-10">
+          <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
             <div className="w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto">
               {selectedChat.avatar ? (
                 <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />

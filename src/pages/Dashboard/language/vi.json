@@ -312,6 +312,10 @@
         "videoCall": "Gọi video"
       },
       "backToBottom": "Xuống cuối",
+      "daySeparator": {
+        "today": "Hôm nay",
+        "yesterday": "Hôm qua"
+      },
       "profile": {
         "title": "Thông tin người dùng",
         "close": "Đóng thông tin",
@@ -391,6 +395,19 @@
     "imagePreview": {
       "close": "Đóng",
       "imageAlt": "Ảnh xem trước"
+    },
+    "callLog": {
+      "incomingVideo": "Cuộc gọi video đến",
+      "incomingAudio": "Cuộc gọi thoại đến",
+      "outgoingVideo": "Cuộc gọi video đi",
+      "outgoingAudio": "Cuộc gọi thoại đi",
+      "missedYou": "Bạn bị nhỡ",
+      "youCancelled": "Bạn đã hủy cuộc gọi",
+      "cancelled": "Cuộc gọi đã bị hủy",
+      "video": "Cuộc gọi video",
+      "audio": "Cuộc gọi thoại",
+      "redial": "Gọi lại",
+      "duration": "{{m}} phút {{s}} giây"
     },
     "call": {
       "title": {

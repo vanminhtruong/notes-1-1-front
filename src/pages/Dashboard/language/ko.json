@@ -280,6 +280,21 @@
         "addFriends": "친구를 추가하여 대화를 시작하세요"
       }
     },
+    "imagePreview": {
+      "close": "Close",
+      "imageAlt": "Preview image"
+    },
+    "callLog": {
+      "incomingVideo": "수신 영상 통화",
+      "incomingAudio": "수신 음성 통화",
+      "outgoingVideo": "발신 영상 통화",
+      "outgoingAudio": "발신 음성 통화",
+      "missedYou": "부재중 통화",
+      "video": "영상 통화",
+      "audio": "음성 통화",
+      "redial": "다시 걸기",
+      "duration": "{{m}}분 {{s}}초"
+    },
     "preview": {
       "recalled": "회수됨",
       "image": "이미지",
@@ -301,6 +316,10 @@
         "videoCall": "영상 통화"
       },
       "backToBottom": "맨 아래로",
+      "daySeparator": {
+        "today": "오늘",
+        "yesterday": "어제"
+      },
       "profile": {
         "title": "사용자 정보",
         "close": "프로필 닫기",
@@ -404,6 +423,44 @@
         "blocked": "상호 차단으로 인해 통화할 수 없습니다",
         "ended": "통화가 종료되었습니다",
         "cancelled": "통화가 취소되었습니다"
+      }
+    }
+    ,
+    "settings": {
+      "title": "채팅 설정",
+      "back": "뒤로",
+      "encryption": {
+        "title": "종단간 암호화",
+        "description": "이 계정에서 PIN으로 메시지를 보호하세요",
+        "enabled": "암호화가 켜져 있습니다. 전체 탭의 메시지는 로그인 시마다 PIN이 필요합니다.",
+        "disabled": "암호화가 꺼져 있습니다."
+      },
+      "readStatus": {
+        "title": "읽음 상태",
+        "description": "수신자가 메시지를 읽었을 때 표시합니다",
+        "enabled": "읽음 확인이 활성화되었습니다. 읽음 확인은 당신과 상대방 모두가 이 설정을 켰을 때만 동작합니다.",
+        "disabled": "읽음 확인이 비활성화되었습니다. 다른 사람은 당신이 메시지를 읽었는지 볼 수 없고, 당신도 볼 수 없습니다."
+      },
+      "privacy": {
+        "hidePhone": {
+          "title": "전화번호 숨기기",
+          "description": "다른 사람에게 전화번호를 숨깁니다",
+          "enabled": "전화번호가 숨겨집니다",
+          "disabled": "전화번호가 표시됩니다"
+        },
+        "hideBirthDate": {
+          "title": "생년월일 숨기기",
+          "description": "다른 사람에게 생년월일을 숨깁니다",
+          "enabled": "생년월일이 숨겨집니다",
+          "disabled": "생년월일이 표시됩니다"
+        }
+      },
+      "pin": {
+        "title": "PIN",
+        "change": "PIN을 변경하세요.",
+        "set": "암호화를 활성화하려면 PIN을 설정하세요.",
+        "changeButton": "PIN 변경",
+        "setButton": "PIN 설정"
       }
     }
   },
