@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { MoreVertical, ChevronDown, Pencil, Users } from 'lucide-react';
+import { MoreVertical, ChevronDown, Pencil, Users, Video } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import NicknameModal from './NicknameModal';
 import { useTranslation } from 'react-i18next';
@@ -70,19 +70,8 @@ const ChatView = ({
   // Common groups modal state
   const [showCommonGroups, setShowCommonGroups] = useState(false);
 
-  // Voice call state/handlers
-  const {
-    incomingCall,
-    inCall,
-    connecting,
-    peerUser,
-    callSeconds,
-    startCall,
-    acceptCall,
-    rejectCall,
-    endCall,
-    cancelOutgoing,
-  } = useCall();
+  // Voice/Video call controls used in header
+  const { startCall, startVideoCall } = useCall();
 
   // Group members side panel state
   const [showMembersPanel, setShowMembersPanel] = useState(false);
@@ -523,10 +512,20 @@ const ChatView = ({
                     <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                   </svg>
                 </button>
-                <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-                  <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3a1 1 0 011 1v.5a1 1 0 11-2 0V4a1 1 0 011-1zM15 4a1 1 0 011 1v.5a1 1 0 11-2 0V5a1 1 0 011-1zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zM19 8.25a1.25 1.25 0 10-2.5 0v7.5a1.25 1.25 0 102.5 0v-7.5z" />
-                  </svg>
+                <button
+                  onClick={() => {
+                    try {
+                      if (blocked) { toast.error(t('chat.errors.callBlocked', 'Không thể gọi do hai bên đã chặn nhau')); return; }
+                      const otherId = Number((selectedChat as any)?.id);
+                      if (!otherId) return;
+                      startVideoCall && startVideoCall({ id: otherId, name: selectedChat.name, avatar: selectedChat.avatar || null });
+                    } catch {}
+                  }}
+                  title={t('chat.chatView.actions.videoCall', 'Gọi video')}
+                  aria-label={t('chat.chatView.actions.videoCall', 'Gọi video')}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                >
+                  <Video className="w-5 h-5 text-blue-600" />
                 </button>
                 {/* Three dots menu for 1-1 chat */}
                 <button

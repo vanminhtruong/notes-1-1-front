@@ -134,7 +134,8 @@
       "messageBlocked": "Không thể gửi do một trong hai đã chặn.",
       "messageBlockedCurrent": "Không thể gửi tin nhắn. Bạn và người này đã chặn nhau.",
       "shareForbidden": "Không thể gửi do bị chặn hoặc không đủ quyền",
-      "shareFailed": "Chia sẻ thất bại, vui lòng thử lại"
+      "shareFailed": "Chia sẻ thất bại, vui lòng thử lại",
+      "callBlocked": "Không thể gọi do hai bên đã chặn nhau"
     },
     "success": {
       "recallSelf": "Đã thu hồi tin nhắn cho mình",
@@ -306,6 +307,10 @@
         "inGroup": "Bạn đang ở trong nhóm {{name}}"
       },
       "viewProfile": "Xem thông tin",
+      "actions": {
+        "voiceCall": "Gọi thoại",
+        "videoCall": "Gọi video"
+      },
       "backToBottom": "Xuống cuối",
       "profile": {
         "title": "Thông tin người dùng",
@@ -386,6 +391,36 @@
     "imagePreview": {
       "close": "Đóng",
       "imageAlt": "Ảnh xem trước"
+    },
+    "call": {
+      "title": {
+        "incoming": "Cuộc gọi đến",
+        "outgoing": "Đang gọi...",
+        "active": "Đang trong cuộc gọi"
+      },
+      "actions": {
+        "accept": "Chấp nhận",
+        "reject": "Từ chối",
+        "cancel": "Hủy",
+        "end": "Kết thúc"
+      },
+      "hint": {
+        "autoCancelIn": "Tự động hủy sau {{seconds}}s"
+      },
+      "toast": {
+        "cannotConnect": "Không thể kết nối cuộc gọi. Vui lòng thử lại.",
+        "micDenied": "Bạn đã từ chối truy cập micro",
+        "micUnavailable": "Không truy cập được micro",
+        "serverDisconnected": "Mất kết nối máy chủ",
+        "alreadyInCall": "Bạn đang có cuộc gọi khác",
+        "calleeNoAnswer": "Người nhận không bắt máy",
+        "rejected": "Cuộc gọi bị từ chối",
+        "busy": "Người kia đang bận",
+        "offline": "Người kia đang ngoại tuyến",
+        "blocked": "Không thể gọi do hai bên đã chặn nhau",
+        "ended": "Cuộc gọi đã kết thúc",
+        "cancelled": "Cuộc gọi đã bị hủy"
+      }
     },
     "message": {
       "imageAlt": "ảnh"

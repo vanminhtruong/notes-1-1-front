@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSocket } from '../../../../services/socket';
 import { toast } from 'react-hot-toast';
+import i18n from '@/libs/i18n';
 
 export interface CallUserInfo {
   id: number;
@@ -11,6 +12,7 @@ export interface CallUserInfo {
 interface IncomingCallPayload {
   callId: string;
   from: CallUserInfo;
+  media?: 'audio' | 'video';
 }
 
 type SignalPayload = { sdp?: RTCSessionDescriptionInit; candidate?: RTCIceCandidateInit };
@@ -28,16 +30,27 @@ export function useVoiceCall(currentUserId: number | null) {
   const [connecting, setConnecting] = useState(false);
   const [activeCallId, setActiveCallId] = useState<string | null>(null);
   const [peerUser, setPeerUser] = useState<CallUserInfo | null>(null);
+  const [mediaType, setMediaType] = useState<'audio' | 'video'>('audio');
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const localAudioRef = useRef<HTMLAudioElement | null>(null);
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [cameraOn, setCameraOn] = useState(false);
+  const [micOn, setMicOn] = useState(false);
   const connectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dialCancelTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const incomingIceQueueRef = useRef<RTCIceCandidateInit[]>([]);
   const callTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const callStartedAtRef = useRef<number | null>(null);
   const [callSeconds, setCallSeconds] = useState(0);
+  // Dialing progress (for outgoing while connecting)
+  const CONNECT_TIMEOUT_MS = 20000;
+  const dialStartAtRef = useRef<number | null>(null);
+  const dialTickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [dialProgress, setDialProgress] = useState(0);
 
   // Prepare audio elements lazily
   useEffect(() => {
@@ -69,14 +82,23 @@ export function useVoiceCall(currentUserId: number | null) {
     pcRef.current = null;
     if (connectTimeoutRef.current) { try { clearTimeout(connectTimeoutRef.current); } catch {} connectTimeoutRef.current = null; }
     if (callTimerRef.current) { try { clearInterval(callTimerRef.current); } catch {} callTimerRef.current = null; }
+    if (dialCancelTimeoutRef.current) { try { clearTimeout(dialCancelTimeoutRef.current); } catch {} dialCancelTimeoutRef.current = null; }
     callStartedAtRef.current = null;
     setCallSeconds(0);
+    // stop dialing ticker
+    if (dialTickerRef.current) { try { clearInterval(dialTickerRef.current); } catch {} dialTickerRef.current = null; }
+    dialStartAtRef.current = null;
+    setDialProgress(0);
     try {
       localStreamRef.current?.getTracks().forEach(t => t.stop());
     } catch {}
     localStreamRef.current = null;
     if (localAudioRef.current) localAudioRef.current.srcObject = null;
     if (remoteAudioRef.current) remoteAudioRef.current.srcObject = null;
+    setLocalStream(null);
+    setRemoteStream(null);
+    setCameraOn(false);
+    setMicOn(false);
   };
 
   const endCall = useCallback((notifyPeer: boolean = true) => {
@@ -89,6 +111,7 @@ export function useVoiceCall(currentUserId: number | null) {
     setActiveCallId(null);
     setPeerUser(null);
     setIncomingCall(null);
+    setMediaType('audio');
     if (notifyPeer && socket && to && callId) {
       try { socket.emit('call_end', { to, callId }); } catch {}
     }
@@ -105,13 +128,20 @@ export function useVoiceCall(currentUserId: number | null) {
     }
     setActiveCallId(null);
     setPeerUser(null);
+    if (dialCancelTimeoutRef.current) { try { clearTimeout(dialCancelTimeoutRef.current); } catch {} dialCancelTimeoutRef.current = null; }
+    // reset dialing
+    if (dialTickerRef.current) { try { clearInterval(dialTickerRef.current); } catch {} dialTickerRef.current = null; }
+    dialStartAtRef.current = null;
+    setDialProgress(0);
   }, [peerUser?.id, activeCallId]);
 
-  const startPeer = async (initiator: boolean, other: CallUserInfo, callId: string) => {
+  const startPeer = async (initiator: boolean, other: CallUserInfo, callId: string, withVideo: boolean) => {
     try {
       // Cross-browser getUserMedia with fallback
       const nav: any = navigator;
-      const constraints = { audio: { echoCancellation: true, noiseSuppression: true }, video: false } as any;
+      const constraints = withVideo
+        ? { audio: { echoCancellation: true, noiseSuppression: true }, video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } }
+        : { audio: { echoCancellation: true, noiseSuppression: true }, video: false } as any;
       let stream: MediaStream;
       if (nav?.mediaDevices && typeof nav.mediaDevices.getUserMedia === 'function') {
         stream = await nav.mediaDevices.getUserMedia(constraints);
@@ -131,7 +161,10 @@ export function useVoiceCall(currentUserId: number | null) {
         return;
       }
       localStreamRef.current = stream;
-      if (localAudioRef.current) localAudioRef.current.srcObject = stream;
+      setLocalStream(stream);
+      setCameraOn(!!(stream.getVideoTracks && stream.getVideoTracks().length));
+      setMicOn(!!(stream.getAudioTracks && stream.getAudioTracks().length ? stream.getAudioTracks()[0].enabled !== false : false));
+      if (!withVideo && localAudioRef.current) localAudioRef.current.srcObject = stream;
       // Create RTCPeerConnection
       const iceServers: RTCIceServer[] = [
         {
@@ -155,6 +188,7 @@ export function useVoiceCall(currentUserId: number | null) {
 
       // Ensure bidirectional audio negotiation
       try { pc.addTransceiver('audio', { direction: 'sendrecv' } as RTCRtpTransceiverInit); } catch {}
+      if (withVideo) { try { pc.addTransceiver('video', { direction: 'sendrecv' } as RTCRtpTransceiverInit); } catch {} }
 
       const socket = getSocket();
 
@@ -171,6 +205,11 @@ export function useVoiceCall(currentUserId: number | null) {
           setInCall(true);
           setConnecting(false);
           if (connectTimeoutRef.current) { try { clearTimeout(connectTimeoutRef.current); } catch {} connectTimeoutRef.current = null; }
+          if (dialCancelTimeoutRef.current) { try { clearTimeout(dialCancelTimeoutRef.current); } catch {} dialCancelTimeoutRef.current = null; }
+          // stop dialing ring
+          if (dialTickerRef.current) { try { clearInterval(dialTickerRef.current); } catch {} dialTickerRef.current = null; }
+          dialStartAtRef.current = null;
+          setDialProgress(0);
           if (!callTimerRef.current) {
             callStartedAtRef.current = Date.now();
             callTimerRef.current = setInterval(() => {
@@ -193,9 +232,13 @@ export function useVoiceCall(currentUserId: number | null) {
       };
 
       pc.ontrack = (e) => {
-        const [remoteStream] = e.streams;
-        if (remoteStream && remoteAudioRef.current) {
-          remoteAudioRef.current.srcObject = remoteStream;
+        const [rstream] = e.streams;
+        if (rstream) {
+          setRemoteStream(rstream);
+          // Always attach to audio element as well so audio plays even if video is muted for autoplay
+          if (remoteAudioRef.current) {
+            try { remoteAudioRef.current.srcObject = rstream; } catch {}
+          }
           setInCall(true);
           setConnecting(false);
         }
@@ -203,7 +246,7 @@ export function useVoiceCall(currentUserId: number | null) {
 
       // Start offer/answer based on role
       if (initiator) {
-        const offer = await pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: false } as any);
+        const offer = await pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: withVideo } as any);
         await pc.setLocalDescription(offer);
         const data: SignalPayload = { sdp: offer };
         try { socket?.emit('call_signal', { to: other.id, callId, data }); } catch {}
@@ -216,7 +259,7 @@ export function useVoiceCall(currentUserId: number | null) {
           toast.error('Không thể kết nối cuộc gọi. Vui lòng thử lại.');
           endCall();
         }
-      }, 20000);
+      }, CONNECT_TIMEOUT_MS);
     } catch (e) {
       console.error('[call] call setup error', e);
       const msg = (e as any)?.name === 'NotAllowedError' ? 'Bạn đã từ chối truy cập micro' : 'Không truy cập được micro';
@@ -225,7 +268,7 @@ export function useVoiceCall(currentUserId: number | null) {
     }
   };
 
-  const startCall = useCallback(async (target: CallUserInfo) => {
+  const _startCall = useCallback(async (target: CallUserInfo, media: 'audio' | 'video') => {
     if (!currentUserId) return;
     const socket = getSocket();
     if (!socket) { toast.error('Mất kết nối máy chủ'); return; }
@@ -237,10 +280,38 @@ export function useVoiceCall(currentUserId: number | null) {
     setConnecting(true);
     setActiveCallId(callId);
     setPeerUser(target);
+    setMediaType(media);
+    setCameraOn(media === 'video');
+    setMicOn(true);
+    // start dialing ring progress
+    dialStartAtRef.current = Date.now();
+    setDialProgress(0);
+    if (dialTickerRef.current) { try { clearInterval(dialTickerRef.current); } catch {} }
+    dialTickerRef.current = setInterval(() => {
+      if (!dialStartAtRef.current) return;
+      const elapsed = Date.now() - dialStartAtRef.current;
+      const p = Math.min(elapsed / CONNECT_TIMEOUT_MS, 1);
+      setDialProgress(p);
+      // Safety: if progress reached 100% and still not connected, cancel now
+      if (p >= 1 && !inCall && connecting) {
+        try { cancelOutgoing(); } catch {}
+      }
+    }, 100);
+    // auto-cancel if peer doesn't accept within timeout
+    if (dialCancelTimeoutRef.current) { try { clearTimeout(dialCancelTimeoutRef.current); } catch {} }
+    dialCancelTimeoutRef.current = setTimeout(() => {
+      if (!inCall && connecting) {
+        toast.error('Người nhận không bắt máy');
+        cancelOutgoing();
+      }
+    }, CONNECT_TIMEOUT_MS);
     try {
-      socket.emit('call_request', { to: target.id, callId, media: 'audio' });
+      socket.emit('call_request', { to: target.id, callId, media });
     } catch {}
   }, [currentUserId, inCall, connecting, incomingCall]);
+
+  const startCall = useCallback((target: CallUserInfo) => _startCall(target, 'audio'), [_startCall]);
+  const startVideoCall = useCallback((target: CallUserInfo) => _startCall(target, 'video'), [_startCall]);
 
   const acceptCall = useCallback(async () => {
     const socket = getSocket();
@@ -248,9 +319,12 @@ export function useVoiceCall(currentUserId: number | null) {
     setConnecting(true);
     setActiveCallId(incomingCall.callId);
     setPeerUser(incomingCall.from);
+    setMediaType(incomingCall.media === 'video' ? 'video' : 'audio');
     try { socket.emit('call_accept', { to: incomingCall.from.id, callId: incomingCall.callId }); } catch {}
     // Start callee peer (initiator: false)
-    await startPeer(false, incomingCall.from, incomingCall.callId);
+    await startPeer(false, incomingCall.from, incomingCall.callId, incomingCall.media === 'video');
+    setCameraOn(incomingCall.media === 'video');
+    setMicOn(true);
     setIncomingCall(null);
   }, [incomingCall]);
 
@@ -279,7 +353,8 @@ export function useVoiceCall(currentUserId: number | null) {
     const onAccepted = async (payload: { callId: string; by: CallUserInfo }) => {
       // Caller side will start initiator peer
       if (!activeCallId || payload.callId !== activeCallId || !peerUser) return;
-      await startPeer(true, peerUser, payload.callId);
+      if (dialCancelTimeoutRef.current) { try { clearTimeout(dialCancelTimeoutRef.current); } catch {} dialCancelTimeoutRef.current = null; }
+      await startPeer(true, peerUser, payload.callId, mediaType === 'video');
     };
 
     const onRejected = (payload: { callId: string; by: CallUserInfo; reason?: string }) => {
@@ -289,6 +364,7 @@ export function useVoiceCall(currentUserId: number | null) {
       else if (payload.reason === 'offline') msg = 'Người kia đang ngoại tuyến';
       else if (payload.reason === 'blocked') msg = 'Không thể gọi do hai bên đã chặn nhau';
       toast.error(msg);
+      if (dialCancelTimeoutRef.current) { try { clearTimeout(dialCancelTimeoutRef.current); } catch {} dialCancelTimeoutRef.current = null; }
       setConnecting(false);
       setActiveCallId(null);
       setPeerUser(null);
@@ -303,6 +379,32 @@ export function useVoiceCall(currentUserId: number | null) {
         if (sdp) {
           const desc = new RTCSessionDescription(sdp);
           const current = pc.currentRemoteDescription;
+          // If callee receives offer that contains video but we're in audio mode, upgrade to video on-the-fly
+          const offerHasVideo = (desc.sdp || '').includes('m=video');
+          if (desc.type === 'offer' && offerHasVideo && mediaType !== 'video') {
+            try {
+              // Grab camera and attach video track
+              const nav: any = navigator;
+              const vStream: MediaStream = await (nav?.mediaDevices?.getUserMedia
+                ? nav.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false })
+                : new Promise((resolve, reject) => nav.getUserMedia({ video: true, audio: false }, resolve, reject)));
+              const vTrack = vStream.getVideoTracks()[0];
+              if (vTrack) {
+                // Build a NEW stream instance to ensure React state updates
+                const existing = localStreamRef.current ? localStreamRef.current.getTracks() : [];
+                const newStream = new MediaStream([...existing, vTrack]);
+                localStreamRef.current = newStream;
+                setLocalStream(newStream);
+                try { pc.addTrack(vTrack, newStream); } catch {}
+                try { pc.addTransceiver('video', { direction: 'sendrecv' } as RTCRtpTransceiverInit); } catch {}
+                setMediaType('video');
+                setCameraOn(true);
+                setMicOn(true);
+              }
+            } catch (err) {
+              console.error('[voicecall] upgrade to video failed', err);
+            }
+          }
           if (!current || (current && current.type !== desc.type)) {
             await pc.setRemoteDescription(desc);
           }
@@ -336,15 +438,16 @@ export function useVoiceCall(currentUserId: number | null) {
 
     const onEnded = (payload: { callId: string; by: CallUserInfo }) => {
       if (!activeCallId || payload.callId !== activeCallId) return;
-      toast('Cuộc gọi đã kết thúc');
+      toast(i18n.t('dashboard:chat.call.toast.ended'));
       endCall(false);
     };
 
     const onCancelled = (payload: { callId: string; by: CallUserInfo }) => {
       if (incomingCall && payload.callId === incomingCall.callId) {
         setIncomingCall(null);
-        toast('Cuộc gọi đã bị hủy');
+        toast(i18n.t('dashboard:chat.call.toast.cancelled'));
       }
+      if (dialCancelTimeoutRef.current) { try { clearTimeout(dialCancelTimeoutRef.current); } catch {} dialCancelTimeoutRef.current = null; }
     };
 
     socket.on('call_incoming', onIncoming);
@@ -371,11 +474,92 @@ export function useVoiceCall(currentUserId: number | null) {
     connecting,
     peerUser,
     callSeconds,
+    dialProgress,
+    mediaType,
+    localStream,
+    remoteStream,
+    cameraOn,
+    micOn,
     // controls
     startCall,
+    startVideoCall,
     acceptCall,
     rejectCall,
     endCall,
     cancelOutgoing,
+    toggleCamera: async () => {
+      try {
+        const pc = pcRef.current;
+        let stream = localStreamRef.current;
+        let vTrack = stream?.getVideoTracks?.()[0];
+        if (cameraOn) {
+          // Turn off: disable track if exists
+          if (vTrack) {
+            try { vTrack.enabled = false; } catch {}
+          }
+          setCameraOn(false);
+          return;
+        }
+        // Turn on
+        if (!vTrack) {
+          const nav: any = navigator;
+          const vStream: MediaStream = await (nav?.mediaDevices?.getUserMedia
+            ? nav.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false })
+            : new Promise((resolve, reject) => nav.getUserMedia({ video: true, audio: false }, resolve, reject)));
+          vTrack = vStream.getVideoTracks()[0];
+          if (vTrack) {
+            // merge into existing stream or create new
+            const existingTracks = stream ? stream.getTracks() : [];
+            const newStream = new MediaStream([...existingTracks, vTrack]);
+            localStreamRef.current = newStream;
+            setLocalStream(newStream);
+            try { pc?.addTrack?.(vTrack, newStream); } catch {}
+            try { pc?.addTransceiver?.('video', { direction: 'sendrecv' } as RTCRtpTransceiverInit); } catch {}
+          }
+        } else {
+          try { vTrack.enabled = true; } catch {}
+        }
+        setMediaType('video');
+        setCameraOn(true);
+      } catch (e) {
+        console.error('[voicecall] toggleCamera error', e);
+        toast.error('Không thể bật/tắt camera');
+      }
+    }
+    ,
+    toggleMic: async () => {
+      try {
+        const pc = pcRef.current;
+        let stream = localStreamRef.current;
+        let aTrack = stream?.getAudioTracks?.()[0];
+        if (micOn) {
+          if (aTrack) { try { aTrack.enabled = false; } catch {} }
+          setMicOn(false);
+          return;
+        }
+        // turn on
+        if (!aTrack) {
+          const nav: any = navigator;
+          const aStream: MediaStream = await (nav?.mediaDevices?.getUserMedia
+            ? nav.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false })
+            : new Promise<MediaStream>((resolve, reject) => nav.getUserMedia({ audio: true, video: false }, resolve, reject)));
+          aTrack = aStream.getAudioTracks()[0];
+          if (aTrack) {
+            const existingTracks = stream ? stream.getTracks() : [];
+            const newStream = new MediaStream([...existingTracks, aTrack]);
+            localStreamRef.current = newStream;
+            setLocalStream(newStream);
+            try { pc?.addTrack?.(aTrack, newStream); } catch {}
+            try { pc?.addTransceiver?.('audio', { direction: 'sendrecv' } as RTCRtpTransceiverInit); } catch {}
+          }
+        } else {
+          try { aTrack.enabled = true; } catch {}
+        }
+        setMicOn(true);
+      } catch (e) {
+        console.error('[voicecall] toggleMic error', e);
+        toast.error('Không thể bật/tắt micro');
+      }
+    }
   };
 }

@@ -135,7 +135,8 @@
       "messageBlocked": "Message not sent due to blocking.",
       "messageBlockedCurrent": "Message not sent. Messaging between you and this user is blocked.",
       "shareForbidden": "Cannot send due to blocking or insufficient permissions",
-      "shareFailed": "Failed to share, please try again"
+      "shareFailed": "Failed to share, please try again",
+      "callBlocked": "Cannot place a call because both parties are blocked"
     },
     "success": {
       "recallSelf": "Recalled messages for yourself",
@@ -307,6 +308,10 @@
         "inGroup": "You are in group {{name}}"
       },
       "viewProfile": "View profile",
+      "actions": {
+        "voiceCall": "Voice call",
+        "videoCall": "Video call"
+      },
       "backToBottom": "Back to bottom",
       "profile": {
         "title": "User information",
@@ -387,6 +392,36 @@
     "imagePreview": {
       "close": "Close",
       "imageAlt": "Preview image"
+    },
+    "call": {
+      "title": {
+        "incoming": "Incoming call",
+        "outgoing": "Calling...",
+        "active": "In call"
+      },
+      "actions": {
+        "accept": "Accept",
+        "reject": "Reject",
+        "cancel": "Cancel",
+        "end": "End"
+      },
+      "hint": {
+        "autoCancelIn": "Auto-cancel in {{seconds}}s"
+      },
+      "toast": {
+        "cannotConnect": "Unable to establish the call. Please try again.",
+        "micDenied": "You denied microphone access",
+        "micUnavailable": "Microphone is unavailable",
+        "serverDisconnected": "Server disconnected",
+        "alreadyInCall": "You already have an ongoing call",
+        "calleeNoAnswer": "The callee didn't answer",
+        "rejected": "Call was rejected",
+        "busy": "The other party is busy",
+        "offline": "The other party is offline",
+        "blocked": "Cannot call because both parties are blocked",
+        "ended": "Call ended",
+        "cancelled": "Call was cancelled"
+      }
     },
     "message": {
       "imageAlt": "image"

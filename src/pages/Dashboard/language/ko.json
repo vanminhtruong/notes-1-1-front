@@ -129,7 +129,8 @@
       "encryptionEnableFailed": "암호화 활성화 실패",
       "block": "사용자 차단 실패",
       "unblock": "차단 해제 실패",
-      "loadUsersFailed": "사용자 불러오기 실패"
+      "loadUsersFailed": "사용자 불러오기 실패",
+      "callBlocked": "상호 차단으로 인해 통화할 수 없습니다"
     },
     "success": {
       "recallSelf": "자신에게서 메시지를 회수했습니다",
@@ -273,17 +274,6 @@
         "member": "구성원"
       }
     },
-    "groups": {
-      "members": {
-        "title": "그룹 구성원",
-        "empty": "구성원이 없습니다"
-      },
-      "roles": {
-        "owner": "그룹장",
-        "admin": "관리자",
-        "member": "구성원"
-      }
-    },
     "chatList": {
       "empty": {
         "noChats": "아직 대화가 없습니다",
@@ -306,6 +296,10 @@
         "inGroup": "그룹 {{name}}에 있습니다"
       },
       "viewProfile": "프로필 보기",
+      "actions": {
+        "voiceCall": "음성 통화",
+        "videoCall": "영상 통화"
+      },
       "backToBottom": "맨 아래로",
       "profile": {
         "title": "사용자 정보",
@@ -369,106 +363,106 @@
       "inputHidden": "상대방 또는 본인이 차단되어 있어 이 대화에서 메시지를 보내거나 파일을 업로드할 수 없습니다."
     },
     "toast": {
-      "blocked": "{{name}}님을 차단했습니다. 더 이상 서로에게 메시지를 보낼 수 없습니다.",
-      "unblocked": "{{name}}님 차단을 해제했습니다"
+      "cannotConnect": "통화를 연결할 수 없습니다. 다시 시도해주세요.",
+      "micDenied": "마이크 접근을 거부했습니다",
+      "micUnavailable": "마이크를 사용할 수 없습니다",
+      "serverDisconnected": "서버 연결이 끊어졌습니다",
+      "alreadyInCall": "이미 다른 통화가 진행 중입니다",
+      "calleeNoAnswer": "상대가 전화를 받지 않습니다",
+      "rejected": "통화가 거절되었습니다",
+      "busy": "상대가 통화 중입니다",
+      "offline": "상대가 오프라인입니다",
+      "blocked": "상호 차단으로 인해 통화할 수 없습니다",
+      "ended": "통화가 종료되었습니다",
+      "cancelled": "통화가 취소되었습니다"
     },
-    "imagePreview": {
-      "close": "닫기",
-      "imageAlt": "이미지 미리보기"
-    },
-    "message": {
-      "imageAlt": "이미지"
-    },
-    "attachment": {
-      "downloadImageAria": "이미지 다운로드",
-      "downloadImageTitle": "이미지 다운로드",
-      "downloadFileTitle": "다운로드",
-      "downloadFileAria": "파일 다운로드",
-      "fileFallback": "파일",
-      "downloadLabel": "다운로드"
-    },
-    "readBy": {
-      "title": "{{name}}님이 {{time}}에 읽음",
-      "more": "+{{count}}명 더 읽음"
-    },
-    "reactions": {
-      "modal": {
-        "title": "반응",
-        "empty": "아직 반응이 없습니다",
-        "tabs": {
-          "all": "전체"
-        }
+    "call": {
+      "title": {
+        "incoming": "수신 전화",
+        "outgoing": "통화 중...",
+        "active": "통화 연결됨"
       },
-      "types": {
-        "like": "좋아요",
-        "love": "하트",
-        "haha": "웃겨요",
-        "wow": "놀라워요",
-        "sad": "슬퍼요",
-        "angry": "화나요"
+      "actions": {
+        "accept": "수락",
+        "reject": "거절",
+        "cancel": "취소",
+        "end": "종료"
       },
-      "tooltip": {
-        "reactedBy": "{{names}}님이 반응함",
-        "default": "반응함"
+      "hint": {
+        "autoCancelIn": "{{seconds}}초 후 자동 취소"
       },
-      "removeType": "{{type}} 제거"
-    },
-    "locked": {
-      "notice": "메시지가 암호화되었습니다",
-      "hint": "대화 기록을 보려면 PIN을 입력하세요. 계속 대화는 가능합니다.",
-      "unlockCta": "PIN 입력하여 잠금 해제"
-    },
-    "encryption": {
-      "chatLocked": "메시지가 암호화되었습니다",
-      "groupLocked": "그룹 내용이 암호화되었습니다",
-      "previewLocked": "🔒 암호화됨 — 미리 보려면 잠금 해제"
-    },
-    "nickname": {
-      "title": "별명 설정",
-      "description": "{{name}}님을 위해 기억하기 쉬운 별명을 설정하세요. 참고: 별명은 본인에게만 표시됩니다.",
-      "inputPlaceholder": "별명 입력",
-      "confirm": "확인",
-      "setButton": "별명 설정",
-      "saved": "별명이 저장되었습니다"
-    },
-    "settings": {
-      "title": "채팅 설정",
-      "back": "뒤로",
-      "encryption": {
-        "title": "종단 간 암호화",
-        "description": "이 계정에서 PIN으로 메시지를 보호하세요",
-        "enabled": "암호화가 켜져 있습니다. 전체 탭의 메시지는 로그인 시 PIN이 필요합니다.",
-        "disabled": "암호화가 꺼져 있습니다."
-      },
-      "readStatus": {
-        "title": "읽음 상태",
-        "description": "수신자가 메시지를 읽었을 때 표시",
-        "enabled": "읽음 확인이 활성화되었습니다. 양측 모두 이 설정을 켜야 동작합니다.",
-        "disabled": "읽음 확인이 비활성화되었습니다. 다른 사람이 당신의 읽음 상태를 볼 수 없습니다."
-      },
-      "privacy": {
-        "hidePhone": {
-          "title": "전화번호 숨기기",
-          "description": "다른 사용자에게 전화번호 숨기기",
-          "enabled": "전화번호가 숨겨집니다",
-          "disabled": "전화번호가 표시됩니다"
-        },
-        "hideBirthDate": {
-          "title": "생년월일 숨기기",
-          "description": "다른 사용자에게 생년월일 숨기기",
-          "enabled": "생년월일이 숨겨집니다",
-          "disabled": "생년월일이 표시됩니다"
-        }
-      },
-      "pin": {
-        "title": "PIN",
-        "change": "PIN 변경",
-        "set": "암호화를 위해 PIN 설정",
-        "changeButton": "PIN 변경",
-        "setButton": "PIN 설정"
+      "toast": {
+        "cannotConnect": "통화를 연결할 수 없습니다. 다시 시도해주세요.",
+        "micDenied": "마이크 접근을 거부했습니다",
+        "micUnavailable": "마이크를 사용할 수 없습니다",
+        "serverDisconnected": "서버 연결이 끊어졌습니다",
+        "alreadyInCall": "이미 다른 통화가 진행 중입니다",
+        "calleeNoAnswer": "상대가 전화를 받지 않습니다",
+        "rejected": "통화가 거절되었습니다",
+        "busy": "상대가 통화 중입니다",
+        "offline": "상대가 오프라인입니다",
+        "blocked": "상호 차단으로 인해 통화할 수 없습니다",
+        "ended": "통화가 종료되었습니다",
+        "cancelled": "통화가 취소되었습니다"
       }
     }
   },
+  "message": {
+    "imageAlt": "이미지"
+  },
+  "attachment": {
+    "downloadImageAria": "이미지 다운로드",
+    "downloadImageTitle": "이미지 다운로드",
+    "downloadFileTitle": "다운로드",
+    "downloadFileAria": "파일 다운로드",
+    "fileFallback": "파일",
+    "downloadLabel": "다운로드"
+  },
+  "readBy": {
+    "title": "{{name}}님이 {{time}}에 읽음",
+    "more": "+{{count}}명 더 읽음"
+  },
+  "reactions": {
+    "modal": {
+      "title": "반응",
+      "empty": "아직 반응이 없습니다",
+      "tabs": {
+        "all": "전체"
+      }
+    },
+    "types": {
+      "like": "좋아요",
+      "love": "하트",
+      "haha": "웃겨요",
+      "wow": "놀라워요",
+      "sad": "슬퍼요",
+      "angry": "화나요"
+    },
+    "tooltip": {
+      "reactedBy": "{{names}}님이 반응함",
+      "default": "반응함"
+    },
+    "removeType": "{{type}} 제거"
+  },
+  "locked": {
+    "notice": "메시지가 암호화되었습니다",
+    "hint": "대화 기록을 보려면 PIN을 입력하세요. 계속 대화는 가능합니다.",
+    "unlockCta": "PIN 입력하여 잠금 해제"
+  },
+  "encryption": {
+    "chatLocked": "메시지가 암호화되었습니다",
+    "groupLocked": "그룹 내용이 암호화되었습니다",
+    "previewLocked": "🔒 암호화됨 — 미리 보려면 잠금 해제"
+  },
+  "nickname": {
+    "title": "별명 설정",
+    "description": "{{name}}님을 위해 기억하기 쉬운 별명을 설정하세요. 참고: 별명은 본인에게만 표시됩니다.",
+    "inputPlaceholder": "별명 입력",
+    "confirm": "확인",
+    "setButton": "별명 설정",
+    "saved": "별명이 저장되었습니다"
+  },
+  
   "auth": {
     "changePassword": {
       "title": "비밀번호 변경",
