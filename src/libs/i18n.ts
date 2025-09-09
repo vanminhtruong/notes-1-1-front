@@ -60,7 +60,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'vi',
+    fallbackLng: 'en',
     defaultNS: 'layout',
     ns: ['layout', 'home', 'dashboard', 'about', 'contact', 'account', 'auth'],
     

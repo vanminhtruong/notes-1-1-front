@@ -12,4 +12,5 @@ export interface NotificationBellProps {
   items: NotificationItem[];
   onItemClick: (id: number) => void;
   onClearAll?: () => void;
+  onDeleteItem?: (id: number) => void;
 }

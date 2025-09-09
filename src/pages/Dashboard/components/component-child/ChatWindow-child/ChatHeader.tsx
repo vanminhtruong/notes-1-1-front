@@ -12,6 +12,7 @@ const ChatHeader = ({
   onClose,
   onItemClick,
   onClearAll,
+  onDeleteItem,
   onSearchChange,
   onTabChange,
   onOpenSettings,
@@ -30,6 +31,7 @@ const ChatHeader = ({
             items={notificationItems}
             onItemClick={onItemClick}
             onClearAll={onClearAll}
+            onDeleteItem={onDeleteItem}
           />
           <button onClick={onOpenSettings} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
             <span className="text-gray-500 text-lg">⚙️</span>

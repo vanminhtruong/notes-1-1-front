@@ -178,7 +178,10 @@
       "title": "Notifications",
       "markAllRead": "Mark all as read",
       "empty": "No notifications",
-      "newMessagesCount": "{{count}} new messages"
+      "newMessagesCount": "{{count}} new messages",
+      "deleteItem": "Delete notification",
+      "friendRequests": "Friend requests",
+      "groupInvites": "Group invitations"
     },
     "fallback": {
       "user": "User {{id}}"

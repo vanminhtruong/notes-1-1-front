@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { type User, type Message, type MessageGroup, type ChatWindowProps, type GroupSummary, useState, useEffect, useRef, toast, useTranslation, chatService, groupService, getSocket, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useNotificationItems, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettings, useChatBackground, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, getCachedUser } from './interface/chatWindowImports';
 import { blockService, type BlockStatus } from '@/services/blockService';
 
@@ -58,7 +59,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   } = useChatSettings(t);
 
   // Notifications: unread per user + group + ring animation
-  const { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, resetAll, hydrateFromChatList } = useMessageNotifications(
+  const { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, markAllRead, deleteDmNotification, deleteGroupNotification, hydrateFromChatList } = useMessageNotifications(
     currentUser?.id,
     selectedChat?.id ?? null,
     selectedGroup?.id ?? null
@@ -75,6 +76,46 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     pendingInvites,
     t
   );
+  // Local sets: hidden items and persisted aggregate items (-1001 friend requests, -1002 group invites)
+  const [hiddenBellIds, setHiddenBellIds] = useState<Set<number>>(new Set());
+  const [persistedAggregates, setPersistedAggregates] = useState<Set<number>>(new Set());
+  // Aggregates that user has acknowledged via "Mark all as read" so their counts go to 0 in badge
+  const [ackedAggregates, setAckedAggregates] = useState<Set<number>>(new Set());
+
+  // When there are any friend requests or invites, remember to persist their entries
+  useEffect(() => {
+    setPersistedAggregates((prev) => {
+      const next = new Set(prev);
+      if ((friendRequests?.length || 0) > 0) next.add(-1001);
+      if ((pendingInvites?.length || 0) > 0) next.add(-1002);
+      return next;
+    });
+  }, [friendRequests?.length, pendingInvites?.length]);
+
+  // Build effective bell items: base items from hook + persisted aggregates (with count 0) minus hidden ones
+  const effectiveNotificationItems = useMemo(() => {
+    // Start from computed items
+    const base = [...(notificationItems || [])];
+    const present = new Set(base.map((b) => b.id));
+
+    // Ensure aggregate entries persist even when counts drop to 0 (after accept/decline or marking read)
+    if (persistedAggregates.has(-1001) && !present.has(-1001)) {
+      base.push({ id: -1001, name: String(t('chat.notificationsBell.friendRequests')), count: 0 });
+    }
+    if (persistedAggregates.has(-1002) && !present.has(-1002)) {
+      base.push({ id: -1002, name: String(t('chat.notificationsBell.groupInvites')), count: 0 });
+    }
+
+    // Apply acknowledgements: set aggregate counts to 0 if acked
+    const adjusted = base.map((it) => {
+      if (it.id === -1001 && ackedAggregates.has(-1001)) return { ...it, count: 0 };
+      if (it.id === -1002 && ackedAggregates.has(-1002)) return { ...it, count: 0 };
+      return it;
+    });
+
+    // Hide deleted items
+    return adjusted.filter((it) => !hiddenBellIds.has(it.id));
+  }, [notificationItems, persistedAggregates, hiddenBellIds, ackedAggregates, t]);
 
   // Chats that currently have unread messages
   const unreadChats = useUnreadChats(chatList, unreadMap);
@@ -397,9 +438,32 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   if (!isOpen) return null;
 
   // Total unread across chats + groups + friend requests + group invites
-  const bellTotal = (totalUnread || 0) + (totalGroupUnread || 0) + (friendRequests?.length || 0) + (pendingInvites?.length || 0);
+  // If user acknowledged aggregates via Mark all as read, their counts contribute 0 to the badge
+  const frCount = ackedAggregates.has(-1001) ? 0 : (friendRequests?.length || 0);
+  const invCount = ackedAggregates.has(-1002) ? 0 : (pendingInvites?.length || 0);
+  const bellTotal = (totalUnread || 0) + (totalGroupUnread || 0) + frCount + invCount;
 
   // handleBellItemClick provided by hook above
+  const handleDeleteNotification = (id: number) => {
+    // Group items are encoded as negative IDs: -300000 - groupId
+    if (id <= -300000) {
+      const gid = -id - 300000;
+      if (gid > 0) deleteGroupNotification(gid);
+      return;
+    }
+    if (id === -1001 || id === -1002) {
+      setHiddenBellIds((prev) => new Set([...Array.from(prev), id]));
+      setPersistedAggregates((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      return;
+    }
+    if (id > 0) {
+      deleteDmNotification(id);
+    }
+  };
 
   // Remove friend function
   const handleRemoveFriend = async (friendshipId: number, friendName: string) => {
@@ -443,12 +507,29 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         totalUnread={bellTotal}
         ring={ring}
         ringSeq={ringSeq}
-        notificationItems={notificationItems}
+        notificationItems={effectiveNotificationItems}
         searchTerm={searchTerm}
         activeTab={activeTab}
         onClose={onClose}
         onItemClick={handleBellItemClick}
-        onClearAll={resetAll}
+        onClearAll={() => {
+          // Mark per-chat and per-group counters as read (keep items)
+          markAllRead();
+          // Acknowledge aggregates so their counts show as 0 (but keep items persisted)
+          setAckedAggregates((prev) => {
+            const next = new Set(prev);
+            if ((friendRequests?.length || 0) > 0) next.add(-1001);
+            if ((pendingInvites?.length || 0) > 0) next.add(-1002);
+            return next;
+          });
+          setPersistedAggregates((prev) => {
+            const next = new Set(prev);
+            if ((friendRequests?.length || 0) > 0) next.add(-1001);
+            if ((pendingInvites?.length || 0) > 0) next.add(-1002);
+            return next;
+          });
+        }}
+        onDeleteItem={handleDeleteNotification}
         onSearchChange={(value) => {
           setSearchTerm(value);
           loadUsers(value);

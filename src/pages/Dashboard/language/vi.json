@@ -164,7 +164,10 @@
       "title": "Thông báo",
       "markAllRead": "Đánh dấu tất cả đã đọc",
       "empty": "Không có thông báo",
-      "newMessagesCount": "{{count}} tin nhắn mới"
+      "newMessagesCount": "{{count}} tin nhắn mới",
+      "deleteItem": "Xóa thông báo",
+      "friendRequests": "Lời mời kết bạn",
+      "groupInvites": "Lời mời nhóm"
     },
     "fallback": {
       "user": "Người dùng {{id}}"

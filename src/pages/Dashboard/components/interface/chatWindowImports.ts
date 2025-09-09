@@ -3,7 +3,7 @@
 // third-party
 export { default as toast } from 'react-hot-toast';
 export { useTranslation } from 'react-i18next';
-export { useState, useEffect, useRef } from 'react';
+export { useState, useEffect, useRef, useMemo } from 'react';
 
 // services
 export { chatService } from '../../../../services/chatService.ts';

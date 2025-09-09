@@ -197,12 +197,8 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
       }
     } catch (error) {
       console.error('Failed to mark messages as read:', error);
-      // Revert local state on error
-      setUnreadMap((prev) => {
-        const reverted = { ...prev };
-        delete reverted[otherUserId];
-        return reverted;
-      });
+      // Keep entry to remain visible; leave as 0
+      setUnreadMap((prev) => ({ ...prev, [otherUserId]: prev[otherUserId] ?? 0 }));
     }
   };
 
@@ -226,16 +222,48 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
       console.log(`[markGroupAsRead] Backend response:`, response);
     } catch (error) {
       console.error('Failed to mark group messages as read:', error);
-      // Revert local state on error
-      setGroupUnreadMap((prev) => {
-        const reverted = { ...prev };
-        delete reverted[groupId];
-        return reverted;
-      });
+      // Keep entry to remain visible; leave as 0
+      setGroupUnreadMap((prev) => ({ ...prev, [groupId]: (prev as any)[groupId] ?? 0 } as GroupUnreadMap));
     }
+  };
+
+  // Set all current counters to 0 but keep entries (so items remain visible in dropdown)
+  const markAllRead = () => {
+    setUnreadMap((prev) => {
+      const next: UnreadMap = { ...prev };
+      for (const k of Object.keys(next)) {
+        next[Number(k)] = 0;
+      }
+      return next;
+    });
+    setGroupUnreadMap((prev) => {
+      const next: GroupUnreadMap = { ...prev } as GroupUnreadMap;
+      for (const k of Object.keys(next)) {
+        (next as any)[Number(k)] = 0;
+      }
+      return next;
+    });
+  };
+
+  // Remove a single DM notification entry entirely
+  const deleteDmNotification = (otherUserId: number) => {
+    setUnreadMap((prev) => {
+      const next = { ...prev } as UnreadMap;
+      delete (next as any)[otherUserId];
+      return next;
+    });
+  };
+
+  // Remove a single Group notification entry entirely
+  const deleteGroupNotification = (groupId: number) => {
+    setGroupUnreadMap((prev) => {
+      const next = { ...prev } as GroupUnreadMap;
+      delete (next as any)[groupId];
+      return next;
+    });
   };
 
   const resetAll = () => { setUnreadMap({}); setGroupUnreadMap({}); };
 
-  return { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, resetAll, hydrateFromChatList };
+  return { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, markAllRead, deleteDmNotification, deleteGroupNotification, resetAll, hydrateFromChatList };
 }
