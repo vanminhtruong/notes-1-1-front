@@ -35,5 +35,16 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['simple-peer']
+  },
+  server: {
+    host: true, // 0.0.0.0 - allow LAN
+    port: 5173,
+    strictPort: false,
+    cors: true
+  },
+  preview: {
+    host: true,
+    port: 4173,
+    cors: true
   }
 })

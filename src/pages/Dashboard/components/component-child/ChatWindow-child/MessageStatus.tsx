@@ -132,9 +132,8 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
           <CheckCheckIcon className="w-4 h-4 text-gray-400" />
         );
       case 'read':
-        return (
-          <CheckCheckIcon className="w-4 h-4 text-blue-500" />
-        );
+        // When read receipts are present, hide the double-check icon
+        return null;
       default:
         return null;
     }
