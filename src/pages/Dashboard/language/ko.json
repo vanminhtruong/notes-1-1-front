@@ -31,6 +31,7 @@
   "actions": {
     "createNote": "노트 만들기",
     "cancel": "취소",
+    "confirm": "확인",
     "delete": "삭제",
     "clearSelection": "선택 해제",
     "deleteSelected": "선택 항목 삭제",
@@ -161,6 +162,10 @@
     "fallback": {
       "user": "사용자 {{id}}"
     },
+    "system": {
+      "joined": "{{name}}님이 그룹에 참여했습니다",
+      "left": "{{name}}님이 그룹에서 나갔습니다"
+    },
     "header": {
       "title": "메신저",
       "searchPlaceholder": "검색…",
@@ -209,7 +214,11 @@
         "delete": "그룹 삭제",
         "removeMember": "구성원 제거",
         "addMembers": "구성원 추가",
-        "viewMembers": "구성원 보기"
+        "viewMembers": "구성원 보기",
+        "adminsOnlyEnable": "관리자만 메시지 전송 허용",
+        "adminsOnlyDisable": "모든 구성원 메시지 전송 허용",
+        "promoteToAdmin": "관리자로 승격",
+        "demoteToMember": "구성원으로 강등"
       },
       "editor": {
         "titleEdit": "그룹 편집",
@@ -265,7 +274,8 @@
         "left": "그룹을 나갔습니다",
         "deleted": "그룹이 삭제되었습니다",
         "removed": "구성원이 제거되었습니다",
-        "updated": "그룹이 업데이트되었습니다"
+        "updated": "그룹이 업데이트되었습니다",
+        "roleUpdated": "권한이 업데이트되었습니다"
       },
       "members": {
         "title": "그룹 구성원",
@@ -275,6 +285,14 @@
         "owner": "그룹장",
         "admin": "관리자",
         "member": "구성원"
+      }
+    ,
+      "adminsOnly": {
+        "inputHidden": "그룹장/관리자만 이 그룹에 메시지를 보낼 수 있습니다. 자세히 보기"
+      },
+      "notifications": {
+        "promoted": "관리자로 승격되었습니다",
+        "demoted": "구성원으로 강등되었습니다"
       }
     },
     "chatList": {

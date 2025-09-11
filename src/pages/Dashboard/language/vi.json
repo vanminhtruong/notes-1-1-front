@@ -31,6 +31,7 @@
   "actions": {
     "createNote": "Tạo ghi chú",
     "cancel": "Hủy",
+    "confirm": "Xác nhận",
     "delete": "Xóa",
     "clearSelection": "Bỏ chọn",
     "deleteSelected": "Xóa đã chọn",
@@ -172,6 +173,10 @@
     "fallback": {
       "user": "Người dùng {{id}}"
     },
+    "system": {
+      "joined": "{{name}} đã vào nhóm",
+      "left": "{{name}} đã rời nhóm"
+    },
     "header": {
       "title": "Tin nhắn",
       "searchPlaceholder": "Tìm kiếm…",
@@ -220,7 +225,11 @@
         "delete": "Xóa nhóm",
         "removeMember": "Xóa thành viên",
         "addMembers": "Thêm thành viên",
-        "viewMembers": "Xem thành viên"
+        "viewMembers": "Xem thành viên",
+        "adminsOnlyEnable": "Chỉ quản trị được gửi tin nhắn",
+        "adminsOnlyDisable": "Cho phép mọi người nhắn tin",
+        "promoteToAdmin": "Thăng làm quản trị",
+        "demoteToMember": "Giáng làm thành viên"
       },
       "editor": {
         "titleEdit": "Chỉnh sửa nhóm",
@@ -276,7 +285,8 @@
         "left": "Đã rời nhóm",
         "deleted": "Đã xóa nhóm",
         "removed": "Đã xóa thành viên",
-        "updated": "Đã cập nhật nhóm"
+        "updated": "Đã cập nhật nhóm",
+        "roleUpdated": "Đã cập nhật quyền"
       },
       "members": {
         "title": "Thành viên nhóm",
@@ -286,6 +296,14 @@
         "owner": "Chủ nhóm",
         "admin": "Quản trị",
         "member": "Thành viên"
+      }
+    ,
+      "adminsOnly": {
+        "inputHidden": "Chỉ trưởng/phó nhóm được gửi tin nhắn vào nhóm. Tìm hiểu thêm"
+      },
+      "notifications": {
+        "promoted": "Bạn đã được thăng làm quản trị",
+        "demoted": "Bạn đã bị giáng làm thành viên"
       }
     },
     "chatList": {

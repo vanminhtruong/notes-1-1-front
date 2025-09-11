@@ -495,7 +495,7 @@ export function useChatSocket(params: UseChatSocketParams) {
 
     const onGroupUpdated = (data: any) => {
       if (selectedGroup && data && data.id === selectedGroup.id) {
-        setSelectedGroup(data);
+        setSelectedGroup((prev: any) => (prev ? { ...data, myRole: prev.myRole || data.myRole } : data));
       }
     };
 
@@ -531,18 +531,9 @@ export function useChatSocket(params: UseChatSocketParams) {
 
     const onGroupMemberLeft = (data: { groupId: number; userId: number }) => {
       if (!selectedGroup || data.groupId !== selectedGroup.id) return;
+      // Update local members; do not inject ephemeral system message here.
+      // Backend now persists and emits a system group_message that will arrive via onGroupMessage.
       setSelectedGroup((prev: GroupSummary | null) => (prev ? { ...prev, members: prev.members.filter((id: number) => id !== data.userId) } : prev));
-      const u = resolveUser(data.userId) as any;
-      const name = u?.name || `User ${data.userId}`;
-      const sysMsg = {
-        id: Date.now(),
-        senderId: 0,
-        receiverId: data.groupId,
-        content: `${name} left the group`,
-        messageType: 'system' as const,
-        createdAt: new Date().toISOString(),
-      } as any;
-      setMessages((prev) => ([...(prev as any[]), sysMsg]));
       setTimeout(scrollToBottom, 100);
     };
 
@@ -551,6 +542,20 @@ export function useChatSocket(params: UseChatSocketParams) {
         toast(String(t('chat.groups.success.deleted')));
         setSelectedGroup(null);
         setMessages([]);
+      }
+    };
+
+    const onGroupMemberRoleUpdated = (payload: { groupId: number; userId: number; role: 'admin'|'member' }) => {
+      if (!payload || !selectedGroup || payload.groupId !== selectedGroup.id) return;
+      // If it's me, update myRole and inform
+      if (currentUser && payload.userId === currentUser.id) {
+        setSelectedGroup((prev: any) => (prev ? { ...prev, myRole: payload.role } : prev));
+        try {
+          const msg = payload.role === 'admin'
+            ? String(t('chat.groups.notifications.promoted', { defaultValue: 'You were promoted to admin' } as any))
+            : String(t('chat.groups.notifications.demoted', { defaultValue: 'You were demoted to member' } as any));
+          toast.success(msg);
+        } catch {}
       }
     };
     const onMessageReacted = (payload: { messageId: number; userId: number; type: 'like'|'love'|'haha'|'wow'|'sad'|'angry'; count?: number }) => {
@@ -760,7 +765,9 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('group_members_removed', onGroupMembersRemoved);
     socket.on('group_member_removed', onGroupMemberRemoved);
     socket.on('group_member_left', onGroupMemberLeft);
+    socket.on('group_updated', onGroupUpdated);
     socket.on('group_deleted', onGroupDeleted);
+    socket.on('group_member_role_updated', onGroupMemberRoleUpdated);
     socket.on('message_reacted', onMessageReacted);
     socket.on('message_unreacted', onMessageUnreacted);
     socket.on('group_message_reacted', onGroupMessageReacted);
@@ -820,6 +827,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('group_member_removed', onGroupMemberRemoved);
       socket.off('group_member_left', onGroupMemberLeft);
       socket.off('group_deleted', onGroupDeleted);
+    socket.off('group_member_role_updated', onGroupMemberRoleUpdated);
       socket.off('message_reacted', onMessageReacted);
       socket.off('message_unreacted', onMessageUnreacted);
       socket.off('group_message_reacted', onGroupMessageReacted);

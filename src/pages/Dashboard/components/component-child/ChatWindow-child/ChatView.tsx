@@ -619,6 +619,25 @@ const ChatView = ({
                     >
                       {t('chat.menu.searchMessages', 'Search messages')}
                     </button>
+                    {isGroupOwner && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const gid = Number((selectedChat as any)?.id);
+                            if (!gid) return;
+                            setHeaderMenuOpen(false);
+                            const next = !Boolean((selectedChat as any)?.adminsOnly);
+                            await groupService.updateGroup(gid, { adminsOnly: next });
+                            toast.success(t('chat.groups.success.updated'));
+                          } catch (e: any) {
+                            toast.error(e?.response?.data?.message || t('chat.groups.errors.updateFailed'));
+                          }
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        {((selectedChat as any)?.adminsOnly ? t('chat.groups.actions.adminsOnlyDisable', 'Cho phép mọi người nhắn tin') : t('chat.groups.actions.adminsOnlyEnable', 'Chỉ quản trị được gửi tin nhắn'))}
+                      </button>
+                    )}
                     {isGroupOwner && onEditGroup && (
                       <button
                         onClick={() => { setHeaderMenuOpen(false); onEditGroup(); }}
@@ -850,44 +869,77 @@ const ChatView = ({
                     : date.toLocaleDateString(i18n.language || undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
 
                 return (
-                  <>
-                    {showSep && (
-                      <div className="w-full flex items-center justify-center py-2" key={`sep-${dateKey}`}>
-                        <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{sepLabel}</span>
-                      </div>
-                    )}
-                    {/* Original group rendering */}
-                    <div key={groupKey} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                      {showAvatar && (
-                        (() => {
-                          const senderId = group.senderId as number;
-                          const isSenderBlocked = isGroup ? blockedUserMap[senderId] !== false : !!blocked;
-                          return (
-                            <button
-                              type="button"
-                              onClick={!isSenderBlocked ? () => {
-                                const first = group.items[0];
-                                const user = first?.sender ?? selectedChat;
-                                handleOpenProfile(user);
-                              } : undefined}
-                              title={!isSenderBlocked ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
-                              aria-disabled={isSenderBlocked}
-                              className={`w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto ${!isSenderBlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
-                            >
-                              {(() => {
-                                const first = group.items[0];
-                                const senderName = (first?.sender?.name) || `User ${first?.senderId ?? ''}`;
-                                const senderAvatar = first?.sender?.avatar || null;
-                                return senderAvatar ? (
-                                  <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
-                                ) : (
-                                  (senderName || '').charAt(0)
-                                );
-                              })()}
-                            </button>
-                          );
-                        })()
-                      )}
+                  (() => {
+                    const isSystemGroup = group.items.every((i) => i.messageType === 'system');
+                    if (isSystemGroup) {
+                      const sortedSys = [...group.items].sort((a, b) => {
+                        const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                        const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                        return timeA - timeB;
+                      });
+                      return (
+                        <>
+                          {showSep && (
+                            <div className="w-full flex items-center justify-center py-2" key={`sep-${dateKey}`}>
+                              <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{sepLabel}</span>
+                            </div>
+                          )}
+                          {sortedSys.map((it) => {
+                            const raw = String(it.content || '');
+                            const m = raw.match(/^(.+?)\s+(joined|left)\s+the\s+group/i);
+                            const name = (m && m[1]) || ((it as any)?.sender?.name) || 'User';
+                            const isJoined = !!(m && String(m[2]).toLowerCase() === 'joined');
+                            const localized = isJoined
+                              ? String(t('chat.system.joined', { name }))
+                              : String(t('chat.system.left', { name }));
+                            return (
+                              <div key={`sys-${it.id}`} className="w-full flex items-center justify-center py-1">
+                                <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{localized}</span>
+                              </div>
+                            );
+                          })}
+                        </>
+                      );
+                    }
+                    return (
+                      <>
+                        {showSep && (
+                          <div className="w-full flex items-center justify-center py-2" key={`sep-${dateKey}`}>
+                            <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{sepLabel}</span>
+                          </div>
+                        )}
+                        {/* Original group rendering */}
+                        <div key={groupKey} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+                          {showAvatar && (
+                            (() => {
+                              const senderId = group.senderId as number;
+                              const isSenderBlocked = isGroup ? blockedUserMap[senderId] !== false : !!blocked;
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={!isSenderBlocked ? () => {
+                                    const first = group.items[0];
+                                    const user = (first as any)?.sender ?? selectedChat;
+                                    handleOpenProfile(user);
+                                  } : undefined}
+                                  title={!isSenderBlocked ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
+                                  aria-disabled={isSenderBlocked}
+                                  className={`w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto ${!isSenderBlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                                >
+                                  {(() => {
+                                    const first = group.items[0];
+                                    const senderName = (first as any)?.sender?.name || `User ${((first as any)?.senderId ?? '')}`;
+                                    const senderAvatar = (first as any)?.sender?.avatar || null;
+                                    return senderAvatar ? (
+                                      <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
+                                    ) : (
+                                      (senderName || '').charAt(0)
+                                    );
+                                  })()}
+                                </button>
+                              );
+                            })()
+                          )}
                       <div className={`relative max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col gap-2`}>
                         {showGroupMenu && (
                           <>
@@ -1009,6 +1061,8 @@ const ChatView = ({
                       </div>
                     </div>
                   </>
+                );
+                  })()
                 );
               });
             })()}
@@ -1212,6 +1266,7 @@ const ChatView = ({
         groupId={isGroup ? Number((selectedChat as any)?.id) : null}
         onClose={() => setShowMembersPanel(false)}
         onOpenProfile={(user) => handleOpenProfile(user)}
+        isOwner={!!isGroupOwner}
       />
 
       {/* Common Groups Modal */}

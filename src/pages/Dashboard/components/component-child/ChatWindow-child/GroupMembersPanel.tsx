@@ -21,9 +21,10 @@ interface GroupMembersPanelProps {
   groupId: number | null;
   onClose: () => void;
   onOpenProfile: (user: GroupMemberInfo) => void;
+  isOwner?: boolean;
 }
 
-export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfile }: GroupMembersPanelProps) {
+export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfile, isOwner = false }: GroupMembersPanelProps) {
   const { t } = useTranslation('dashboard');
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<GroupMemberInfo[]>([]);
@@ -90,21 +91,64 @@ export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfil
           ) : (
             <ul className="divide-y divide-gray-200 dark:divide-gray-800">
               {members.map((m) => (
-                <li key={m.id} className="flex items-center justify-between gap-3 p-3">
+                <li key={m.id} className="flex items-center gap-3 p-3">
                   <button
                     type="button"
-                    className="flex items-center gap-3 hover:opacity-90"
+                    className="flex items-center gap-3 hover:opacity-90 min-w-0 flex-1"
                     onClick={() => onOpenProfile(m)}
                     title={t('chat.chatView.viewProfile', 'Xem thông tin') as any}
                   >
-                    <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-sm font-semibold">
+                    <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
                       {m.avatar ? <img src={m.avatar} alt={m.name} className="w-full h-full object-cover" /> : (m.name || '').charAt(0)}
                     </div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{m.name}</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                      {m.name}
+                    </div>
                   </button>
-                  <span className={`text-xs px-2 py-0.5 rounded-full border ${m.role === 'owner' ? 'border-amber-500 text-amber-600 dark:text-amber-400' : m.role === 'admin' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-300'}`}>
-                    {m.role === 'owner' ? t('chat.groups.roles.owner', 'Chủ nhóm') : m.role === 'admin' ? t('chat.groups.roles.admin', 'Quản trị') : t('chat.groups.roles.member', 'Thành viên')}
-                  </span>
+                  <div className="ml-auto flex items-center gap-2 flex-shrink-0 whitespace-nowrap">
+                    <span className={`whitespace-nowrap text-xs px-2 py-0.5 rounded-full border ${m.role === 'owner' ? 'border-amber-500 text-amber-600 dark:text-amber-400' : m.role === 'admin' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-300'}`}>
+                      {m.role === 'owner' ? t('chat.groups.roles.owner', 'Chủ nhóm') : m.role === 'admin' ? t('chat.groups.roles.admin', 'Quản trị') : t('chat.groups.roles.member', 'Thành viên')}
+                    </span>
+                    {isOwner && m.role !== 'owner' && (
+                      m.role === 'member' ? (
+                        <button
+                          className="whitespace-nowrap text-xs px-2 py-1 rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300"
+                          onClick={async () => {
+                            if (!groupId) return;
+                            try {
+                              await groupService.updateMemberRole(groupId, m.id, 'admin');
+                              setMembers(prev => prev.map(x => x.id === m.id ? { ...x, role: 'admin' } : x));
+                              toast.success(String(t('chat.groups.success.roleUpdated', { defaultValue: 'Đã cập nhật quyền' })));
+                            } catch (e: any) {
+                              toast.error(e?.response?.data?.message || String(t('chat.groups.errors.updateFailed')));
+                            }
+                          }}
+                          title={String(t('chat.groups.actions.promoteToAdmin', { defaultValue: 'Thăng làm quản trị' }))}
+                          aria-label={String(t('chat.groups.actions.promoteToAdmin', { defaultValue: 'Thăng làm quản trị' }))}
+                        >
+                          {t('chat.groups.actions.promoteToAdmin', 'Thăng làm quản trị')}
+                        </button>
+                      ) : (
+                        <button
+                          className="whitespace-nowrap text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300"
+                          onClick={async () => {
+                            if (!groupId) return;
+                            try {
+                              await groupService.updateMemberRole(groupId, m.id, 'member');
+                              setMembers(prev => prev.map(x => x.id === m.id ? { ...x, role: 'member' } : x));
+                              toast.success(String(t('chat.groups.success.roleUpdated', { defaultValue: 'Đã cập nhật quyền' })));
+                            } catch (e: any) {
+                              toast.error(e?.response?.data?.message || String(t('chat.groups.errors.updateFailed')));
+                            }
+                          }}
+                          title={String(t('chat.groups.actions.demoteToMember', { defaultValue: 'Giáng làm thành viên' }))}
+                          aria-label={String(t('chat.groups.actions.demoteToMember', { defaultValue: 'Giáng làm thành viên' }))}
+                        >
+                          {t('chat.groups.actions.demoteToMember', 'Giáng làm thành viên')}
+                        </button>
+                      )
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

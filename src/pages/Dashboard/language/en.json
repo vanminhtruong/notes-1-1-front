@@ -31,6 +31,7 @@
   "actions": {
     "createNote": "Create note",
     "cancel": "Cancel",
+    "confirm": "Confirm",
     "delete": "Delete",
     "clearSelection": "Clear selection",
     "deleteSelected": "Delete selected",
@@ -186,6 +187,10 @@
     "fallback": {
       "user": "User {{id}}"
     },
+    "system": {
+      "joined": "{{name}} joined the group",
+      "left": "{{name}} left the group"
+    },
     "header": {
       "title": "Messenger",
       "searchPlaceholder": "Search…",
@@ -234,7 +239,11 @@
         "delete": "Delete group",
         "removeMember": "Remove member",
         "addMembers": "Add members",
-        "viewMembers": "View members"
+        "viewMembers": "View members",
+        "adminsOnlyEnable": "Only admins can send messages",
+        "adminsOnlyDisable": "Allow everyone to send messages",
+        "promoteToAdmin": "Promote to admin",
+        "demoteToMember": "Demote to member"
       },
       "editor": {
         "titleEdit": "Edit group",
@@ -290,7 +299,8 @@
         "left": "Left the group",
         "deleted": "Group deleted",
         "removed": "Member removed",
-        "updated": "Group updated"
+        "updated": "Group updated",
+        "roleUpdated": "Role updated"
       },
       "members": {
         "title": "Group members",
@@ -300,6 +310,14 @@
         "owner": "Owner",
         "admin": "Admin",
         "member": "Member"
+      }
+    ,
+      "adminsOnly": {
+        "inputHidden": "Only group owner/admins can send messages to this group. Learn more"
+      },
+      "notifications": {
+        "promoted": "You were promoted to admin",
+        "demoted": "You were demoted to member"
       }
     },
     "chatList": {

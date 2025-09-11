@@ -241,7 +241,18 @@ export function useMessageComposer({
         }
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || t('chat.errors.sendMessage'));
+      const status = error?.response?.status;
+      if (status === 403) {
+        // Likely due to admins-only restriction
+        toast.error(error?.response?.data?.message || t('chat.groups.adminsOnly.inputHidden', 'Chỉ quản trị viên mới được gửi tin nhắn vào nhóm.'));
+        const socket = getSocket();
+        if (socket && typingSentRef.current && selectedGroup) {
+          try { socket.emit('group_typing', { groupId: selectedGroup.id, isTyping: false }); } catch {}
+          typingSentRef.current = false;
+        }
+      } else {
+        toast.error(error.response?.data?.message || t('chat.errors.sendMessage'));
+      }
     }
   };
 

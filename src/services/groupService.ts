@@ -8,6 +8,8 @@ export interface GroupSummary {
   avatar?: string;
   background?: string;
   isPinned?: boolean;
+  adminsOnly?: boolean;
+  myRole?: 'member' | 'admin' | 'owner';
 }
 
 export interface GroupMessage {
@@ -97,7 +99,7 @@ export const groupService = {
     return res.data as { success: boolean; data: GroupMessage };
   },
 
-  async updateGroup(groupId: number, updates: { name?: string; avatar?: string; background?: string }) {
+  async updateGroup(groupId: number, updates: { name?: string; avatar?: string; background?: string; adminsOnly?: boolean }) {
     const res = await api.patch(`/groups/${groupId}`, updates);
     return res.data as { success: boolean; data: GroupSummary & { members: number[] } };
   },
@@ -120,6 +122,11 @@ export const groupService = {
   async getGroupMembers(groupId: number) {
     const res = await api.get(`/groups/${groupId}/members`);
     return res.data as { success: boolean; data: Array<{ id: number; name: string; avatar?: string | null; email?: string | null; phone?: string | null; birthDate?: string | null; gender?: string; role: 'member'|'admin'|'owner'; hidePhone?: boolean; hideBirthDate?: boolean }>; };
+  },
+  
+  async updateMemberRole(groupId: number, memberId: number, role: 'admin' | 'member') {
+    const res = await api.put(`/groups/${groupId}/members/${memberId}/role`, { role });
+    return res.data as { success: boolean; data: { groupId: number; userId: number; role: 'admin'|'member' } };
   },
   
   async recallGroupMessages(groupId: number, messageIds: number[], scope: 'self' | 'all') {

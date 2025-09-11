@@ -174,6 +174,32 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     });
   };
 
+  // Stabilize translate function reference for use inside custom toast callback
+  const tt = t;
+
+  // Toast-based async confirmation to replace window.confirm
+  const confirmWithToast = (message: string) => new Promise<boolean>((resolve) => {
+    const id = toast.custom((toastObj) => (
+      <div className={`max-w-sm w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 ${toastObj.visible ? 'animate-in fade-in zoom-in' : 'animate-out fade-out zoom-out'}`}>
+        <div className="text-sm text-gray-800 dark:text-gray-100 mb-3">{message}</div>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => { toast.dismiss(id); resolve(false); }}
+            className="px-3 py-1.5 text-sm rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100"
+          >
+            {tt('actions.cancel', 'Cancel')}
+          </button>
+          <button
+            onClick={() => { toast.dismiss(id); resolve(true); }}
+            className="px-3 py-1.5 text-sm rounded-md bg-red-600 hover:bg-red-700 text-white"
+          >
+            {tt('actions.confirm', 'Confirm')}
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  });
+
   // Local hooks: load data, compose messages, and downloading
   const { loadUsers, loadFriends, loadChatList, loadFriendRequests, loadPendingInvites } = useChatData({
     setUsers,
@@ -692,7 +718,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   onLeaveGroup={async () => {
                     // Shown only for non-owners by ChatView
                     if (!selectedGroup) return;
-                    if (!window.confirm(t('chat.groups.confirm.leave'))) return;
+                    const ok = await confirmWithToast(String(t('chat.groups.confirm.leave')));
+                    if (!ok) return;
                     try {
                       const res = await groupService.leaveGroup(selectedGroup.id);
                       if (res.success) {
@@ -707,7 +734,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   onDeleteGroup={async () => {
                     // Shown only for owners by ChatView
                     if (!selectedGroup) return;
-                    if (!window.confirm(t('chat.groups.confirm.delete'))) return;
+                    const ok = await confirmWithToast(String(t('chat.groups.confirm.delete')));
+                    if (!ok) return;
                     try {
                       const res = await groupService.deleteGroup(selectedGroup.id);
                       if (res.success) {
@@ -741,24 +769,40 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                     }
                   }}
                 />
-                <MessageInput
-                  newMessage={newMessage}
-                  pendingImages={pendingImages}
-                  pendingFiles={pendingFiles}
-                  onMessageChange={setNewMessage}
-                  onSendMessage={sendGroupMessage}
-                  onFileChange={handleFileChange}
-                  onRemoveImage={(id: string) => setPendingImages((prev) => prev.filter((p) => p.id !== id))}
-                  onRemoveFile={(id: string) => setPendingFiles((prev) => prev.filter((p) => p.id !== id))}
-                  onTyping={handleGroupTyping}
-                  onTypingStop={() => {
-                    const socket = getSocket();
-                    if (socket && selectedGroup) {
-                      socket.emit('group_typing', { groupId: selectedGroup.id, isTyping: false });
-                      typingSentRef.current = false;
-                    }
-                  }}
-                />
+                {(() => {
+                  const isOwner = !!currentUser && selectedGroup.ownerId === currentUser.id;
+                  const myRole = (selectedGroup as any)?.myRole as ('member'|'admin'|'owner'|undefined);
+                  const isAdmin = myRole === 'admin' || myRole === 'owner' || isOwner;
+                  const adminsOnly = !!(selectedGroup as any)?.adminsOnly;
+                  const canSendGroup = !adminsOnly || isAdmin;
+                  if (canSendGroup) {
+                    return (
+                      <MessageInput
+                        newMessage={newMessage}
+                        pendingImages={pendingImages}
+                        pendingFiles={pendingFiles}
+                        onMessageChange={setNewMessage}
+                        onSendMessage={sendGroupMessage}
+                        onFileChange={handleFileChange}
+                        onRemoveImage={(id: string) => setPendingImages((prev) => prev.filter((p) => p.id !== id))}
+                        onRemoveFile={(id: string) => setPendingFiles((prev) => prev.filter((p) => p.id !== id))}
+                        onTyping={handleGroupTyping}
+                        onTypingStop={() => {
+                          const socket = getSocket();
+                          if (socket && selectedGroup) {
+                            socket.emit('group_typing', { groupId: selectedGroup.id, isTyping: false });
+                            typingSentRef.current = false;
+                          }
+                        }}
+                      />
+                    );
+                  }
+                  return (
+                    <div className="p-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                      {t('chat.groups.adminsOnly.inputHidden', 'Chỉ quản trị viên mới được gửi tin nhắn vào nhóm. Tìm hiểu thêm')}
+                    </div>
+                  );
+                })()}
               </>
             ) : (
               <GroupsTab onSelectGroup={startGroupChat} />
