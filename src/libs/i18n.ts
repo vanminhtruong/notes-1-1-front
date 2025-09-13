@@ -61,13 +61,14 @@ i18n
   .init({
     resources,
     fallbackLng: 'en',
+    lng: 'en',
     defaultNS: 'layout',
     ns: ['layout', 'home', 'dashboard', 'about', 'contact', 'account', 'auth'],
     
     detection: {
-      order: ['cookie', 'navigator', 'htmlTag'],
-      caches: ['cookie'],
-      lookupCookie: 'lang',
+      // Disable frontend-based detection; rely on default 'en' unless app changes via backend/user action.
+      order: [],
+      caches: [],
     },
 
     interpolation: {

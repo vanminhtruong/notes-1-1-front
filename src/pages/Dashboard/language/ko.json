@@ -180,11 +180,13 @@
       "friendRequests": "친구 요청",
       "users": "사용자",
       "sendRequest": "친구 추가",
+      "message": "메시지",
       "actions": {
         "accept": "수락",
         "acceptRequest": "친구 요청 수락",
         "reject": "거절",
-        "rejectRequest": "친구 요청 거절"
+        "rejectRequest": "친구 요청 거절",
+        "message": "메시지"
       },
       "empty": {
         "noResults": "일치하는 사용자가 없습니다",
@@ -462,6 +464,12 @@
         "enabled": "읽음 확인이 활성화되었습니다. 읽음 확인은 당신과 상대방 모두가 이 설정을 켰을 때만 동작합니다.",
         "disabled": "읽음 확인이 비활성화되었습니다. 다른 사람은 당신이 메시지를 읽었는지 볼 수 없고, 당신도 볼 수 없습니다."
       },
+      "messagingFromNonFriends": {
+        "title": "비친구에게서 메시지 받기 허용",
+        "description": "활성화하면 친구가 아닌 사람도 당신에게 메시지를 보낼 수 있습니다.",
+        "enabled": "비친구에게서 메시지 받기를 허용합니다",
+        "disabled": "비친구에게서 메시지 받기를 허용하지 않습니다"
+      },
       "privacy": {
         "hidePhone": {
           "title": "전화번호 숨기기",
@@ -475,6 +483,13 @@
           "enabled": "생년월일이 숨겨집니다",
           "disabled": "생년월일이 표시됩니다"
         }
+      },
+      "blocked": {
+        "title": "차단한 사용자",
+        "description": "차단한 사용자를 관리하세요. 언제든지 차단 해제가 가능합니다.",
+        "unblock": "차단 해제",
+        "empty": "아직 누구도 차단하지 않았습니다",
+        "viewList": "목록 보기"
       },
       "pin": {
         "title": "PIN",

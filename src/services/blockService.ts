@@ -20,4 +20,8 @@ export const blockService = {
     const res = await api.get(`/blocks/status?targetId=${targetId}`);
     return res.data as { success: boolean; data: BlockStatus };
   },
+  async listBlockedUsers() {
+    const res = await api.get('/blocks');
+    return res.data as { success: boolean; data: Array<{ id: number; name: string; email: string; avatar?: string | null; lastSeenAt?: string | null }>; };
+  },
 };

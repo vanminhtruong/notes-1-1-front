@@ -41,11 +41,11 @@ export const settingsService = {
     const res = await api.put('/settings/language', { language });
     return res.data;
   },
-  async getPrivacy(): Promise<{ hidePhone: boolean; hideBirthDate: boolean }> {
+  async getPrivacy(): Promise<{ hidePhone: boolean; hideBirthDate: boolean; allowMessagesFromNonFriends: boolean }> {
     const res = await api.get('/settings/privacy');
     return res.data;
   },
-  async setPrivacy(payload: Partial<{ hidePhone: boolean; hideBirthDate: boolean }>): Promise<{ message: string; hidePhone: boolean; hideBirthDate: boolean }> {
+  async setPrivacy(payload: Partial<{ hidePhone: boolean; hideBirthDate: boolean; allowMessagesFromNonFriends: boolean }>): Promise<{ message: string; hidePhone: boolean; hideBirthDate: boolean; allowMessagesFromNonFriends: boolean }> {
     const res = await api.put('/settings/privacy', payload);
     return res.data;
   },

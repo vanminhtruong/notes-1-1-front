@@ -1,4 +1,4 @@
-import { Search, Check, X, UserPlus } from 'lucide-react';
+import { Search, Check, X, UserPlus, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { UsersListProps } from '../../interface/ChatUI.interface';
 
@@ -7,7 +7,8 @@ const UsersList = ({
   filteredUsers,
   onAcceptFriendRequest,
   onRejectFriendRequest,
-  onSendFriendRequest
+  onSendFriendRequest,
+  onStartChat,
 }: UsersListProps) => {
   const { t } = useTranslation('dashboard');
   return (
@@ -81,13 +82,24 @@ const UsersList = ({
                   <p className="font-semibold text-gray-900 dark:text-white truncate">{user.name}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                 </div>
-                <button
-                  onClick={() => onSendFriendRequest(user.id)}
-                  className="ml-auto inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  {t('chat.usersList.sendRequest')}
-                </button>
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={() => onStartChat(user)}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    title={t('chat.usersList.actions.message', 'Nhắn tin')}
+                    aria-label={t('chat.usersList.actions.message', 'Nhắn tin')}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    {t('chat.usersList.message', 'Nhắn tin')}
+                  </button>
+                  <button
+                    onClick={() => onSendFriendRequest(user.id)}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    {t('chat.usersList.sendRequest')}
+                  </button>
+                </div>
               </div>
             ))}
           </div>

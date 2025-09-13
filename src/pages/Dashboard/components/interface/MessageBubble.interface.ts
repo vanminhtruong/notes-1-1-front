@@ -21,4 +21,8 @@ export interface MessageBubbleProps {
   onOpenProfile?: (user: { id: number; name?: string; avatar?: string | null }) => void;
   // Disable reactions UI (e.g., when blocked in 1-1 chat)
   disableReactions?: boolean;
+  // Reply functionality
+  onReplyMessage?: (msg: Message) => void;
+  // Jump to replied message
+  onJumpToMessage?: (messageId: number) => void;
 }

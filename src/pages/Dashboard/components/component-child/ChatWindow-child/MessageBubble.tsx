@@ -1,4 +1,4 @@
-import { MoreVertical, Clock, Pin, Phone, Video } from 'lucide-react';
+import { MoreVertical, Clock, Pin, Phone, Video, Reply } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import MessageStatus from './MessageStatus';
@@ -28,6 +28,8 @@ const MessageBubble = ({
   onTogglePinMessage,
   onOpenProfile,
   disableReactions,
+  onReplyMessage,
+  onJumpToMessage,
 }: MessageBubbleProps) => {
   const { t } = useTranslation('dashboard');
   // Call controls for redial from call-log cards (optional)
@@ -376,13 +378,39 @@ const MessageBubble = ({
             </div>
           ) : (
             <div
-              className={`px-3 py-1.5 rounded-2xl text-sm break-words whitespace-pre-wrap w-fit ${
+              className={`px-3 py-2 rounded-2xl text-sm break-words whitespace-pre-wrap w-fit ${
                 isOwnMessage
                   ? 'bg-blue-600 text-white rounded-br-md'
                   : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
               }`}
             >
-              {message.content}
+              {/* Quoted inside bubble if text + has reply */}
+              {(() => {
+                const replyTo = (message as any)?.replyToMessage;
+                if (!replyTo) return null;
+                const handleJump = () => { if (onJumpToMessage && replyTo?.id) onJumpToMessage(Number(replyTo.id)); };
+                return (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); handleJump(); }}
+                    className="mb-1.5 w-full text-left px-2.5 py-1.5 rounded-md bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/40 dark:hover:bg-blue-900/55 border-l-4 border-blue-500 text-[13px] transition-colors"
+                    title={t('chat.reply.jumpToMessage', 'Đi tới tin nhắn gốc')}
+                    aria-label={t('chat.reply.jumpToMessage', 'Đi tới tin nhắn gốc')}
+                  >
+                    <div className="font-semibold text-blue-800 dark:text-blue-200 mb-0.5">
+                      {replyTo.sender?.name || `User ${replyTo.senderId}`}
+                    </div>
+                    <div className="text-blue-800/90 dark:text-blue-200/90 line-clamp-2">
+                      {replyTo.messageType === 'image' ? '📷 Hình ảnh' :
+                       replyTo.messageType === 'file' ? '📎 Tệp đính kèm' :
+                       replyTo.content}
+                    </div>
+                  </button>
+                );
+              })()}
+
+              {/* Main text content */}
+              <div>{message.content}</div>
             </div>
           )}
         </>
@@ -396,19 +424,56 @@ const MessageBubble = ({
     </div>
   );
 
+  const renderQuotedMessage = () => {
+    const replyTo = (message as any)?.replyToMessage;
+    if (!replyTo) return null;
+    // Avoid outer quoted block for text messages; it is rendered inside bubble above
+    if (message.messageType === 'text') return null;
+    
+    const handleJump = () => {
+      if (onJumpToMessage && replyTo?.id) onJumpToMessage(Number(replyTo.id));
+    };
+
+    return (
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); handleJump(); }}
+        className={`mb-2 w-full text-left px-3 py-2 rounded-lg border-l-4 border-blue-500 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/40 dark:hover:bg-blue-900/55 text-sm transition-colors`}
+        title={t('chat.reply.jumpToMessage', 'Đi tới tin nhắn gốc')}
+        aria-label={t('chat.reply.jumpToMessage', 'Đi tới tin nhắn gốc')}
+      >
+        <div className="font-semibold text-blue-800 dark:text-blue-200 mb-1">
+          {replyTo.sender?.name || `User ${replyTo.senderId}`}
+        </div>
+        <div className="text-blue-800/90 dark:text-blue-200/90 line-clamp-2">
+          {replyTo.messageType === 'image' ? '📷 Hình ảnh' :
+           replyTo.messageType === 'file' ? '📎 Tệp đính kèm' :
+           replyTo.content}
+        </div>
+      </button>
+    );
+  };
+
   const renderContent = () => {
     if (isRecalled) {
       return renderRecalledMessage();
     }
 
-    switch (message.messageType) {
-      case 'image':
-        return renderImageMessage();
-      case 'file':
-        return renderFileMessage();
-      default:
-        return renderTextMessage();
-    }
+    return (
+      <div>
+        {renderQuotedMessage()}
+        {(() => {
+          switch (message.messageType) {
+            case 'image':
+              return renderImageMessage();
+            case 'file':
+              return renderFileMessage();
+            default:
+              return renderTextMessage();
+          }
+        })()}
+      </div>
+    );
   };
 
   return (
@@ -474,9 +539,22 @@ const MessageBubble = ({
           />
         </div>
       </div>
+      {/* Reply button - positioned to the left of message */}
+      {!isRecalled && onReplyMessage && (
+        <button
+          type="button"
+          className={`absolute ${isOwnMessage ? '-left-8' : '-left-8'} top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-600 dark:text-gray-300 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity hover:bg-gray-50 dark:hover:bg-gray-700`}
+          onClick={() => onReplyMessage(message)}
+          title={t('chat.reply.button', 'Trả lời tin nhắn')}
+          aria-label={t('chat.reply.button', 'Trả lời tin nhắn')}
+        >
+          <Reply className="w-4 h-4" />
+        </button>
+      )}
+
       {/* Reaction trigger */}
       {!isRecalled && !disableReactions && (
-        <div className={`absolute ${isOwnMessage ? 'right-0' : 'left-0'} -bottom-3 flex items-center gap-2`}>
+        <div className={`absolute ${isOwnMessage ? 'right-0' : 'right-0'} -bottom-3 flex items-center gap-2`}>
           {/* Quick heart */}
           <button
             type="button"

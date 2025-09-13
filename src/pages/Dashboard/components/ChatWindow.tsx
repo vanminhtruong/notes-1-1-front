@@ -23,6 +23,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const [pendingImages, setPendingImages] = useState<Array<{ id: string; file: File; preview: string }>>([]);
   const [pendingFiles, setPendingFiles] = useState<Array<{ id: string; file: File }>>([]);
   const [menuOpenKey, setMenuOpenKey] = useState<string | null>(null);
+  // Reply state (works for DM and Group)
+  const [replyingToMessage, setReplyingToMessage] = useState<any | null>(null);
   // Track online user IDs for presence aggregation
   const [onlineIds, setOnlineIds] = useState<number[]>([]);
   // Chat list for last message previews
@@ -45,6 +47,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     readStatusEnabled,
     hidePhone,
     hideBirthDate,
+    allowMessagesFromNonFriends,
+    blockedUsers,
     openSettings,
     closeSettings,
     setShowSetPin,
@@ -54,6 +58,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     handleToggleReadStatus,
     handleToggleHidePhone,
     handleToggleHideBirthDate,
+    handleToggleAllowMessagesFromNonFriends,
+    handleUnblockUser,
     handleSetPin,
     showSettings,
   } = useChatSettings(t);
@@ -255,6 +261,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     typingSentRef,
     upsertChatListWithMessage,
     t,
+    replyingToMessage,
+    clearReply: () => setReplyingToMessage(null),
   });
 
   // Socket listeners extracted to hook to keep component lean
@@ -574,12 +582,16 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
             readStatusEnabled={readStatusEnabled}
             hidePhone={hidePhone}
             hideBirthDate={hideBirthDate}
+            allowMessagesFromNonFriends={allowMessagesFromNonFriends}
+            blockedUsers={blockedUsers as any}
             onBack={closeSettings}
             onToggle={handleToggleE2EE}
             onChangePin={() => setShowSetPin(true)}
             onToggleReadStatus={handleToggleReadStatus}
             onToggleHidePhone={handleToggleHidePhone}
             onToggleHideBirthDate={handleToggleHideBirthDate}
+            onToggleAllowMessagesFromNonFriends={handleToggleAllowMessagesFromNonFriends}
+            onUnblockUser={handleUnblockUser}
           />
         ) : (
           <>
@@ -590,6 +602,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
             onAcceptFriendRequest={acceptFriendRequest}
             onRejectFriendRequest={rejectFriendRequest}
             onSendFriendRequest={sendFriendRequest}
+            onStartChat={startChat}
           />
         )}
 
@@ -629,6 +642,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                     await resetBackground(selectedChat.id);
                   }}
                   blocked={blockStatus ? !!blockStatus.isEitherBlocked : true}
+                  onReplyRequested={(m) => setReplyingToMessage(m)}
                 />
                 {!(blockStatus?.isEitherBlocked) ? (
                   <MessageInput
@@ -648,6 +662,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                         typingSentRef.current = false;
                       }
                     }}
+                    replyingToMessage={replyingToMessage as any}
+                    onClearReply={() => setReplyingToMessage(null)}
                   />
                 ) : (
                   <div className="p-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
@@ -703,7 +719,19 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   typingUsers={groupTypingUsers}
                   menuOpenKey={menuOpenKey}
                   currentUserId={currentUser?.id}
-                  onBack={() => { setSelectedGroup(null); setActiveTab('groups'); }}
+                  onBack={() => {
+                    const gid = selectedGroup?.id;
+                    setSelectedGroup(null);
+                    setActiveTab('groups');
+                    // After switching view, notify GroupsTab to clear badge and refresh
+                    try {
+                      if (typeof window !== 'undefined' && gid) {
+                        setTimeout(() => {
+                          try { window.dispatchEvent(new CustomEvent('group_marked_read', { detail: { groupId: gid } })); } catch {}
+                        }, 60);
+                      }
+                    } catch {}
+                  }}
                   onMenuToggle={setMenuOpenKey}
                   onRecallMessage={recallMessage}
                   onRecallGroup={recallGroup}
@@ -749,6 +777,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   maskMessages={e2eeEnabled && !e2eeUnlocked}
                   lockedNotice={t('chat.encryption.groupLocked')}
                   onUnlock={() => setShowEnterPin(true)}
+                  onReplyRequested={(m) => setReplyingToMessage(m)}
                 />
                 <RemoveMembersModal
                   isOpen={showRemoveMembers}
@@ -794,6 +823,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                             typingSentRef.current = false;
                           }
                         }}
+                        replyingToMessage={replyingToMessage as any}
+                        onClearReply={() => setReplyingToMessage(null)}
                       />
                     );
                   }

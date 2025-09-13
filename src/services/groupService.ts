@@ -10,6 +10,7 @@ export interface GroupSummary {
   isPinned?: boolean;
   adminsOnly?: boolean;
   myRole?: 'member' | 'admin' | 'owner';
+  unreadCount?: number;
 }
 
 export interface GroupMessage {
@@ -94,8 +95,15 @@ export const groupService = {
     return res.data as { success: boolean; data: Array<{ id: number; groupId: number; senderId: number; content: string; messageType: 'text'|'image'|'file'; createdAt: string }>; };
   },
 
-  async sendGroupMessage(groupId: number, content: string, messageType: 'text' | 'image' | 'file' = 'text') {
-    const res = await api.post(`/groups/${groupId}/message`, { content, messageType });
+  async sendGroupMessage(
+    groupId: number,
+    content: string,
+    messageType: 'text' | 'image' | 'file' = 'text',
+    replyToMessageId?: number | null,
+  ) {
+    const payload: any = { content, messageType };
+    if (replyToMessageId) payload.replyToMessageId = replyToMessageId;
+    const res = await api.post(`/groups/${groupId}/message`, payload);
     return res.data as { success: boolean; data: GroupMessage };
   },
 

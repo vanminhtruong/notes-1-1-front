@@ -45,6 +45,7 @@ const ChatView = ({
   onChangeBackgroundForBoth,
   onResetBackground,
   blocked,
+  onReplyRequested,
 }: ChatViewProps) => {
   const { t, i18n } = useTranslation('dashboard');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -69,6 +70,8 @@ const ChatView = ({
   const [searchResults, setSearchResults] = useState<Array<{ id: number; content: string; messageType?: string; createdAt: string; senderId?: number }>>([]);
   // Common groups modal state
   const [showCommonGroups, setShowCommonGroups] = useState(false);
+
+  // Reply state is managed by parent via onReplyRequested
 
   // Voice/Video call controls used in header (optional if provider not mounted)
   const callCtx = useOptionalCall();
@@ -143,6 +146,12 @@ const ChatView = ({
       el.classList.add('ring-2', 'ring-yellow-400');
       setTimeout(() => el.classList.remove('ring-2', 'ring-yellow-400'), 1200);
     }
+  };
+
+  const handleReplyMessage = (message: any) => {
+    // Notify parent to set replying state and focus input area
+    if (onReplyRequested) onReplyRequested(message);
+    scrollToBottom();
   };
 
   // Perform live search when query changes
@@ -975,11 +984,41 @@ const ChatView = ({
                         )}
                         {/* Content */}
                         {allRecalled ? (
-                          <div className="relative group">
-                            <div className={`px-4 py-2 rounded-2xl text-xs italic text-gray-500 bg-gray-100 dark:bg-gray-700 ${isOwnMessage ? 'rounded-br-md' : 'rounded-bl-md'} shadow-sm`}>
-                              {t('chat.recalled.text')}
+                          <>
+                            <div className="flex flex-col gap-2">
+                              {group.items
+                                .slice()
+                                .sort((a, b) => {
+                                  const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                                  const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                                  return timeA - timeB;
+                                })
+                                .map((itm) => (
+                                  <MessageBubble
+                                    key={itm.id}
+                                    message={itm}
+                                    isOwnMessage={isOwnMessage}
+                                    isRecalled={true}
+                                    menuOpenKey={menuOpenKey}
+                                    messageKey={`item-${itm.id}`}
+                                    showMenu={true}
+                                    currentUserId={currentUserId}
+                                    allMessages={messages}
+                                    onMenuToggle={onMenuToggle}
+                                    onRecallMessage={onRecallMessage}
+                                    onEditMessage={onEditMessage}
+                                    onDownloadAttachment={onDownloadAttachment}
+                                    onPreviewImage={onPreviewImage}
+                                    pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
+                                    onTogglePinMessage={handleTogglePinMessage}
+                                    onOpenProfile={handleOpenProfile}
+                                    disableReactions={!isGroup && !!blocked}
+                                    onReplyMessage={handleReplyMessage}
+                                    onJumpToMessage={scrollToMessage}
+                                  />
+                                ))}
                             </div>
-                          </div>
+                          </>
                         ) : (
                           <>
                             <div className="flex flex-col gap-2">
@@ -1019,6 +1058,8 @@ const ChatView = ({
                                             onTogglePinMessage={handleTogglePinMessage}
                                             onOpenProfile={handleOpenProfile}
                                             disableReactions={!isGroup && !!blocked}
+                                            onReplyMessage={handleReplyMessage}
+                                            onJumpToMessage={scrollToMessage}
                                           />
                                         ))}
                                       </div>
@@ -1045,6 +1086,8 @@ const ChatView = ({
                                         onTogglePinMessage={handleTogglePinMessage}
                                         onOpenProfile={handleOpenProfile}
                                         disableReactions={!isGroup && !!blocked}
+                                        onReplyMessage={handleReplyMessage}
+                                        onJumpToMessage={scrollToMessage}
                                       />
                                     );
                                     i++;

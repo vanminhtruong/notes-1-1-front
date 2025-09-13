@@ -12,7 +12,9 @@ const MessageInput = ({
   onRemoveImage,
   onRemoveFile,
   onTyping,
-  onTypingStop
+  onTypingStop,
+  replyingToMessage,
+  onClearReply
 }: MessageInputProps) => {
   const { t } = useTranslation('dashboard');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,6 +51,31 @@ const MessageInput = ({
 
   return (
     <div ref={containerRef} className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 relative z-50">
+      {replyingToMessage && (
+        <div className="mb-2 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/40 flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-0.5">
+              {t('chat.reply.replyingTo', 'Trả lời')} {replyingToMessage.sender?.name || `User ${replyingToMessage.senderId || replyingToMessage.userId || ''}`}
+            </div>
+            <div className="text-sm text-blue-700/90 dark:text-blue-300/90 truncate">
+              {replyingToMessage.messageType === 'image' ? t('chat.reply.image', 'Hình ảnh') :
+               replyingToMessage.messageType === 'file' ? t('chat.reply.file', 'Tệp đính kèm') :
+               replyingToMessage.content || ''}
+            </div>
+          </div>
+          {onClearReply && (
+            <button
+              type="button"
+              onClick={onClearReply}
+              className="p-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-800/40 text-blue-600 dark:text-blue-300"
+              aria-label={t('chat.reply.cancel', 'Hủy trả lời')}
+              title={t('chat.reply.cancel', 'Hủy trả lời')}
+            >
+              ×
+            </button>
+          )}
+        </div>
+      )}
       {pendingImages.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-2">
           {pendingImages.map((img) => (

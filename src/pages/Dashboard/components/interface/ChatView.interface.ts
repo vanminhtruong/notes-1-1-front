@@ -36,4 +36,8 @@ export interface ChatViewProps {
   onResetBackground?: () => void;
   // Blocking state (1-1)
   blocked?: boolean;
+  // Reply functionality
+  replyingToMessage?: any;
+  onClearReply?: () => void;
+  onReplyRequested?: (message: any) => void;
 }

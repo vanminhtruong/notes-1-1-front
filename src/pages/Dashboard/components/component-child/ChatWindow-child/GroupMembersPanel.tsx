@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { groupService } from '@/services/groupService';
+import { getSocket } from '@/services/socket';
 import { toast } from 'react-hot-toast';
 
 interface GroupMemberInfo {
@@ -63,6 +64,27 @@ export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfil
     fetchMembers();
     return () => { canceled = true; };
   }, [open, groupId, t]);
+
+  // Realtime: listen for role updates while the panel is open
+  useEffect(() => {
+    if (!open || !groupId) return;
+    const socket = getSocket();
+    if (!socket) return;
+
+    const onRoleUpdated = (payload: { groupId: number; userId: number; role: 'admin'|'member' }) => {
+      try {
+        if (!payload || Number(payload.groupId) !== Number(groupId)) return;
+        setMembers((prev) => prev.map((m) => (m.id === Number(payload.userId) ? { ...m, role: payload.role } : m)));
+      } catch (_e) {
+        // ignore
+      }
+    };
+
+    socket.on('group_member_role_updated', onRoleUpdated);
+    return () => {
+      socket.off('group_member_role_updated', onRoleUpdated);
+    };
+  }, [open, groupId]);
 
   if (!open) return null;
 

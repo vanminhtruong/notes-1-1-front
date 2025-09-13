@@ -27,6 +27,8 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
   const [pinStatusMap, setPinStatusMap] = useState<Record<number, boolean>>({});
   const [loadingPinFor, setLoadingPinFor] = useState<number | null>(null);
   const currentUserId = useAppSelector((state) => state.auth.user?.id);
+  // Override map to force unreadCount display (e.g., set to 0 immediately after read)
+  const [unreadOverride, setUnreadOverride] = useState<Record<number, number | undefined>>({});
 
   const loadGroups = async () => {
     setLoading(true);
@@ -35,13 +37,15 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
       const res = await groupService.listMyGroups();
       if (res.success) {
         console.log('[GroupsTab] Groups loaded:', res.data);
-        const data = res.data || [];
+        const data = (res.data || []).map((g: any) => {
+          const ov = unreadOverride[g.id];
+          return ov !== undefined ? { ...g, unreadCount: ov } : g;
+        });
         setGroups(data);
         // Initialize pin status map from server (supports either isPinned or pinned flags)
         const initialPins: Record<number, boolean> = {};
         for (const g of data) {
-          // @ts-expect-error server may return isPinned or pinned
-          initialPins[g.id] = !!(g.isPinned || g.pinned);
+          initialPins[g.id] = !!((g as any).isPinned || (g as any).pinned);
         }
         setPinStatusMap(initialPins);
       }
@@ -83,6 +87,17 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
     const onMemberLeft = () => loadGroups();
     const onGroupLeft = () => loadGroups();
     const onGroupUpdated = () => loadGroups();
+    // When any group message is marked read, refresh if it's me (to drop badge)
+    const onGroupMessageRead = (payload: { groupId: number; userId: number; messageId: number; readAt: string }) => {
+      try {
+        if (!payload) return;
+        if (Number(payload.userId) === Number(currentUserId)) {
+          // Optimistic zero for this group
+          setGroups((prev) => prev.map((g) => (g.id === Number(payload.groupId) ? ({ ...g, unreadCount: 0 }) : g)));
+          loadGroups();
+        }
+      } catch {}
+    };
 
     socket.on('group_created', onGroupCreated);
     socket.on('group_invited', onGroupInvited);
@@ -90,6 +105,26 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
     socket.on('group_member_left', onMemberLeft);
     socket.on('group_left', onGroupLeft);
     socket.on('group_updated', onGroupUpdated);
+    socket.on('group_message_read', onGroupMessageRead);
+    // Realtime: refresh unread badges when a new message arrives in any group
+    const onGroupMessage = (payload: any) => {
+      try {
+        if (!payload || typeof payload.groupId === 'undefined') return;
+        const gid = Number(payload.groupId);
+        // Nếu vừa đọc xong và đang force 0, thì tăng từ 0 → 1; ngược lại bỏ override để dùng số server
+        setUnreadOverride((prev) => {
+          const next = { ...prev } as Record<number, number | undefined>;
+          if (next[gid] !== undefined) {
+            next[gid] = Number(next[gid] || 0) + 1;
+          } else {
+            delete next[gid];
+          }
+          return next;
+        });
+        loadGroups();
+      } catch {}
+    };
+    socket.on('group_message', onGroupMessage);
 
     return () => {
       socket.off('group_created', onGroupCreated);
@@ -98,8 +133,32 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
       socket.off('group_member_left', onMemberLeft);
       socket.off('group_left', onGroupLeft);
       socket.off('group_updated', onGroupUpdated);
+      socket.off('group_message_read', onGroupMessageRead);
+      socket.off('group_message', onGroupMessage);
     };
   }, []);
+
+  // Listen for cross-component event when a group is opened/read to refresh unread badges
+  useEffect(() => {
+    const onMarkedRead = (e: any) => {
+      try {
+        const gid = Number(e?.detail?.groupId);
+        if (Number.isFinite(gid) && gid > 0) {
+          // Optimistically zero the badge for this group
+          setGroups((prev) => prev.map((g) => (g.id === gid ? ({ ...g, unreadCount: 0 }) : g)));
+          setUnreadOverride((prev) => ({ ...prev, [gid]: 0 }));
+        }
+        // Then fetch authoritative data from backend
+        loadGroups();
+      } catch {
+        loadGroups();
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('group_marked_read', onMarkedRead as any);
+      return () => window.removeEventListener('group_marked_read', onMarkedRead as any);
+    }
+  }, [loadGroups]);
 
   // Load available users for inviting (filters out current group members)
   const loadAvailableUsers = async (search = '') => {
@@ -375,15 +434,34 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
               <li
                 key={g.id}
                 className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                onClick={() => onSelectGroup?.(g)}
+                onClick={() => {
+                  // Optimistically reset unread count when opening the group
+                  setGroups((prev) => prev.map((x) => x.id === g.id ? ({ ...x, unreadCount: 0 }) : x));
+                  // Persist override so subsequent loadGroups() keeps 0 until a new message arrives
+                  setUnreadOverride((prev) => ({ ...prev, [g.id]: 0 }));
+                  // Notify backend to mark as read right away; then refresh list
+                  try { void groupService.markGroupMessagesRead(g.id).then(() => loadGroups()).catch(() => loadGroups()); } catch {}
+                  onSelectGroup?.(g);
+                }}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md flex-shrink-0">
-                    {g.avatar ? (
-                      <img src={g.avatar} alt={g.name} className="w-full h-full object-cover" />
-                    ) : (
-                      (g.name || '').charAt(0)
-                    )}
+                  {/* Avatar wrapper to allow badge overflow without clipping */}
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <div className="absolute inset-0 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md">
+                      {g.avatar ? (
+                        <img src={g.avatar} alt={g.name} className="w-full h-full object-cover" />
+                      ) : (
+                        (g.name || '').charAt(0)
+                      )}
+                    </div>
+                    {(() => {
+                      const count = (unreadOverride[g.id] !== undefined) ? (unreadOverride[g.id] as number) : (((g as any).unreadCount) || 0);
+                      return count > 0 ? (
+                        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[11px] leading-[18px] text-center shadow">
+                          {count}
+                        </span>
+                      ) : null;
+                    })()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1 font-semibold text-gray-900 dark:text-white">

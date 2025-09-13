@@ -11,4 +11,7 @@ export interface MessageInputProps {
   onRemoveFile: (id: string) => void;
   onTyping: () => void;
   onTypingStop: () => void;
+  // Reply preview
+  replyingToMessage?: any;
+  onClearReply?: () => void;
 }

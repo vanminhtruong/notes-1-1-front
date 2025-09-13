@@ -191,11 +191,13 @@
       "friendRequests": "Lời mời kết bạn",
       "users": "Người dùng",
       "sendRequest": "Thêm bạn",
+      "message": "Nhắn tin",
       "actions": {
         "accept": "Chấp nhận",
         "acceptRequest": "Chấp nhận lời mời kết bạn",
         "reject": "Từ chối",
-        "rejectRequest": "Từ chối lời mời kết bạn"
+        "rejectRequest": "Từ chối lời mời kết bạn",
+        "message": "Nhắn tin"
       },
       "empty": {
         "noResults": "Không tìm thấy người dùng phù hợp",
@@ -530,6 +532,12 @@
         "enabled": "Biên lai đọc được bật. Biên lai đọc chỉ hoạt động khi cả bạn và người khác đều bật cài đặt này.",
         "disabled": "Biên lai đọc bị tắt. Người khác không thể thấy khi bạn đọc tin nhắn của họ và bạn không thể thấy khi người khác đọc tin nhắn của bạn."
       },
+      "messagingFromNonFriends": {
+        "title": "Cho phép nhận tin nhắn từ người lạ",
+        "description": "Nếu bật, người chưa kết bạn vẫn có thể gửi tin nhắn cho bạn.",
+        "enabled": "Đã cho phép nhận tin từ người lạ",
+        "disabled": "Không cho phép nhận tin từ người lạ"
+      },
       "privacy": {
         "hidePhone": {
           "title": "Ẩn số điện thoại",
@@ -543,6 +551,13 @@
           "enabled": "Ngày sinh sẽ bị ẩn",
           "disabled": "Ngày sinh sẽ hiển thị"
         }
+      },
+      "blocked": {
+        "title": "Người bị chặn",
+        "description": "Quản lý danh sách những người bạn đã chặn. Bạn có thể bỏ chặn bất kỳ lúc nào.",
+        "unblock": "Bỏ chặn",
+        "empty": "Bạn chưa chặn ai",
+        "viewList": "Xem danh sách"
       },
       "pin": {
         "title": "PIN",

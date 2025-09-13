@@ -105,12 +105,15 @@ export const chatService = {
   },
 
   // Send message
-  async sendMessage(receiverId: number, content: string, messageType: 'text' | 'image' | 'file' = 'text') {
-    const response = await api.post('/chat/message', {
-      receiverId,
-      content,
-      messageType
-    });
+  async sendMessage(
+    receiverId: number,
+    content: string,
+    messageType: 'text' | 'image' | 'file' = 'text',
+    replyToMessageId?: number | null,
+  ) {
+    const payload: any = { receiverId, content, messageType };
+    if (replyToMessageId) payload.replyToMessageId = replyToMessageId;
+    const response = await api.post('/chat/message', payload);
     return response.data;
   },
 

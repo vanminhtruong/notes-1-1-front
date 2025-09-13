@@ -22,6 +22,9 @@ interface UseMessageComposerParams {
   typingSentRef: MutableRefObject<boolean>;
   upsertChatListWithMessage: (otherUserId: number, msg: Message) => void;
   t: (key: string, defaultValue?: any) => string;
+  // Reply context
+  replyingToMessage?: any | null;
+  clearReply?: () => void;
 }
 
 export function useMessageComposer({
@@ -39,6 +42,8 @@ export function useMessageComposer({
   typingSentRef,
   upsertChatListWithMessage,
   t,
+  replyingToMessage,
+  clearReply,
 }: UseMessageComposerParams) {
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -85,13 +90,20 @@ export function useMessageComposer({
 
     try {
       let sentSomething = false;
+      const replyId = replyingToMessage && replyingToMessage.id ? Number(replyingToMessage.id) : undefined;
 
       // Upload and send all pending images sequentially
       if (pendingImages.length > 0) {
         for (const img of pendingImages) {
           try {
             const { url } = await uploadService.uploadImage(img.file);
-            const resp = await chatService.sendMessage(selectedChat.id, url, 'image');
+            const resp = await chatService.sendMessage(
+              selectedChat.id,
+              url,
+              'image',
+              // Only attach reply to attachments if there is no text to send
+              newMessage.trim() ? undefined : replyId
+            );
             if (resp.success) {
               setMessages((prev) => {
                 const exists = prev.some((m: any) => m.id === resp.data.id);
@@ -114,7 +126,12 @@ export function useMessageComposer({
       if (pendingFiles.length > 0) {
         for (const f of pendingFiles) {
           const { url } = await uploadService.uploadFile(f.file);
-          const resp = await chatService.sendMessage(selectedChat.id, url, 'file');
+          const resp = await chatService.sendMessage(
+            selectedChat.id,
+            url,
+            'file',
+            newMessage.trim() ? undefined : replyId
+          );
           if (resp.success) {
             setMessages((prev) => {
               const exists = prev.some((m: any) => m.id === resp.data.id);
@@ -131,7 +148,7 @@ export function useMessageComposer({
 
       // If there is text, send it too
       if (newMessage.trim()) {
-        const response = await chatService.sendMessage(selectedChat.id, newMessage.trim(), 'text');
+        const response = await chatService.sendMessage(selectedChat.id, newMessage.trim(), 'text', replyId);
         if (response.success) {
           const apiMsg = response.data;
           setMessages((prev) => {
@@ -148,6 +165,7 @@ export function useMessageComposer({
 
       if (sentSomething) {
         scrollToBottom();
+        try { if (replyId && clearReply) clearReply(); } catch {}
         // stop typing if active
         const socket = getSocket();
         if (socket && typingSentRef.current) {
@@ -177,13 +195,19 @@ export function useMessageComposer({
 
     try {
       let sentSomething = false;
+      const replyId = replyingToMessage && replyingToMessage.id ? Number(replyingToMessage.id) : undefined;
 
       // Upload and send all pending images sequentially
       if (pendingImages.length > 0) {
         for (const img of pendingImages) {
           try {
             const { url } = await uploadService.uploadImage(img.file);
-            const resp = await groupService.sendGroupMessage(selectedGroup.id, url, 'image');
+            const resp = await groupService.sendGroupMessage(
+              selectedGroup.id,
+              url,
+              'image',
+              newMessage.trim() ? undefined : replyId
+            );
             if (resp.success) {
               setMessages((prev: any[]) => {
                 const exists = prev.some((m: any) => m.id === resp.data.id);
@@ -203,7 +227,12 @@ export function useMessageComposer({
       if (pendingFiles.length > 0) {
         for (const f of pendingFiles) {
           const { url } = await uploadService.uploadFile(f.file);
-          const resp = await groupService.sendGroupMessage(selectedGroup.id, url, 'file');
+          const resp = await groupService.sendGroupMessage(
+            selectedGroup.id,
+            url,
+            'file',
+            newMessage.trim() ? undefined : replyId
+          );
           if (resp.success) {
             setMessages((prev: any[]) => {
               const exists = prev.some((m: any) => m.id === resp.data.id);
@@ -218,7 +247,7 @@ export function useMessageComposer({
 
       // If there is text, send it too
       if (newMessage.trim()) {
-        const response = await groupService.sendGroupMessage(selectedGroup.id, newMessage.trim(), 'text');
+        const response = await groupService.sendGroupMessage(selectedGroup.id, newMessage.trim(), 'text', replyId);
         if (response.success) {
           const apiMsg = response.data;
           setMessages((prev: any[]) => {
@@ -233,6 +262,7 @@ export function useMessageComposer({
 
       if (sentSomething) {
         scrollToBottom();
+        try { if (replyId && clearReply) clearReply(); } catch {}
         // stop group typing if active
         const socket = getSocket();
         if (socket && typingSentRef.current && selectedGroup) {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getSocket } from '../../../../services/socket';
 import { settingsService } from '../../../../services/settingsService';
+import { blockService } from '../../../../services/blockService';
 import toast from 'react-hot-toast';
 import type { TFunction } from 'i18next';
 
@@ -13,6 +14,8 @@ export interface UseChatSettings {
   readStatusEnabled: boolean;
   hidePhone: boolean;
   hideBirthDate: boolean;
+  allowMessagesFromNonFriends: boolean;
+  blockedUsers: Array<{ id: number; name: string; email?: string; avatar?: string | null }>;
   openSettings: () => void;
   closeSettings: () => void;
   setShowSetPin: (v: boolean) => void;
@@ -22,12 +25,16 @@ export interface UseChatSettings {
   handleToggleReadStatus: (enabled: boolean) => Promise<void>;
   handleToggleHidePhone: (enabled: boolean) => Promise<void>;
   handleToggleHideBirthDate: (enabled: boolean) => Promise<void>;
+  handleToggleAllowMessagesFromNonFriends: (enabled: boolean) => Promise<void>;
+  handleUnblockUser: (userId: number) => Promise<void>;
   handleSetPin: (payload: { pinHash: string; oldPinHash?: string }) => Promise<void>;
   setE2EEEnabled: (v: boolean) => void;
   setE2EEPinHash: (v: string | null) => void;
   setReadStatusEnabled: (v: boolean) => void;
   setHidePhone: (v: boolean) => void;
   setHideBirthDate: (v: boolean) => void;
+  setAllowMessagesFromNonFriends: (v: boolean) => void;
+  setBlockedUsers: (v: Array<{ id: number; name: string; email?: string; avatar?: string | null }>) => void;
   showSettings: boolean;
 }
 
@@ -41,6 +48,8 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
   const [readStatusEnabled, setReadStatusEnabled] = useState<boolean>(true);
   const [hidePhone, setHidePhone] = useState<boolean>(false);
   const [hideBirthDate, setHideBirthDate] = useState<boolean>(false);
+  const [allowMessagesFromNonFriends, setAllowMessagesFromNonFriends] = useState<boolean>(true);
+  const [blockedUsers, setBlockedUsers] = useState<Array<{ id: number; name: string; email?: string; avatar?: string | null }>>([]);
 
   const openSettings = () => setShowSettings(true);
   const closeSettings = () => setShowSettings(false);
@@ -58,6 +67,41 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
       localStorage.setItem('e2ee_enabled', reverted ? '1' : '0');
       toast.error(t('chat.errors.settingsUpdateFailed'));
     });
+  };
+
+  const refreshBlockedUsers = async () => {
+    try {
+      const res = await blockService.listBlockedUsers();
+      if (res?.success && Array.isArray(res.data)) {
+        setBlockedUsers(res.data as any);
+      } else {
+        setBlockedUsers([]);
+      }
+    } catch {
+      // silent
+    }
+  };
+
+  const handleUnblockUser = async (userId: number) => {
+    try {
+      await blockService.unblock(userId);
+      await refreshBlockedUsers();
+      toast.success(t('chat.notifications.youUnblocked', { name: '', defaultValue: 'Unblocked user' }));
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || t('chat.errors.generic'));
+    }
+  };
+
+  const handleToggleAllowMessagesFromNonFriends = async (enabled: boolean) => {
+    try {
+      setAllowMessagesFromNonFriends(enabled);
+      const res = await settingsService.setPrivacy({ allowMessagesFromNonFriends: enabled });
+      setAllowMessagesFromNonFriends(res.allowMessagesFromNonFriends);
+      toast.success(t('chat.success.settingsUpdated', 'Settings updated successfully'));
+    } catch (error: any) {
+      setAllowMessagesFromNonFriends(!enabled);
+      toast.error(error?.response?.data?.message || t('chat.errors.settingsUpdateFailed', 'Failed to update settings'));
+    }
   };
 
   const handleToggleReadStatus = async (enabled: boolean) => {
@@ -152,15 +196,20 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
     };
     const onPinUpdated = ({ pinHash }: any) => setE2EEPinHash(pinHash);
     const onReadStatusUpdated = ({ enabled }: any) => setReadStatusEnabled(enabled);
-    const onPrivacyUpdated = ({ hidePhone, hideBirthDate }: any) => {
+    const onPrivacyUpdated = ({ hidePhone, hideBirthDate, allowMessagesFromNonFriends }: any) => {
       if (typeof hidePhone === 'boolean') setHidePhone(hidePhone);
       if (typeof hideBirthDate === 'boolean') setHideBirthDate(hideBirthDate);
+      if (typeof allowMessagesFromNonFriends === 'boolean') setAllowMessagesFromNonFriends(allowMessagesFromNonFriends);
     };
+    const onUserBlocked = () => { refreshBlockedUsers(); };
+    const onUserUnblocked = () => { refreshBlockedUsers(); };
 
     if (socket) socket.on('e2ee_status', onStatus);
     if (socket) socket.on('e2ee_pin_updated', onPinUpdated);
     if (socket) socket.on('read_status_updated', onReadStatusUpdated);
     if (socket) socket.on('privacy_updated', onPrivacyUpdated);
+    if (socket) socket.on('user_blocked', onUserBlocked as any);
+    if (socket) socket.on('user_unblocked', onUserUnblocked as any);
 
     return () => {
       window.removeEventListener('storage', onStorage);
@@ -169,6 +218,8 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
         socket.off('e2ee_pin_updated', onPinUpdated);
         socket.off('read_status_updated', onReadStatusUpdated);
         socket.off('privacy_updated', onPrivacyUpdated);
+        socket.off('user_blocked', onUserBlocked as any);
+        socket.off('user_unblocked', onUserUnblocked as any);
       }
     };
   }, []);
@@ -216,6 +267,8 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
         setReadStatusEnabled(readStatusRes.enabled);
         setHidePhone(privacyRes.hidePhone);
         setHideBirthDate(privacyRes.hideBirthDate);
+        setAllowMessagesFromNonFriends(privacyRes.allowMessagesFromNonFriends);
+        await refreshBlockedUsers();
       } catch {
         // noop
       }
@@ -232,6 +285,8 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
     readStatusEnabled,
     hidePhone,
     hideBirthDate,
+    allowMessagesFromNonFriends,
+    blockedUsers,
     openSettings,
     closeSettings,
     setShowSetPin,
@@ -241,12 +296,16 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
     handleToggleReadStatus,
     handleToggleHidePhone,
     handleToggleHideBirthDate,
+    handleToggleAllowMessagesFromNonFriends,
+    handleUnblockUser,
     handleSetPin,
     setE2EEEnabled,
     setE2EEPinHash,
     setReadStatusEnabled,
     setHidePhone,
     setHideBirthDate,
+    setAllowMessagesFromNonFriends,
+    setBlockedUsers,
     showSettings,
   };
 }

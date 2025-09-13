@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import type React from 'react';
 import toast from 'react-hot-toast';
 import { getSocket } from '../../../../services/socket';
+import { groupService } from '../../../../services/groupService';
 import type { TFunction } from 'i18next';
 import type { GroupSummary } from '../../../../services/groupService';
 import type { User, Message } from '../../components/interface/ChatTypes.interface';
@@ -129,6 +130,52 @@ export function useChatSocket(params: UseChatSocketParams) {
     };
     const onFriendRejected = (data: any) => {
       toast(String(t('chat.notifications.friendRejected', { name: data.rejectedBy?.name } as any)));
+      // Optimistic upsert vào danh sách Users để phản ánh ngay khi bị từ chối (không cần F5)
+      try {
+        const candidate = data?.rejectedBy;
+        if (candidate && typeof candidate.id === 'number') {
+          const term = String(searchTerm || '').trim().toLowerCase();
+          const matches = !term
+            || (String(candidate.name || '').toLowerCase().includes(term))
+            || (String(candidate.email || '').toLowerCase().includes(term));
+          if (matches) {
+            setUsers((prev: User[]) => {
+              if (Array.isArray(prev) && prev.some((u) => u.id === candidate.id)) return prev;
+              return [candidate as User, ...prev];
+            });
+          }
+          // Sau khi refresh danh sách từ backend, đảm bảo vẫn còn candidate nếu backend chưa kịp đưa user này vào gợi ý
+          try {
+            const p = loadUsers(searchTerm);
+            if (p && typeof (p as Promise<any>).then === 'function') {
+              (p as Promise<any>).then(() => {
+                setUsers((prev: User[]) => {
+                  const exists = Array.isArray(prev) && prev.some((u) => u.id === candidate.id);
+                  if (exists) return prev;
+                  const term2 = String(searchTerm || '').trim().toLowerCase();
+                  const matches2 = !term2
+                    || (String(candidate.name || '').toLowerCase().includes(term2))
+                    || (String(candidate.email || '').toLowerCase().includes(term2));
+                  return matches2 ? [candidate as User, ...prev] : prev;
+                });
+              }).catch(() => {
+                // fallback: vẫn giữ optimistic nếu load thất bại
+              });
+            } else {
+              // Nếu loadUsers là sync, vẫn merge sau đó
+              setUsers((prev: User[]) => {
+                const exists = Array.isArray(prev) && prev.some((u) => u.id === candidate.id);
+                if (exists) return prev;
+                return [candidate as User, ...prev];
+              });
+            }
+          } catch {}
+          // Đã gọi loadUsers ở trên, không cần gọi lần nữa bên dưới
+          loadFriendRequests();
+          return;
+        }
+      } catch {}
+      // Fallback nếu payload không có rejectedBy
       loadUsers(searchTerm);
       loadFriendRequests();
     };
@@ -159,12 +206,18 @@ export function useChatSocket(params: UseChatSocketParams) {
         setMessages((prev: any[]) => {
           const exists = Array.isArray(prev) && prev.some((m: any) => m.id === data.id);
           if (exists) return prev;
-          
-          let messageWithStatus;
+
+          // Enrich reply inline if server only sent replyToMessageId
+          const resolvedReply = (!data.replyToMessage && data.replyToMessageId)
+            ? (prev as any[]).find((m: any) => m.id === data.replyToMessageId)
+            : undefined;
+          const enriched = resolvedReply ? { ...data, replyToMessage: resolvedReply } : data;
+
+          let messageWithStatus: any;
           // If receiving message from someone else while chat is open, mark as read immediately
-          if (data.senderId !== currentUser?.id) {
+          if (enriched.senderId !== currentUser?.id) {
             messageWithStatus = {
-              ...data,
+              ...enriched,
               status: 'read',
               readBy: [{
                 userId: currentUser.id,
@@ -172,20 +225,20 @@ export function useChatSocket(params: UseChatSocketParams) {
                 user: currentUser
               }]
             };
-            
+
             // Send read receipt to backend
             const socket = getSocket();
             if (socket) {
-              socket.emit('message_read', { messageId: data.id, chatId: selectedChat.id });
+              socket.emit('message_read', { messageId: enriched.id, chatId: selectedChat.id });
             }
           } else {
             // Own message - keep as sent until backend confirms delivery
             messageWithStatus = {
-              ...data,
+              ...enriched,
               status: 'sent'
             };
           }
-          
+
           return [...(prev as any[]), messageWithStatus];
         });
         setTimeout(scrollToBottom, 100);
@@ -203,7 +256,7 @@ export function useChatSocket(params: UseChatSocketParams) {
 
     const onGroupMessage = (data: any) => {
       if (selectedGroup && data.groupId === selectedGroup.id) {
-        const enriched = data.sender
+        const base = data.sender
           ? data
           : {
               ...data,
@@ -211,42 +264,50 @@ export function useChatSocket(params: UseChatSocketParams) {
                 ? { id: data.senderId, name: data.senderName, avatar: data.senderAvatar }
                 : resolveUser(data.senderId),
             };
-        
-        // Set initial status based on sender
-        const messageWithStatus = {
-          ...enriched,
-          status: enriched.senderId === currentUser?.id ? 'sent' : 'delivered'
-        };
-
-        // Auto-send read receipt for group messages when viewing
-        if (enriched.senderId !== currentUser?.id) {
-          // Only send read receipts and mark with readBy if readStatusEnabled is true
-          if (readStatusEnabled) {
-            messageWithStatus.status = 'read';
-            messageWithStatus.readBy = [{
-              userId: currentUser.id,
-              readAt: new Date().toISOString(),
-              user: currentUser
-            }];
-            
-            const socket = getSocket();
-            if (socket) {
-              socket.emit('group_message_read', { 
-                messageId: enriched.id, 
-                groupId: selectedGroup.id,
-                userId: currentUser?.id,
-                readAt: new Date().toISOString()
-              });
-            }
-          } else {
-            // Still mark as delivered for unread count purposes, but no read receipts
-            messageWithStatus.status = 'delivered';
-          }
-        }
 
         setMessages((prev: any[]) => {
-          const exists = Array.isArray(prev) && prev.some((m: any) => m.id === messageWithStatus.id);
+          const exists = Array.isArray(prev) && prev.some((m: any) => m.id === base.id);
           if (exists) return prev as any[];
+
+          // Enrich reply inline if only replyToMessageId is present
+          const resolvedReply = (!base.replyToMessage && base.replyToMessageId)
+            ? (prev as any[]).find((m: any) => m.id === base.replyToMessageId)
+            : undefined;
+          const enriched = resolvedReply ? { ...base, replyToMessage: resolvedReply } : base;
+
+          // Set initial status based on sender
+          const messageWithStatus: any = {
+            ...enriched,
+            status: enriched.senderId === currentUser?.id ? 'sent' : 'delivered'
+          };
+
+          // Auto-mark read for unread count purposes when viewing this group
+          if (enriched.senderId !== currentUser?.id) {
+            // Notify backend to mark as read regardless of read receipts preference
+            try { void groupService.markGroupMessagesRead(selectedGroup.id); } catch {}
+            // Also dispatch UI event so GroupsTab (if mounted) clears badge immediately
+            try { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('group_marked_read', { detail: { groupId: selectedGroup.id } })); } catch {}
+            // Only send read receipts and mark with readBy if readStatusEnabled is true
+            if (readStatusEnabled) {
+              messageWithStatus.status = 'read';
+              messageWithStatus.readBy = [{
+                userId: currentUser.id,
+                readAt: new Date().toISOString(),
+                user: currentUser
+              }];
+
+              const socket = getSocket();
+              if (socket) {
+                socket.emit('group_message_read', { 
+                  messageId: enriched.id, 
+                  groupId: selectedGroup.id,
+                  userId: currentUser?.id,
+                  readAt: new Date().toISOString()
+                });
+              }
+            }
+          }
+
           return [...(prev as any[]), messageWithStatus];
         });
         setTimeout(scrollToBottom, 100);

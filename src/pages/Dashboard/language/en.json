@@ -205,11 +205,13 @@
       "friendRequests": "Friend requests",
       "users": "Users",
       "sendRequest": "Add friend",
+      "message": "Message",
       "actions": {
         "accept": "Accept",
         "acceptRequest": "Accept friend request",
         "reject": "Reject",
-        "rejectRequest": "Reject friend request"
+        "rejectRequest": "Reject friend request",
+        "message": "Message"
       },
       "empty": {
         "noResults": "No matching users",
@@ -544,6 +546,12 @@
         "enabled": "Read receipts are enabled. Read receipts will work only if both you and the other person have this setting enabled.",
         "disabled": "Read receipts are disabled. Others cannot see when you read their messages and you cannot see when others read yours."
       },
+      "messagingFromNonFriends": {
+        "title": "Allow messages from non-friends",
+        "description": "If enabled, people who aren't your friends can send you messages.",
+        "enabled": "You allow messages from non-friends",
+        "disabled": "You don't allow messages from non-friends"
+      },
       "privacy": {
         "hidePhone": {
           "title": "Hide phone number",
@@ -557,6 +565,13 @@
           "enabled": "Birth date will be hidden",
           "disabled": "Birth date will be visible"
         }
+      },
+      "blocked": {
+        "title": "Blocked users",
+        "description": "Manage the people you have blocked. You can unblock anyone at any time.",
+        "unblock": "Unblock",
+        "empty": "You haven't blocked anyone yet",
+        "viewList": "View list"
       },
       "pin": {
         "title": "PIN",

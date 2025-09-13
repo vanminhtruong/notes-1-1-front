@@ -121,6 +121,7 @@ export function useChatOpeners(params: {
         setMessages(msgs);
         setMenuOpenKey(null);
         setTimeout(scrollToBottom, 100);
+        // No-op for DM: group-specific events not applicable here
       } else {
         setMessages([]);
       }
@@ -137,7 +138,12 @@ export function useChatOpeners(params: {
     setSelectedChat(null);
     setSelectedGroup(group);
     setActiveTab('groups');
+    // Update local unread map (notifications hook)
     markGroupAsRead(group.id);
+    // Explicitly notify backend to mark as read for authoritative unread counts
+    try { await groupService.markGroupMessagesRead(group.id); } catch {}
+    // Notify other UI (e.g., GroupsTab list) to refresh unread badges
+    try { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('group_marked_read', { detail: { groupId: group.id } })); } catch {}
 
     try {
       // Preload members to resolve sender avatars accurately
