@@ -12,6 +12,8 @@
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
     "@reduxjs/toolkit": "^2.8.2",
+    "@tensorflow-models/blazeface": "^0.1.0",
+    "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.6.2",
     "country-flag-icons": "^1.5.19",
     "i18next": "^25.4.2",

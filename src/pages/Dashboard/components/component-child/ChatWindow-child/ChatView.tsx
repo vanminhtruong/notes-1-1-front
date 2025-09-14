@@ -986,37 +986,87 @@ const ChatView = ({
                         {allRecalled ? (
                           <>
                             <div className="flex flex-col gap-2">
-                              {group.items
-                                .slice()
-                                .sort((a, b) => {
-                                  const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
-                                  const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
-                                  return timeA - timeB;
-                                })
-                                .map((itm) => (
-                                  <MessageBubble
-                                    key={itm.id}
-                                    message={itm}
-                                    isOwnMessage={isOwnMessage}
-                                    isRecalled={true}
-                                    menuOpenKey={menuOpenKey}
-                                    messageKey={`item-${itm.id}`}
-                                    showMenu={true}
-                                    currentUserId={currentUserId}
-                                    allMessages={messages}
-                                    onMenuToggle={onMenuToggle}
-                                    onRecallMessage={onRecallMessage}
-                                    onEditMessage={onEditMessage}
-                                    onDownloadAttachment={onDownloadAttachment}
-                                    onPreviewImage={onPreviewImage}
-                                    pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
-                                    onTogglePinMessage={handleTogglePinMessage}
-                                    onOpenProfile={handleOpenProfile}
-                                    disableReactions={!isGroup && !!blocked}
-                                    onReplyMessage={handleReplyMessage}
-                                    onJumpToMessage={scrollToMessage}
-                                  />
-                                ))}
+                              {(() => {
+                                // When every item in this sender-time group was recalled,
+                                // compress sequences of image/file (+ optional following text)
+                                // into a single recalled placeholder to avoid duplicates.
+                                const sortedItems = group.items
+                                  .slice()
+                                  .sort((a, b) => {
+                                    const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                                    const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                                    return timeA - timeB;
+                                  });
+                                const result: any[] = [];
+                                let i = 0;
+                                while (i < sortedItems.length) {
+                                  const current = sortedItems[i];
+                                  if (current.messageType === 'image' || current.messageType === 'file') {
+                                    // Collapse consecutive attachments and an optional trailing text into one placeholder
+                                    let j = i;
+                                    while (j < sortedItems.length && (sortedItems[j].messageType === 'image' || sortedItems[j].messageType === 'file')) {
+                                      j++;
+                                    }
+                                    if (j < sortedItems.length && sortedItems[j].messageType === 'text') {
+                                      j++;
+                                    }
+                                    const placeholderMsg = current; // Use first item as representative
+                                    result.push(
+                                      <MessageBubble
+                                        key={`recalled-combo-${placeholderMsg.id}`}
+                                        message={placeholderMsg}
+                                        isOwnMessage={isOwnMessage}
+                                        isRecalled={true}
+                                        menuOpenKey={menuOpenKey}
+                                        messageKey={`item-${placeholderMsg.id}`}
+                                        showMenu={true}
+                                        currentUserId={currentUserId}
+                                        allMessages={messages}
+                                        onMenuToggle={onMenuToggle}
+                                        onRecallMessage={onRecallMessage}
+                                        onEditMessage={onEditMessage}
+                                        onDownloadAttachment={onDownloadAttachment}
+                                        onPreviewImage={onPreviewImage}
+                                        pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
+                                        onTogglePinMessage={handleTogglePinMessage}
+                                        onOpenProfile={handleOpenProfile}
+                                        disableReactions={!isGroup && !!blocked}
+                                        onReplyMessage={handleReplyMessage}
+                                        onJumpToMessage={scrollToMessage}
+                                      />
+                                    );
+                                    i = j;
+                                  } else {
+                                    // Text-only item (not part of an attachment combo) -> single placeholder
+                                    result.push(
+                                      <MessageBubble
+                                        key={`recalled-${current.id}`}
+                                        message={current}
+                                        isOwnMessage={isOwnMessage}
+                                        isRecalled={true}
+                                        menuOpenKey={menuOpenKey}
+                                        messageKey={`item-${current.id}`}
+                                        showMenu={true}
+                                        currentUserId={currentUserId}
+                                        allMessages={messages}
+                                        onMenuToggle={onMenuToggle}
+                                        onRecallMessage={onRecallMessage}
+                                        onEditMessage={onEditMessage}
+                                        onDownloadAttachment={onDownloadAttachment}
+                                        onPreviewImage={onPreviewImage}
+                                        pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
+                                        onTogglePinMessage={handleTogglePinMessage}
+                                        onOpenProfile={handleOpenProfile}
+                                        disableReactions={!isGroup && !!blocked}
+                                        onReplyMessage={handleReplyMessage}
+                                        onJumpToMessage={scrollToMessage}
+                                      />
+                                    );
+                                    i++;
+                                  }
+                                }
+                                return result;
+                              })()}
                             </div>
                           </>
                         ) : (
@@ -1032,36 +1082,101 @@ const ChatView = ({
                                 let i = 0;
                                 while (i < sortedItems.length) {
                                   const current = sortedItems[i];
-                                  if (current.messageType === 'image') {
-                                    const imageGroup = [current];
-                                    let j = i + 1;
-                                    while (j < sortedItems.length && sortedItems[j].messageType === 'image') { imageGroup.push(sortedItems[j]); j++; }
+                                  // Gom ảnh/file liền kề và (nếu có) text ngay sau đó vào CÙNG một bubble
+                                  if (current.messageType === 'image' || current.messageType === 'file') {
+                                    const attachments: any[] = [];
+                                    let j = i;
+                                    while (j < sortedItems.length && (sortedItems[j].messageType === 'image' || sortedItems[j].messageType === 'file')) {
+                                      attachments.push(sortedItems[j]);
+                                      j++;
+                                    }
+                                    let textMsg: any | null = null;
+                                    if (j < sortedItems.length && sortedItems[j].messageType === 'text') {
+                                      textMsg = sortedItems[j];
+                                      j++;
+                                    }
+                                    const imgs = attachments.filter((a) => a.messageType === 'image' && !a.isDeletedForAll);
+                                    const files = attachments.filter((a) => a.messageType === 'file' && !a.isDeletedForAll);
                                     result.push(
-                                      <div key={`img-group-${current.id}`} className={`grid gap-1 ${imageGroup.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                                        {imageGroup.map((img) => (
-                                          <MessageBubble
-                                            key={img.id}
-                                            message={img}
-                                            isOwnMessage={isOwnMessage}
-                                            isRecalled={img.isDeletedForAll}
-                                            menuOpenKey={menuOpenKey}
-                                            messageKey={`img-${img.id}`}
-                                            showMenu={true}
-                                            currentUserId={currentUserId}
-                                            allMessages={messages}
-                                            onMenuToggle={onMenuToggle}
-                                            onRecallMessage={onRecallMessage}
-                                            onEditMessage={onEditMessage}
-                                            onDownloadAttachment={onDownloadAttachment}
-                                            onPreviewImage={onPreviewImage}
-                                            pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
-                                            onTogglePinMessage={handleTogglePinMessage}
-                                            onOpenProfile={handleOpenProfile}
-                                            disableReactions={!isGroup && !!blocked}
-                                            onReplyMessage={handleReplyMessage}
-                                            onJumpToMessage={scrollToMessage}
-                                          />
-                                        ))}
+                                      <div key={`combo-${current.id}`} className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'}`}>
+                                        <div className="relative">
+                                          {/* Menu ba chấm cho combo bubble */}
+                                          <button
+                                            onClick={() => onMenuToggle(menuOpenKey === `combo-${current.id}` ? null : `combo-${current.id}`)}
+                                            className={`absolute -top-2 ${isOwnMessage ? '-right-2' : '-left-2'} z-30 p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 transition-opacity`}
+                                            title={t('chat.menu.options')}
+                                            aria-label={t('chat.menu.messageOptionsAria')}
+                                          >
+                                            <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                          </button>
+                                          {menuOpenKey === `combo-${current.id}` && (
+                                            <div
+                                              className={`absolute z-40 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
+                                              onMouseLeave={() => onMenuToggle(null)}
+                                            >
+                                              <button
+                                                onClick={() => {
+                                                  attachments.forEach((m: any) => { if (!m.isDeletedForAll) onRecallMessage(m, 'self'); });
+                                                  if (textMsg && !textMsg.isDeletedForAll) onRecallMessage(textMsg, 'self');
+                                                }}
+                                                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                                              >
+                                                {t('chat.menu.recall.self')}
+                                              </button>
+                                              {isOwnMessage && (
+                                                <button
+                                                  onClick={() => {
+                                                    attachments.forEach((m: any) => { if (!m.isDeletedForAll) onRecallMessage(m, 'all'); });
+                                                    if (textMsg && !textMsg.isDeletedForAll) onRecallMessage(textMsg, 'all');
+                                                  }}
+                                                  className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                >
+                                                  {t('chat.menu.recall.all')}
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
+                                          <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
+                                            <div className={`px-3 py-2 rounded-2xl text-sm break-words whitespace-pre-wrap w-fit ${isOwnMessage ? 'bg-blue-600 text-white rounded-br-md' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'}`}>
+                                          {imgs.length > 0 && (
+                                            <div className={`grid gap-1 ${imgs.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                                              {imgs.map((img) => (
+                                                <div key={img.id} className="relative">
+                                                  <img
+                                                    src={img.content}
+                                                    alt={t('chat.message.imageAlt')}
+                                                    onClick={() => onPreviewImage && onPreviewImage(img.content)}
+                                                    className="w-40 h-40 cursor-zoom-in rounded-xl object-cover"
+                                                  />
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                          {files.length > 0 && (
+                                            <div className={`${imgs.length > 0 ? 'mt-2' : ''} space-y-1`}>
+                                              {files.map((f) => (
+                                                <button
+                                                  key={f.id}
+                                                  type="button"
+                                                  onClick={() => onDownloadAttachment && onDownloadAttachment(f.content)}
+                                                  className="w-full flex items-center gap-2 px-2 py-1 rounded-md bg-transparent text-current text-left"
+                                                  title={t('chat.attachment.downloadFileTitle')}
+                                                  aria-label={t('chat.attachment.downloadFileAria')}
+                                                >
+                                                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M8 2a1 1 0 00-1 1v2H5a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2V3a1 1 0 10-2 0v2H9V3a1 1 0 00-1-1z" />
+                                                  </svg>
+                                                  <span className="truncate max-w-[220px]">{(() => { try { const u = new URL(f.content); return decodeURIComponent(u.pathname.split('/').pop() || t('chat.attachment.fileFallback')); } catch { return f.content; } })()}</span>
+                                                </button>
+                                              ))}
+                                            </div>
+                                          )}
+                                          {textMsg && !textMsg.isDeletedForAll && (
+                                            <div className={`${(imgs.length > 0 || files.length > 0) ? 'mt-2' : ''}`}>{textMsg.content}</div>
+                                          )}
+                                            </div>
+                                          </div>
+                                        </div>
                                       </div>
                                     );
                                     i = j;
@@ -1113,7 +1228,7 @@ const ChatView = ({
         )}
         {!isGroup && isPartnerTyping && !maskMessages && (
           <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
-            <div className="w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto">
+            <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-blue-500/30 dark:ring-blue-400/30 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto shadow">
               {selectedChat.avatar ? (
                 <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
               ) : (
@@ -1121,11 +1236,11 @@ const ChatView = ({
               )}
             </div>
             <div className="max-w-[70%] flex flex-col items-start">
-              <div className="px-4 py-2 rounded-2xl text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm">
-                <div className="flex items-center gap-1 py-1">
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+              <div className="px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-gray-800/80 border border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm shadow-md">
+                <div className="flex items-center gap-1 py-0.5">
+                  <span className="w-2 h-2 bg-blue-500/80 dark:bg-blue-400/80 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                  <span className="w-2 h-2 bg-blue-500/40 dark:bg-blue-400/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                 </div>
               </div>
             </div>
@@ -1133,29 +1248,36 @@ const ChatView = ({
         )}
         {isGroup && typingUsers && typingUsers.length > 0 && !maskMessages && (
           <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
-            <div className="w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto">
+            <div className="flex -space-x-2 mt-auto">
               {(() => {
-                const first = typingUsers[0] as any;
-                const name = String(first?.name || '').trim() || 'U';
-                const avatar = (first as any)?.avatar || null;
-                return avatar ? (
-                  <img src={avatar} alt={name} className="w-full h-full object-cover" />
-                ) : (
-                  name.charAt(0)
-                );
+                const list = (typingUsers as any[]).slice(0, 2);
+                return list.map((u: any, idx: number) => {
+                  const name = String(u?.name || '').trim() || 'U';
+                  const avatar = (u as any)?.avatar || null;
+                  return (
+                    <div key={u?.id ?? idx} className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white dark:ring-gray-900 shadow">
+                      {avatar ? (
+                        <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-semibold">{name.charAt(0)}</div>
+                      )}
+                    </div>
+                  );
+                });
               })()}
             </div>
-            <div className="flex items-end gap-1">
-              <div className="px-3 py-1.5 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs shadow-sm">
-                {t('chat.chatView.typing', 'Đang nhập...')}
+            <div className="flex flex-col items-start gap-0.5">
+              {/* Bubble: không chứa chữ 'Đang nhập...' chỉ hiển thị chấm */}
+              <div className="px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-gray-800/80 border border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm shadow-md">
+                <div className="flex items-center gap-1 py-0.5">
+                  <span className="w-2 h-2 bg-blue-500/80 dark:bg-blue-400/80 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                  <span className="w-2 h-2 bg-blue-500/40 dark:bg-blue-400/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                </div>
               </div>
-              <div className="flex gap-0.5 pb-2">
-                <span className="text-xs text-gray-500 dark:text-gray-400">{typingUsers.map(u => u.name).join(', ')}</span>
-              </div>
-              <div className="flex items-center gap-1 py-1">
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+              {/* Tên người đang nhập (nhẹ, nhỏ) */}
+              <div className="text-[11px] leading-none text-gray-500 dark:text-gray-400 px-1">
+                {typingUsers.map((u) => u.name).join(', ')}
               </div>
             </div>
           </div>

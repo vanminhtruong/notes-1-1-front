@@ -202,16 +202,27 @@ export function useChatSocket(params: UseChatSocketParams) {
     };
 
     const onNewMessage = (data: any) => {
-      if (selectedChat && (data.senderId === selectedChat.id || data.receiverId === selectedChat.id)) {
+      // Ensure DM payload has full sender/receiver objects so UI can show avatar immediately
+      const base = data?.sender
+        ? data
+        : {
+            ...data,
+            sender: (data.senderAvatar || data.senderName)
+              ? { id: data.senderId, name: data.senderName, avatar: data.senderAvatar }
+              : resolveUser(data.senderId),
+            receiver: resolveUser(data.receiverId),
+          };
+
+      if (selectedChat && (base.senderId === selectedChat.id || base.receiverId === selectedChat.id)) {
         setMessages((prev: any[]) => {
-          const exists = Array.isArray(prev) && prev.some((m: any) => m.id === data.id);
+          const exists = Array.isArray(prev) && prev.some((m: any) => m.id === base.id);
           if (exists) return prev;
 
           // Enrich reply inline if server only sent replyToMessageId
-          const resolvedReply = (!data.replyToMessage && data.replyToMessageId)
-            ? (prev as any[]).find((m: any) => m.id === data.replyToMessageId)
+          const resolvedReply = (!base.replyToMessage && base.replyToMessageId)
+            ? (prev as any[]).find((m: any) => m.id === base.replyToMessageId)
             : undefined;
-          const enriched = resolvedReply ? { ...data, replyToMessage: resolvedReply } : data;
+          const enriched = resolvedReply ? { ...base, replyToMessage: resolvedReply } : base;
 
           let messageWithStatus: any;
           // If receiving message from someone else while chat is open, mark as read immediately
@@ -242,11 +253,34 @@ export function useChatSocket(params: UseChatSocketParams) {
           return [...(prev as any[]), messageWithStatus];
         });
         setTimeout(scrollToBottom, 100);
+        // Also update the header's selectedChat avatar/name immediately
+        try {
+          const isOwnMsg = !!(currentUser && base.senderId === currentUser.id);
+          const otherIdForHeader = isOwnMsg ? base.receiverId : base.senderId;
+          if (selectedChat && selectedChat.id === otherIdForHeader) {
+            const nextName = isOwnMsg ? (base.receiverName || selectedChat.name) : (base.senderName || selectedChat.name);
+            const nextAvatar = isOwnMsg
+              ? ((base as any).receiverAvatar !== undefined ? (base as any).receiverAvatar : (selectedChat as any).avatar)
+              : ((base as any).senderAvatar !== undefined ? (base as any).senderAvatar : (selectedChat as any).avatar);
+            setSelectedChat((prev) => (prev ? { ...prev, name: nextName, avatar: nextAvatar } as any : prev));
+          }
+        } catch { /* noop */ }
       }
-      const isOwn = currentUser && data.senderId === currentUser.id;
-      const otherId = isOwn ? data.receiverId : data.senderId;
+      const isOwn = currentUser && base.senderId === currentUser.id;
+      const otherId = isOwn ? base.receiverId : base.senderId;
       if (otherId != null) {
-        upsertChatListWithMessage(otherId, data as Message);
+        upsertChatListWithMessage(otherId, base as Message);
+        // Also merge avatar/name into friends and users lists so future opens have correct data
+        const nextName = isOwn ? (base.receiverName as any) : (base.senderName as any);
+        const nextAvatar = isOwn ? ((base as any).receiverAvatar) : ((base as any).senderAvatar);
+        if (nextName !== undefined || nextAvatar !== undefined) {
+          setFriends((prev: any[]) => prev.map((f: any) => (
+            f.id === otherId ? { ...f, name: nextName || f.name, avatar: (nextAvatar !== undefined ? nextAvatar : (f as any).avatar) } : f
+          )));
+          setUsers((prev: any[]) => prev.map((u: any) => (
+            u.id === otherId ? { ...u, name: nextName || u.name, avatar: (nextAvatar !== undefined ? nextAvatar : (u as any).avatar) } : u
+          )));
+        }
         // Ensure ordering matches backend logic (pinned first)
         if (typeof loadChatList === 'function') {
           loadChatList();
@@ -335,36 +369,29 @@ export function useChatSocket(params: UseChatSocketParams) {
     };
 
     const onMessageRead = (data: any) => {
-      // Update message status to read and add readBy info
+      // Update message status to read và bổ sung readBy với thông tin user đầy đủ
       setMessages((prev: any[]) => {
         return prev.map((m: any) => {
-          if (m.id === data.messageId) {
-            const readBy = m.readBy || [];
-            const existingIndex = readBy.findIndex((rb: any) => rb.userId === data.userId);
-            let updatedReadBy;
-            
-            if (existingIndex >= 0) {
-              updatedReadBy = [...readBy];
-              updatedReadBy[existingIndex] = {
-                userId: data.userId,
-                readAt: data.readAt,
-                user: data.user || resolveUser(data.userId)
-              };
-            } else {
-              updatedReadBy = [...readBy, {
-                userId: data.userId,
-                readAt: data.readAt,
-                user: data.user || resolveUser(data.userId)
-              }];
-            }
-            
-            return { 
-              ...m, 
-              status: 'read',
-              readBy: updatedReadBy
-            };
-          }
-          return m;
+          if (m.id !== data.messageId) return m;
+
+          const readBy = Array.isArray(m.readBy) ? m.readBy : [];
+          const payloadUserId = Number(data.userId);
+          const selectedMatch = (selectedChat && Number((selectedChat as any).id) === payloadUserId) ? selectedChat : undefined;
+          const listMatch = friends.find((f: any) => Number(f.id) === payloadUserId) || users.find((u: any) => Number(u.id) === payloadUserId);
+          const resolvedUser = (
+            data.user
+            || selectedMatch
+            || (listMatch as any)
+            || resolveUser(payloadUserId)
+          );
+
+          const withoutUser = readBy.filter((rb: any) => Number(rb.userId) !== payloadUserId);
+          const updatedReadBy = [
+            ...withoutUser,
+            { userId: payloadUserId, readAt: data.readAt, user: resolvedUser },
+          ];
+
+          return { ...m, status: 'read', readBy: updatedReadBy };
         });
       });
     };
@@ -922,4 +949,36 @@ export function useChatSocket(params: UseChatSocketParams) {
       }
     };
   }, [currentUser, selectedChat, selectedGroup, friends, users, searchTerm]);
+
+  // Enrich readBy.user khi profile (selectedChat/friends/users) thay đổi để cập nhật avatar real-time
+  useEffect(() => {
+    try {
+      setMessages((prev: any[]) => {
+        if (!Array.isArray(prev) || prev.length === 0) return prev;
+        const fr = friends || [];
+        const us = users || [];
+        const sc = selectedChat;
+        let changed = false;
+        const next = prev.map((m: any) => {
+          if (!Array.isArray(m.readBy) || m.readBy.length === 0) return m;
+          let innerChanged = false;
+          const enriched = m.readBy.map((rb: any) => {
+            if (rb?.user?.avatar) return rb;
+            const uid = Number(rb.userId);
+            const match = (sc && Number((sc as any).id) === uid)
+              ? sc
+              : (fr.find((f: any) => Number(f.id) === uid) || us.find((u: any) => Number(u.id) === uid));
+            if (match) {
+              innerChanged = true;
+              return { ...rb, user: { ...(rb.user || {}), ...match } };
+            }
+            return rb;
+          });
+          if (innerChanged) { changed = true; return { ...m, readBy: enriched }; }
+          return m;
+        });
+        return changed ? next : prev;
+      });
+    } catch {/* ignore */}
+  }, [selectedChat, friends, users, setMessages]);
 }

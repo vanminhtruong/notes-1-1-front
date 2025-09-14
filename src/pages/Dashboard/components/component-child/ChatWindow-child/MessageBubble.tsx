@@ -170,48 +170,64 @@ const MessageBubble = ({
   // Check if this is a shared message (shared note)
   const isSharedMessage = typeof message.content === 'string' && message.content.startsWith('NOTE_SHARE::');
   const renderImageMessage = () => (
-    <div className="relative">
-      <img
-        src={message.content}
-        alt={t('chat.message.imageAlt')}
-        onClick={() => onPreviewImage(message.content)}
-        className={`w-36 h-36 cursor-zoom-in rounded-2xl ${isOwnMessage ? 'rounded-br-md' : 'rounded-bl-md'} shadow-sm object-cover border border-gray-200 dark:border-gray-700`}
-      />
-      <button
-        type="button"
-        className="absolute bottom-1 right-1 z-10 p-1 rounded-full bg-white/90 text-gray-700 shadow hover:bg-white"
-        aria-label={t('chat.attachment.downloadImageAria')}
-        title={t('chat.attachment.downloadImageTitle')}
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDownloadAttachment(message.content); }}
-      >
-        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M3 14a1 1 0 011-1h2.586l1.707 1.707a1 1 0 001.414 0L11.414 13H14a1 1 0 011 1v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2z" />
-          <path d="M7 3a1 1 0 011-1h4a1 1 0 011 1v6h1.586a1 1 0 01.707 1.707l-4.586 4.586a1 1 0 01-1.414 0L4.707 10.707A1 1 0 015.414 9H7V3z" />
-        </svg>
-      </button>
+    <div
+      className={`px-2.5 py-2 rounded-2xl w-fit ${
+        isOwnMessage
+          ? 'bg-blue-600 text-white rounded-br-md'
+          : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
+      }`}
+    >
+      <div className="relative">
+        <img
+          src={message.content}
+          alt={t('chat.message.imageAlt')}
+          onClick={() => onPreviewImage(message.content)}
+          className="w-40 h-40 cursor-zoom-in rounded-xl object-cover"
+        />
+        <button
+          type="button"
+          className="absolute bottom-1 right-1 z-10 p-1 rounded-full bg-white/90 text-gray-700 shadow hover:bg-white"
+          aria-label={t('chat.attachment.downloadImageAria')}
+          title={t('chat.attachment.downloadImageTitle')}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDownloadAttachment(message.content); }}
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 14a1 1 0 011-1h2.586l1.707 1.707a1 1 0 001.414 0L11.414 13H14a1 1 0 011 1v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2z" />
+            <path d="M7 3a1 1 0 011-1h4a1 1 0 011 1v6h1.586a1 1 0 01.707 1.707l-4.586 4.586a1 1 0 01-1.414 0L4.707 10.707A1 1 0 015.414 9H7V3z" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 
   const renderFileMessage = () => (
-    <button
-      type="button"
-      onClick={() => onDownloadAttachment(message.content)}
-      className={`flex items-center gap-2 px-4 py-2 rounded-2xl ${isOwnMessage ? 'bg-blue-600 text-white rounded-br-md' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'} border border-gray-200 dark:border-gray-700 w-full text-left`}
-      title={t('chat.attachment.downloadFileTitle')}
-      aria-label={t('chat.attachment.downloadFileAria')}
+    <div
+      className={`px-2.5 py-2 rounded-2xl w-fit ${
+        isOwnMessage
+          ? 'bg-blue-600 text-white rounded-br-md'
+          : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
+      }`}
     >
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M8 2a1 1 0 00-1 1v2H5a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2V3a1 1 0 10-2 0v2H9V3a1 1 0 00-1-1z" />
-      </svg>
-      <span className="truncate max-w-[200px]">{(() => { try { const u = new URL(message.content); return decodeURIComponent(u.pathname.split('/').pop() || t('chat.attachment.fileFallback')); } catch { return message.content; } })()}</span>
-      <span className="ml-auto inline-flex items-center gap-1 text-xs opacity-80">
-        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M3 14a1 1 0 011-1h2.586l1.707 1.707a1 1 0 001.414 0L11.414 13H14a1 1 0 011 1v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2z" />
-          <path d="M7 3a1 1 0 011-1h4a1 1 0 011 1v6h1.586a1 1 0 01.707 1.707l-4.586 4.586a1 1 0 01-1.414 0L4.707 10.707A1 1 0 015.414 9H7V3z" />
+      <button
+        type="button"
+        onClick={() => onDownloadAttachment(message.content)}
+        className={`flex items-center gap-2 px-1 py-1 rounded-md bg-transparent text-current w-full text-left`}
+        title={t('chat.attachment.downloadFileTitle')}
+        aria-label={t('chat.attachment.downloadFileAria')}
+      >
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M8 2a1 1 0 00-1 1v2H5a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2V3a1 1 0 10-2 0v2H9V3a1 1 0 00-1-1z" />
         </svg>
-        {t('chat.attachment.downloadLabel')}
-      </span>
-    </button>
+        <span className="truncate max-w-[220px]">{(() => { try { const u = new URL(message.content); return decodeURIComponent(u.pathname.split('/').pop() || t('chat.attachment.fileFallback')); } catch { return message.content; } })()}</span>
+        <span className="ml-auto inline-flex items-center gap-1 text-xs opacity-80">
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 14a1 1 0 011-1h2.586l1.707 1.707a1 1 0 001.414 0L11.414 13H14a1 1 0 011 1v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2z" />
+            <path d="M7 3a1 1 0 011-1h4a1 1 0 011 1v6h1.586a1 1 0 01.707 1.707l-4.586 4.586a1 1 0 01-1.414 0L4.707 10.707A1 1 0 015.414 9H7V3z" />
+          </svg>
+          {t('chat.attachment.downloadLabel')}
+        </span>
+      </button>
+    </div>
   );
 
   const renderTextMessage = () => (

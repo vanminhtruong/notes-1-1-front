@@ -77,4 +77,5 @@ export interface UsersListProps {
   onRejectFriendRequest: (userId: number) => void;
   onSendFriendRequest: (userId: number) => void;
   onStartChat: (user: User) => void;
+  onBlockUser: (user: User) => void;
 }

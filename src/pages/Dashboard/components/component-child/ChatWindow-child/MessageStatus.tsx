@@ -139,6 +139,24 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
     }
   };
 
+  // Điền thông tin user từ danh sách messages nếu thiếu (fix realtime avatar 'U')
+  const resolveUserRich = (uid: number, fallback?: any) => {
+    // 1) Nếu đã có avatar => dùng luôn
+    if (fallback?.avatar) return fallback;
+    // 2) Tìm trong allMessages: ưu tiên từ cuối danh sách (mới nhất)
+    for (let i = allMessages.length - 1; i >= 0; i--) {
+      const m: any = allMessages[i];
+      if (m?.sender && Number(m.sender.id) === Number(uid)) {
+        if (m.sender.avatar || m.sender.name) return m.sender;
+      }
+      if (m?.receiver && Number(m.receiver.id) === Number(uid)) {
+        if (m.receiver.avatar || m.receiver.name) return m.receiver;
+      }
+    }
+    // 3) Trả về fallback hoặc tên mặc định
+    return fallback || { id: uid, name: String(t('chat.fallback.user', { id: uid })) };
+  };
+
   const renderReadByAvatars = () => {
     if (message.status !== 'read' || !message.readBy || message.readBy.length === 0) {
       return null;
@@ -164,7 +182,7 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
     return (
       <div className="flex -space-x-1 ml-1 transform transition-all duration-300 ease-out">
         {avatarsToShow.slice(0, 3).map((readInfo, index) => {
-          const user = readInfo.user;
+          const user = resolveUserRich(readInfo.userId, readInfo.user);
           const displayName = user?.name || t('chat.fallback.user', { id: readInfo.userId });
           return (
             <div

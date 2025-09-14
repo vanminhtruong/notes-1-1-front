@@ -1,6 +1,9 @@
-import { Search, Check, X, UserPlus, MessageSquare } from 'lucide-react';
+import { Search, Check, X, UserPlus, MessageSquare, Ban, MoreVertical } from 'lucide-react';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { UsersListProps } from '../../interface/ChatUI.interface';
+import type { User } from '../../interface/ChatTypes.interface';
 
 const UsersList = ({
   friendRequests,
@@ -9,8 +12,12 @@ const UsersList = ({
   onRejectFriendRequest,
   onSendFriendRequest,
   onStartChat,
+  onBlockUser,
 }: UsersListProps) => {
   const { t } = useTranslation('dashboard');
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const [menuUser, setMenuUser] = useState<User | null>(null);
   return (
     <div className="h-full flex flex-col overflow-y-auto">
       {/* User Lists */}
@@ -37,7 +44,7 @@ const UsersList = ({
                   <p className="font-semibold text-gray-900 dark:text-white truncate">{user.name}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => onAcceptFriendRequest(user.id)}
                     className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full transition-colors"
@@ -45,6 +52,7 @@ const UsersList = ({
                     aria-label={t('chat.usersList.actions.acceptRequest')}
                   >
                     <Check className="w-5 h-5" />
+                    <span className="sr-only">{t('chat.usersList.actions.accept')}</span>
                   </button>
                   <button
                     onClick={() => onRejectFriendRequest(user.id)}
@@ -53,6 +61,7 @@ const UsersList = ({
                     aria-label={t('chat.usersList.actions.rejectRequest')}
                   >
                     <X className="w-5 h-5" />
+                    <span className="sr-only">{t('chat.usersList.actions.reject')}</span>
                   </button>
                 </div>
               </div>
@@ -82,23 +91,40 @@ const UsersList = ({
                   <p className="font-semibold text-gray-900 dark:text-white truncate">{user.name}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                 </div>
-                <div className="ml-auto flex items-center gap-2">
-                  <button
-                    onClick={() => onStartChat(user)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                    title={t('chat.usersList.actions.message', 'Nhắn tin')}
-                    aria-label={t('chat.usersList.actions.message', 'Nhắn tin')}
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    {t('chat.usersList.message', 'Nhắn tin')}
-                  </button>
+                <div className="ml-auto flex items-center gap-2 shrink-0">
+                  {/* Gửi kết bạn giữ bên ngoài */}
                   <button
                     onClick={() => onSendFriendRequest(user.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                    className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    title={t('chat.usersList.sendRequest')}
+                    aria-label={t('chat.usersList.sendRequest')}
                   >
                     <UserPlus className="w-4 h-4" />
-                    {t('chat.usersList.sendRequest')}
+                    <span className="sr-only">{t('chat.usersList.sendRequest')}</span>
                   </button>
+                  {/* Menu ba chấm chứa Message + Block */}
+                  <div className="relative">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const next = openMenuId === user.id ? null : user.id;
+                        setOpenMenuId(next);
+                        if (next) {
+                          const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+                          setMenuPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+                          setMenuUser(user);
+                        } else {
+                          setMenuPos(null);
+                          setMenuUser(null);
+                        }
+                      }}
+                      className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                      title={t('chat.menu.options')}
+                      aria-label={t('chat.menu.options')}
+                    >
+                      <MoreVertical className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -116,6 +142,55 @@ const UsersList = ({
           </div>
         )}
       </div>
+      {/* Portal menu fixed để tránh bị ancestor che */}
+      {openMenuId && menuUser && menuPos
+        ? createPortal(
+            <>
+              <div
+                className="fixed inset-0 z-[60]"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setOpenMenuId(null);
+                  setMenuPos(null);
+                  setMenuUser(null);
+                }}
+              />
+              <div
+                className="fixed z-[70] min-w-[180px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1"
+                style={{ top: menuPos.top, right: menuPos.right }}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStartChat(menuUser);
+                    setOpenMenuId(null);
+                    setMenuPos(null);
+                    setMenuUser(null);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  {t('chat.usersList.actions.message', 'Nhắn tin')}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBlockUser(menuUser);
+                    setOpenMenuId(null);
+                    setMenuPos(null);
+                    setMenuUser(null);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <Ban className="w-4 h-4" />
+                  {t('chat.actions.block', 'Chặn')}
+                </button>
+              </div>
+            </>,
+            document.body
+          )
+        : null}
     </div>
   );
 };

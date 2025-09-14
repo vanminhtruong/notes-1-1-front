@@ -167,14 +167,29 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   // Update or insert a chatList entry with a new last message
   const upsertChatListWithMessage = (otherUserId: number, msg: Message) => {
     setChatList((prev) => {
-      const friend = friends.find((f) => f.id === otherUserId) || users.find((u) => u.id === otherUserId);
-      if (!friend) return prev;
+      const baseFriend = friends.find((f) => f.id === otherUserId) || users.find((u) => u.id === otherUserId);
+      if (!baseFriend) return prev;
       // Only update the existing item's lastMessage; do not reorder on client.
       const exists = prev.some((it) => it.friend.id === otherUserId);
       if (!exists) return prev;
+      // Enrich friend avatar/name from message payload if available
+      const enrichFromMsg = (it: typeof prev[number]) => {
+        let name = it.friend.name;
+        let avatar = (it.friend as any).avatar || null;
+        const isOtherSender = (msg as any)?.senderId === otherUserId;
+        const isOtherReceiver = (msg as any)?.receiverId === otherUserId;
+        if (isOtherSender) {
+          if ((msg as any)?.senderName) name = (msg as any).senderName;
+          if ((msg as any)?.senderAvatar !== undefined) avatar = (msg as any).senderAvatar;
+        } else if (isOtherReceiver) {
+          if ((msg as any)?.receiverName) name = (msg as any).receiverName;
+          if ((msg as any)?.receiverAvatar !== undefined) avatar = (msg as any).receiverAvatar;
+        }
+        return { ...it.friend, name, avatar } as any;
+      };
       return prev.map((it) => (
-        it.friend.id === otherUserId 
-          ? { ...it, lastMessage: msg } 
+        it.friend.id === otherUserId
+          ? { ...it, friend: enrichFromMsg(it), lastMessage: msg }
           : it
       ));
     });
@@ -469,6 +484,46 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     t,
   });
 
+  const handleDeleteMessages = async (friendId: number, friendName: string) => {
+    try {
+      const response = await chatService.deleteAllMessages(friendId);
+      if (response.success) {
+        toast.success(t('chat.success.messagesDeletedForMe', { name: friendName }));
+        // Update chat list to remove the last message
+        setChatList((prev) => prev.map((item) => 
+          item.friend.id === friendId 
+            ? { ...item, lastMessage: null, unreadCount: 0 }
+            : item
+        ));
+        // If currently viewing this chat, clear messages
+        if (selectedChat?.id === friendId) {
+          setMessages([]);
+        }
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || t('chat.errors.generic'));
+    }
+  };
+
+  // Block a user (for non-friends in Users tab)
+  const handleBlockUser = async (user: User) => {
+    try {
+      const ok = await confirmWithToast(String(t('chat.confirm.block', { name: user.name, defaultValue: `Bạn có chắc chắn muốn chặn ${user.name}?` } as any)));
+      if (!ok) return;
+      const res = await blockService.block(user.id);
+      if (res?.success) {
+        // Optimistic: loại bỏ khỏi danh sách users hiện tại để không còn gợi ý
+        setUsers((prev) => prev.filter((u) => u.id !== user.id));
+        // Refresh từ backend để đồng bộ theo bộ lọc server (không lưu local theo rule)
+        try { await loadUsers(searchTerm); } catch {}
+        // Lưu ý: toast sự kiện đã được kích hoạt qua socket (useChatSocket) -> tránh toast trùng lặp
+      }
+    } catch (error: any) {
+      // Nếu backend trả lỗi (ví dụ đã chặn), hiển thị thông báo
+      toast.error(error?.response?.data?.message || t('chat.errors.generic'));
+    }
+  };
+
   if (!isOpen) return null;
 
   // Total unread across chats + groups + friend requests + group invites
@@ -507,27 +562,6 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         toast.success(t('chat.success.friendRemoved', { name: friendName }));
         loadFriends();
         loadChatList();
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || t('chat.errors.generic'));
-    }
-  };
-
-  const handleDeleteMessages = async (friendId: number, friendName: string) => {
-    try {
-      const response = await chatService.deleteAllMessages(friendId);
-      if (response.success) {
-        toast.success(t('chat.success.messagesDeletedForMe', { name: friendName }));
-        // Update chat list to remove the last message
-        setChatList((prev) => prev.map((item) => 
-          item.friend.id === friendId 
-            ? { ...item, lastMessage: null, unreadCount: 0 }
-            : item
-        ));
-        // If currently viewing this chat, clear messages
-        if (selectedChat?.id === friendId) {
-          setMessages([]);
-        }
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || t('chat.errors.generic'));
@@ -603,6 +637,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
             onRejectFriendRequest={rejectFriendRequest}
             onSendFriendRequest={sendFriendRequest}
             onStartChat={startChat}
+            onBlockUser={handleBlockUser}
           />
         )}
 
