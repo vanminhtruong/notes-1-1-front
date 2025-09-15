@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { groupService } from '@/services/groupService';
 import { getSocket } from '@/services/socket';
 import { toast } from 'react-hot-toast';
+import { Key } from 'lucide-react';
 
 interface GroupMemberInfo {
   id: number;
@@ -120,8 +121,20 @@ export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfil
                     onClick={() => onOpenProfile(m)}
                     title={t('chat.chatView.viewProfile', 'Xem thông tin') as any}
                   >
-                    <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                      {m.avatar ? <img src={m.avatar} alt={m.name} className="w-full h-full object-cover" /> : (m.name || '').charAt(0)}
+                    <div className="relative flex-shrink-0">
+                      <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-sm font-semibold">
+                        {m.avatar ? <img src={m.avatar} alt={m.name} className="w-full h-full object-cover" /> : (m.name || '').charAt(0)}
+                      </div>
+                      {m.role === 'owner' && (
+                        <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 border border-amber-300 dark:border-amber-600 shadow-sm">
+                          <Key className="w-2.5 h-2.5 text-amber-500" />
+                        </span>
+                      )}
+                      {m.role === 'admin' && (
+                        <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 shadow-sm">
+                          <Key className="w-2.5 h-2.5 text-gray-500 dark:text-gray-300" />
+                        </span>
+                      )}
                     </div>
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                       {m.name}

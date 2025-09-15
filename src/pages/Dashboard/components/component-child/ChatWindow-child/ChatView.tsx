@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { MoreVertical, ChevronDown, Pencil, Users, Video } from 'lucide-react';
+import { MoreVertical, ChevronDown, Pencil, Users, Video, Key } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import NicknameModal from './NicknameModal';
 import { useTranslation } from 'react-i18next';
@@ -60,6 +60,8 @@ const ChatView = ({
   // Cache block status per user in group chats to disable only blocked users' avatars
   const [blockedUserMap, setBlockedUserMap] = useState<Record<number, boolean>>({});
   const [pinnedMessages, setPinnedMessages] = useState<Array<{ id: number; content?: string; messageType?: string; createdAt?: string }>>([]);
+  // Group roles map to render owner/admin badges on avatars
+  const [groupRoleMap, setGroupRoleMap] = useState<Record<number, 'owner'|'admin'|'member'>>({});
   // Nickname editor state
   const [showNickname, setShowNickname] = useState(false);
   const [nicknameValue, setNicknameValue] = useState('');
@@ -70,6 +72,45 @@ const ChatView = ({
   const [searchResults, setSearchResults] = useState<Array<{ id: number; content: string; messageType?: string; createdAt: string; senderId?: number }>>([]);
   // Common groups modal state
   const [showCommonGroups, setShowCommonGroups] = useState(false);
+
+  // Keep roles up-to-date to show owner/admin badges on avatars in group chat
+  useEffect(() => {
+    if (!isGroup) { setGroupRoleMap({}); return; }
+    const gid = Number((selectedChat as any)?.id);
+    if (!gid) { setGroupRoleMap({}); return; }
+    let canceled = false;
+    const load = async () => {
+      try {
+        const res = await groupService.getGroupMembers(gid);
+        if (!canceled) {
+          const map: Record<number, 'owner'|'admin'|'member'> = {};
+          for (const u of (res?.data || [])) {
+            const role = (u?.role === 'owner' || u?.role === 'admin') ? u.role : 'member';
+            map[Number(u.id)] = role as any;
+          }
+          setGroupRoleMap(map);
+        }
+      } catch {
+        if (!canceled) setGroupRoleMap({});
+      }
+    };
+    load();
+    const socket = getSocket();
+    const onRoleUpdated = (payload: { groupId: number; userId: number; role: 'admin'|'member' }) => {
+      try {
+        if (!payload || Number(payload.groupId) !== Number(gid)) return;
+        setGroupRoleMap(prev => ({ ...prev, [Number(payload.userId)]: (payload.role === 'admin' ? 'admin' : 'member') }));
+      } catch {}
+    };
+    if (socket) socket.on('group_member_role_updated', onRoleUpdated);
+    return () => {
+      canceled = true;
+      if (socket) socket.off('group_member_role_updated', onRoleUpdated);
+    };
+  }, [isGroup, (selectedChat as any)?.id]);
+
+  // Reference onRemoveMembers to satisfy linter when parent passes it but we don't use it inside
+  useEffect(() => { /* noop */ }, [onRemoveMembers]);
 
   // Reply state is managed by parent via onReplyRequested
 
@@ -972,28 +1013,51 @@ const ChatView = ({
                               const senderId = group.senderId as number;
                               const isSenderBlocked = isGroup ? blockedUserMap[senderId] !== false : !!blocked;
                               return (
-                                <button
-                                  type="button"
-                                  onClick={!isSenderBlocked ? () => {
-                                    const first = group.items[0];
-                                    const user = (first as any)?.sender ?? selectedChat;
-                                    handleOpenProfile(user);
-                                  } : undefined}
-                                  title={!isSenderBlocked ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
-                                  aria-disabled={isSenderBlocked}
-                                  className={`w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto ${!isSenderBlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
-                                >
-                                  {(() => {
-                                    const first = group.items[0];
-                                    const senderName = (first as any)?.sender?.name || `User ${((first as any)?.senderId ?? '')}`;
-                                    const senderAvatar = (first as any)?.sender?.avatar || null;
-                                    return senderAvatar ? (
-                                      <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
-                                    ) : (
-                                      (senderName || '').charAt(0)
-                                    );
+                                <div className="relative w-7 h-7 flex-shrink-0 mt-auto">
+                                  <button
+                                    type="button"
+                                    onClick={!isSenderBlocked ? () => {
+                                      const first = group.items[0];
+                                      const user = (first as any)?.sender ?? selectedChat;
+                                      handleOpenProfile(user);
+                                    } : undefined}
+                                    title={!isSenderBlocked ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
+                                    aria-disabled={isSenderBlocked}
+                                    className={`w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold ${!isSenderBlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                                  >
+                                    {(() => {
+                                      const first = group.items[0];
+                                      const senderName = (first as any)?.sender?.name || `User ${((first as any)?.senderId ?? '')}`;
+                                      const senderAvatar = (first as any)?.sender?.avatar || null;
+                                      return senderAvatar ? (
+                                        <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
+                                      ) : (
+                                        (senderName || '').charAt(0)
+                                      );
+                                    })()}
+                                  </button>
+                                  {/* Role indicator on sender avatar (group only): owner (gold) / admin (silver) */}
+                                  {isGroup && (() => {
+                                    const sender = Number(senderId);
+                                    const fallbackOwner = Number((selectedChat as any)?.ownerId) === sender ? 'owner' : undefined;
+                                    const role = (groupRoleMap && groupRoleMap[sender]) || fallbackOwner as ('owner'|'admin'|'member'|undefined);
+                                    if (role === 'owner') {
+                                      return (
+                                        <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 border border-amber-300 dark:border-amber-600 shadow-sm">
+                                          <Key className="w-2 h-2 text-amber-500" />
+                                        </span>
+                                      );
+                                    }
+                                    if (role === 'admin') {
+                                      return (
+                                        <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 shadow-sm">
+                                          <Key className="w-2 h-2 text-gray-500 dark:text-gray-300" />
+                                        </span>
+                                      );
+                                    }
+                                    return null;
                                   })()}
-                                </button>
+                                </div>
                               );
                             })()
                           )}
