@@ -1,18 +1,55 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Bell, MoreVertical } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import type { NotificationBellProps } from './interface/NotificationBell.interface';
 
-export default function NotificationBell({ total, ring, ringSeq, items, onItemClick, onClearAll, onDeleteItem }: NotificationBellProps) {
+export default function NotificationBell({ total, ring, ringSeq, items, onItemClick, onClearAll, onItemDismissed }: NotificationBellProps) {
   const { t } = useTranslation('dashboard');
   const [open, setOpen] = useState(false);
   const [periodic, setPeriodic] = useState(false);
   const timerRef = useRef<number | null>(null);
   const pulseRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const portalRef = useRef<HTMLDivElement | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
+  const [latestSeenMs, setLatestSeenMs] = useState<number>(0);
 
   const hasUnread = total > 0;
+
+  // Latest item time across the feed — used to always show a dot for the newest item
+  const latestTimeMs = useMemo(() => {
+    try {
+      let max = 0;
+      for (const it of items || []) {
+        const d = it && it.time ? new Date(it.time) : null;
+        const ms = (d && !Number.isNaN(d.getTime())) ? d.getTime() : 0;
+        if (ms > max) max = ms;
+      }
+      return max;
+    } catch { return 0; }
+  }, [items]);
+
+  // Lightweight time formatter (relative within 24h, otherwise date+time)
+  const formatTime = (value?: string | number | Date) => {
+    if (!value) return '';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    const now = Date.now();
+    const diff = Math.max(0, now - d.getTime());
+    const sec = Math.floor(diff / 1000);
+    if (sec < 60) return 'Just now';
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `${min}m`;
+    const hrs = Math.floor(min / 60);
+    if (hrs < 24) return `${hrs}h`;
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const m2 = String(d.getMinutes()).padStart(2, '0');
+    return `${dd}/${mm} ${hh}:${m2}`;
+  };
 
   // Periodic shake: every 1s, shake for ~0.8s
   useEffect(() => {
@@ -36,17 +73,43 @@ export default function NotificationBell({ total, ring, ringSeq, items, onItemCl
     return () => clearTimers();
   }, [hasUnread]);
 
+  // Create a portal root for floating menus
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (!portalRef.current) {
+      const el = document.createElement('div');
+      el.style.position = 'relative';
+      el.style.zIndex = '9999';
+      document.body.appendChild(el);
+      portalRef.current = el;
+    }
+    return () => {
+      try {
+        if (portalRef.current && portalRef.current.parentNode) {
+          portalRef.current.parentNode.removeChild(portalRef.current);
+        }
+      } catch {}
+      portalRef.current = null;
+    };
+  }, []);
+
   // Close when clicking outside or pressing Escape
   useEffect(() => {
     if (!open) return;
     const handlePointer = (e: MouseEvent | TouchEvent) => {
       const el = containerRef.current;
-      if (el && e.target instanceof Node && !el.contains(e.target)) {
-        setOpen(false);
+      const portalEl = portalRef.current;
+      if (el && e.target instanceof Node) {
+        const insideDropdown = el.contains(e.target);
+        const insidePortal = portalEl ? portalEl.contains(e.target as Node) : false;
+        if (!insideDropdown && !insidePortal) {
+          setOpen(false);
+          setMenuOpenId(null);
+        }
       }
     };
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') { setOpen(false); setMenuOpenId(null); }
     };
     document.addEventListener('mousedown', handlePointer);
     document.addEventListener('touchstart', handlePointer, { passive: true });
@@ -56,6 +119,13 @@ export default function NotificationBell({ total, ring, ringSeq, items, onItemCl
       document.removeEventListener('touchstart', handlePointer as any);
       document.removeEventListener('keydown', handleKey);
     };
+  }, [open]);
+
+  // When dropdown closes, also close the floating menu
+  useEffect(() => {
+    if (!open) {
+      setMenuOpenId(null);
+    }
   }, [open]);
 
   return (
@@ -77,11 +147,17 @@ export default function NotificationBell({ total, ring, ringSeq, items, onItemCl
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden z-50">
+        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-visible z-50">
           <div className="px-3 py-2 flex items-center justify-between border-b border-gray-100 dark:border-gray-800">
             <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{t('chat.notificationsBell.title')}</p>
             <button
-              onClick={() => { onClearAll?.(); }}
+              onClick={() => {
+                try {
+                  // Mark all current items as seen to hide glowing dots immediately
+                  setLatestSeenMs(latestTimeMs || Date.now());
+                } catch {}
+                onClearAll?.();
+              }}
               className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
             >
               {t('chat.notificationsBell.markAllRead')}
@@ -92,11 +168,11 @@ export default function NotificationBell({ total, ring, ringSeq, items, onItemCl
             {items.length === 0 && (
               <div className="p-4 text-sm text-gray-500 dark:text-gray-400 text-center">{t('chat.notificationsBell.empty')}</div>
             )}
-            {items.map((it) => (
+            {items.map((it, idx) => (
               <div key={it.id} className="relative group">
                 <div
                   onClick={() => { onItemClick(it.id); setOpen(false); }}
-                  className="w-full text-left flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                  className="w-full text-left flex items-center gap-3 p-3 transition-colors cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => { if (e.key === 'Enter') { onItemClick(it.id); setOpen(false); } }}
@@ -109,38 +185,72 @@ export default function NotificationBell({ total, ring, ringSeq, items, onItemCl
                     )}
                   </div>
                   <div className="flex-1 min-w-0 pr-8">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{it.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('chat.notificationsBell.newMessagesCount', { count: it.count })}</p>
-                  </div>
-                  {it.count > 0 && (
-                    <span className="ml-auto text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300">
-                      +{it.count}
-                    </span>
-                  )}
-                </div>
-                <div className="absolute right-1 top-1/2 -translate-y-1/2">
-                  <button
-                    className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
-                    onClick={(e) => { e.stopPropagation(); setOpenMenuId((prev) => prev === it.id ? null : it.id); }}
-                    aria-label={t('chat.menu.options')}
-                  >
-                    <MoreVertical className="w-4 h-4 text-gray-500" />
-                  </button>
-                  {openMenuId === it.id && (
-                    <div className="absolute right-0 mt-1 min-w-[180px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
-                      <button
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                        onClick={(e) => { e.stopPropagation(); onDeleteItem?.(it.id); setOpenMenuId(null); }}
-                      >
-                        {t('chat.notificationsBell.deleteItem', 'Delete notification')}
-                      </button>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate flex-1">{it.name}</p>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {it.time && (
+                          <span className="text-[11px] text-gray-400 dark:text-gray-500">{formatTime(it.time)}</span>
+                        )}
+                        {(() => {
+                          const d = it.time ? new Date(it.time) : null;
+                          const ms = (d && !Number.isNaN(d.getTime())) ? d.getTime() : 0;
+                          // Extend window to 5 minutes for clearer visibility during usage
+                          const recent = d ? (Date.now() - ms < 5 * 60 * 1000) : false;
+                          const isLatest = latestTimeMs > 0 && ms === latestTimeMs;
+                          const isFirst = idx === 0;
+                          const showDot = hasUnread && (recent || isLatest || (latestTimeMs === 0 && isFirst)) && (ms > latestSeenMs);
+                          return showDot ? (
+                            <span
+                              className="inline-block w-2 h-2 rounded-full bg-blue-500 ring-2 ring-blue-400/70 animate-pulse"
+                              style={{ boxShadow: '0 0 8px rgba(59,130,246,0.6)' }}
+                              aria-label={t('chat.notificationsBell.new', 'Mới')}
+                            />
+                          ) : null;
+                        })()}
+                      </div>
                     </div>
-                  )}
+                    {/* Removed count text as requested; using recent highlight for visual cue */}
+                  </div>
+                  {/* 3-dots menu trigger */}
+                  <div className="absolute right-2 top-3">
+                    <button
+                      aria-label="More actions"
+                      className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const target = e.currentTarget as HTMLButtonElement;
+                        const rect = target.getBoundingClientRect();
+                        const width = 144; // ~w-36
+                        const left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
+                        const top = rect.top + rect.height + 6;
+                        setMenuPos({ top, left });
+                        setMenuOpenId(menuOpenId === it.id ? null : it.id);
+                      }}
+                    >
+                      ⋮
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
+      )}
+      {/* Portalized floating menu */}
+      {menuOpenId !== null && menuPos && portalRef.current && createPortal(
+        <div
+          style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 10000 }}
+          className="w-36 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 text-red-600"
+            onClick={(e) => { e.stopPropagation(); const id = menuOpenId; setMenuOpenId(null); onItemDismissed?.(id!); }}
+          >
+            {t('chat.notificationsBell.deleteItem', 'Xóa thông báo')}
+          </button>
+        </div>,
+        portalRef.current
       )}
     </div>
   );

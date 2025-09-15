@@ -39,10 +39,13 @@ interface UseChatSocketParams {
   loadUsers: (term?: string) => any;
   loadPendingInvites: (arg?: any) => any;
   loadChatList?: () => any;
+  loadNotifications?: () => any;
   // helpers
   upsertChatListWithMessage: (otherUserId: number, msg: Message) => void;
   scrollToBottom: () => void;
   t: TFunction<"dashboard">;
+  // bell feed reloader
+  reloadBellFeed?: () => any;
 }
 
 export function useChatSocket(params: UseChatSocketParams) {
@@ -69,8 +72,10 @@ export function useChatSocket(params: UseChatSocketParams) {
     loadUsers,
     loadPendingInvites,
     loadChatList,
+    loadNotifications,
     upsertChatListWithMessage,
     scrollToBottom,
+    reloadBellFeed,
     t,
   } = params;
 
@@ -86,9 +91,22 @@ export function useChatSocket(params: UseChatSocketParams) {
       return { id: uid, name: String(t('chat.fallback.user', { id: uid })) } as any;
     };
 
+    // Owner deleted all messages in a group
+    const onGroupMessagesDeleted = (payload: { groupId: number; count: number }) => {
+      try {
+        if (!payload || !selectedGroup || payload.groupId !== selectedGroup.id) return;
+        setMessages([]);
+        try { toast.success(String(t('chat.groups.success.messagesDeleted', { defaultValue: 'All group messages were deleted' } as any))); } catch {}
+      } catch {}
+    };
+
     const onNewFriendReq = (data: any) => {
       toast.success(String(t('chat.notifications.newFriendRequest', { name: data.requester?.name } as any)));
       loadFriendRequests();
+      if (typeof loadNotifications === 'function') {
+        loadNotifications();
+      }
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
     };
     const onFriendAccepted = (data: any) => {
       const other = data.acceptedBy || data.requester; // requester field when accepter receives event
@@ -127,6 +145,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       if (typeof loadChatList === 'function') {
         loadChatList();
       }
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
     };
     const onFriendRejected = (data: any) => {
       toast(String(t('chat.notifications.friendRejected', { name: data.rejectedBy?.name } as any)));
@@ -172,17 +191,20 @@ export function useChatSocket(params: UseChatSocketParams) {
           } catch {}
           // Đã gọi loadUsers ở trên, không cần gọi lần nữa bên dưới
           loadFriendRequests();
+          try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
           return;
         }
       } catch {}
       // Fallback nếu payload không có rejectedBy
       loadUsers(searchTerm);
       loadFriendRequests();
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
     };
     const onFriendDeclined = (data: any) => onFriendRejected(data);
     const onFriendCancelled = () => {
       loadUsers(searchTerm);
       loadFriendRequests();
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
     };
 
     // Friend removed handler (restore original)
@@ -198,7 +220,11 @@ export function useChatSocket(params: UseChatSocketParams) {
 
     const onGroupInvited = () => {
       loadPendingInvites();
+      if (typeof loadNotifications === 'function') {
+        loadNotifications();
+      }
       toast(String(t('chat.groups.notifications.newInvite', { defaultValue: 'You have a new group invitation' })));
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
     };
 
     const onNewMessage = (data: any) => {
@@ -286,6 +312,7 @@ export function useChatSocket(params: UseChatSocketParams) {
           loadChatList();
         }
       }
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
     };
 
     const onGroupMessage = (data: any) => {
@@ -346,6 +373,7 @@ export function useChatSocket(params: UseChatSocketParams) {
         });
         setTimeout(scrollToBottom, 100);
       }
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
     };
 
     const onMessageSent = (data: any) => {
@@ -459,6 +487,8 @@ export function useChatSocket(params: UseChatSocketParams) {
           m.id === data.messageId ? { ...m, status: 'delivered' } : m
         );
       });
+      // Refresh bell badge to reflect potential unread increments for recipients
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
     };
 
     const onGroupMessageRead = (data: any) => {
@@ -494,6 +524,8 @@ export function useChatSocket(params: UseChatSocketParams) {
           return m;
         });
       });
+      // Refresh bell badge to reflect decrements when messages are read
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
     };
 
     const onUserOnline = (data: any) => {
@@ -647,6 +679,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       }
     };
     const onMessageReacted = (payload: { messageId: number; userId: number; type: 'like'|'love'|'haha'|'wow'|'sad'|'angry'; count?: number }) => {
+      let burstDelta = 1;
       setMessages((prev: any[]) => prev.map((m: any) => {
         if (m.id !== payload.messageId) return m;
         const list = Array.isArray(m.Reactions) ? m.Reactions : [];
@@ -654,11 +687,21 @@ export function useChatSocket(params: UseChatSocketParams) {
         if (idx >= 0) {
           const updated = [...list];
           const prevCount = Number(updated[idx].count || 1);
-          updated[idx] = { ...updated[idx], count: payload.count ?? (prevCount + 1) };
+          const nextCount = payload.count ?? (prevCount + 1);
+          burstDelta = Math.max(1, nextCount - prevCount);
+          updated[idx] = { ...updated[idx], count: nextCount };
           return { ...m, Reactions: updated };
         }
-        return { ...m, Reactions: [...list, { userId: payload.userId, type: payload.type, count: payload.count ?? 1 }] };
+        const nextCount = payload.count ?? 1;
+        burstDelta = Math.max(1, nextCount);
+        return { ...m, Reactions: [...list, { userId: payload.userId, type: payload.type, count: nextCount }] };
       }));
+      // Trigger burst animation on other clients (avoid double on the reacting client)
+      try {
+        if (typeof window !== 'undefined' && (!currentUser || payload.userId !== currentUser.id)) {
+          window.dispatchEvent(new CustomEvent('reaction_burst', { detail: { messageId: payload.messageId, type: payload.type, count: burstDelta } }));
+        }
+      } catch {}
       // Also reflect in chat list if this message is currently the lastMessage for a chat
       setChatList((prev: any[]) => prev.map((it: any) => {
         const lm = it?.lastMessage;
@@ -700,6 +743,7 @@ export function useChatSocket(params: UseChatSocketParams) {
     // Reactions: group messages
     const onGroupMessageReacted = (payload: { groupId: number; messageId: number; userId: number; type: 'like'|'love'|'haha'|'wow'|'sad'|'angry'; count?: number }) => {
       if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
+      let burstDelta = 1;
       setMessages((prev: any[]) => prev.map((m: any) => {
         if (m.id !== payload.messageId) return m;
         const list = Array.isArray(m.Reactions) ? m.Reactions : [];
@@ -707,11 +751,21 @@ export function useChatSocket(params: UseChatSocketParams) {
         if (idx >= 0) {
           const updated = [...list];
           const prevCount = Number(updated[idx].count || 1);
-          updated[idx] = { ...updated[idx], count: payload.count ?? (prevCount + 1) };
+          const nextCount = payload.count ?? (prevCount + 1);
+          burstDelta = Math.max(1, nextCount - prevCount);
+          updated[idx] = { ...updated[idx], count: nextCount };
           return { ...m, Reactions: updated };
         }
-        return { ...m, Reactions: [...list, { userId: payload.userId, type: payload.type, count: payload.count ?? 1 }] };
+        const nextCount = payload.count ?? 1;
+        burstDelta = Math.max(1, nextCount);
+        return { ...m, Reactions: [...list, { userId: payload.userId, type: payload.type, count: nextCount }] };
       }));
+      // Trigger burst animation on other clients (avoid double on the reacting client)
+      try {
+        if (typeof window !== 'undefined' && (!currentUser || payload.userId !== currentUser.id)) {
+          window.dispatchEvent(new CustomEvent('reaction_burst', { detail: { messageId: payload.messageId, type: payload.type, count: burstDelta } }));
+        }
+      } catch {}
     };
 
     const onGroupMessageUnreacted = (payload: { groupId: number; messageId: number; userId: number; type?: 'like'|'love'|'haha'|'wow'|'sad'|'angry' }) => {
@@ -837,6 +891,7 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('friend_request_accepted', onFriendAccepted);
     socket.on('friend_request_rejected', onFriendRejected);
     socket.on('friend_request_declined', onFriendDeclined);
+    socket.on('group_invited', onGroupInvited);
     socket.on('friend_request_canceled', onFriendCancelled as any);
     socket.on('friend_request_cancelled', onFriendCancelled as any);
     socket.on('friend_request_denied', onFriendRejected as any);
@@ -870,6 +925,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
       setMessages((prev: any[]) => prev.map((m: any) => (m.id === payload.id ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m)));
     });
+    socket.on('group_messages_deleted', onGroupMessagesDeleted);
     socket.on('message_sent', onMessageSent);
     socket.on('message_delivered', onMessageDelivered);
     socket.on('message_read', onMessageRead);
@@ -924,6 +980,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('message_edited');
       socket.off('group_messages_recalled', groupRecalledHandler);
       socket.off('group_message_edited');
+      socket.off('group_messages_deleted', onGroupMessagesDeleted);
       socket.off('message_sent', onMessageSent);
       socket.off('message_delivered', onMessageDelivered);
       socket.off('message_read', onMessageRead);

@@ -157,7 +157,11 @@
       "newMessagesCount": "새 메시지 {{count}}개",
       "deleteItem": "알림 삭제",
       "friendRequests": "친구 요청",
-      "groupInvites": "그룹 초대"
+      "groupInvites": "그룹 초대",
+      "friendRequestsCount": "친구 요청 {{count}}건",
+      "friendRequestsCount_plural": "친구 요청 {{count}}건",
+      "groupInvitesCount": "그룹 초대 {{count}}건",
+      "groupInvitesCount_plural": "그룹 초대 {{count}}건"
     },
     "fallback": {
       "user": "사용자 {{id}}"
@@ -219,6 +223,7 @@
         "viewMembers": "구성원 보기",
         "adminsOnlyEnable": "관리자만 메시지 전송 허용",
         "adminsOnlyDisable": "모든 구성원 메시지 전송 허용",
+        "deleteAllMessages": "모든 메시지 삭제",
         "promoteToAdmin": "관리자로 승격",
         "demoteToMember": "구성원으로 강등"
       },
@@ -268,7 +273,8 @@
       },
       "confirm": {
         "leave": "그룹을 나가시겠습니까?",
-        "delete": "그룹을 삭제하시겠습니까?"
+        "delete": "그룹을 삭제하시겠습니까?",
+        "deleteAllMessages": "이 그룹의 모든 메시지를 삭제하시겠습니까?"
       },
       "success": {
         "created": "그룹이 생성되었습니다",
@@ -277,7 +283,8 @@
         "deleted": "그룹이 삭제되었습니다",
         "removed": "구성원이 제거되었습니다",
         "updated": "그룹이 업데이트되었습니다",
-        "roleUpdated": "권한이 업데이트되었습니다"
+        "roleUpdated": "권한이 업데이트되었습니다",
+        "messagesDeleted": "그룹의 모든 메시지가 삭제되었습니다"
       },
       "members": {
         "title": "그룹 구성원",

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { type User, type Message, type MessageGroup, type ChatWindowProps, type GroupSummary, useState, useEffect, useRef, toast, useTranslation, chatService, groupService, getSocket, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useNotificationItems, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettings, useChatBackground, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, getCachedUser } from './interface/chatWindowImports';
+import { type User, type Message, type MessageGroup, type ChatWindowProps, type GroupSummary, useState, useEffect, useRef, toast, useTranslation, chatService, groupService, getSocket, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettings, useChatBackground, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, getCachedUser } from './interface/chatWindowImports';
 import { blockService, type BlockStatus } from '@/services/blockService';
+import { notificationService } from '@/services/notificationService';
 
 const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const { t } = useTranslation('dashboard');
@@ -9,6 +10,9 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const [users, setUsers] = useState<User[]>([]);
   const [friends, setFriends] = useState<User[]>([]);
   const [friendRequests, setFriendRequests] = useState<User[]>([]);
+  const [, setFriendRequestsMeta] = useState<Record<number, string | Date>>({});
+  const [, setPersistedFriendRequests] = useState<User[]>([]);
+  const [, setPersistedFriendRequestsMeta] = useState<Record<number, string | Date>>({});
   const [selectedChat, setSelectedChat] = useState<User | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<GroupSummary | null>(null);
   const [messages, setMessages] = useState<(Message | any)[]>([]);
@@ -17,27 +21,18 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
   const typingTimeoutRef = useRef<number | undefined>(undefined);
   const typingSentRef = useRef(false);
-  // Track group typing users: { id, name, avatar? }
   const [groupTypingUsers, setGroupTypingUsers] = useState<Array<{ id: any; name: string; avatar?: string }>>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [pendingImages, setPendingImages] = useState<Array<{ id: string; file: File; preview: string }>>([]);
   const [pendingFiles, setPendingFiles] = useState<Array<{ id: string; file: File }>>([]);
   const [menuOpenKey, setMenuOpenKey] = useState<string | null>(null);
-  // Reply state (works for DM and Group)
   const [replyingToMessage, setReplyingToMessage] = useState<any | null>(null);
-  // Track online user IDs for presence aggregation
   const [onlineIds, setOnlineIds] = useState<number[]>([]);
-  // Chat list for last message previews
   const [chatList, setChatList] = useState<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean }>>([]);
-  // Group editor modal visibility
   const [showGroupEditor, setShowGroupEditor] = useState(false);
   const [showRemoveMembers, setShowRemoveMembers] = useState(false);
-  // Pending group invites
-  const [pendingInvites, setPendingInvites] = useState<Array<{ id: number; status: 'pending' | 'accepted' | 'declined'; group: any; inviter: any }>>([]);
-  // Block status for currently selected direct chat
+  const [, setPendingInvites] = useState<Array<{ id: number; status: 'pending' | 'accepted' | 'declined'; group: any; inviter: any }>>([]);
   const [blockStatus, setBlockStatus] = useState<BlockStatus | null>(null);
-
-  // Settings & E2EE state (extracted)
   const {
     e2eeEnabled,
     e2eePinHash,
@@ -65,88 +60,90 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   } = useChatSettings(t);
 
   // Notifications: unread per user + group + ring animation
-  const { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, markAllRead, deleteDmNotification, deleteGroupNotification, hydrateFromChatList } = useMessageNotifications(
+  const { unreadMap, ring, ringSeq, totalUnread, totalGroupUnread, markChatAsRead, markGroupAsRead, markAllRead, hydrateFromChatList } = useMessageNotifications(
     currentUser?.id,
     selectedChat?.id ?? null,
     selectedGroup?.id ?? null
   );
-  // Cache my groups to resolve names/avatars for bell items
   const [myGroups, setMyGroups] = useState<GroupSummary[]>([]);
-  const notificationItems = useNotificationItems(
-    unreadMap,
-    groupUnreadMap,
-    myGroups,
-    friends,
-    users,
-    friendRequests,
-    pendingInvites,
-    t
-  );
-  // Local sets: hidden items and persisted aggregate items (-1001 friend requests, -1002 group invites)
-  const [hiddenBellIds, setHiddenBellIds] = useState<Set<number>>(new Set());
-  const [persistedAggregates, setPersistedAggregates] = useState<Set<number>>(new Set());
-  // Aggregates that user has acknowledged via "Mark all as read" so their counts go to 0 in badge
-  const [ackedAggregates, setAckedAggregates] = useState<Set<number>>(new Set());
-
-  // When there are any friend requests or invites, remember to persist their entries
+  const [bellFeedItems, setBellFeedItems] = useState<Array<{ id: number; name: string; avatar?: string | null; count?: number; time?: string }>>([]);
+  const [bellBadgeTotal, setBellBadgeTotal] = useState<number>(0);
   useEffect(() => {
-    setPersistedAggregates((prev) => {
-      const next = new Set(prev);
-      if ((friendRequests?.length || 0) > 0) next.add(-1001);
-      if ((pendingInvites?.length || 0) > 0) next.add(-1002);
-      return next;
-    });
-  }, [friendRequests?.length, pendingInvites?.length]);
+    loadNotifications();
+    (async () => {
+      try {
+        const [feedRes, badgeRes] = await Promise.all([
+          notificationService.getBellFeed(),
+          notificationService.getBellBadge().catch(() => null),
+        ]);
+        if (feedRes?.success) setBellFeedItems(feedRes.data || []);
+        if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
+      } catch {}
+    })();
+  }, []);
 
-  // Build effective bell items: base items from hook + persisted aggregates (with count 0) minus hidden ones
-  const effectiveNotificationItems = useMemo(() => {
-    // Start from computed items
-    const base = [...(notificationItems || [])];
-    const present = new Set(base.map((b) => b.id));
-
-    // Ensure aggregate entries persist even when counts drop to 0 (after accept/decline or marking read)
-    if (persistedAggregates.has(-1001) && !present.has(-1001)) {
-      base.push({ id: -1001, name: String(t('chat.notificationsBell.friendRequests')), count: 0 });
+  const handleBellItemDismiss = async (id: number) => {
+    try {
+      if (id === -1001) {
+        await notificationService.dismissBellItem('fr');
+        setBellFeedItems((prev) => prev.filter((x) => x.id !== -1001));
+      } else if (id === -1002) {
+        await notificationService.dismissBellItem('inv');
+        setBellFeedItems((prev) => prev.filter((x) => x.id !== -1002));
+      } else if (id <= -300000) {
+        const groupId = -id - 300000;
+        await notificationService.dismissBellItem('group', groupId);
+        setBellFeedItems((prev) => prev.filter((x) => x.id !== id));
+      } else {
+        await notificationService.dismissBellItem('dm', id);
+        setBellFeedItems((prev) => prev.filter((x) => x.id !== id));
+      }
+      try {
+        const [feedRes, badgeRes] = await Promise.all([
+          notificationService.getBellFeed(),
+          notificationService.getBellBadge().catch(() => null),
+        ]);
+        if (feedRes?.success) setBellFeedItems(feedRes.data || []);
+        if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
+      } catch {}
+    } catch (e) {
+      // soft fail, keep UI unchanged if error
     }
-    if (persistedAggregates.has(-1002) && !present.has(-1002)) {
-      base.push({ id: -1002, name: String(t('chat.notificationsBell.groupInvites')), count: 0 });
-    }
+  };
 
-    // Apply acknowledgements: set aggregate counts to 0 if acked
-    const adjusted = base.map((it) => {
-      if (it.id === -1001 && ackedAggregates.has(-1001)) return { ...it, count: 0 };
-      if (it.id === -1002 && ackedAggregates.has(-1002)) return { ...it, count: 0 };
-      return it;
-    });
+  const bellNotificationItems = useMemo(() => {
+    return (bellFeedItems || []).map((it) => ({
+      id: it.id,
+      name: it.name,
+      avatar: (it.avatar || undefined) as string | undefined,
+      count: Number(it.count || 0),
+      time: it.time,
+    }));
+  }, [bellFeedItems]);
 
-    // Hide deleted items
-    return adjusted.filter((it) => !hiddenBellIds.has(it.id));
-  }, [notificationItems, persistedAggregates, hiddenBellIds, ackedAggregates, t]);
+  const reloadBellFeed = async () => {
+    try {
+      const [feedRes, badgeRes] = await Promise.all([
+        notificationService.getBellFeed(),
+        notificationService.getBellBadge().catch(() => null),
+      ]);
+      if (feedRes?.success) setBellFeedItems(feedRes.data || []);
+      if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
+    } catch {}
+  };
 
-  // Chats that currently have unread messages
   const unreadChats = useUnreadChats(chatList, unreadMap);
 
-  // Keep unreadMap in sync with backend-sourced chatList counts for persistence
   useEffect(() => {
     if (Array.isArray(chatList) && chatList.length >= 0) {
       hydrateFromChatList(chatList as any);
     }
   }, [chatList]);
 
-  // Users tab search results (exclude self, existing friends, and received requests)
   const filteredUsers = useFilteredUsers(users, friends, friendRequests, searchTerm, currentUser?.id);
-
-  // Group consecutive messages from the same sender within a short time window
   const groupedMessages = useGroupedMessages(messages);
-
-  // Consider group online if ANY member is online, including current user
   const isSelectedGroupOnline = useGroupOnline(selectedGroup, onlineIds, currentUser?.id);
-
-  // Members list for the RemoveMembersModal (exclude owner)
   const removableMembers = useRemovableMembers(selectedGroup, friends, users, currentUser, t);
-
-  // ChatView handles scrolling to bottom on message changes and typing; keep a no-op here
-  // to satisfy useMessageComposer interface without redundant refs in this component.
   const scrollToBottom = () => {};
 
   useEffect(() => {
@@ -195,10 +192,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     });
   };
 
-  // Stabilize translate function reference for use inside custom toast callback
   const tt = t;
 
-  // Toast-based async confirmation to replace window.confirm
   const confirmWithToast = (message: string) => new Promise<boolean>((resolve) => {
     const id = toast.custom((toastObj) => (
       <div className={`max-w-sm w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 ${toastObj.visible ? 'animate-in fade-in zoom-in' : 'animate-out fade-out zoom-out'}`}>
@@ -221,18 +216,23 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     ), { duration: Infinity });
   });
 
-  // Local hooks: load data, compose messages, and downloading
-  const { loadUsers, loadFriends, loadChatList, loadFriendRequests, loadPendingInvites } = useChatData({
+  const { loadUsers, loadFriends, loadChatList, loadFriendRequests, loadPendingInvites, loadNotifications } = useChatData({
     setUsers,
     setFriends,
     setOnlineIds,
     setChatList,
     setFriendRequests,
+    setFriendRequestsMeta,
+    setPersistedFriendRequests,
+    setPersistedFriendRequestsMeta,
     setPendingInvites,
     setMyGroups,
   });
 
-  // Edit a single message (1-1 or group)
+  useEffect(() => {
+    loadNotifications();
+  }, []);
+
   const editMessage = async (msg: Message, content: string) => {
     try {
       if (selectedGroup) {
@@ -245,7 +245,6 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         const res = await chatService.editMessage(msg.id, content);
         if (res.success) {
           setMessages((prev) => prev.map((m: any) => (m.id === msg.id ? { ...m, content: res.data.content, updatedAt: res.data.updatedAt } : m)));
-          // Reflect in chat list preview if this was the last message
           setChatList((prev) => prev.map((it) => {
             const lm = it.lastMessage;
             if (!lm || lm.id !== msg.id) return it;
@@ -280,7 +279,6 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     clearReply: () => setReplyingToMessage(null),
   });
 
-  // Socket listeners extracted to hook to keep component lean
   useChatSocket({
     currentUser,
     selectedChat,
@@ -304,12 +302,13 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     loadUsers,
     loadChatList,
     loadPendingInvites,
+    loadNotifications,
     upsertChatListWithMessage,
     scrollToBottom,
+    reloadBellFeed,
     t,
   });
 
-  // Send read receipts for unread messages when opening a chat
   useReadReceipts({
     selectedChatId: selectedChat?.id ?? null,
     currentUserId: currentUser?.id,
@@ -319,7 +318,6 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setMessages,
   });
 
-  // Start a direct chat with a user
   const { startChat, startGroupChat } = useChatOpeners({
     currentUser,
     friends,
@@ -349,7 +347,6 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setActiveTab,
   });
 
-  // Recall a group of messages (works for both 1-1 grouped and group chat)
   const recallGroup = async (group: MessageGroup, scope: 'self' | 'all') => {
     const ids = group.items.map((i) => i.id);
     try {
@@ -378,7 +375,6 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     }
   };
 
-  // Recall a single message (works for both 1-1 and group)
   const recallMessage = async (msg: Message, scope: 'self' | 'all') => {
     try {
       let ok = false;
@@ -397,7 +393,6 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
           toast.success(t('chat.success.recallSelf'));
         } else {
           setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, isDeletedForAll: true } : m)));
-          // reflect immediately in chat list preview if needed
           setChatList((prev) => prev.map((it) => {
             const lm = it.lastMessage;
             if (!lm || lm.id !== msg.id) return it;
@@ -414,7 +409,6 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
 
   useAutoScroll(messages, isPartnerTyping, scrollToBottom, selectedChat?.id, selectedGroup?.id);
 
-  // Close preview on ESC
   usePreviewEscape(previewImage, setPreviewImage);
 
   // Fallback: when window/tab regains focus, refresh Users + FriendRequests if Users tab is active
@@ -526,33 +520,13 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
 
   if (!isOpen) return null;
 
-  // Total unread across chats + groups + friend requests + group invites
-  // If user acknowledged aggregates via Mark all as read, their counts contribute 0 to the badge
-  const frCount = ackedAggregates.has(-1001) ? 0 : (friendRequests?.length || 0);
-  const invCount = ackedAggregates.has(-1002) ? 0 : (pendingInvites?.length || 0);
-  const bellTotal = (totalUnread || 0) + (totalGroupUnread || 0) + frCount + invCount;
-
-  // handleBellItemClick provided by hook above
-  const handleDeleteNotification = (id: number) => {
-    // Group items are encoded as negative IDs: -300000 - groupId
-    if (id <= -300000) {
-      const gid = -id - 300000;
-      if (gid > 0) deleteGroupNotification(gid);
-      return;
-    }
-    if (id === -1001 || id === -1002) {
-      setHiddenBellIds((prev) => new Set([...Array.from(prev), id]));
-      setPersistedAggregates((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-      return;
-    }
-    if (id > 0) {
-      deleteDmNotification(id);
-    }
-  };
+  // Tổng badge: ưu tiên số liệu backend (DM + Group + FR + Invite).
+  // Fallback/phản hồi tức thời: nếu backend chưa kịp trả, dùng tổng local (DM + Group + Friend Requests)
+  const frCountLocal = Array.isArray(friendRequests) ? friendRequests.length : 0;
+  const bellTotal = Math.max(
+    Number(bellBadgeTotal || 0),
+    Number((totalUnread || 0) + (totalGroupUnread || 0) + (frCountLocal || 0))
+  );
 
   // Remove friend function
   const handleRemoveFriend = async (friendshipId: number, friendName: string) => {
@@ -575,29 +549,33 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         totalUnread={bellTotal}
         ring={ring}
         ringSeq={ringSeq}
-        notificationItems={effectiveNotificationItems}
+        notificationItems={bellNotificationItems}
         searchTerm={searchTerm}
         activeTab={activeTab}
         onClose={onClose}
         onItemClick={handleBellItemClick}
+        onItemDismissed={handleBellItemDismiss}
         onClearAll={() => {
-          // Mark per-chat and per-group counters as read (keep items)
+          // Mark per-chat and per-group counters as read locally for snappy UI
           markAllRead();
-          // Acknowledge aggregates so their counts show as 0 (but keep items persisted)
-          setAckedAggregates((prev) => {
-            const next = new Set(prev);
-            if ((friendRequests?.length || 0) > 0) next.add(-1001);
-            if ((pendingInvites?.length || 0) > 0) next.add(-1002);
-            return next;
-          });
-          setPersistedAggregates((prev) => {
-            const next = new Set(prev);
-            if ((friendRequests?.length || 0) > 0) next.add(-1001);
-            if ((pendingInvites?.length || 0) > 0) next.add(-1002);
-            return next;
-          });
+          // Persist: mark backend notifications (friend_request, group_invite) as read
+          void (async () => {
+            try {
+              await notificationService.markAllRead();
+              // Refresh persisted notifications so aggregates disappear across refresh
+              try { await loadNotifications(); } catch {}
+              try { await loadPendingInvites(); } catch {}
+              try {
+                const [feedRes, badgeRes] = await Promise.all([
+                  notificationService.getBellFeed(),
+                  notificationService.getBellBadge().catch(() => null),
+                ]);
+                if (feedRes?.success) setBellFeedItems(feedRes.data || []);
+                if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
+              } catch {}
+            } catch {}
+          })();
         }}
-        onDeleteItem={handleDeleteNotification}
         onSearchChange={(value) => {
           setSearchTerm(value);
           loadUsers(value);

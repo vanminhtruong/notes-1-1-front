@@ -168,7 +168,11 @@
       "newMessagesCount": "{{count}} tin nhắn mới",
       "deleteItem": "Xóa thông báo",
       "friendRequests": "Lời mời kết bạn",
-      "groupInvites": "Lời mời nhóm"
+      "groupInvites": "Lời mời nhóm",
+      "friendRequestsCount": "{{count}} lời mời kết bạn",
+      "friendRequestsCount_plural": "{{count}} lời mời kết bạn",
+      "groupInvitesCount": "{{count}} lời mời vào nhóm",
+      "groupInvitesCount_plural": "{{count}} lời mời vào nhóm"
     },
     "fallback": {
       "user": "Người dùng {{id}}"
@@ -230,6 +234,7 @@
         "viewMembers": "Xem thành viên",
         "adminsOnlyEnable": "Chỉ quản trị được gửi tin nhắn",
         "adminsOnlyDisable": "Cho phép mọi người nhắn tin",
+        "deleteAllMessages": "Xóa toàn bộ tin nhắn",
         "promoteToAdmin": "Thăng làm quản trị",
         "demoteToMember": "Giáng làm thành viên"
       },
@@ -279,7 +284,8 @@
       },
       "confirm": {
         "leave": "Rời nhóm?",
-        "delete": "Xóa nhóm?"
+        "delete": "Xóa nhóm?",
+        "deleteAllMessages": "Xóa toàn bộ tin nhắn trong nhóm này?"
       },
       "success": {
         "created": "Tạo nhóm thành công",
@@ -288,7 +294,8 @@
         "deleted": "Đã xóa nhóm",
         "removed": "Đã xóa thành viên",
         "updated": "Đã cập nhật nhóm",
-        "roleUpdated": "Đã cập nhật quyền"
+        "roleUpdated": "Đã cập nhật quyền",
+        "messagesDeleted": "Đã xóa toàn bộ tin nhắn nhóm"
       },
       "members": {
         "title": "Thành viên nhóm",

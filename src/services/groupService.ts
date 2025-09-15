@@ -11,6 +11,7 @@ export interface GroupSummary {
   adminsOnly?: boolean;
   myRole?: 'member' | 'admin' | 'owner';
   unreadCount?: number;
+  lastMessageAt?: string | null;
 }
 
 export interface GroupMessage {
@@ -74,7 +75,7 @@ export const groupService = {
 
   async getMyInvites() {
     const res = await api.get('/groups/invites');
-    return res.data as { success: boolean; data: Array<{ id: number; status: 'pending' | 'accepted' | 'declined'; group: any; inviter: any }> };
+    return res.data as { success: boolean; data: Array<{ id: number; status: 'pending' | 'accepted' | 'declined'; group: any; inviter: any; createdAt?: string }> };
   },
 
   async deleteGroup(groupId: number) {
@@ -159,5 +160,11 @@ export const groupService = {
       params: type ? { type } : undefined,
     });
     return res.data as { success: boolean; data: { groupId: number; messageId: number; type?: string } };
+  },
+  
+  // Owner-only: delete all messages in a group
+  async deleteAllGroupMessages(groupId: number) {
+    const res = await api.delete(`/groups/${groupId}/messages`);
+    return res.data as { success: boolean; data: { groupId: number; count: number } };
   },
 };

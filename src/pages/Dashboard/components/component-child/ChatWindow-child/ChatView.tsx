@@ -84,6 +84,29 @@ const ChatView = ({
     setShowMembersPanel(true);
   };
 
+  // Local async confirm using toast.custom (duplicate of ChatWindow's pattern to avoid prop plumbing)
+  const confirmWithToast = (message: string) => new Promise<boolean>((resolve) => {
+    const id = toast.custom((toastObj) => (
+      <div className={`max-w-sm w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 ${toastObj.visible ? 'animate-in fade-in zoom-in' : 'animate-out fade-out zoom-out'}`}>
+        <div className="text-sm text-gray-800 dark:text-gray-100 mb-3">{message}</div>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => { toast.dismiss(id); resolve(false); }}
+            className="px-3 py-1.5 text-sm rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100"
+          >
+            {t('actions.cancel', 'Cancel')}
+          </button>
+          <button
+            onClick={() => { toast.dismiss(id); resolve(true); }}
+            className="px-3 py-1.5 text-sm rounded-md bg-red-600 hover:bg-red-700 text-white"
+          >
+            {t('actions.confirm', 'Confirm')}
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  });
+
   // Safely open user profile: for group chats, check block status with that user before opening
   const handleOpenProfile = async (user: any) => {
     if (!user) return;
@@ -309,6 +332,13 @@ const ChatView = ({
         loadPinnedMessages();
       }
     };
+    const onGroupMessagesDeleted = (payload: { groupId: number; count: number }) => {
+      try {
+        const gid = Number((selectedChat as any)?.id);
+        if (!isGroup || !payload || payload.groupId !== gid) return;
+        setPinnedMessages([]);
+      } catch {}
+    };
     // When user clears 1-1 chat history (delete for me), server emits 'messages_deleted' only to current user
     const onDmDeleted = (payload: { deletedWith: number; deletedBy: number; count: number; scope: 'self' }) => {
       try {
@@ -323,12 +353,14 @@ const ChatView = ({
     };
     socket.on('messages_recalled', onDmRecalled);
     socket.on('group_messages_recalled', onGroupRecalled);
+    socket.on('group_messages_deleted', onGroupMessagesDeleted);
     socket.on('messages_deleted', onDmDeleted);
     return () => {
       socket.off('message_pinned', onPinnedDM);
       socket.off('group_message_pinned', onPinnedGroup);
       socket.off('messages_recalled', onDmRecalled);
       socket.off('group_messages_recalled', onGroupRecalled);
+      socket.off('group_messages_deleted', onGroupMessagesDeleted);
       socket.off('messages_deleted', onDmDeleted);
       socket.off('nickname_updated', onNicknameUpdated);
     };
@@ -655,12 +687,28 @@ const ChatView = ({
                         {t('chat.groups.actions.edit')}
                       </button>
                     )}
-                    {isGroupOwner && onRemoveMembers && (
+                    {isGroupOwner && (
                       <button
-                        onClick={() => { setHeaderMenuOpen(false); onRemoveMembers(); }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={async () => {
+                          try {
+                            const gid = Number((selectedChat as any)?.id);
+                            if (!gid) return;
+                            setHeaderMenuOpen(false);
+                            const ok = await confirmWithToast(String(t('chat.groups.confirm.deleteAllMessages', { defaultValue: 'Delete all messages in this group?' } as any)));
+                            if (!ok) return;
+                            const res = await groupService.deleteAllGroupMessages(gid);
+                            if (res?.success) {
+                              setPinnedMessages([]);
+                              // Messages will be cleared via socket event
+                              toast.success(t('chat.groups.success.messagesDeleted', 'Đã xóa toàn bộ tin nhắn nhóm'));
+                            }
+                          } catch (e: any) {
+                            toast.error(e?.response?.data?.message || t('chat.errors.generic'));
+                          }
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                       >
-                        {t('chat.groups.actions.removeMember')}
+                        {t('chat.groups.actions.deleteAllMessages', 'Xóa toàn bộ tin nhắn')}
                       </button>
                     )}
                     {isGroupOwner && (

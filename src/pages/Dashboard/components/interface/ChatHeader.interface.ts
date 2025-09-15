@@ -10,7 +10,7 @@ export interface ChatHeaderProps {
   onClose: () => void;
   onItemClick: (userId: number) => void;
   onClearAll: () => void;
-  onDeleteItem?: (id: number) => void;
+  onItemDismissed?: (id: number) => void;
   onSearchChange: (value: string) => void;
   onTabChange: (tab: 'users' | 'chats' | 'unread' | 'groups') => void;
   onOpenSettings: () => void;

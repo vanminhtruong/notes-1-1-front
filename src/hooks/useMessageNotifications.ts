@@ -10,6 +10,7 @@ export type GroupUnreadMap = Record<number, number>;
 export function useMessageNotifications(currentUserId?: number, selectedChatId?: number | null, selectedGroupId?: number | null) {
   const [unreadMap, setUnreadMap] = useState<UnreadMap>({});
   const [groupUnreadMap, setGroupUnreadMap] = useState<GroupUnreadMap>({});
+  const [groupLastAt, setGroupLastAt] = useState<Record<number, string>>({});
   const [ring, setRing] = useState(false);
   const prevTotalRef = useRef<number>(0);
   const [ringSeq, setRingSeq] = useState(0);
@@ -87,9 +88,13 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
           for (const it of items) {
             const id = (it.friend && it.friend.id) ?? it.userId;
             const cnt = it.unreadCount ?? 0;
-            if (typeof id === 'number' && cnt >= 0) {
-              const existing = next[id] || 0;
-              next[id] = Math.max(existing, cnt);
+            if (typeof id === 'number') {
+              if (cnt > 0) {
+                const existing = next[id] || 0;
+                next[id] = Math.max(existing, cnt);
+              } else {
+                delete (next as any)[id];
+              }
             }
           }
           return next;
@@ -145,6 +150,11 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
       if (isOwn) return;
       if (selectedGroupId && gid === selectedGroupId) return;
       setGroupUnreadMap((prev) => ({ ...prev, [gid]: (prev[gid] || 0) + 1 }));
+      // Track last activity time for group notifications
+      if (gid != null) {
+        const createdAt = (data && data.createdAt) ? String(data.createdAt) : new Date().toISOString();
+        setGroupLastAt((prev) => ({ ...prev, [gid]: createdAt }));
+      }
     };
 
     socket.off('group_message', onGroupMessage);
@@ -164,8 +174,12 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
         if (!it?.friend || typeof it.friend.id !== 'number') continue;
         const id = it.friend.id;
         const cnt = it.unreadCount ?? 0;
-        const existing = next[id] || 0;
-        next[id] = Math.max(existing, cnt);
+        if (cnt > 0) {
+          const existing = next[id] || 0;
+          next[id] = Math.max(existing, cnt);
+        } else {
+          delete (next as any)[id];
+        }
       }
       return next;
     });
@@ -265,5 +279,5 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
 
   const resetAll = () => { setUnreadMap({}); setGroupUnreadMap({}); };
 
-  return { unreadMap, groupUnreadMap, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, markAllRead, deleteDmNotification, deleteGroupNotification, resetAll, hydrateFromChatList };
+  return { unreadMap, groupUnreadMap, groupLastAt, totalUnread, totalGroupUnread, ring, ringSeq, markChatAsRead, markGroupAsRead, markAllRead, deleteDmNotification, deleteGroupNotification, resetAll, hydrateFromChatList };
 }

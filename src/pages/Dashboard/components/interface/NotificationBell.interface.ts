@@ -3,6 +3,7 @@ export type NotificationItem = {
   name: string;
   avatar?: string;
   count: number;
+  time?: string | number | Date;
 };
 
 export interface NotificationBellProps {
@@ -12,5 +13,5 @@ export interface NotificationBellProps {
   items: NotificationItem[];
   onItemClick: (id: number) => void;
   onClearAll?: () => void;
-  onDeleteItem?: (id: number) => void;
+  onItemDismissed?: (id: number) => void;
 }

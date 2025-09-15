@@ -1,5 +1,5 @@
 import { MoreVertical, Clock, Pin, Phone, Video, Reply } from 'lucide-react';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import MessageStatus from './MessageStatus';
 import ReactionDetailsModal from './ReactionDetailsModal';
@@ -45,6 +45,8 @@ const MessageBubble = ({
   }, [message.Reactions, currentUserId]);
   // No local burst counting; rely on server-persisted counts for accuracy
   const [floatItems, setFloatItems] = useState<Array<{ id: number; emoji: string; dx: number }>>([]);
+  const floatItemsRef = useRef<Array<{ id: number; emoji: string; dx: number }>>([]);
+  useEffect(() => { floatItemsRef.current = floatItems; }, [floatItems]);
   const EMOJI: Record<'like'|'love'|'haha'|'wow'|'sad'|'angry', string> = {
     like: '👍',
     love: '❤️',
@@ -140,26 +142,67 @@ const MessageBubble = ({
     }
   };
   
-  // Flying emoji spawner for burst effect
-  const spawnFloat = (emoji: string) => {
-    if (disableReactions) return;
-    // Cap concurrent floating items of the same emoji to 3
-    let addedId: number | null = null;
-    setFloatItems((prev) => {
-      const same = prev.filter((it) => it.emoji === emoji).length;
-      if (same >= 3) return prev;
-      const id = Date.now() + Math.random();
-      addedId = id;
-      const dx = Math.round(Math.random() * 24 - 12); // -12..12 px horizontal offset
-      return [...prev, { id, emoji, dx }];
-    });
-    // Auto-remove after animation ends
-    setTimeout(() => {
-      if (addedId != null) {
-        setFloatItems((prev) => prev.filter((it) => it.id !== addedId));
-      }
+  // Robust burst queue so heavy repetitions are not dropped
+  const burstQueueRef = useRef<Record<string, number>>({});
+  const drainTimerRef = useRef<number | null>(null);
+  const SPAWN_CAP = 5; // allow more concurrent for smoother heavy bursts
+
+  const spawnInternal = (emoji: string) => {
+    const id = Date.now() + Math.random();
+    const dx = Math.round(Math.random() * 24 - 12);
+    setFloatItems((prev) => [...prev, { id, emoji, dx }]);
+    window.setTimeout(() => {
+      setFloatItems((prev) => prev.filter((it) => it.id !== id));
     }, 950);
   };
+
+  const startDrain = () => {
+    if (drainTimerRef.current) return;
+    drainTimerRef.current = window.setInterval(() => {
+      const keys = Object.keys(burstQueueRef.current);
+      if (keys.length === 0) {
+        if (drainTimerRef.current) { window.clearInterval(drainTimerRef.current); drainTimerRef.current = null; }
+        return;
+      }
+      let anySpawned = false;
+      for (const k of keys) {
+        const pending = burstQueueRef.current[k] || 0;
+        if (pending <= 0) continue;
+        const concurrent = floatItemsRef.current.filter((it) => it.emoji === k).length;
+        const allow = Math.max(0, SPAWN_CAP - concurrent);
+        if (allow <= 0) continue;
+        const take = Math.min(allow, pending);
+        for (let i = 0; i < take; i++) spawnInternal(k);
+        burstQueueRef.current[k] = pending - take;
+        anySpawned = anySpawned || take > 0;
+      }
+      // If all drained, stop timer
+      if (!anySpawned && Object.values(burstQueueRef.current).every((v) => (v || 0) <= 0)) {
+        if (drainTimerRef.current) { window.clearInterval(drainTimerRef.current); drainTimerRef.current = null; }
+      }
+    }, 60);
+  };
+
+  const enqueueBurst = (emoji: string, count = 1) => {
+    if (disableReactions) return;
+    burstQueueRef.current[emoji] = (burstQueueRef.current[emoji] || 0) + Math.max(1, count);
+    startDrain();
+  };
+  
+  // Show burst animation when another client reacts (cross-client)
+  useEffect(() => {
+    const onBurst = (e: Event) => {
+      try {
+        const detail = (e as CustomEvent).detail as { messageId: number; type: 'like'|'love'|'haha'|'wow'|'sad'|'angry'; count?: number };
+        if (!detail || Number(detail.messageId) !== Number(message.id)) return;
+        const emoji = EMOJI[detail.type as keyof typeof EMOJI];
+        const n = Math.max(1, Number(detail.count || 1));
+        if (emoji) enqueueBurst(emoji, n);
+      } catch {}
+    };
+    if (typeof window !== 'undefined') window.addEventListener('reaction_burst', onBurst as any);
+    return () => { if (typeof window !== 'undefined') window.removeEventListener('reaction_burst', onBurst as any); };
+  }, [message.id]);
   const isPinned = (() => {
     if (!message?.id) return false;
     if (!Array.isArray(pinnedIdSet) && !(pinnedIdSet instanceof Set)) return false;
@@ -570,7 +613,7 @@ const MessageBubble = ({
 
       {/* Reaction trigger */}
       {!isRecalled && !disableReactions && (
-        <div className={`absolute ${isOwnMessage ? 'right-0' : 'right-0'} -bottom-3 flex items-center gap-2`}>
+        <div className={`absolute ${isOwnMessage ? 'right-0' : 'left-0'} -bottom-3 flex ${isOwnMessage ? 'flex-row-reverse' : ''} items-center gap-2`}>
           {/* Quick heart */}
           <button
             type="button"
@@ -580,7 +623,7 @@ const MessageBubble = ({
             onClick={() => {
               const already = myTypes.includes('love');
               handleReact('love', already);
-              spawnFloat('❤️');
+              enqueueBurst('❤️', 1);
             }}
             title={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
             aria-label={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
@@ -590,7 +633,7 @@ const MessageBubble = ({
 
           {/* Emoji picker on hover */}
           {showReactions && !disableReactions && (
-            <div className={`relative z-20 px-2 py-1 rounded-2xl shadow-lg border ${isDarkMode() ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'}`}
+            <div className={`relative z-50 px-2 py-1 rounded-2xl shadow-lg border ${isDarkMode() ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'}`}
                  onMouseEnter={() => setShowReactions(true)} onMouseLeave={() => setShowReactions(false)}>
               <div className="flex items-center gap-2">
                 {(['like','love','haha','wow','sad','angry'] as const).map((k) => {
@@ -601,7 +644,7 @@ const MessageBubble = ({
                         <Tooltip.Trigger asChild>
                           <button
                             className={`text-xl leading-none hover:scale-110 transition-transform ${myTypes.includes(k) ? 'ring-2 ring-blue-400 rounded-full' : ''}`}
-                            onClick={(e) => { e.stopPropagation(); handleReact(k, true); spawnFloat(EMOJI[k]); }}
+                            onClick={(e) => { e.stopPropagation(); handleReact(k, true); enqueueBurst(EMOJI[k], 1); }}
                           >
                             {EMOJI[k]}
                           </button>

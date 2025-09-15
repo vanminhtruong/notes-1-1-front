@@ -182,7 +182,11 @@
       "newMessagesCount": "{{count}} new messages",
       "deleteItem": "Delete notification",
       "friendRequests": "Friend requests",
-      "groupInvites": "Group invitations"
+      "groupInvites": "Group invitations",
+      "friendRequestsCount": "{{count}} friend requests",
+      "friendRequestsCount_plural": "{{count}} friend requests",
+      "groupInvitesCount": "{{count}} group invitations",
+      "groupInvitesCount_plural": "{{count}} group invitations"
     },
     "fallback": {
       "user": "User {{id}}"
@@ -244,6 +248,7 @@
         "viewMembers": "View members",
         "adminsOnlyEnable": "Only admins can send messages",
         "adminsOnlyDisable": "Allow everyone to send messages",
+        "deleteAllMessages": "Delete all messages",
         "promoteToAdmin": "Promote to admin",
         "demoteToMember": "Demote to member"
       },
@@ -293,7 +298,8 @@
       },
       "confirm": {
         "leave": "Leave group?",
-        "delete": "Delete group?"
+        "delete": "Delete group?",
+        "deleteAllMessages": "Delete all messages in this group?"
       },
       "success": {
         "created": "Group created",
@@ -302,7 +308,8 @@
         "deleted": "Group deleted",
         "removed": "Member removed",
         "updated": "Group updated",
-        "roleUpdated": "Role updated"
+        "roleUpdated": "Role updated",
+        "messagesDeleted": "Deleted all group messages"
       },
       "members": {
         "title": "Group members",

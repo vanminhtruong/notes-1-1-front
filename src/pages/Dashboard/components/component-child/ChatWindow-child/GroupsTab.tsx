@@ -92,9 +92,10 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
       try {
         if (!payload) return;
         if (Number(payload.userId) === Number(currentUserId)) {
-          // Optimistic zero for this group
-          setGroups((prev) => prev.map((g) => (g.id === Number(payload.groupId) ? ({ ...g, unreadCount: 0 }) : g)));
-          loadGroups();
+          const gid = Number(payload.groupId);
+          // Optimistically zero for this group without full reload
+          setGroups((prev) => prev.map((g) => (g.id === gid ? ({ ...g, unreadCount: 0 }) : g)));
+          setUnreadOverride((prev) => ({ ...prev, [gid]: 0 }));
         }
       } catch {}
     };
@@ -121,7 +122,13 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
           }
           return next;
         });
-        loadGroups();
+        // Avoid full reload to prevent flicker; rely on override for badge display
+        // Optionally, we could optimistically bump local unreadCount as well
+        setGroups((prev) => prev.map((g) => (
+          g.id === gid
+            ? { ...g, unreadCount: (typeof unreadOverride[gid] === 'number' ? (unreadOverride[gid] as number) : (g.unreadCount || 0)) + 1 }
+            : g
+        )));
       } catch {}
     };
     socket.on('group_message', onGroupMessage);
