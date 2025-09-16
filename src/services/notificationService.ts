@@ -14,14 +14,37 @@ export interface BackendNotification {
   group?: { id: number; name: string; avatar?: string | null } | null;
 }
 
+export interface BellFeedItem {
+  id: number;
+  name: string;
+  avatar?: string | null;
+  count?: number;
+  time?: string;
+}
+
+export interface BellFeedResponse {
+  success: boolean;
+  data: {
+    items: BellFeedItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+  };
+}
+
 export const notificationService = {
   async listMyNotifications(params?: { unreadOnly?: boolean; limit?: number; collapse?: 'message_by_other' | string }) {
     const res = await api.get('/notifications', { params });
     return res.data as { success: boolean; data: BackendNotification[] };
   },
-  async getBellFeed() {
-    const res = await api.get('/notifications/bell');
-    return res.data as { success: boolean; data: Array<{ id: number; name: string; avatar?: string | null; count?: number; time?: string }> };
+  async getBellFeed(params?: { page?: number; limit?: number }) {
+    const res = await api.get('/notifications/bell', { params });
+    return res.data as BellFeedResponse;
   },
   async getBellBadge() {
     const res = await api.get('/notifications/bell/badge');

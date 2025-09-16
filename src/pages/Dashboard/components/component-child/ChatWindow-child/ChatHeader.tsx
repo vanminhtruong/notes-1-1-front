@@ -7,12 +7,15 @@ const ChatHeader = ({
   ring,
   ringSeq,
   notificationItems,
+  notificationPagination,
+  notificationLoading,
   searchTerm,
   activeTab,
   onClose,
   onItemClick,
   onClearAll,
   onItemDismissed,
+  onLoadMoreNotifications,
   onSearchChange,
   onTabChange,
   onOpenSettings,
@@ -29,9 +32,12 @@ const ChatHeader = ({
             ring={ring}
             ringSeq={ringSeq}
             items={notificationItems}
+            pagination={notificationPagination}
+            isLoading={notificationLoading}
             onItemClick={onItemClick}
             onClearAll={onClearAll}
             onItemDismissed={onItemDismissed}
+            onLoadMore={onLoadMoreNotifications}
           />
           <button onClick={onOpenSettings} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
             <span className="text-gray-500 text-lg">⚙️</span>

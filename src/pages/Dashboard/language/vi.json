@@ -165,6 +165,8 @@
       "title": "Thông báo",
       "markAllRead": "Đánh dấu tất cả đã đọc",
       "empty": "Không có thông báo",
+      "loading": "Đang tải...",
+      "loadMore": "Xem thêm ({{remaining}})",
       "newMessagesCount": "{{count}} tin nhắn mới",
       "deleteItem": "Xóa thông báo",
       "friendRequests": "Lời mời kết bạn",

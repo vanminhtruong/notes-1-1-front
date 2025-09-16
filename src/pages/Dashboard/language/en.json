@@ -179,13 +179,15 @@
       "title": "Notifications",
       "markAllRead": "Mark all as read",
       "empty": "No notifications",
+      "loading": "Loading...",
+      "loadMore": "Load more ({{remaining}})",
       "newMessagesCount": "{{count}} new messages",
       "deleteItem": "Delete notification",
       "friendRequests": "Friend requests",
       "groupInvites": "Group invitations",
-      "friendRequestsCount": "{{count}} friend requests",
+      "friendRequestsCount": "{{count}} friend request",
       "friendRequestsCount_plural": "{{count}} friend requests",
-      "groupInvitesCount": "{{count}} group invitations",
+      "groupInvitesCount": "{{count}} group invitation",
       "groupInvitesCount_plural": "{{count}} group invitations"
     },
     "fallback": {

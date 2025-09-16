@@ -154,6 +154,8 @@
       "title": "알림",
       "markAllRead": "모두 읽음 처리",
       "empty": "알림이 없습니다",
+      "loading": "로딩 중...",
+      "loadMore": "더 보기 ({{remaining}})",
       "newMessagesCount": "새 메시지 {{count}}개",
       "deleteItem": "알림 삭제",
       "friendRequests": "친구 요청",

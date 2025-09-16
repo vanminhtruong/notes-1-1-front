@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { type User, type Message, type MessageGroup, type ChatWindowProps, type GroupSummary, useState, useEffect, useRef, toast, useTranslation, chatService, groupService, getSocket, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettings, useChatBackground, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, getCachedUser } from './interface/chatWindowImports';
 import { blockService, type BlockStatus } from '@/services/blockService';
 import { notificationService } from '@/services/notificationService';
+import type { NotificationPagination } from './interface/NotificationBell.interface';
 
 const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const { t } = useTranslation('dashboard');
@@ -69,18 +70,39 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const [myGroups, setMyGroups] = useState<GroupSummary[]>([]);
   const [bellFeedItems, setBellFeedItems] = useState<Array<{ id: number; name: string; avatar?: string | null; count?: number; time?: string }>>([]);
   const [bellBadgeTotal, setBellBadgeTotal] = useState<number>(0);
+  const [bellPagination, setBellPagination] = useState<NotificationPagination | undefined>(undefined);
+  const [bellLoading, setBellLoading] = useState<boolean>(false);
+  const loadBellFeed = async (page: number = 1, limit: number = 4) => {
+    setBellLoading(true);
+    try {
+      const [feedRes, badgeRes] = await Promise.all([
+        notificationService.getBellFeed({ page, limit }),
+        notificationService.getBellBadge().catch(() => null),
+      ]);
+      if (feedRes?.success && feedRes.data) {
+        if (page === 1) {
+          setBellFeedItems(feedRes.data.items || []);
+        } else {
+          setBellFeedItems(prev => [...prev, ...(feedRes.data.items || [])]);
+        }
+        setBellPagination(feedRes.data.pagination);
+      }
+      if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
+    } catch {}
+    finally {
+      setBellLoading(false);
+    }
+  };
+
+  const handleLoadMoreNotifications = () => {
+    if (bellPagination?.hasNextPage) {
+      loadBellFeed(bellPagination.currentPage + 1);
+    }
+  };
+
   useEffect(() => {
     loadNotifications();
-    (async () => {
-      try {
-        const [feedRes, badgeRes] = await Promise.all([
-          notificationService.getBellFeed(),
-          notificationService.getBellBadge().catch(() => null),
-        ]);
-        if (feedRes?.success) setBellFeedItems(feedRes.data || []);
-        if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
-      } catch {}
-    })();
+    loadBellFeed();
   }, []);
 
   const handleBellItemDismiss = async (id: number) => {
@@ -99,14 +121,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         await notificationService.dismissBellItem('dm', id);
         setBellFeedItems((prev) => prev.filter((x) => x.id !== id));
       }
-      try {
-        const [feedRes, badgeRes] = await Promise.all([
-          notificationService.getBellFeed(),
-          notificationService.getBellBadge().catch(() => null),
-        ]);
-        if (feedRes?.success) setBellFeedItems(feedRes.data || []);
-        if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
-      } catch {}
+      // Reload first page after dismiss
+      await loadBellFeed(1);
     } catch (e) {
       // soft fail, keep UI unchanged if error
     }
@@ -123,14 +139,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   }, [bellFeedItems]);
 
   const reloadBellFeed = async () => {
-    try {
-      const [feedRes, badgeRes] = await Promise.all([
-        notificationService.getBellFeed(),
-        notificationService.getBellBadge().catch(() => null),
-      ]);
-      if (feedRes?.success) setBellFeedItems(feedRes.data || []);
-      if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
-    } catch {}
+    await loadBellFeed(1);
   };
 
   const unreadChats = useUnreadChats(chatList, unreadMap);
@@ -564,11 +573,14 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         ring={ring}
         ringSeq={ringSeq}
         notificationItems={bellNotificationItems}
+        notificationPagination={bellPagination}
+        notificationLoading={bellLoading}
         searchTerm={searchTerm}
         activeTab={activeTab}
         onClose={onClose}
         onItemClick={handleBellItemClick}
         onItemDismissed={handleBellItemDismiss}
+        onLoadMoreNotifications={handleLoadMoreNotifications}
         onClearAll={() => {
           // Mark per-chat and per-group counters as read locally for snappy UI
           markAllRead();
@@ -580,12 +592,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
               try { await loadNotifications(); } catch {}
               try { await loadPendingInvites(); } catch {}
               try {
-                const [feedRes, badgeRes] = await Promise.all([
-                  notificationService.getBellFeed(),
-                  notificationService.getBellBadge().catch(() => null),
-                ]);
-                if (feedRes?.success) setBellFeedItems(feedRes.data || []);
-                if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
+                await loadBellFeed(1);
               } catch {}
             } catch {}
           })();

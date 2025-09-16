@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Bell } from 'lucide-react';
 import type { NotificationBellProps } from './interface/NotificationBell.interface';
 
-export default function NotificationBell({ total, ring, ringSeq, items, onItemClick, onClearAll, onItemDismissed }: NotificationBellProps) {
+export default function NotificationBell({ total, ring, ringSeq, items, pagination, isLoading, onItemClick, onClearAll, onItemDismissed, onLoadMore }: NotificationBellProps) {
   const { t } = useTranslation('dashboard');
   const [open, setOpen] = useState(false);
   const [periodic, setPeriodic] = useState(false);
@@ -165,8 +165,14 @@ export default function NotificationBell({ total, ring, ringSeq, items, onItemCl
           </div>
 
           <div className="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
-            {items.length === 0 && (
+            {items.length === 0 && !isLoading && (
               <div className="p-4 text-sm text-gray-500 dark:text-gray-400 text-center">{t('chat.notificationsBell.empty')}</div>
+            )}
+            {isLoading && items.length === 0 && (
+              <div className="p-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                {t('chat.notificationsBell.loading')}
+              </div>
             )}
             {items.map((it, idx) => (
               <div key={it.id} className="relative group">
@@ -233,6 +239,29 @@ export default function NotificationBell({ total, ring, ringSeq, items, onItemCl
                 </div>
               </div>
             ))}
+            
+            {/* Load More Button */}
+            {pagination && pagination.hasNextPage && onLoadMore && (
+              <div className="p-3 border-t border-gray-100 dark:border-gray-800">
+                <button
+                  onClick={() => {
+                    onLoadMore();
+                  }}
+                  disabled={isLoading}
+                  className="w-full py-2 px-4 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                      {t('chat.notificationsBell.loading')}
+                    </div>
+                  ) : (
+                    t('chat.notificationsBell.loadMore', { remaining: pagination.totalItems - items.length })
+                  )}
+                </button>
+              </div>
+            )}
+            
           </div>
         </div>
       )}
