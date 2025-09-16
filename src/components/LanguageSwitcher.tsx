@@ -12,9 +12,9 @@ interface Language {
 }
 
 const languages: Language[] = [
-  { code: 'vi', name: 'Tiếng Việt', Flag: VN },
   { code: 'en', name: 'English', Flag: US },
   { code: 'ko', name: '한국어', Flag: KR },
+  { code: 'vi', name: 'Tiếng Việt', Flag: VN },
 ];
 
 export default function LanguageSwitcher() {
@@ -23,7 +23,8 @@ export default function LanguageSwitcher() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [previewLang, setPreviewLang] = useState<Language | null>(null);
 
-  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
+  const defaultLang = languages.find((l) => l.code === 'vi') || languages[0];
+  const currentLanguage = languages.find((lang) => lang.code === i18n.language) || defaultLang;
 
   const handleLanguageChange = async (langCode: string) => {
     i18n.changeLanguage(langCode);

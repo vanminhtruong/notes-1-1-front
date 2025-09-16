@@ -401,7 +401,8 @@
       "deleteMessages": "Xóa tin nhắn",
       "removeFriend": "Xóa bạn bè",
       "block": "Chặn",
-      "unblock": "Bỏ chặn"
+      "unblock": "Bỏ chặn",
+      "addFriend": "Kết bạn"
     },
     "recalled": {
       "text": "Tin nhắn đã bị thu hồi",

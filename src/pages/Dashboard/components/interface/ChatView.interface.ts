@@ -16,6 +16,10 @@ export interface ChatViewProps {
   onEditMessage: (msg: Message, content: string) => void | Promise<void>;
   onDownloadAttachment: (url: string) => void;
   onPreviewImage: (url: string) => void;
+  // Lazy loading: parent will prepend older messages
+  onPrependMessages?: (older: Message[]) => void;
+  // Initial history loading state (hide messages until loaded)
+  initialLoading?: boolean;
   // Group mode
   isGroup?: boolean;
   groupOnline?: boolean;

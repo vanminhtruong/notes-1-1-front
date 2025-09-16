@@ -30,6 +30,7 @@ const ChatView = ({
   onEditMessage,
   onDownloadAttachment,
   onPreviewImage,
+  initialLoading,
   isGroup,
   groupOnline,
   onLeaveGroup,
@@ -45,11 +46,14 @@ const ChatView = ({
   onChangeBackgroundForBoth,
   onResetBackground,
   blocked,
+  onPrependMessages,
   onReplyRequested,
 }: ChatViewProps) => {
   const { t, i18n } = useTranslation('dashboard');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
+  const prependingRef = useRef(false);
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
   const [dmMenuOpen, setDmMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -72,6 +76,22 @@ const ChatView = ({
   const [searchResults, setSearchResults] = useState<Array<{ id: number; content: string; messageType?: string; createdAt: string; senderId?: number }>>([]);
   // Common groups modal state
   const [showCommonGroups, setShowCommonGroups] = useState(false);
+  // Lazy-load state
+  const [isLoadingPrev, setIsLoadingPrev] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const pageRef = useRef(1);
+  const hasMoreRef = useRef(true);
+  const loadingRef = useRef(false);
+  const isGroupRef = useRef(!!isGroup);
+  const selectedIdRef = useRef<number | null>(null);
+  const onPrependRef = useRef<((older: any[]) => void) | null>(null);
+  useEffect(() => { pageRef.current = page; }, [page]);
+  useEffect(() => { hasMoreRef.current = hasMore; }, [hasMore]);
+  useEffect(() => { loadingRef.current = isLoadingPrev; }, [isLoadingPrev]);
+  useEffect(() => { isGroupRef.current = !!isGroup; }, [isGroup]);
+  useEffect(() => { selectedIdRef.current = Number((selectedChat as any)?.id) || null; }, [(selectedChat as any)?.id]);
+  useEffect(() => { onPrependRef.current = typeof onPrependMessages === 'function' ? onPrependMessages as any : null; }, [onPrependMessages]);
 
   // Keep roles up-to-date to show owner/admin badges on avatars in group chat
   useEffect(() => {
@@ -280,9 +300,17 @@ const ChatView = ({
   };
 
   useEffect(() => {
-    // Always scroll to bottom when messages change to ensure new messages are visible
+    // Avoid jumping to bottom when we are prepending older messages
+    if (prependingRef.current) return;
+    // For normal updates (new incoming/outgoing), keep behavior
     scrollToBottom();
   }, [messages]);
+
+  // Reset pagination when switching chat/group
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+  }, [isGroup, (selectedChat as any)?.id]);
 
   useEffect(() => {
     loadPinnedMessages();
@@ -427,11 +455,133 @@ const ChatView = ({
     const onScroll = () => {
       const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
       setShowBackToBottom(distanceToBottom > 150);
+      // Trigger lazy-load when near top (increased threshold for reliability)
+      if (el.scrollTop <= 200) {
+        void (async () => {
+          if (loadingRef.current || !hasMoreRef.current) return;
+          try {
+            setIsLoadingPrev(true);
+            const prevHeight = el.scrollHeight;
+            const nextPage = (pageRef.current || 1) + 1;
+            const LIMIT = 10;
+            if (isGroupRef.current) {
+              const gid = Number(selectedIdRef.current || 0);
+              if (!gid) return;
+              const res = await groupService.getGroupMessages(gid, nextPage, LIMIT);
+              if (res?.success && Array.isArray(res.data)) {
+                // Ask parent to prepend; then preserve scroll anchor
+                if (onPrependRef.current) {
+                  prependingRef.current = true;
+                  onPrependRef.current(res.data as any);
+                }
+                setPage(nextPage);
+                const more = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
+                setHasMore(more);
+                setTimeout(() => {
+                  const newHeight = el.scrollHeight;
+                  el.scrollTop = newHeight - prevHeight + el.scrollTop;
+                  prependingRef.current = false;
+                }, 50);
+              } else {
+                setHasMore(false);
+              }
+            } else {
+              const uid = Number(selectedIdRef.current || 0);
+              if (!uid) return;
+              const res = await chatService.getChatMessages(uid, nextPage, LIMIT);
+              if (res?.success && Array.isArray(res.data)) {
+                if (onPrependRef.current) {
+                  prependingRef.current = true;
+                  onPrependRef.current(res.data as any);
+                }
+                setPage(nextPage);
+                const more = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
+                setHasMore(more);
+                setTimeout(() => {
+                  const newHeight = el.scrollHeight;
+                  el.scrollTop = newHeight - prevHeight + el.scrollTop;
+                  prependingRef.current = false;
+                }, 50);
+              } else {
+                setHasMore(false);
+              }
+            }
+          } catch {
+            // stop further attempts on error for this session
+            setHasMore(false);
+          } finally {
+            setIsLoadingPrev(false);
+          }
+        })();
+      }
     };
     onScroll();
     el.addEventListener('scroll', onScroll);
     return () => el.removeEventListener('scroll', onScroll);
   }, []);
+
+  // IntersectionObserver sentinel at the very top to ensure loading triggers reliably
+  useEffect(() => {
+    const rootEl = scrollerRef.current;
+    const sentinel = topSentinelRef.current;
+    if (!rootEl || !sentinel) return;
+    let cancelled = false;
+    const io = new IntersectionObserver((entries) => {
+      const e = entries[0];
+      if (!e || !e.isIntersecting) return;
+      if (loadingRef.current || !hasMoreRef.current) return;
+      // Trigger the same fetch logic as onScroll
+      (async () => {
+        try {
+          setIsLoadingPrev(true);
+          const prevHeight = rootEl.scrollHeight;
+          const nextPage = (pageRef.current || 1) + 1;
+          const LIMIT = 10;
+          if (isGroupRef.current) {
+            const gid = Number(selectedIdRef.current || 0);
+            if (!gid) return;
+            const res = await groupService.getGroupMessages(gid, nextPage, LIMIT);
+            if (!cancelled && res?.success && Array.isArray(res.data)) {
+              if (onPrependRef.current) { prependingRef.current = true; onPrependRef.current(res.data as any); }
+              setPage(nextPage);
+              const more = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
+              setHasMore(more);
+              setTimeout(() => {
+                const newHeight = rootEl.scrollHeight;
+                rootEl.scrollTop = newHeight - prevHeight + rootEl.scrollTop;
+                prependingRef.current = false;
+              }, 50);
+            } else if (!cancelled) {
+              setHasMore(false);
+            }
+          } else {
+            const uid = Number(selectedIdRef.current || 0);
+            if (!uid) return;
+            const res = await chatService.getChatMessages(uid, nextPage, LIMIT);
+            if (!cancelled && res?.success && Array.isArray(res.data)) {
+              if (onPrependRef.current) { prependingRef.current = true; onPrependRef.current(res.data as any); }
+              setPage(nextPage);
+              const more = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
+              setHasMore(more);
+              setTimeout(() => {
+                const newHeight = rootEl.scrollHeight;
+                rootEl.scrollTop = newHeight - prevHeight + rootEl.scrollTop;
+                prependingRef.current = false;
+              }, 50);
+            } else if (!cancelled) {
+              setHasMore(false);
+            }
+          }
+        } catch {
+          if (!cancelled) setHasMore(false);
+        } finally {
+          if (!cancelled) setIsLoadingPrev(false);
+        }
+      })();
+    }, { root: rootEl, rootMargin: '0px', threshold: 0.01 });
+    io.observe(sentinel);
+    return () => { cancelled = true; io.disconnect(); };
+  }, [isGroup, (selectedChat as any)?.id]);
 
   // Update current time every minute to refresh offline duration
   useEffect(() => {
@@ -877,6 +1027,15 @@ const ChatView = ({
             : undefined
         }
       >
+        {initialLoading ? (
+          <div className="min-h-[180px] flex items-center justify-center">
+            <div className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300">
+              <div className="w-7 h-7 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" aria-label={t('chat.loadingHistory', 'Đang tải lịch sử...')} />
+              <span className="text-sm">{t('chat.loadingHistory', 'Đang tải lịch sử...')}</span>
+            </div>
+          </div>
+        ) : (
+          <>
         {/* Pinned banner */}
         {!maskMessages && pinnedMessages.length > 0 && (
           <div className="sticky top-0 z-30 pt-2 pb-2 mb-2 py-0 w-full backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-gray-900/70 border-b border-yellow-200/60 dark:border-yellow-700/40">
@@ -898,6 +1057,15 @@ const ChatView = ({
             </div>
           </div>
         )}
+        {/* Top loading spinner for lazy load (placed after pinned banner) */}
+        {isLoadingPrev ? (
+          <div className="sticky top-0 z-40 flex items-center justify-center pt-2 pb-1 bg-transparent">
+            <div className="w-6 h-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" aria-label={t('chat.loadingOlder', 'Đang tải tin nhắn cũ...')} />
+          </div>
+        ) : null}
+
+        {/* Top intersection sentinel (1px) to trigger loads reliably */}
+        <div ref={topSentinelRef} style={{ height: 1 }} />
 
         {maskMessages && (
           <div className="relative z-10 mb-4 flex items-center justify-center text-center select-none">
@@ -935,7 +1103,7 @@ const ChatView = ({
             </div>
           ) : null
         ) : (
-          <div className="space-y-4 relative z-10 mt-4 px-4">
+          <div className="space-y-3 relative z-10 mt-1 px-4">
             {(() => {
               let lastDateKey: string | null = null;
               return visibleGroups.map((group) => {
@@ -1362,7 +1530,7 @@ const ChatView = ({
           <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
             <div className="flex -space-x-2 mt-auto">
               {(() => {
-                const list = (typingUsers as any[]).slice(0, 2);
+                const list = ((typingUsers ?? []) as any[]).slice(0, 2);
                 return list.map((u: any, idx: number) => {
                   const name = String(u?.name || '').trim() || 'U';
                   const avatar = (u as any)?.avatar || null;
@@ -1389,7 +1557,7 @@ const ChatView = ({
               </div>
               {/* Tên người đang nhập (nhẹ, nhỏ) */}
               <div className="text-[11px] leading-none text-gray-500 dark:text-gray-400 px-1">
-                {typingUsers.map((u) => u.name).join(', ')}
+                {(typingUsers ?? []).map((u) => u.name).join(', ')}
               </div>
             </div>
           </div>
@@ -1407,6 +1575,8 @@ const ChatView = ({
           </div>
         )}
         <div ref={messagesEndRef} className="relative z-10" />
+          </>
+        )}
       </div>
 
       {/* Profile Modal */}
@@ -1544,6 +1714,7 @@ const ChatView = ({
         onClose={() => setShowMembersPanel(false)}
         onOpenProfile={(user) => handleOpenProfile(user)}
         isOwner={!!isGroupOwner}
+        currentUserId={Number(currentUserId)}
       />
 
       {/* Common Groups Modal */}

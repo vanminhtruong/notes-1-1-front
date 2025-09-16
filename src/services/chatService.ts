@@ -90,7 +90,7 @@ export const chatService = {
   },
 
   // Get chat messages
-  async getChatMessages(userId: number, page = 1, limit = 50) {
+  async getChatMessages(userId: number, page = 1, limit = 10) {
     const response = await api.get(`/chat/${userId}?page=${page}&limit=${limit}`);
     return response.data;
   },

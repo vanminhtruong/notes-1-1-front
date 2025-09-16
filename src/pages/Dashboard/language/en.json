@@ -415,7 +415,8 @@
       "deleteMessages": "Delete Messages",
       "removeFriend": "Remove Friend",
       "block": "Block",
-      "unblock": "Unblock"
+      "unblock": "Unblock",
+      "addFriend": "Add friend"
     },
     "recalled": {
       "text": "Message was recalled",

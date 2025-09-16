@@ -18,6 +18,7 @@ export function useChatOpeners(params: {
   setChatList: React.Dispatch<React.SetStateAction<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number }>>>;
   setMenuOpenKey: React.Dispatch<React.SetStateAction<string | null>>;
   setMessages: React.Dispatch<React.SetStateAction<any[]>>;
+  setHistoryLoading: React.Dispatch<React.SetStateAction<boolean>>;
   pendingImages: Array<{ id: string; file: File; preview: string }>;
   setPendingImages: React.Dispatch<React.SetStateAction<Array<{ id: string; file: File; preview: string }>>>;
   pendingFiles: Array<{ id: string; file: File }>;
@@ -37,6 +38,7 @@ export function useChatOpeners(params: {
     setChatList,
     setMenuOpenKey,
     setMessages,
+    setHistoryLoading,
     pendingImages,
     setPendingImages,
     pendingFiles,
@@ -81,6 +83,7 @@ export function useChatOpeners(params: {
     });
 
     try {
+      setHistoryLoading(true);
       const response = await chatService.getChatMessages(user.id);
       if (response.success) {
         // Normalize DM read receipts for persistence across reloads
@@ -129,6 +132,8 @@ export function useChatOpeners(params: {
       // eslint-disable-next-line no-console
       console.error('Error loading chat messages:', error);
       setMessages([]);
+    } finally {
+      setHistoryLoading(false);
     }
   }, [clearPending, markChatAsRead, scrollToBottom, setActiveTab, setChatList, setMenuOpenKey, setMessages, setSelectedChat, setSelectedGroup]);
 
@@ -146,6 +151,7 @@ export function useChatOpeners(params: {
     try { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('group_marked_read', { detail: { groupId: group.id } })); } catch {}
 
     try {
+      setHistoryLoading(true);
       // Preload members to resolve sender avatars accurately
       let memberMap: Record<number, { id: number; name: string; avatar?: string | null }> = {};
       try {
@@ -199,6 +205,8 @@ export function useChatOpeners(params: {
       // eslint-disable-next-line no-console
       console.error('Error loading group messages:', error);
       setMessages([]);
+    } finally {
+      setHistoryLoading(false);
     }
   }, [clearPending, currentUser, friends, users, markGroupAsRead, scrollToBottom, setMenuOpenKey, setMessages, setSelectedChat, setSelectedGroup, setActiveTab]);
 

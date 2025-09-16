@@ -33,6 +33,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const [showRemoveMembers, setShowRemoveMembers] = useState(false);
   const [, setPendingInvites] = useState<Array<{ id: number; status: 'pending' | 'accepted' | 'declined'; group: any; inviter: any }>>([]);
   const [blockStatus, setBlockStatus] = useState<BlockStatus | null>(null);
+  const [historyLoading, setHistoryLoading] = useState<boolean>(false);
   const {
     e2eeEnabled,
     e2eePinHash,
@@ -160,6 +161,18 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
 
   // Load per-chat background (1-1 only)
   const { chatBackgroundUrl, changeBackground, changeBackgroundForBoth, resetBackground } = useChatBackground(selectedChat?.id ?? null, t);
+
+  // Prepend older messages (lazy load). Keep order ascending and dedupe by id.
+  const handlePrependMessages = (older: any[]) => {
+    if (!Array.isArray(older) || older.length === 0) return;
+    setMessages((prev) => {
+      const existingIds = new Set(prev.map((m: any) => m.id));
+      // Ensure older list is in ascending order (backend already returns ascending)
+      const dedup = older.filter((m: any) => m && !existingIds.has(m.id));
+      if (dedup.length === 0) return prev;
+      return [...dedup, ...prev];
+    });
+  };
 
   // Update or insert a chatList entry with a new last message
   const upsertChatListWithMessage = (otherUserId: number, msg: Message) => {
@@ -331,6 +344,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setChatList,
     setMenuOpenKey,
     setMessages,
+    setHistoryLoading,
     pendingImages,
     setPendingImages,
     pendingFiles,
@@ -638,6 +652,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   onEditMessage={editMessage}
                   onDownloadAttachment={downloadAttachment}
                   onPreviewImage={setPreviewImage}
+                  initialLoading={historyLoading}
+                  onPrependMessages={handlePrependMessages}
                   maskMessages={e2eeEnabled && !e2eeUnlocked}
                   lockedNotice={t('chat.encryption.chatLocked')}
                   onUnlock={() => setShowEnterPin(true)}
@@ -751,6 +767,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   onEditMessage={editMessage}
                   onDownloadAttachment={downloadAttachment}
                   onPreviewImage={setPreviewImage}
+                  initialLoading={historyLoading}
+                  onPrependMessages={handlePrependMessages}
                   isGroup
                   groupOnline={isSelectedGroupOnline}
                   isGroupOwner={!!currentUser && currentUser.id === selectedGroup.ownerId}
