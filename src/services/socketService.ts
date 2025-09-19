@@ -1,5 +1,8 @@
 import { io, Socket } from 'socket.io-client';
 import { store } from '@/store';
+import { resetAuth } from '@/store/slices/authSlice';
+import toast from 'react-hot-toast';
+import i18n from '@/libs/i18n';
 import { 
   addNoteRealtime, 
   updateNoteRealtime, 
@@ -41,6 +44,45 @@ class SocketService {
 
     this.socket.on('connect_error', (error) => {
       console.error('WebSocket connection error:', error);
+    });
+
+    // Global account deletion => logout across tabs
+    this.socket.on('account_deleted', (payload: any) => {
+      try {
+        const w: any = typeof window !== 'undefined' ? window : {};
+        if (w.__ACCOUNT_DELETED_HANDLED__) return; // avoid duplicate handling across connections
+        w.__ACCOUNT_DELETED_HANDLED__ = true;
+      } catch {}
+
+      try {
+        const msg = i18n.t('user.accountDeleted', { ns: 'layout', defaultValue: payload?.message || 'Your account has been deleted. You will be logged out.' });
+        toast.error(String(msg), { id: 'account-deleted' });
+      } catch {}
+      try { store.dispatch(resetAuth()); } catch {}
+      try { this.disconnect(); } catch {}
+    });
+
+    // Account deactivation by admin => logout immediately
+    this.socket.on('account_deactivated', (payload: any) => {
+      try {
+        const w: any = typeof window !== 'undefined' ? window : {};
+        if (w.__ACCOUNT_DEACTIVATED_HANDLED__) return; // avoid duplicate handling across connections
+        w.__ACCOUNT_DEACTIVATED_HANDLED__ = true;
+      } catch {}
+
+      try {
+        const msg = i18n.t('user.accountDeactivated', { 
+          ns: 'layout', 
+          defaultValue: payload?.message || 'Tài khoản của bạn đã bị vô hiệu hóa bởi quản trị viên. Bạn sẽ được đăng xuất.' 
+        });
+        toast.error(String(msg), { id: 'account-deactivated', duration: 5000 });
+      } catch {}
+      
+      // Delay logout slightly to let user see the message
+      setTimeout(() => {
+        try { store.dispatch(resetAuth()); } catch {}
+        try { this.disconnect(); } catch {}
+      }, 2000);
     });
 
     // Listen to note events

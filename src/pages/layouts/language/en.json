@@ -11,6 +11,12 @@
     "chat": "Chat",
     "changePassword": "Change Password",
     "logout": "Logout",
+    "deleteAccount": "Delete account",
+    "deleteConfirm": "Delete account?",
+    "deleteMessage": "This action is irreversible. All your data will be removed and you will be logged out on all devices.",
+    "deleteSuccess": "Account deleted successfully",
+    "deleteFailed": "Account deletion failed",
+    "accountDeleted": "Your account has been deleted. You will be logged out.",
     "logoutConfirm": "Logout?",
     "logoutMessage": "Are you sure you want to logout?",
     "cancel": "Cancel"

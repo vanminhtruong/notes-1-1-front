@@ -1,8 +1,8 @@
 import { Link, Outlet } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
-import { logoutUser, getProfile } from '@/store/slices/authSlice'
-import { User, LogOut, StickyNote, ChevronDown, Mail, MessageCircle, Key } from 'lucide-react'
+import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
+import { User, LogOut, StickyNote, ChevronDown, Mail, MessageCircle, Key, UserX } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
@@ -10,6 +10,7 @@ import BackToTop from '@/components/BackToTop'
 import HeaderScrollProgress from '@/components/HeaderScrollProgress'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
+import { authService } from '@/services/authService'
 
 export default function MainLayout() {
   const { t } = useTranslation('layout');
@@ -62,6 +63,47 @@ export default function MainLayout() {
         </div>
       </div>
     ), { duration: 8000 });
+  };
+
+  const confirmDeleteAccount = () => {
+    toast.custom((toastData) => (
+      <div
+        className={`max-w-sm w-full rounded-xl shadow-lg border ${
+          toastData.visible ? 'animate-enter' : 'animate-leave'
+        } bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex-1">
+            <p className="font-semibold text-red-600 dark:text-red-400">{t('user.deleteConfirm')}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">{t('user.deleteMessage')}</p>
+          </div>
+        </div>
+        <div className="mt-3 flex justify-end gap-2">
+          <button
+            onClick={() => toast.dismiss(toastData.id)}
+            className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+          >
+            {t('user.cancel')}
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                await authService.deleteAccount();
+                toast.success(String(t('user.deleteSuccess')));
+              } catch (e: any) {
+                toast.error(e?.response?.data?.message || String(t('user.deleteFailed', { defaultValue: 'Xóa tài khoản thất bại' } as any)));
+              } finally {
+                dispatch(resetAuth());
+                toast.dismiss(toastData.id);
+              }
+            }}
+            className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"
+          >
+            {t('user.deleteAccount')}
+          </button>
+        </div>
+      </div>
+    ), { duration: 10000 });
   };
 
   // Close dropdown on outside click or Escape
@@ -196,6 +238,17 @@ export default function MainLayout() {
                       </Link>
 
                       <div className="my-2 h-px bg-white/30 dark:bg-gray-700/50" />
+
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false);
+                          confirmDeleteAccount();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      >
+                        <UserX className="w-4 h-4" />
+                        <span>{t('user.deleteAccount')}</span>
+                      </button>
 
                       <button
                         onClick={() => {

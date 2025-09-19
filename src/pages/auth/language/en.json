@@ -75,5 +75,11 @@
   "toastOtpInvalid": "Invalid OTP.",
   "toastSendOtpFailed": "Unable to send OTP. Please try again.",
   "toastResetFailed": "Unable to reset password",
-  "newPasswordPlaceholder": "Enter new password"
+  "newPasswordPlaceholder": "Enter new password",
+  "errors": {
+    "deactivated": "Your account has been deactivated",
+    "loginFailed": "Login failed",
+    "googleFailed": "Google login failed",
+    "facebookFailed": "Facebook login failed"
+  }
 }

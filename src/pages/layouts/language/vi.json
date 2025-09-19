@@ -11,6 +11,11 @@
     "chat": "Chat",
     "changePassword": "Đổi mật khẩu",
     "logout": "Đăng xuất",
+    "deleteAccount": "Xóa tài khoản",
+    "deleteConfirm": "Xóa tài khoản?",
+    "deleteMessage": "Hành động này không thể hoàn tác. Mọi dữ liệu sẽ bị xóa và bạn sẽ bị đăng xuất trên mọi thiết bị.",
+    "deleteSuccess": "Xóa tài khoản thành công",
+    "accountDeleted": "Tài khoản của bạn đã bị xóa. Bạn sẽ được đăng xuất.",
     "logoutConfirm": "Đăng xuất?",
     "logoutMessage": "Bạn có chắc chắn muốn đăng xuất không?",
     "cancel": "Hủy"

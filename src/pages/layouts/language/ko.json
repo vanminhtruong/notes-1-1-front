@@ -11,6 +11,12 @@
     "chat": "채팅",
     "changePassword": "비밀번호 변경",
     "logout": "로그아웃",
+    "deleteAccount": "계정 삭제",
+    "deleteConfirm": "계정을 삭제하시겠습니까?",
+    "deleteMessage": "이 작업은 되돌릴 수 없습니다. 모든 데이터가 삭제되며 모든 기기에서 로그아웃됩니다.",
+    "deleteSuccess": "계정이 성공적으로 삭제되었습니다",
+    "deleteFailed": "계정 삭제에 실패했습니다",
+    "accountDeleted": "계정이 삭제되었습니다. 곧 로그아웃됩니다.",
     "logoutConfirm": "로그아웃하시겠습니까?",
     "logoutMessage": "정말 로그아웃하시겠어요?",
     "cancel": "취소"

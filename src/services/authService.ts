@@ -104,5 +104,10 @@ export const authService = {
     const response = await api.post('/auth/remember-pref', { email });
     return response.data;
   },
+
+  async deleteAccount(): Promise<{ message: string }> {
+    const response = await api.delete('/auth/account');
+    return response.data;
+  },
 };
 

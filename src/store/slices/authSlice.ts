@@ -38,10 +38,17 @@ export const loginUser = createAsyncThunk(
       toast.success(response.message);
       return response;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Đăng nhập thất bại';
+      let message: string = error.response?.data?.message || i18n.t('auth:errors.loginFailed');
+      // Normalize deactivated-account message to i18n key
+      try {
+        const low = String(message).toLowerCase();
+        if (low.includes('vô hiệu hóa') || low.includes('deactivated')) {
+          message = i18n.t('auth:errors.deactivated');
+        }
+      } catch {}
       // Ensure login error toast stays visible longer and avoid flicker by using a stable toast id
-      toast.error(message, { duration: 10000, id: 'login-error' });
-      return rejectWithValue(message);
+      toast.error(String(message), { duration: 10000, id: 'login-error' });
+      return rejectWithValue(String(message));
     }
   }
 );
@@ -55,9 +62,15 @@ export const loginWithGoogle = createAsyncThunk(
       toast.success(response.message || 'Đăng nhập thành công');
       return response;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Đăng nhập Google thất bại';
-      toast.error(message);
-      return rejectWithValue(message);
+      let message: string = error.response?.data?.message || i18n.t('auth:errors.googleFailed');
+      try {
+        const low = String(message).toLowerCase();
+        if (low.includes('vô hiệu hóa') || low.includes('deactivated')) {
+          message = i18n.t('auth:errors.deactivated');
+        }
+      } catch {}
+      toast.error(String(message), { id: 'login-error' });
+      return rejectWithValue(String(message));
     }
   }
 );
@@ -71,9 +84,15 @@ export const loginWithFacebook = createAsyncThunk(
       toast.success(response.message || 'Đăng nhập thành công');
       return response;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Đăng nhập Facebook thất bại';
-      toast.error(message);
-      return rejectWithValue(message);
+      let message: string = error.response?.data?.message || i18n.t('auth:errors.facebookFailed');
+      try {
+        const low = String(message).toLowerCase();
+        if (low.includes('vô hiệu hóa') || low.includes('deactivated')) {
+          message = i18n.t('auth:errors.deactivated');
+        }
+      } catch {}
+      toast.error(String(message), { id: 'login-error' });
+      return rejectWithValue(String(message));
     }
   }
 );

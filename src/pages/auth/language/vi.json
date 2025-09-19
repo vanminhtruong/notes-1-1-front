@@ -77,5 +77,11 @@
   "toastSendOtpFailed": "Không thể gửi OTP. Vui lòng thử lại.",
   "toastResetFailed": "Không thể đặt lại mật khẩu"
   ,
-  "newPasswordPlaceholder": "Nhập mật khẩu mới"
+  "newPasswordPlaceholder": "Nhập mật khẩu mới",
+  "errors": {
+    "deactivated": "Tài khoản đã bị vô hiệu hóa",
+    "loginFailed": "Đăng nhập thất bại",
+    "googleFailed": "Đăng nhập Google thất bại",
+    "facebookFailed": "Đăng nhập Facebook thất bại"
+  }
 }

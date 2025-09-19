@@ -74,7 +74,13 @@
   "toastOtpInvalid": "OTP가 올바르지 않습니다.",
   "toastSendOtpFailed": "OTP를 보낼 수 없습니다. 다시 시도해주세요.",
   "toastResetFailed": "비밀번호를 재설정할 수 없습니다",
-  "newPasswordPlaceholder": "새 비밀번호 입력"
+  "newPasswordPlaceholder": "새 비밀번호 입력",
+  "errors": {
+    "deactivated": "계정이 비활성화되었습니다",
+    "loginFailed": "로그인 실패",
+    "googleFailed": "Google 로그인 실패",
+    "facebookFailed": "Facebook 로그인 실패"
+  }
 }
 
 

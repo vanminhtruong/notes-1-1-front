@@ -242,12 +242,16 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
   };
 
   // Set all current counters to 0 but keep entries (so items remain visible in dropdown)
-  const markAllRead = () => {
+  const markAllRead = async () => {
+    console.log('[markAllRead] Starting to mark all notifications as read');
+    
+    // Update local state immediately for UI responsiveness
     setUnreadMap((prev) => {
       const next: UnreadMap = { ...prev };
       for (const k of Object.keys(next)) {
         next[Number(k)] = 0;
       }
+      console.log('[markAllRead] Reset DM unread map:', next);
       return next;
     });
     setGroupUnreadMap((prev) => {
@@ -255,8 +259,43 @@ export function useMessageNotifications(currentUserId?: number, selectedChatId?:
       for (const k of Object.keys(next)) {
         (next as any)[Number(k)] = 0;
       }
+      console.log('[markAllRead] Reset Group unread map:', next);
       return next;
     });
+
+    // Call backend APIs to mark messages as read for all active chats/groups
+    try {
+      // Mark all DM chats as read
+      const dmPromises = Object.keys(unreadMap).map(async (userIdStr) => {
+        const userId = Number(userIdStr);
+        if (unreadMap[userId] > 0) {
+          try {
+            console.log(`[markAllRead] Marking DM as read for userId: ${userId}`);
+            await chatService.markMessagesAsRead(userId);
+          } catch (error) {
+            console.error(`[markAllRead] Failed to mark DM as read for userId ${userId}:`, error);
+          }
+        }
+      });
+
+      // Mark all group chats as read  
+      const groupPromises = Object.keys(groupUnreadMap).map(async (groupIdStr) => {
+        const groupId = Number(groupIdStr);
+        if (groupUnreadMap[groupId] > 0) {
+          try {
+            console.log(`[markAllRead] Marking Group as read for groupId: ${groupId}`);
+            await groupService.markGroupMessagesRead(groupId);
+          } catch (error) {
+            console.error(`[markAllRead] Failed to mark Group as read for groupId ${groupId}:`, error);
+          }
+        }
+      });
+
+      await Promise.all([...dmPromises, ...groupPromises]);
+      console.log('[markAllRead] Successfully marked all chats/groups as read');
+    } catch (error) {
+      console.error('[markAllRead] Error marking messages as read:', error);
+    }
   };
 
   // Remove a single DM notification entry entirely

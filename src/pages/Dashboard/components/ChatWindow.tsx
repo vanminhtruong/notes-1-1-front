@@ -582,11 +582,11 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         onItemDismissed={handleBellItemDismiss}
         onLoadMoreNotifications={handleLoadMoreNotifications}
         onClearAll={() => {
-          // Mark per-chat and per-group counters as read locally for snappy UI
-          markAllRead();
-          // Persist: mark backend notifications (friend_request, group_invite) as read
+          // Mark per-chat and per-group counters as read locally for snappy UI + call backend APIs
           void (async () => {
             try {
+              await markAllRead();
+              // Persist: mark backend notifications (friend_request, group_invite) as read  
               await notificationService.markAllRead();
               // Refresh persisted notifications so aggregates disappear across refresh
               try { await loadNotifications(); } catch {}
