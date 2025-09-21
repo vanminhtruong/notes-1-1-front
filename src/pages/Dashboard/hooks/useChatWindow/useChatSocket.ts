@@ -100,6 +100,46 @@ export function useChatSocket(params: UseChatSocketParams) {
       } catch {}
     };
 
+    // Admin actions: message recalled/deleted
+    const onMessageRecalledByAdmin = (payload: { messageId: number; content: string; messageType: string }) => {
+      setMessages((prev: any[]) => prev.map((m: any) => 
+        m.id === payload.messageId 
+          ? { ...m, content: payload.content, messageType: payload.messageType, isRecalled: true }
+          : m
+      ));
+      // Update chat list if this is the last message
+      setChatList((prev: any[]) => prev.map((it: any) => {
+        const lm = it?.lastMessage;
+        if (!lm || lm.id !== payload.messageId) return it;
+        return { ...it, lastMessage: { ...lm, content: payload.content, messageType: payload.messageType, isRecalled: true } };
+      }));
+    };
+
+    const onMessageDeletedByAdmin = (payload: { messageId: number }) => {
+      console.log('🗑️ User frontend: Received message_deleted_by_admin event:', payload);
+      setMessages((prev: any[]) => prev.filter((m: any) => m.id !== payload.messageId));
+      // Update chat list - remove if this was the last message
+      setChatList((prev: any[]) => prev.map((it: any) => {
+        const lm = it?.lastMessage;
+        if (!lm || lm.id !== payload.messageId) return it;
+        return { ...it, lastMessage: null };
+      }));
+    };
+
+    const onGroupMessageRecalledByAdmin = (payload: { groupId: number; messageId: number; content: string; messageType: string }) => {
+      if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
+      setMessages((prev: any[]) => prev.map((m: any) => 
+        m.id === payload.messageId 
+          ? { ...m, content: payload.content, messageType: payload.messageType, isRecalled: true }
+          : m
+      ));
+    };
+
+    const onGroupMessageDeletedByAdmin = (payload: { groupId: number; messageId: number }) => {
+      if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
+      setMessages((prev: any[]) => prev.filter((m: any) => m.id !== payload.messageId));
+    };
+
     const onNewFriendReq = (data: any) => {
       toast.success(String(t('chat.notifications.newFriendRequest', { name: data.requester?.name } as any)));
       loadFriendRequests();
@@ -948,6 +988,12 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('group_message_reacted', onGroupMessageReacted);
     socket.on('group_message_unreacted', onGroupMessageUnreacted);
 
+    // Admin actions
+    socket.on('message_recalled_by_admin', onMessageRecalledByAdmin);
+    socket.on('message_deleted_by_admin', onMessageDeletedByAdmin);
+    socket.on('group_message_recalled_by_admin', onGroupMessageRecalledByAdmin);
+    socket.on('group_message_deleted_by_admin', onGroupMessageDeletedByAdmin);
+
     return () => {
       socket.off('new_friend_request', onNewFriendReq);
       socket.off('friend_request_accepted', onFriendAccepted);
@@ -978,6 +1024,10 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('group_message_unreacted', onGroupMessageUnreacted);
       socket.off('nickname_updated', onNicknameUpdated);
       socket.off('message_edited');
+      socket.off('message_recalled_by_admin', onMessageRecalledByAdmin);
+      socket.off('message_deleted_by_admin', onMessageDeletedByAdmin);
+      socket.off('group_message_recalled_by_admin', onGroupMessageRecalledByAdmin);
+      socket.off('group_message_deleted_by_admin', onGroupMessageDeletedByAdmin);
       socket.off('group_messages_recalled', groupRecalledHandler);
       socket.off('group_message_edited');
       socket.off('group_messages_deleted', onGroupMessagesDeleted);
