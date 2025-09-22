@@ -2,12 +2,13 @@ import { Link, Outlet } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
-import { User, LogOut, StickyNote, ChevronDown, Mail, MessageCircle, Key, UserX } from 'lucide-react'
+import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
 import BackToTop from '@/components/BackToTop'
 import HeaderScrollProgress from '@/components/HeaderScrollProgress'
+import RotatingCube from '@/components/RotatingCube'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { authService } from '@/services/authService'
@@ -147,9 +148,7 @@ export default function MainLayout() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <StickyNote className="w-5 h-5 text-white" />
-                </div>
+                <RotatingCube size={32} className="transition-transform duration-300 hover:scale-110" />
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('appName')}</h1>
               </div>
             </div>
