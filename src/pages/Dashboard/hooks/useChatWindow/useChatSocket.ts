@@ -140,6 +140,19 @@ export function useChatSocket(params: UseChatSocketParams) {
       setMessages((prev: any[]) => prev.filter((m: any) => m.id !== payload.messageId));
     };
 
+    // Khi admin xóa một thông báo của người dùng: cập nhật realtime chuông thông báo
+    const onNotificationDeletedByAdmin = (_payload: { id: number }) => {
+      try {
+        if (typeof reloadBellFeed === 'function') reloadBellFeed();
+      } catch {}
+      try {
+        if (typeof loadNotifications === 'function') loadNotifications();
+      } catch {}
+    };
+
+    // Đăng ký lắng nghe sự kiện xóa thông báo bởi admin để cập nhật chuông realtime
+    socket.on('notification_deleted_by_admin', onNotificationDeletedByAdmin);
+
     const onNewFriendReq = (data: any) => {
       toast.success(String(t('chat.notifications.newFriendRequest', { name: data.requester?.name } as any)));
       loadFriendRequests();
