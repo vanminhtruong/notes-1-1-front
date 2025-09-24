@@ -147,7 +147,7 @@ export default function NotificationBell({ total, ring, ringSeq, items, paginati
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-visible z-50">
+        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-visible z-50 md-down:right-auto md-down:left-1/2 md-down:-translate-x-1/2 md-down:w-[calc(100vw-3rem)] md-down:max-w-sm md-down:mt-3 md-down:rounded-2xl">
           <div className="px-3 py-2 flex items-center justify-between border-b border-gray-100 dark:border-gray-800">
             <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{t('chat.notificationsBell.title')}</p>
             <button

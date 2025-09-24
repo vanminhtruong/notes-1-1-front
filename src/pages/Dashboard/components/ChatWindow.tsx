@@ -566,7 +566,9 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   };
 
   return (
-    <div className="fixed top-0 right-0 w-96 h-full bg-white dark:bg-gray-900 shadow-2xl border-l border-gray-200 dark:border-gray-700 flex flex-col z-50">
+    <div
+      className="fixed inset-y-0 right-0 w-[26rem] max-w-full bg-white dark:bg-gray-900 shadow-2xl border-l border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-all duration-300 xl-down:w-[24rem] lg-down:w-[22rem] md-down:inset-0 md-down:w-full md-down:h-full md-down:max-h-screen md-down:shadow-none md-down:border-0 md-down:rounded-none md-down:bg-white/95 md-down:dark:bg-gray-900/95 md-down:backdrop-blur sm-down:bg-white sm-down:dark:bg-gray-900"
+    >
       {/* Header */}
       <ChatHeader
         totalUnread={bellTotal}

@@ -2,7 +2,7 @@ import { Link, Outlet } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
-import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX } from 'lucide-react'
+import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
@@ -19,6 +19,7 @@ export default function MainLayout() {
   const { user, token, isAuthenticated } = useAppSelector((state) => state.auth);
   const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Auto-fetch user profile if token exists but user data is missing
@@ -125,9 +126,37 @@ export default function MainLayout() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileNavOpen(false);
+    };
+
+    document.addEventListener('keydown', onEsc);
+
+    return () => {
+      document.removeEventListener('keydown', onEsc);
+    };
+  }, [mobileNavOpen]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileNavOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   // Hide desktop scroll when chat is open
   useEffect(() => {
-    if (chatOpen) {
+    if (chatOpen || mobileNavOpen) {
       // Add class to hide scrollbar
       document.body.style.overflow = 'hidden';
     } else {
@@ -139,80 +168,82 @@ export default function MainLayout() {
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [chatOpen]);
+  }, [chatOpen, mobileNavOpen]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
       <header className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg border-b border-white/20 dark:border-gray-700/30 sticky top-0 z-40 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <RotatingCube size={32} className="transition-transform duration-300 hover:scale-110" />
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('appName')}</h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl-down:px-3 md-down:px-2">
+          <div className="flex justify-between items-center h-16 lg-down:h-14 md-down:h-12">
+            <div className="flex items-center space-x-4 lg-down:space-x-3 md-down:space-x-2">
+              <div className="flex items-center space-x-2 md-down:space-x-1.5">
+                <RotatingCube size={32} className="transition-transform duration-300 hover:scale-110 lg-down:w-7 lg-down:h-7 md-down:w-6 md-down:h-6" />
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white lg-down:text-lg md-down:text-base sm-down:text-sm xs-down:hidden">{t('appName')}</h1>
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center gap-6">
-              <Link to="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">{t('nav.dashboard')}</Link>
-              <Link to="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">{t('nav.about')}</Link>
-              <Link to="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">{t('nav.contact')}</Link>
+            <nav className="hidden lg:flex items-center gap-6 xl-down:gap-5 lg-down:gap-4">
+              <Link to="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.dashboard')}</Link>
+              <Link to="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.about')}</Link>
+              <Link to="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.contact')}</Link>
             </nav>
 
-            <div className="flex items-center space-x-4">
-              <LanguageSwitcher />
+            <div className="flex items-center space-x-4 lg-down:space-x-3 md-down:space-x-2">
+              <div className="hidden sm:block">
+                <LanguageSwitcher />
+              </div>
               <ThemeToggle />
               <div ref={menuRef} className="relative">
                 <button
                   onClick={() => setMenuOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={menuOpen}
-                  className="group flex items-center gap-2 px-2 py-1.5 rounded-lg border border-white/20 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/60 hover:bg-white/80 dark:hover:bg-gray-800/80 backdrop-blur-md transition-colors"
+                  className="group flex items-center gap-2 px-2 py-1.5 rounded-lg border border-white/20 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/60 hover:bg-white/80 dark:hover:bg-gray-800/80 backdrop-blur-md transition-colors md-down:px-1.5 md-down:py-1 md-down:gap-1.5"
                 >
-                  <div className="w-8 h-8 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center shadow-sm">
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center shadow-sm md-down:w-7 md-down:h-7">
                     {user?.avatar ? (
                       <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <User className="w-4 h-4" />
+                      <User className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                     )}
                   </div>
-                  <div className="hidden md:flex flex-col items-start leading-tight text-left">
+                  <div className="hidden lg:flex flex-col items-start leading-tight text-left xl-down:hidden">
                     <span className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || t('user.account')}</span>
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform md-down:w-3.5 md-down:h-3.5 ${menuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {menuOpen && (
                   <div
                     role="menu"
-                    className="absolute right-0 mt-2 w-72 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-xl overflow-hidden"
+                    className="absolute right-0 mt-2 w-72 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-xl overflow-hidden lg-down:w-64 md-down:w-56 sm-down:w-48"
                   >
-                    <div className="px-4 py-3 bg-gradient-to-r from-gray-50/80 to-white/60 dark:from-gray-800/60 dark:to-gray-900/60 border-b border-white/20 dark:border-gray-700/40">
+                    <div className="px-4 py-3 bg-gradient-to-r from-gray-50/80 to-white/60 dark:from-gray-800/60 dark:to-gray-900/60 border-b border-white/20 dark:border-gray-700/40 md-down:px-3 md-down:py-2.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center shadow-sm">
+                        <div className="w-9 h-9 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center shadow-sm md-down:w-8 md-down:h-8">
                           {user?.avatar ? (
                             <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
                           ) : (
-                            <User className="w-4 h-4" />
+                            <User className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user?.name || t('user.account')}</p>
-                          <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-                            <Mail className="w-3.5 h-3.5" />
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white truncate md-down:text-xs">{user?.name || t('user.account')}</p>
+                          <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300 md-down:text-[11px]">
+                            <Mail className="w-3.5 h-3.5 md-down:w-3 md-down:h-3" />
                             <span className="truncate">{user?.email || '—'}</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-2">
+                    <div className="p-2 md-down:p-1.5">
                       <Link
                         to="/account"
                         onClick={() => setMenuOpen(false)}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
                       >
-                        <User className="w-4 h-4" />
+                        <User className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                         <span>{t('user.accountDetails')}</span>
                       </Link>
 
@@ -221,18 +252,18 @@ export default function MainLayout() {
                           setMenuOpen(false);
                           setChatOpen(true);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
                       >
-                        <MessageCircle className="w-4 h-4" />
+                        <MessageCircle className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                         <span>{t('user.chat')}</span>
                       </button>
 
                       <Link
                         to="/change-password"
                         onClick={() => setMenuOpen(false)}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
                       >
-                        <Key className="w-4 h-4" />
+                        <Key className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                         <span>{t('user.changePassword')}</span>
                       </Link>
 
@@ -243,9 +274,9 @@ export default function MainLayout() {
                           setMenuOpen(false);
                           confirmDeleteAccount();
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
                       >
-                        <UserX className="w-4 h-4" />
+                        <UserX className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                         <span>{t('user.deleteAccount')}</span>
                       </button>
 
@@ -254,21 +285,85 @@ export default function MainLayout() {
                           setMenuOpen(false);
                           confirmLogout();
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
                       >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                         <span>{t('user.logout')}</span>
                       </button>
                     </div>
                   </div>
                 )}
               </div>
+              <button
+                onClick={() => setMobileNavOpen((v) => !v)}
+                aria-label={mobileNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={mobileNavOpen}
+                className="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-white/20 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/60 hover:bg-white/80 dark:hover:bg-gray-800/80 backdrop-blur-md transition-colors shadow-sm"
+              >
+                {mobileNavOpen ? (
+                  <X className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                ) : (
+                  <Menu className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                )}
+              </button>
             </div>
           </div>
         </div>
         {/* Scroll progress bar at bottom of header */}
         <HeaderScrollProgress />
       </header>
+
+      {mobileNavOpen && (
+        <div className="lg:hidden fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setMobileNavOpen(false)}
+          />
+          <div className="absolute top-0 right-0 h-full w-80 max-w-[85%] bg-white/95 dark:bg-gray-900/95 border-l border-white/20 dark:border-gray-700/40 shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/20 dark:border-gray-700/40 bg-gradient-to-r from-gray-50/90 to-white/70 dark:from-gray-800/70 dark:to-gray-900/70">
+              <div className="flex items-center gap-3">
+                <RotatingCube size={28} className="text-blue-600 dark:text-blue-400" />
+                <span className="text-base font-semibold text-gray-900 dark:text-white truncate">{t('appName')}</span>
+              </div>
+              <button
+                onClick={() => setMobileNavOpen(false)}
+                aria-label="Close navigation menu"
+                className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-white/20 dark:border-gray-700/40 bg-white/70 dark:bg-gray-800/70 hover:bg-white dark:hover:bg-gray-800 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-5 py-6 space-y-3">
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileNavOpen(false)}
+                className="block px-4 py-3 rounded-xl text-base font-medium text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 border border-white/30 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all"
+              >
+                {t('nav.dashboard')}
+              </Link>
+              <Link
+                to="/about"
+                onClick={() => setMobileNavOpen(false)}
+                className="block px-4 py-3 rounded-xl text-base font-medium text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 border border-white/30 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all"
+              >
+                {t('nav.about')}
+              </Link>
+              <Link
+                to="/contact"
+                onClick={() => setMobileNavOpen(false)}
+                className="block px-4 py-3 rounded-xl text-base font-medium text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 border border-white/30 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all"
+              >
+                {t('nav.contact')}
+              </Link>
+            </nav>
+            <div className="px-5 py-4 border-t border-white/20 dark:border-gray-700/40 bg-gradient-to-r from-gray-50/80 to-white/70 dark:from-gray-800/70 dark:to-gray-900/70">
+              <div className="block sm:hidden">
+                <LanguageSwitcher direction="up" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1">
         <Outlet />
@@ -286,11 +381,11 @@ export default function MainLayout() {
       <BackToTop threshold={300} bottomOffset="1.25rem" rightOffset="1.25rem" />
 
       <footer className="border-t border-white/20 dark:border-gray-700/30 bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-gray-600 dark:text-gray-300 flex items-center justify-between">
-          <p>© {new Date().getFullYear()} {t('appName')}. {t('footer.copyright')}.</p>
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-blue-600 dark:hover:text-blue-400">{t('footer.privacy')}</a>
-            <a href="#" className="hover:text-blue-600 dark:hover:text-blue-400">{t('footer.terms')}</a>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-gray-600 dark:text-gray-300 flex items-center justify-between xl-down:px-3 md-down:px-2 md-down:py-4 sm-down:flex-col sm-down:gap-3 sm-down:text-center">
+          <p className="md-down:text-xs">© {new Date().getFullYear()} {t('appName')}. {t('footer.copyright')}.</p>
+          <div className="flex items-center gap-4 md-down:gap-3 sm-down:gap-2">
+            <a href="#" className="hover:text-blue-600 dark:hover:text-blue-400 md-down:text-xs">{t('footer.privacy')}</a>
+            <a href="#" className="hover:text-blue-600 dark:hover:text-blue-400 md-down:text-xs">{t('footer.terms')}</a>
           </div>
         </div>
       </footer>

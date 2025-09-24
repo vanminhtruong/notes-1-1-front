@@ -50,7 +50,10 @@ const MessageInput = ({
   };
 
   return (
-    <div ref={containerRef} className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 relative z-50">
+    <div
+      ref={containerRef}
+      className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 relative z-50 md-down:p-3 sm-down:p-2"
+    >
       {replyingToMessage && (
         <div className="mb-2 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/40 flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -124,8 +127,12 @@ const MessageInput = ({
           ))}
         </div>
       )}
-      <div className="flex items-end gap-3">
-        <button onClick={handlePlusClick} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0" aria-label={t('chat.input.attachFileAria')}>
+      <div className="flex items-end gap-3 md-down:gap-2">
+        <button
+          onClick={handlePlusClick}
+          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 md-down:p-1.5"
+          aria-label={t('chat.input.attachFileAria')}
+        >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
@@ -139,13 +146,13 @@ const MessageInput = ({
             onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
             onBlur={onTypingStop}
             placeholder={t('chat.input.placeholder')}
-            className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 pr-12"
+            className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 pr-12 md-down:px-3 md-down:py-2.5 md-down:pr-10 sm-down:px-3 sm-down:py-2 sm-down:pr-9"
           />
           <button
             type="button"
             onClick={() => setShowEmoji((s) => !s)}
             aria-label={t('chat.input.chooseEmoji', 'Choose emoji')}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 md-down:right-2 md-down:p-0.5"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zM9 9a1 1 0 11-2 0 1 1 0 012 0zm4 0a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
@@ -169,7 +176,7 @@ const MessageInput = ({
         <button
           onClick={onSendMessage}
           disabled={!newMessage.trim() && pendingImages.length === 0 && pendingFiles.length === 0}
-          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed md-down:p-1.5"
         >
           <Send className="w-5 h-5" />
         </button>

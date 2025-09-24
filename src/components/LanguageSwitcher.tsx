@@ -17,7 +17,11 @@ const languages: Language[] = [
   { code: 'vi', name: 'Tiếng Việt', Flag: VN },
 ];
 
-export default function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+  direction?: 'up' | 'down';
+}
+
+export default function LanguageSwitcher({ direction = 'down' }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -101,7 +105,9 @@ export default function LanguageSwitcher() {
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-56 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl overflow-hidden z-50"
+          className={`absolute right-0 w-56 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl overflow-hidden z-50 transition-all duration-200 ${
+            direction === 'up' ? 'bottom-full mb-2 origin-bottom' : 'mt-2 origin-top'
+          }`}
         >
           <div className="p-2">
             <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">

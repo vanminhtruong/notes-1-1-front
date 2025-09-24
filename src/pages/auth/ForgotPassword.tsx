@@ -81,44 +81,44 @@ const ForgotPassword = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 md-down:py-10 sm-down:py-8 xs-down:py-6">
       <div className="fixed top-4 right-4 z-10">
         <ThemeToggle />
       </div>
 
       <div className="max-w-md w-full">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 xs-down:mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
             <ShieldCheck className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('forgotTitle')}</h1>
-          <p className="text-gray-600 dark:text-gray-300">{t('forgotSubtitle')}</p>
+          <h1 className="text-3xl sm-down:text-2xl xs-down:text-xl font-bold text-gray-900 dark:text-white mb-2">{t('forgotTitle')}</h1>
+          <p className="text-gray-600 dark:text-gray-300 xs-down:text-sm px-2">{t('forgotSubtitle')}</p>
         </div>
 
-        <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/30 p-8">
+        <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/30 p-8 md-down:p-7 sm-down:p-6 xs-down:p-5">
           {/* Step indicators */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-8 xs-down:mb-6">
             <div className={`flex items-center ${step !== 'email' ? 'text-blue-600' : 'text-gray-500'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step !== 'email' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>1</div>
-              <span className="text-sm">{t('stepEmail')}</span>
+              <div className={`w-8 h-8 xs-down:w-7 xs-down:h-7 rounded-full flex items-center justify-center mr-2 ${step !== 'email' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>1</div>
+              <span className="text-sm xs-down:text-xs">{t('stepEmail')}</span>
             </div>
             <div className={`flex-1 mx-2 h-0.5 ${step === 'email' ? 'bg-gray-200 dark:bg-gray-700' : 'bg-blue-500'}`}></div>
             <div className={`flex items-center ${step === 'reset' ? 'text-blue-600' : step === 'otp' ? 'text-blue-600' : 'text-gray-500'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'reset' || step === 'otp' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>2</div>
-              <span className="text-sm">{t('stepOtp')}</span>
+              <div className={`w-8 h-8 xs-down:w-7 xs-down:h-7 rounded-full flex items-center justify-center mr-2 ${step === 'reset' || step === 'otp' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>2</div>
+              <span className="text-sm xs-down:text-xs">{t('stepOtp')}</span>
             </div>
             <div className={`flex-1 mx-2 h-0.5 ${step === 'reset' ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'}`}></div>
             <div className={`flex items-center ${step === 'reset' ? 'text-blue-600' : 'text-gray-500'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${step === 'reset' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>3</div>
-              <span className="text-sm">{t('stepNewPassword')}</span>
+              <div className={`w-8 h-8 xs-down:w-7 xs-down:h-7 rounded-full flex items-center justify-center mr-2 ${step === 'reset' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>3</div>
+              <span className="text-sm xs-down:text-xs">{t('stepNewPassword')}</span>
             </div>
           </div>
 
           {step === 'email' && (
-            <form onSubmit={submitIdentifier} className="space-y-6">
+            <form onSubmit={submitIdentifier} className="space-y-6 xs-down:space-y-5">
               <div className="flex gap-2 mb-2">
-                <button type="button" onClick={() => setMethod('email')} className={`flex-1 py-2 rounded-lg border ${method === 'email' ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}>{t('methodEmail')}</button>
-                <button type="button" onClick={() => setMethod('phone')} className={`flex-1 py-2 rounded-lg border ${method === 'phone' ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}>{t('methodPhone')}</button>
+                <button type="button" onClick={() => setMethod('email')} className={`flex-1 py-2 xs-down:py-1.5 rounded-lg border ${method === 'email' ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}>{t('methodEmail')}</button>
+                <button type="button" onClick={() => setMethod('phone')} className={`flex-1 py-2 xs-down:py-1.5 rounded-lg border ${method === 'phone' ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}>{t('methodPhone')}</button>
               </div>
 
               {method === 'email' ? (
@@ -135,7 +135,7 @@ const ForgotPassword = () => {
                       })}
                       type="email"
                       id="email"
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                      className="block w-full pl-10 pr-3 py-3 xs-down:py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                       placeholder={t('placeholderEmailRegistered')}
                     />
                   </div>
@@ -167,14 +167,14 @@ const ForgotPassword = () => {
                 </div>
               )}
 
-              <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+              <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 xs-down:py-2.5 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
                 {loading ? t('sendingOtp') : t('sendOtp')}
               </button>
             </form>
           )}
 
           {step === 'otp' && (
-            <form onSubmit={submitOtp} className="space-y-6">
+            <form onSubmit={submitOtp} className="space-y-6 xs-down:space-y-5">
               <div>
                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{t('otpInputLabel')}</label>
                 <div className="relative">
@@ -189,7 +189,7 @@ const ForgotPassword = () => {
                     inputMode="numeric"
                     maxLength={6}
                     id="otp"
-                    className="block w-full pl-10 pr-3 py-3 tracking-widest uppercase border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                    className="block w-full pl-10 pr-3 py-3 xs-down:py-2.5 tracking-widest uppercase border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                     placeholder={t('otpPlaceholder')}
                   />
                 </div>
@@ -200,8 +200,8 @@ const ForgotPassword = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <button type="button" onClick={() => setStep('email')} className="text-sm text-gray-600 dark:text-gray-300 hover:underline">{t('back')}</button>
-                <button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-5 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+                <button type="button" onClick={() => setStep('email')} className="text-sm xs-down:text-xs text-gray-600 dark:text-gray-300 hover:underline">{t('back')}</button>
+                <button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 xs-down:py-2.5 px-5 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
                   {loading ? t('verifyingOtp') : t('verifyOtp')}
                 </button>
               </div>
@@ -209,7 +209,7 @@ const ForgotPassword = () => {
           )}
 
           {step === 'reset' && (
-            <form onSubmit={submitReset} className="space-y-6">
+            <form onSubmit={submitReset} className="space-y-6 xs-down:space-y-5">
               <div>
                 <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{t('newPassword')}</label>
                 <div className="relative">
@@ -235,7 +235,7 @@ const ForgotPassword = () => {
                   {...resetForm.register('confirmPassword', { required: t('confirmPasswordRequired') })}
                   type="password"
                   id="confirmPassword"
-                  className="block w-full py-3 px-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                  className="block w-full py-3 xs-down:py-2.5 px-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                   placeholder={t('confirmPasswordPlaceholder')}
                 />
                 {resetForm.formState.errors.confirmPassword && (
@@ -244,16 +244,16 @@ const ForgotPassword = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <button type="button" onClick={() => setStep('otp')} className="text-sm text-gray-600 dark:text-gray-300 hover:underline">{t('back')}</button>
-                <button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-5 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+                <button type="button" onClick={() => setStep('otp')} className="text-sm xs-down:text-xs text-gray-600 dark:text-gray-300 hover:underline">{t('back')}</button>
+                <button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 xs-down:py-2.5 px-5 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
                   {loading ? t('resettingPassword') : t('resetPassword')}
                 </button>
               </div>
             </form>
           )}
 
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+          <div className="mt-8 xs-down:mt-6 text-center">
+            <p className="text-sm xs-down:text-xs text-gray-600 dark:text-gray-300">
               {t('rememberedPassword')}{' '}
               <Link to="/login" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors duration-200">
                 {t('loginCta')}

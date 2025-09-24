@@ -1,5 +1,6 @@
 import { MessageCircle, MoreVertical, UserX, Trash2, Ban, Pin, PinOff } from 'lucide-react';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { formatPreviewText, formatPreviewTime } from '../../../../../utils/utils';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
@@ -10,6 +11,7 @@ import { pinService } from '@/services/pinService';
 const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
   const { t } = useTranslation('dashboard');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
   const [blockStatusMap, setBlockStatusMap] = useState<Record<number, BlockStatus | undefined>>({});
   const [loadingBlockFor, setLoadingBlockFor] = useState<number | null>(null);
   const [pinStatusMap, setPinStatusMap] = useState<Record<number, boolean>>({});
@@ -46,6 +48,10 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
       // On open, fetch latest block status and pin status for this friend
       fetchBlockStatus(friendId);
       fetchPinStatus(friendId);
+      const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    } else {
+      setMenuPos(null);
     }
   };
 
@@ -93,9 +99,9 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
   };
   const isLocked = !!e2eeEnabled && !e2eeUnlocked;
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto md-down:px-3 md-down:pb-24 md-down:pt-3">
       {/* Chat List when no chat is selected */}
-      <div className="p-2">
+      <div className="p-2 md-down:p-0 md-down:space-y-3">
         {/* Conversations List with previews */}
         {chatList.map((item: { friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean; nickname?: string | null }) => {
           const friend = item.friend;
@@ -150,10 +156,10 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
             <div
               key={friend.id}
               onClick={() => onStartChat(friend)}
-              className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg cursor-pointer transition-colors"
+              className="flex items-center gap-3 p-3 md-down:p-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl cursor-pointer transition-colors md-down:bg-white/80 md-down:dark:bg-gray-800/80 md-down:backdrop-blur md-down:shadow-sm md-down:border md-down:border-gray-200/60 md-down:dark:border-gray-700/60 md-down:mb-3 md-down:last:mb-0"
             >
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-md">
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
                   {friend.avatar ? (
                     <img src={friend.avatar} alt={displayName} className="w-full h-full object-cover" />
                   ) : (
@@ -169,11 +175,11 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                   </span>
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1">
+              <div className="flex-1 min-w-0 md-down:space-y-0">
+                <div className="flex items-center justify-between gap-2 md-down:flex-nowrap md-down:gap-2">
+                  <div className="flex items-center gap-1 md-down:w-full">
                     <p
-                      className={`${isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'font-normal text-gray-800 dark:text-gray-300'} truncate`}
+                      className={`${isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'font-normal text-gray-800 dark:text-gray-300'} truncate leading-tight md-down:text-sm`}
                     >
                       {displayName}
                     </p>
@@ -181,8 +187,8 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                       <Pin className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                     ) : null}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{time}</span>
+                  <div className="flex items-center gap-1 md-down:w-full md-down:justify-end md-down:mt-0 md-down:leading-[0.9]">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap md-down:text-[11px]">{time}</span>
                     {onRemoveFriend && item.friendshipId && (
                       <div className="relative">
                         <button
@@ -191,17 +197,21 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                         >
                           <MoreVertical className="w-4 h-4 text-gray-400" />
                         </button>
-                        {openMenuId === friend.id && (
+                        {openMenuId === friend.id && menuPos && createPortal(
                           <>
                             <div
-                              className="fixed inset-0 z-10"
+                              className="fixed inset-0 z-[60]"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 setOpenMenuId(null);
+                                setMenuPos(null);
                               }}
                             />
-                            <div className="absolute right-0 top-8 z-20 min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                            <div
+                              className="fixed z-[70] min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
+                              style={{ top: menuPos.top, right: menuPos.right }}
+                            >
                               {/* Pin / Unpin */}
                               <button
                                 disabled={loadingPinFor === friend.id}
@@ -307,6 +317,7 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                                       </div>
                                     ), { duration: 8000 });
                                     setOpenMenuId(null);
+                                    setMenuPos(null);
                                   }}
                                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                 >
@@ -346,6 +357,7 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                                     ), { duration: 8000 });
                                   }
                                   setOpenMenuId(null);
+                                  setMenuPos(null);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                               >
@@ -353,19 +365,20 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                                 {t('chat.actions.removeFriend')}
                               </button>
                             </div>
-                          </>
+                          </>,
+                          document.body
                         )}
                       </div>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mt-0.5 md-down:mt-1 md-down:flex-nowrap md-down:gap-1 min-w-0">
                   {reactionItems.length > 0 && (
-                    <div className={reactionContainerClass}>
+                    <div className={`${reactionContainerClass} md-down:text-[11px]`}>
                       {reactionItems}
                     </div>
                   )}
-                  <p className={previewClass}>{preview}</p>
+                  <p className={`${previewClass} md-down:text-xs md-down:max-w-full leading-snug flex-1 min-w-0`}>{preview}</p>
                 </div>
               </div>
             </div>

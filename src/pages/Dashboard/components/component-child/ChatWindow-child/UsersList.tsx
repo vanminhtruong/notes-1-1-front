@@ -19,32 +19,32 @@ const UsersList = ({
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
   const [menuUser, setMenuUser] = useState<User | null>(null);
   return (
-    <div className="h-full flex flex-col overflow-y-auto">
+    <div className="h-full flex flex-col overflow-y-auto md-down:px-3 md-down:pb-24">
       {/* User Lists */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1">
+      <div className="flex-1 overflow-y-auto p-2 space-y-1 md-down:p-0 md-down:space-y-3">
         {/* Friend Requests */}
         {friendRequests.length > 0 && (
           <div className="mb-4">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 px-2">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 px-2 md-down:mt-2">
               {t('chat.usersList.friendRequests')}
             </h4>
             {friendRequests.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg"
+                className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg md-down:bg-white/70 md-down:dark:bg-gray-800/70 md-down:backdrop-blur md-down:shadow-sm md-down:mb-3 md-down:last:mb-0"
               >
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md">
+                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
                   {user.avatar ? (
                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
                     user.name.charAt(0)
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900 dark:text-white truncate">{user.name}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                <div className="flex-1 min-w-0 md-down:pr-2">
+                  <p className="font-semibold text-gray-900 dark:text-white truncate md-down:text-sm">{user.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate md-down:text-xs">{user.email}</p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 md-down:flex-row md-down:items-center md-down:gap-2">
                   <button
                     onClick={() => onAcceptFriendRequest(user.id)}
                     className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full transition-colors"
@@ -71,27 +71,27 @@ const UsersList = ({
 
         {/* Users search results (not friends, not self, no pending request) */}
         {filteredUsers.length > 0 && (
-          <div className="mb-2">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 px-2">
+          <div className="mb-2 md-down:mt-3">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 px-2 md-down:mt-2 md-down:mb-2">
               {t('chat.usersList.users')}
             </h4>
             {filteredUsers.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg"
+                className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg md-down:bg-white/70 md-down:dark:bg-gray-800/70 md-down:backdrop-blur md-down:shadow-sm md-down:mb-3 md-down:last:mb-0"
               >
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md">
+                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
                   {user.avatar ? (
                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
                     user.name.charAt(0)
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900 dark:text-white truncate">{user.name}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                <div className="flex-1 min-w-0 md-down:pr-2">
+                  <p className="font-semibold text-gray-900 dark:text-white truncate md-down:text-sm">{user.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate md-down:text-xs">{user.email}</p>
                 </div>
-                <div className="ml-auto flex items-center gap-2 shrink-0">
+                <div className="ml-auto flex items-center gap-2 shrink-0 md-down:flex-row md-down:items-center md-down:gap-2">
                   {/* Gửi kết bạn giữ bên ngoài */}
                   <button
                     onClick={() => onSendFriendRequest(user.id)}

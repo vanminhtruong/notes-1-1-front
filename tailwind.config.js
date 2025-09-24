@@ -16,6 +16,7 @@ export default {
         'lg-down': { max: '1023px' },  // ≤ 1023px
         'md-down': { max: '767px' },   // ≤ 767px
         'sm-down': { max: '639px' },   // ≤ 639px
+        'xs-down': { max: '479px' },   // ≤ 479px
       },
     },
   },

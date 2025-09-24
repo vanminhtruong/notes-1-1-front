@@ -24,27 +24,32 @@ const ChatHeader = ({
   const { t } = useTranslation('dashboard');
   return (
     <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('chat.header.title')}</h1>
-        <div className="flex items-center gap-2">
-          <NotificationBell
-            total={totalUnread}
-            ring={ring}
-            ringSeq={ringSeq}
-            items={notificationItems}
-            pagination={notificationPagination}
-            isLoading={notificationLoading}
-            onItemClick={onItemClick}
-            onClearAll={onClearAll}
-            onItemDismissed={onItemDismissed}
-            onLoadMore={onLoadMoreNotifications}
-          />
-          <button onClick={onOpenSettings} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+      <div className="flex items-center justify-between gap-3 mb-3 md-down:flex-wrap">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white md-down:w-full md-down:text-lg">{t('chat.header.title')}</h1>
+        <div className="flex items-center gap-2 md-down:w-full md-down:justify-between md-down:gap-3">
+          <button
+            onClick={onOpenSettings}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors md-down:order-1"
+          >
             <span className="text-gray-500 text-lg">⚙️</span>
           </button>
+          <div className="md-down:order-2">
+            <NotificationBell
+              total={totalUnread}
+              ring={ring}
+              ringSeq={ringSeq}
+              items={notificationItems}
+              pagination={notificationPagination}
+              isLoading={notificationLoading}
+              onItemClick={onItemClick}
+              onClearAll={onClearAll}
+              onItemDismissed={onItemDismissed}
+              onLoadMore={onLoadMoreNotifications}
+            />
+          </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors md-down:order-3"
           >
             <X className="w-4 h-4 text-gray-500" />
           </button>
@@ -74,7 +79,7 @@ const ChatHeader = ({
 
       {/* Filter Tabs */}
       {!showSettings && (
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 md-down:flex-wrap md-down:gap-2 md-down:justify-start">
           <button
             onClick={() => onTabChange('chats')}
             className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${

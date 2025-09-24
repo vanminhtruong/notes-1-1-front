@@ -114,49 +114,49 @@ const Dashboard = () => {
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 xl-down:py-7 lg-down:py-6 md-down:py-5 sm-down:py-4 xs-down:py-3 xl-down:px-3 md-down:px-2">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 xl-down:gap-5 lg-down:gap-4 md-down:gap-3 sm-down:gap-2.5 xs-down:gap-2 mb-8 lg-down:mb-7 md-down:mb-6 sm-down:mb-5 xs-down:mb-4">
           <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('stats.active')}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.active}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300 sm-down:text-xs">{t('stats.active')}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white lg-down:text-xl md-down:text-lg sm-down:text-base">{stats.active}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <Star className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center lg-down:w-10 lg-down:h-10 md-down:w-9 md-down:h-9 sm-down:w-8 sm-down:h-8">
+                <Star className="w-6 h-6 text-green-600 lg-down:w-5 lg-down:h-5 md-down:w-4 md-down:h-4 sm-down:w-3.5 sm-down:h-3.5" />
               </div>
             </div>
           </div>
-          <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30">
+          <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3 border border-white/20 dark:border-gray-700/30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('stats.archived')}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.archived}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300 sm-down:text-xs">{t('stats.archived')}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white lg-down:text-xl md-down:text-lg sm-down:text-base">{stats.archived}</p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <Archive className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center lg-down:w-10 lg-down:h-10 md-down:w-9 md-down:h-9 sm-down:w-8 sm-down:h-8">
+                <Archive className="w-6 h-6 text-orange-600 lg-down:w-5 lg-down:h-5 md-down:w-4 md-down:h-4 sm-down:w-3.5 sm-down:h-3.5" />
               </div>
             </div>
           </div>
-          <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30">
+          <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3 border border-white/20 dark:border-gray-700/30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('stats.uptime')}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">100%</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300 sm-down:text-xs">{t('stats.uptime')}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white lg-down:text-xl md-down:text-lg sm-down:text-base">100%</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center lg-down:w-10 lg-down:h-10 md-down:w-9 md-down:h-9 sm-down:w-8 sm-down:h-8">
+                <BarChart3 className="w-6 h-6 text-purple-600 lg-down:w-5 lg-down:h-5 md-down:w-4 md-down:h-4 sm-down:w-3.5 sm-down:h-3.5" />
               </div>
             </div>
           </div>
         </div>
 
         {/* View Toggle */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-6 lg-down:mb-5 md-down:mb-4 sm-down:gap-2.5 xs-down:gap-2">
           <button
             onClick={() => setShowArchived(false)}
-            className={`px-4 py-2 rounded-xl border transition-all duration-200 ${
+            className={`px-4 py-2 rounded-xl border transition-all duration-200 lg-down:px-3.5 lg-down:py-1.5 md-down:px-3 md-down:py-1.5 sm-down:px-2.5 sm-down:py-1 sm-down:text-sm xs-down:text-xs ${
               !showArchived
                 ? 'bg-blue-600 text-white border-transparent shadow-sm'
                 : 'bg-white/70 dark:bg-gray-800/90 text-gray-800 dark:text-gray-200 border-white/20 dark:border-gray-700/30'
@@ -166,7 +166,7 @@ const Dashboard = () => {
           </button>
           <button
             onClick={() => setShowArchived(true)}
-            className={`px-4 py-2 rounded-xl border transition-all duration-200 ${
+            className={`px-4 py-2 rounded-xl border transition-all duration-200 lg-down:px-3.5 lg-down:py-1.5 md-down:px-3 md-down:py-1.5 sm-down:px-2.5 sm-down:py-1 sm-down:text-sm xs-down:text-xs ${
               showArchived
                 ? 'bg-blue-600 text-white border-transparent shadow-sm'
                 : 'bg-white/70 dark:bg-gray-800/90 text-gray-800 dark:text-gray-200 border-white/20 dark:border-gray-700/30'
@@ -177,27 +177,27 @@ const Dashboard = () => {
         </div>
 
         {/* Controls */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-8">
+        <div className="flex flex-col lg:flex-row gap-4 xl-down:gap-3.5 lg-down:gap-3 md-down:gap-2.5 sm-down:gap-2 xs-down:gap-1.5 mb-8 lg-down:mb-7 md-down:mb-6 sm-down:mb-5 xs-down:mb-4">
           {/* Search */}
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 md-down:w-4 md-down:h-4" />
               <input
                 type="text"
                 placeholder={t('search.placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg border border-white/20 dark:border-gray-700/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                className="w-full pl-10 pr-4 py-3 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg border border-white/20 dark:border-gray-700/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 lg-down:py-2.5 md-down:py-2.5 md-down:pl-9 sm-down:text-sm xs-down:text-xs"
               />
             </div>
           </div>
 
           {/* Filters */}
-          <div className="flex gap-3">
+          <div className="flex gap-3 lg-down:gap-2.5 md-down:gap-2 sm-down:flex-col xs-down:gap-1.5">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-3 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg border border-white/20 dark:border-gray-700/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
+              className="px-4 py-3 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg border border-white/20 dark:border-gray-700/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white lg-down:px-3.5 lg-down:py-2.5 md-down:px-3 md-down:py-2 sm-down:text-sm xs-down:text-xs"
             >
               <option value="">{t('filters.allCategories')}</option>
               <option value="work">{t('filters.category.work')}</option>
@@ -208,7 +208,7 @@ const Dashboard = () => {
             <select
               value={selectedPriority}
               onChange={(e) => setSelectedPriority(e.target.value)}
-              className="px-4 py-3 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg border border-white/20 dark:border-gray-700/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
+              className="px-4 py-3 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg border border-white/20 dark:border-gray-700/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white lg-down:px-3.5 lg-down:py-2.5 md-down:px-3 md-down:py-2 sm-down:text-sm xs-down:text-xs"
             >
               <option value="">{t('filters.allPriorities')}</option>
               <option value="high">{t('filters.priority.high')}</option>
@@ -218,31 +218,31 @@ const Dashboard = () => {
 
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 lg-down:px-5 lg-down:py-2.5 md-down:px-4 md-down:py-2 sm-down:text-sm sm-down:gap-1.5 xs-down:text-xs xs-down:px-3 xs-down:py-1.5"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-5 h-5 lg-down:w-4 lg-down:h-4 sm-down:w-3.5 sm-down:h-3.5" />
               {t('actions.createNote')}
             </button>
           </div>
         </div>
 
         {selectedIds.length > 0 && (
-          <div className="flex items-center justify-between bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 border border-white/20 dark:border-gray-700/30 mb-4">
-            <div className="text-sm text-gray-700 dark:text-gray-200">
+          <div className="flex items-center justify-between bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 border border-white/20 dark:border-gray-700/30 mb-4 lg-down:p-3.5 md-down:p-3 sm-down:flex-col sm-down:gap-3 sm-down:items-start">
+            <div className="text-sm text-gray-700 dark:text-gray-200 md-down:text-xs">
               {t('messages.selectedCount', { count: selectedIds.length })}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 sm-down:gap-1.5">
               <button
                 onClick={clearSelection}
-                className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
+                className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm md-down:px-2.5 md-down:py-1 md-down:text-xs"
               >
                 {t('actions.clearSelection')}
               </button>
               <button
                 onClick={confirmBulkDelete}
-                className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm flex items-center gap-1"
+                className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm flex items-center gap-1 md-down:px-2.5 md-down:py-1 md-down:text-xs md-down:gap-0.5"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                 {t('actions.deleteSelected')}
               </button>
             </div>
@@ -251,18 +251,18 @@ const Dashboard = () => {
 
         {/* Notes Grid */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex items-center justify-center py-12 lg-down:py-10 md-down:py-8 sm-down:py-6">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin md-down:w-6 md-down:h-6 md-down:border-2"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl-down:gap-5 lg-down:gap-4 md-down:gap-3 sm-down:gap-2.5 xs-down:gap-2">
             {notes.map((note) => (
               <div
                 key={note.id}
-                className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-2 sm-down:gap-1.5">
                     <label className="mt-1 inline-flex items-center cursor-pointer select-none group" title={t('actions.selectNote')}>
                       <input
                         type="checkbox"
@@ -275,14 +275,14 @@ const Dashboard = () => {
                         className="w-6 h-6 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white dark:bg-gray-800 shadow-sm transition-all
                                    peer-focus:ring-2 peer-focus:ring-blue-500
                                    hover:border-blue-400 hover:shadow group-active:scale-95
-                                   peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:shadow-md peer-checked:ring-2 peer-checked:ring-blue-500/30"
+                                   peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:shadow-md peer-checked:ring-2 peer-checked:ring-blue-500/30 sm-down:w-5 sm-down:h-5 xs-down:w-4 xs-down:h-4"
                       >
                         <Check strokeWidth={3} className="w-4 h-4 transition-all duration-150 transform scale-90
                                                         text-gray-500 dark:text-gray-400 opacity-70 group-hover:opacity-90
-                                                        peer-checked:text-white peer-checked:opacity-100 peer-checked:scale-100" />
+                                                        peer-checked:text-white peer-checked:opacity-100 peer-checked:scale-100 sm-down:w-3.5 sm-down:h-3.5 xs-down:w-3 xs-down:h-3" />
                       </span>
                     </label>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 lg-down:text-base md-down:text-sm sm-down:text-sm">
                       {note.title}
                     </h3>
                   </div>
@@ -290,73 +290,73 @@ const Dashboard = () => {
                     {dueReminderNoteIds.includes(note.id) && (
                       <button
                         onClick={() => acknowledgeReminderNote(note.id)}
-                        className="p-1 text-amber-500"
+                        className="p-1 text-amber-500 sm-down:p-0.5"
                         title={t('actions.reminderDue')}
                       >
-                        <Bell className="w-4 h-4 bell-strong" />
+                        <Bell className="w-4 h-4 bell-strong md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
                       </button>
                     )}
                     <button
                       onClick={() => openView(note)}
-                      className="p-1 text-gray-400 hover:text-indigo-600 transition-colors duration-200"
+                      className="p-1 text-gray-400 hover:text-indigo-600 transition-colors duration-200 sm-down:p-0.5"
                       title={t('actions.viewDetails')}
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
                     </button>
                     {showArchived ? (
                       <button
                         onClick={() => handleArchiveNote(note.id)}
                         title={t('actions.restore')}
-                        className="p-1 text-gray-400 hover:text-green-600 transition-colors duration-200"
+                        className="p-1 text-gray-400 hover:text-green-600 transition-colors duration-200 sm-down:p-0.5"
                       >
-                        <ArchiveRestore className="w-4 h-4" />
+                        <ArchiveRestore className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
                       </button>
                     ) : (
                       <button
                         onClick={() => handleArchiveNote(note.id)}
                         title={t('actions.archive')}
-                        className="p-1 text-gray-400 hover:text-orange-600 transition-colors duration-200"
+                        className="p-1 text-gray-400 hover:text-orange-600 transition-colors duration-200 sm-down:p-0.5"
                       >
-                        <Archive className="w-4 h-4" />
+                        <Archive className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
                       </button>
                     )}
                     <button
                       onClick={() => openEdit(note)}
-                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors duration-200"
+                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors duration-200 sm-down:p-0.5"
                       title={t('actions.edit')}
                     >
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
                     </button>
                     <button
                       onClick={() => confirmDeleteNote(note.id)}
-                      className="p-1 text-gray-400 hover:text-red-600 transition-colors duration-200"
+                      className="p-1 text-gray-400 hover:text-red-600 transition-colors duration-200 sm-down:p-0.5"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
                     </button>
                   </div>
                 </div>
 
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3 md-down:text-xs sm-down:mb-3 xs-down:mb-2.5">
                   {note.content || t('messages.noContent')}
                 </p>
 
                 {note.imageUrl && (
-                  <div className="mb-4">
-                    <img src={note.imageUrl} alt={note.title} className="w-full h-40 object-cover rounded-xl border" />
+                  <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5">
+                    <img src={note.imageUrl} alt={note.title} className="w-full h-40 object-cover rounded-xl border lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
                   </div>
                 )}
 
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-lg border ${getPriorityColor(note.priority)}`}>
+                <div className="flex items-center justify-between sm-down:flex-col sm-down:gap-2 sm-down:items-start">
+                  <div className="flex gap-2 sm-down:gap-1.5 xs-down:gap-1">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-lg border ${getPriorityColor(note.priority)} xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px]`}>
                       {getPriorityText(note.priority)}
                     </span>
-                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600 xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px]">
                       {t(`category.${note.category}`)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                    <Clock className="w-3 h-3" />
+                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 xs-down:text-[10px]">
+                    <Clock className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" />
                     {formatDateMDYY(note.createdAt)}
                   </div>
                 </div>
@@ -366,20 +366,20 @@ const Dashboard = () => {
         )}
 
         {notes.length === 0 && !isLoading && (
-          <div className="text-center py-12">
-            <StickyNote className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <div className="text-center py-12 lg-down:py-10 md-down:py-8 sm-down:py-6 xs-down:py-5">
+            <StickyNote className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4 lg-down:w-14 lg-down:h-14 md-down:w-12 md-down:h-12 sm-down:w-10 sm-down:h-10 sm-down:mb-3" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 lg-down:text-base md-down:text-sm sm-down:mb-1.5">
               {showArchived ? t('messages.noArchived') : t('messages.noNotes')}
             </h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
+            <p className="text-gray-500 dark:text-gray-400 mb-4 md-down:text-sm sm-down:text-sm sm-down:mb-3">
               {showArchived ? t('messages.switchToActive') : t('messages.createFirst')}
             </p>
             {!showArchived && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 lg-down:px-3.5 lg-down:py-1.5 md-down:px-3 md-down:text-sm sm-down:gap-1.5 xs-down:text-xs xs-down:px-2.5"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
                 {t('actions.createNote')}
               </button>
             )}

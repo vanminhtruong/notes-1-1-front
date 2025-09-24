@@ -115,6 +115,19 @@ export function useChatSocket(params: UseChatSocketParams) {
       }));
     };
 
+    // Admin actions: message edited
+    const onMessageEditedByAdmin = (payload: { messageId: number; content: string; updatedAt?: string }) => {
+      setMessages((prev: any[]) => prev.map((m: any) => (
+        m.id === payload.messageId ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m
+      )));
+      // Update chat list lastMessage if needed
+      setChatList((prev: any[]) => prev.map((it: any) => {
+        const lm = it?.lastMessage;
+        if (!lm || lm.id !== payload.messageId) return it;
+        return { ...it, lastMessage: { ...lm, content: payload.content, updatedAt: payload.updatedAt || (lm as any).updatedAt } };
+      }));
+    };
+
     const onMessageDeletedByAdmin = (payload: { messageId: number }) => {
       console.log('🗑️ User frontend: Received message_deleted_by_admin event:', payload);
       setMessages((prev: any[]) => prev.filter((m: any) => m.id !== payload.messageId));
@@ -138,6 +151,13 @@ export function useChatSocket(params: UseChatSocketParams) {
     const onGroupMessageDeletedByAdmin = (payload: { groupId: number; messageId: number }) => {
       if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
       setMessages((prev: any[]) => prev.filter((m: any) => m.id !== payload.messageId));
+    };
+
+    const onGroupMessageEditedByAdmin = (payload: { groupId: number; messageId: number; content: string; updatedAt?: string }) => {
+      if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
+      setMessages((prev: any[]) => prev.map((m: any) => (
+        m.id === payload.messageId ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m
+      )));
     };
 
     // Khi admin xóa một thông báo của người dùng: cập nhật realtime chuông thông báo
@@ -1006,6 +1026,8 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('message_deleted_by_admin', onMessageDeletedByAdmin);
     socket.on('group_message_recalled_by_admin', onGroupMessageRecalledByAdmin);
     socket.on('group_message_deleted_by_admin', onGroupMessageDeletedByAdmin);
+    socket.on('message_edited_by_admin', onMessageEditedByAdmin);
+    socket.on('group_message_edited_by_admin', onGroupMessageEditedByAdmin);
 
     return () => {
       socket.off('new_friend_request', onNewFriendReq);
@@ -1041,6 +1063,8 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('message_deleted_by_admin', onMessageDeletedByAdmin);
       socket.off('group_message_recalled_by_admin', onGroupMessageRecalledByAdmin);
       socket.off('group_message_deleted_by_admin', onGroupMessageDeletedByAdmin);
+      socket.off('message_edited_by_admin', onMessageEditedByAdmin);
+      socket.off('group_message_edited_by_admin', onGroupMessageEditedByAdmin);
       socket.off('group_messages_recalled', groupRecalledHandler);
       socket.off('group_message_edited');
       socket.off('group_messages_deleted', onGroupMessagesDeleted);

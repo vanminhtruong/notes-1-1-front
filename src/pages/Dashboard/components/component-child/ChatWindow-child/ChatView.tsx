@@ -660,18 +660,18 @@ const ChatView = ({
   return (
     <>
       {/* Chat Header */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        <div className="flex items-center gap-3">
+      <div className="px-4 py-3 md-down:px-3 md-down:py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 md-down:shadow-sm">
+        <div className="flex items-center gap-3 md-down:flex-nowrap md-down:gap-2">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors md-down:order-1 md-down:-ml-1"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           </button>
-          <div className="relative">
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md">
+          <div className="relative md-down:order-2 md-down:w-10 md-down:h-10">
+            <div className="w-10 h-10 md-down:w-full md-down:h-full rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md">
               {/* DM: open user profile. Group: open members panel */}
               <button
                 type="button"
@@ -691,9 +691,9 @@ const ChatView = ({
               <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
             )}
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex-1 min-w-0 md-down:order-3 md-down:w-auto md-down:pt-0">
+            <h3 className="font-semibold text-gray-900 dark:text-white md-down:text-base truncate">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 md-down:text-[11px] truncate">
               {(isGroup ? groupOnline : selectedChat.isOnline) ? 
                 t('chat.chatView.status.online') : 
                 (() => {
@@ -742,7 +742,7 @@ const ChatView = ({
             </p>
             {/* Set nickname action for 1-1 chats only; place a small button under name in profile modal as requested */}
           </div>
-          <div className="flex items-center gap-2 relative">
+          <div className="flex items-center gap-2 relative md-down:order-4 md-down:w-auto md-down:justify-end md-down:flex-nowrap md-down:gap-1">
             {/* Keep existing header icons if needed */}
             {!isGroup && (
               <>
@@ -1012,7 +1012,7 @@ const ChatView = ({
       {/* Messages */}
       <div
         ref={scrollerRef}
-        className="flex-1 overflow-y-auto px-0 pb-4 pt-0 relative"
+        className="flex-1 overflow-y-auto px-0 pb-4 pt-0 relative md-down:px-3 md-down:pb-28 md-down:pt-2"
         style={
           (backgroundUrl || (isGroup && selectedChat?.background))
             ? {
