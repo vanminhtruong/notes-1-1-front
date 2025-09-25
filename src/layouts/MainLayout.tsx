@@ -127,20 +127,6 @@ export default function MainLayout() {
   }, []);
 
   useEffect(() => {
-    if (!mobileNavOpen) return;
-
-    const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMobileNavOpen(false);
-    };
-
-    document.addEventListener('keydown', onEsc);
-
-    return () => {
-      document.removeEventListener('keydown', onEsc);
-    };
-  }, [mobileNavOpen]);
-
-  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
         setMobileNavOpen(false);
@@ -315,10 +301,7 @@ export default function MainLayout() {
 
       {mobileNavOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setMobileNavOpen(false)}
-          />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div className="absolute top-0 right-0 h-full w-80 max-w-[85%] bg-white/95 dark:bg-gray-900/95 border-l border-white/20 dark:border-gray-700/40 shadow-2xl flex flex-col">
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/20 dark:border-gray-700/40 bg-gradient-to-r from-gray-50/90 to-white/70 dark:from-gray-800/70 dark:to-gray-900/70">
               <div className="flex items-center gap-3">

@@ -80,12 +80,27 @@ const ChatView = ({
   const [isLoadingPrev, setIsLoadingPrev] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const pageRef = useRef(1);
-  const hasMoreRef = useRef(true);
-  const loadingRef = useRef(false);
-  const isGroupRef = useRef(!!isGroup);
+  const pageRef = useRef<number>(1);
+  const hasMoreRef = useRef<boolean>(true);
+  const loadingRef = useRef<boolean>(false);
+  const isGroupRef = useRef<boolean>(!!isGroup);
   const selectedIdRef = useRef<number | null>(null);
   const onPrependRef = useRef<((older: any[]) => void) | null>(null);
+  // Mutex to prevent duplicate concurrent loads from scroll + IntersectionObserver
+  const fetchingPrevRef = useRef<boolean>(false);
+  // Throttle scroll handler to avoid rapid retriggers near the top
+  const scrollThrottleRef = useRef<number>(0);
+  // Chỉ tải khi người dùng đã thực sự cuộn lên (tránh auto-load khi mount hoặc sentinel sẵn trong viewport)
+  const userInteractedRef = useRef<boolean>(false);
+  const prevScrollTopRef = useRef<number>(0);
+  // Chỉ bật cơ chế load ngược khi phiên cuộn bắt đầu từ đáy (tin nhắn mới nhất)
+  const startedFromBottomRef = useRef<boolean>(false);
+  // Keep reference to IntersectionObserver to disconnect when exhausted
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  // Track last scroll direction to ensure we only load when scrolling upwards
+  const lastScrollDirUpRef = useRef<boolean>(false);
+  // Hard stop when reached the very first page to avoid any re-trigger
+  const exhaustedRef = useRef<boolean>(false);
   useEffect(() => { pageRef.current = page; }, [page]);
   useEffect(() => { hasMoreRef.current = hasMore; }, [hasMore]);
   useEffect(() => { loadingRef.current = isLoadingPrev; }, [isLoadingPrev]);
@@ -304,12 +319,21 @@ const ChatView = ({
     if (prependingRef.current) return;
     // For normal updates (new incoming/outgoing), keep behavior
     scrollToBottom();
+    // Đánh dấu phiên cuộn khởi đầu từ đáy để cho phép lazy-load khi cuộn lên
+    startedFromBottomRef.current = true;
   }, [messages]);
 
   // Reset pagination when switching chat/group
   useEffect(() => {
     setPage(1);
     setHasMore(true);
+    // Reset tương tác cuộn khi chuyển cuộc trò chuyện để tránh auto-load
+    userInteractedRef.current = false;
+    prevScrollTopRef.current = scrollerRef.current ? scrollerRef.current.scrollTop : 0;
+    // Yêu cầu người dùng quay lại đáy, chỉ khi ở đáy mới kích hoạt load ngược
+    startedFromBottomRef.current = false;
+    // Reset exhausted state for new conversation
+    exhaustedRef.current = false;
   }, [isGroup, (selectedChat as any)?.id]);
 
   useEffect(() => {
@@ -455,67 +479,113 @@ const ChatView = ({
     const onScroll = () => {
       const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
       setShowBackToBottom(distanceToBottom > 150);
+      // Đánh dấu đã có tương tác cuộn lên (so sánh hướng cuộn)
+      if (el.scrollTop < (prevScrollTopRef.current || 0)) {
+        userInteractedRef.current = true;
+        lastScrollDirUpRef.current = true;
+      } else if (el.scrollTop > (prevScrollTopRef.current || 0)) {
+        lastScrollDirUpRef.current = false;
+      }
       // Trigger lazy-load when near top (increased threshold for reliability)
       if (el.scrollTop <= 200) {
+        // Chỉ cho phép tải khi người dùng đã cuộn lên ít nhất một lần
+        if (exhaustedRef.current || !userInteractedRef.current || !startedFromBottomRef.current || !lastScrollDirUpRef.current) {
+          prevScrollTopRef.current = el.scrollTop;
+          return;
+        }
+        // Throttle rapid scroll events to once per 150ms
+        const now = Date.now();
+        if (now - (scrollThrottleRef.current || 0) < 150) return;
+        scrollThrottleRef.current = now;
         void (async () => {
-          if (loadingRef.current || !hasMoreRef.current) return;
+          // Strong guard to avoid duplicate concurrent loads
+          if (fetchingPrevRef.current || loadingRef.current || !hasMoreRef.current) return;
+          let startAt = Date.now();
           try {
+            fetchingPrevRef.current = true;
+            startAt = Date.now();
             setIsLoadingPrev(true);
             const prevHeight = el.scrollHeight;
             const nextPage = (pageRef.current || 1) + 1;
             const LIMIT = 10;
+            let fetched: any[] | null = null;
+            let newHasMore: boolean = !!hasMoreRef.current;
             if (isGroupRef.current) {
               const gid = Number(selectedIdRef.current || 0);
               if (!gid) return;
               const res = await groupService.getGroupMessages(gid, nextPage, LIMIT);
               if (res?.success && Array.isArray(res.data)) {
-                // Ask parent to prepend; then preserve scroll anchor
-                if (onPrependRef.current) {
-                  prependingRef.current = true;
-                  onPrependRef.current(res.data as any);
-                }
-                setPage(nextPage);
-                const more = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
-                setHasMore(more);
-                setTimeout(() => {
-                  const newHeight = el.scrollHeight;
-                  el.scrollTop = newHeight - prevHeight + el.scrollTop;
-                  prependingRef.current = false;
-                }, 50);
+                fetched = res.data as any[];
+                newHasMore = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
               } else {
-                setHasMore(false);
+                newHasMore = false;
               }
             } else {
               const uid = Number(selectedIdRef.current || 0);
               if (!uid) return;
               const res = await chatService.getChatMessages(uid, nextPage, LIMIT);
               if (res?.success && Array.isArray(res.data)) {
-                if (onPrependRef.current) {
-                  prependingRef.current = true;
-                  onPrependRef.current(res.data as any);
-                }
-                setPage(nextPage);
-                const more = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
-                setHasMore(more);
-                setTimeout(() => {
-                  const newHeight = el.scrollHeight;
-                  el.scrollTop = newHeight - prevHeight + el.scrollTop;
-                  prependingRef.current = false;
-                }, 50);
+                fetched = res.data as any[];
+                newHasMore = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
               } else {
-                setHasMore(false);
+                newHasMore = false;
               }
             }
+            // Buffering: do not prepend yet; wait until finally after the delay
+            // Use captured prevHeight for anchor after we actually prepend
+            ;(el as any).__prevHeight = prevHeight;
+            ;(el as any).__nextPage = nextPage;
+            ;(el as any).__more = newHasMore;
+            ;(el as any).__fetched = fetched;
           } catch {
             // stop further attempts on error for this session
             setHasMore(false);
           } finally {
+            // Đảm bảo hiệu ứng loading hiển thị tối thiểu ~2.5s
+            const elapsed = Date.now() - startAt;
+            if (elapsed < 2500) {
+              await new Promise((r) => setTimeout(r, 2500 - elapsed));
+            }
+            // After delay, apply buffered prepend (if any), then anchor scroll
+            const bufferedFetched = (el as any).__fetched as any[] | null;
+            const bufferedNextPage = (el as any).__nextPage as number | undefined;
+            const bufferedMore = (el as any).__more as boolean | undefined;
+            // Update ref synchronously to avoid re-trigger race before React state syncs
+            if (typeof bufferedMore === 'boolean') {
+              hasMoreRef.current = bufferedMore;
+            }
+            const bufferedPrevHeight = (el as any).__prevHeight as number | undefined;
+            if (bufferedFetched && onPrependRef.current) {
+              prependingRef.current = true;
+              onPrependRef.current(bufferedFetched);
+              if (typeof bufferedNextPage === 'number') setPage(bufferedNextPage);
+              if (typeof bufferedMore === 'boolean') setHasMore(bufferedMore);
+              setTimeout(() => {
+                const newHeight = el.scrollHeight;
+                const base = (typeof bufferedPrevHeight === 'number') ? bufferedPrevHeight : newHeight;
+                el.scrollTop = newHeight - base + el.scrollTop;
+                prependingRef.current = false;
+              }, 50);
+            } else if (typeof bufferedMore === 'boolean') {
+              setHasMore(bufferedMore);
+            }
+            // If no more data, disconnect observer to prevent re-triggers at top
+            if (bufferedMore === false && observerRef.current) {
+              exhaustedRef.current = true;
+              try { observerRef.current.disconnect(); } catch {}
+            }
+            // Cleanup buffer
+            delete (el as any).__fetched;
+            delete (el as any).__nextPage;
+            delete (el as any).__more;
+            delete (el as any).__prevHeight;
             setIsLoadingPrev(false);
+            fetchingPrevRef.current = false;
           }
         })();
       }
+      prevScrollTopRef.current = el.scrollTop;
     };
-    onScroll();
     el.addEventListener('scroll', onScroll);
     return () => el.removeEventListener('scroll', onScroll);
   }, []);
@@ -529,56 +599,95 @@ const ChatView = ({
     const io = new IntersectionObserver((entries) => {
       const e = entries[0];
       if (!e || !e.isIntersecting) return;
-      if (loadingRef.current || !hasMoreRef.current) return;
+      // Chỉ cho phép khi người dùng đã cuộn lên để tránh tự tải khi sentinel sẵn trong viewport
+      if (exhaustedRef.current || !userInteractedRef.current || !startedFromBottomRef.current || !lastScrollDirUpRef.current) return;
+      if (fetchingPrevRef.current || loadingRef.current || !hasMoreRef.current) return;
       // Trigger the same fetch logic as onScroll
       (async () => {
+        let startAt = Date.now();
         try {
+          fetchingPrevRef.current = true;
+          startAt = Date.now();
           setIsLoadingPrev(true);
           const prevHeight = rootEl.scrollHeight;
           const nextPage = (pageRef.current || 1) + 1;
           const LIMIT = 10;
+          let fetched: any[] | null = null;
+          let newHasMore: boolean = !!hasMoreRef.current;
           if (isGroupRef.current) {
             const gid = Number(selectedIdRef.current || 0);
             if (!gid) return;
             const res = await groupService.getGroupMessages(gid, nextPage, LIMIT);
             if (!cancelled && res?.success && Array.isArray(res.data)) {
-              if (onPrependRef.current) { prependingRef.current = true; onPrependRef.current(res.data as any); }
-              setPage(nextPage);
-              const more = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
-              setHasMore(more);
-              setTimeout(() => {
-                const newHeight = rootEl.scrollHeight;
-                rootEl.scrollTop = newHeight - prevHeight + rootEl.scrollTop;
-                prependingRef.current = false;
-              }, 50);
+              fetched = res.data as any[];
+              newHasMore = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
             } else if (!cancelled) {
-              setHasMore(false);
+              newHasMore = false;
             }
           } else {
             const uid = Number(selectedIdRef.current || 0);
             if (!uid) return;
             const res = await chatService.getChatMessages(uid, nextPage, LIMIT);
             if (!cancelled && res?.success && Array.isArray(res.data)) {
-              if (onPrependRef.current) { prependingRef.current = true; onPrependRef.current(res.data as any); }
-              setPage(nextPage);
-              const more = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
-              setHasMore(more);
-              setTimeout(() => {
-                const newHeight = rootEl.scrollHeight;
-                rootEl.scrollTop = newHeight - prevHeight + rootEl.scrollTop;
-                prependingRef.current = false;
-              }, 50);
+              fetched = res.data as any[];
+              newHasMore = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
             } else if (!cancelled) {
-              setHasMore(false);
+              newHasMore = false;
             }
           }
+          // Buffer for after-delay application
+          ;(rootEl as any).__prevHeight = prevHeight;
+          ;(rootEl as any).__nextPage = nextPage;
+          ;(rootEl as any).__more = newHasMore;
+          ;(rootEl as any).__fetched = fetched;
         } catch {
           if (!cancelled) setHasMore(false);
         } finally {
-          if (!cancelled) setIsLoadingPrev(false);
+          // Đảm bảo hiệu ứng loading hiển thị tối thiểu ~2.5s
+          const elapsed = Date.now() - startAt;
+          if (elapsed < 2500) {
+            await new Promise((r) => setTimeout(r, 2500 - elapsed));
+          }
+          // Apply buffered prepend after delay
+          if (!cancelled) {
+            const bufferedFetched = (rootEl as any).__fetched as any[] | null;
+            const bufferedNextPage = (rootEl as any).__nextPage as number | undefined;
+            const bufferedMore = (rootEl as any).__more as boolean | undefined;
+            // Update ref synchronously to avoid re-trigger race before React state syncs
+            if (typeof bufferedMore === 'boolean') {
+              hasMoreRef.current = bufferedMore;
+            }
+            const bufferedPrevHeight = (rootEl as any).__prevHeight as number | undefined;
+            if (bufferedFetched && onPrependRef.current) {
+              prependingRef.current = true;
+              onPrependRef.current(bufferedFetched);
+              if (typeof bufferedNextPage === 'number') setPage(bufferedNextPage);
+              if (typeof bufferedMore === 'boolean') setHasMore(bufferedMore);
+              setTimeout(() => {
+                const newHeight = rootEl.scrollHeight;
+                const base = (typeof bufferedPrevHeight === 'number') ? bufferedPrevHeight : newHeight;
+                rootEl.scrollTop = newHeight - base + rootEl.scrollTop;
+                prependingRef.current = false;
+              }, 50);
+            } else if (typeof bufferedMore === 'boolean') {
+              setHasMore(bufferedMore);
+            }
+            // If no more data, disconnect observer to prevent re-triggers at top
+            if (bufferedMore === false && observerRef.current) {
+              try { observerRef.current.disconnect(); } catch {}
+            }
+            // Cleanup buffer
+            delete (rootEl as any).__fetched;
+            delete (rootEl as any).__nextPage;
+            delete (rootEl as any).__more;
+            delete (rootEl as any).__prevHeight;
+            setIsLoadingPrev(false);
+          }
+          fetchingPrevRef.current = false;
         }
       })();
     }, { root: rootEl, rootMargin: '0px', threshold: 0.01 });
+    observerRef.current = io;
     io.observe(sentinel);
     return () => { cancelled = true; io.disconnect(); };
   }, [isGroup, (selectedChat as any)?.id]);
@@ -1066,6 +1175,14 @@ const ChatView = ({
 
         {/* Top intersection sentinel (1px) to trigger loads reliably */}
         <div ref={topSentinelRef} style={{ height: 1 }} />
+
+        {/* Overlay to hide older messages area during loading (spinner remains visible) */}
+        {isLoadingPrev && (
+          <div
+            className="absolute top-0 left-0 right-0 z-30 h-24 md:h-28 bg-white dark:bg-gray-900"
+            aria-hidden="true"
+          />
+        )}
 
         {maskMessages && (
           <div className="relative z-10 mb-4 flex items-center justify-center text-center select-none">

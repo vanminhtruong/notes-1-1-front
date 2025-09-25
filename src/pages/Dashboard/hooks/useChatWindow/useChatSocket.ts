@@ -170,8 +170,15 @@ export function useChatSocket(params: UseChatSocketParams) {
       } catch {}
     };
 
+    // Khi admin xóa TẤT CẢ thông báo của người dùng: reload realtime
+    const onNotificationsClearedByAdmin = (_payload: { userId: number; deleted?: number }) => {
+      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof loadNotifications === 'function') loadNotifications(); } catch {}
+    };
+
     // Đăng ký lắng nghe sự kiện xóa thông báo bởi admin để cập nhật chuông realtime
     socket.on('notification_deleted_by_admin', onNotificationDeletedByAdmin);
+    socket.on('notifications_cleared_by_admin', onNotificationsClearedByAdmin);
 
     const onNewFriendReq = (data: any) => {
       toast.success(String(t('chat.notifications.newFriendRequest', { name: data.requester?.name } as any)));
