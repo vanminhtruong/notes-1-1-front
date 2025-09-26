@@ -115,6 +115,53 @@ class SocketService {
       }));
     });
 
+    // Admin-side changes affecting user's notes
+    this.socket.on('admin_note_created', async (note) => {
+      store.dispatch(addNoteRealtime(note));
+      store.dispatch(fetchNoteStats());
+      const state = store.getState();
+      const { filters, pagination } = state.notes;
+      store.dispatch(fetchNotes({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: filters.search || undefined,
+        category: filters.category || undefined,
+        priority: filters.priority || undefined,
+        isArchived: filters.isArchived,
+      }));
+    });
+
+    this.socket.on('admin_note_updated', async (note) => {
+      store.dispatch(updateNoteRealtime(note));
+      store.dispatch(fetchNoteStats());
+      const state = store.getState();
+      const { filters, pagination } = state.notes;
+      store.dispatch(fetchNotes({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: filters.search || undefined,
+        category: filters.category || undefined,
+        priority: filters.priority || undefined,
+        isArchived: filters.isArchived,
+      }));
+    });
+
+    this.socket.on('admin_note_deleted', async (payload) => {
+      // payload: { id }
+      store.dispatch(deleteNoteRealtime(payload));
+      store.dispatch(fetchNoteStats());
+      const state = store.getState();
+      const { filters, pagination } = state.notes;
+      store.dispatch(fetchNotes({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: filters.search || undefined,
+        category: filters.category || undefined,
+        priority: filters.priority || undefined,
+        isArchived: filters.isArchived,
+      }));
+    });
+
     // Listen to typing indicators
     this.socket.on('typing_start', (data) => {
       console.log('User started typing:', data);
