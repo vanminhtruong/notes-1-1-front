@@ -47,6 +47,7 @@ const ChatView = ({
   onResetBackground,
   blocked,
   onPrependMessages,
+  onRemoveMessages,
   onReplyRequested,
 }: ChatViewProps) => {
   const { t, i18n } = useTranslation('dashboard');
@@ -448,6 +449,66 @@ const ChatView = ({
     socket.on('group_messages_recalled', onGroupRecalled);
     socket.on('group_messages_deleted', onGroupMessagesDeleted);
     socket.on('messages_deleted', onDmDeleted);
+    
+    // Admin message deletion events
+    const onAdminMessageDeleted = (payload: { messageId: number; chatUserId: number; deletedBy: string }) => {
+      try {
+        if (isGroup) return;
+        const currentId = Number((selectedChat as any)?.id);
+        if (payload.chatUserId !== currentId) return;
+        
+        console.log(`🔥 Admin deleted message ${payload.messageId} in 1-1 chat with user ${payload.chatUserId}`);
+        
+        // Remove message from UI immediately
+        if (onRemoveMessages) {
+          console.log(`🗑️ Removing message ${payload.messageId} from UI`);
+          onRemoveMessages([payload.messageId]);
+        } else {
+          console.warn('⚠️ onRemoveMessages callback not available');
+        }
+        
+        // Show notification
+        if (payload.deletedBy === 'admin') {
+          toast('Một tin nhắn đã bị admin xóa', { 
+            duration: 3000,
+            icon: '⚠️'
+          });
+        }
+      } catch (error) {
+        console.error('Error handling admin message deletion:', error);
+      }
+    };
+    
+    const onAdminGroupMessageDeleted = (payload: { messageId: number; groupId: number; deletedBy: string }) => {
+      try {
+        if (!isGroup) return;
+        const currentGroupId = Number((selectedChat as any)?.id);
+        if (payload.groupId !== currentGroupId) return;
+        
+        console.log(`🔥 Admin deleted group message ${payload.messageId} in group ${payload.groupId}`);
+        
+        // Remove message from UI immediately
+        if (onRemoveMessages) {
+          console.log(`🗑️ Removing group message ${payload.messageId} from UI`);
+          onRemoveMessages([payload.messageId]);
+        } else {
+          console.warn('⚠️ onRemoveMessages callback not available');
+        }
+        
+        // Show notification
+        if (payload.deletedBy === 'admin') {
+          toast('Một tin nhắn nhóm đã bị admin xóa', { 
+            duration: 3000,
+            icon: '⚠️'
+          });
+        }
+      } catch (error) {
+        console.error('Error handling admin group message deletion:', error);
+      }
+    };
+    
+    socket.on('admin_message_deleted', onAdminMessageDeleted);
+    socket.on('admin_group_message_deleted', onAdminGroupMessageDeleted);
     return () => {
       socket.off('message_pinned', onPinnedDM);
       socket.off('group_message_pinned', onPinnedGroup);
@@ -455,6 +516,8 @@ const ChatView = ({
       socket.off('group_messages_recalled', onGroupRecalled);
       socket.off('group_messages_deleted', onGroupMessagesDeleted);
       socket.off('messages_deleted', onDmDeleted);
+      socket.off('admin_message_deleted', onAdminMessageDeleted);
+      socket.off('admin_group_message_deleted', onAdminGroupMessageDeleted);
       socket.off('nickname_updated', onNicknameUpdated);
     };
   }, [isGroup, (selectedChat as any)?.id, currentUserId]);

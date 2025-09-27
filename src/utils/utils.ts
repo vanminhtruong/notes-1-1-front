@@ -48,6 +48,7 @@ export const formatPreviewText = (
     image: string;
     file: string;
     youPrefix: string;
+    noteShare?: string; // e.g. "Shared note"
     callLog?: {
       incomingVideo: string;
       incomingAudio: string;
@@ -97,6 +98,18 @@ export const formatPreviewText = (
             : (media === 'video' ? (L?.outgoingVideo ?? 'Outgoing video call') : (L?.outgoingAudio ?? 'Outgoing audio call'));
         } catch {
           // fall through: show raw text if parsing fails
+        }
+      }
+      // Friendly preview for NOTE_SHARE payloads
+      if (typeof body === 'string' && body.startsWith('NOTE_SHARE::')) {
+        try {
+          const raw = body.slice('NOTE_SHARE::'.length);
+          const obj = JSON.parse(decodeURIComponent(raw));
+          const title: string = (obj && typeof obj.title === 'string' && obj.title.trim().length > 0) ? obj.title.trim() : 'Note';
+          const prefix = labels?.noteShare ?? 'Shared note';
+          body = `${prefix}: ${title}`;
+        } catch {
+          // if decoding fails, keep original body
         }
       }
   }

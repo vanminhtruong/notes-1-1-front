@@ -183,6 +183,11 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     });
   };
 
+  // Remove messages by IDs (for admin deletion)
+  const handleRemoveMessages = (messageIds: number[]) => {
+    setMessages((prev) => prev.filter((m: any) => !messageIds.includes(m.id)));
+  };
+
   // Update or insert a chatList entry with a new last message
   const upsertChatListWithMessage = (otherUserId: number, msg: Message) => {
     setChatList((prev) => {
@@ -663,6 +668,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   onPreviewImage={setPreviewImage}
                   initialLoading={historyLoading}
                   onPrependMessages={handlePrependMessages}
+                  onRemoveMessages={handleRemoveMessages}
                   maskMessages={e2eeEnabled && !e2eeUnlocked}
                   lockedNotice={t('chat.encryption.chatLocked')}
                   onUnlock={() => setShowEnterPin(true)}
@@ -778,6 +784,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   onPreviewImage={setPreviewImage}
                   initialLoading={historyLoading}
                   onPrependMessages={handlePrependMessages}
+                  onRemoveMessages={handleRemoveMessages}
                   isGroup
                   groupOnline={isSelectedGroupOnline}
                   isGroupOwner={!!currentUser && currentUser.id === selectedGroup.ownerId}

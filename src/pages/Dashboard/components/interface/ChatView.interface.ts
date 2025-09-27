@@ -18,6 +18,8 @@ export interface ChatViewProps {
   onPreviewImage: (url: string) => void;
   // Lazy loading: parent will prepend older messages
   onPrependMessages?: (older: Message[]) => void;
+  // Remove messages by IDs (for admin deletion)
+  onRemoveMessages?: (messageIds: number[]) => void;
   // Initial history loading state (hide messages until loaded)
   initialLoading?: boolean;
   // Group mode

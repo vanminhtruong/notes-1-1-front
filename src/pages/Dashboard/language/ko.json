@@ -41,7 +41,9 @@
     "edit": "편집",
     "update": "업데이트",
     "close": "닫기",
-    "viewDetails": "자세히 보기"
+    "viewDetails": "자세히 보기",
+    "share": "공유",
+    "sharing": "공유 중..."
   },
   "confirm": {
     "removeFriend": "{{name}}님을 친구에서 삭제하시겠습니까?",
@@ -116,7 +118,48 @@
     "edit": "메시지가 수정되었습니다"
   },
   "errors": {
-    "reminderAcknowledgeFailed": "알림 확인에 실패했습니다"
+    "reminderAcknowledgeFailed": "알림 확인에 실패했습니다",
+    "loadUsers": "사용자 불러오기에 실패했습니다",
+    "loadGroups": "그룹 불러오기에 실패했습니다"
+  },
+  "notes": {
+    "noContent": "내용 없음",
+    "priority": {
+      "low": "낮음",
+      "medium": "중간",
+      "high": "높음"
+    },
+    "category": {
+      "general": "일반",
+      "work": "업무",
+      "personal": "개인"
+    },
+    "share": {
+      "title": "노트 공유",
+      "users": "사용자",
+      "groups": "그룹",
+      "selectUser": "받는 사람 선택",
+      "selectGroup": "그룹 선택",
+      "searchPlaceholderUsers": "사용자 검색...",
+      "searchPlaceholderGroups": "그룹 검색...",
+      "availableUsers": "사용 가능한 사용자",
+      "availableGroups": "사용 가능한 그룹",
+      "noResults": "사용자를 찾을 수 없습니다",
+      "noGroupResults": "그룹을 찾을 수 없습니다",
+      "noUsers": "사용자가 없습니다",
+      "noGroups": "그룹이 없습니다",
+      "permissions": "권한",
+      "canEdit": "편집 허용",
+      "canDelete": "삭제 허용",
+      "message": "메시지 (선택)",
+      "groupMessage": "그룹 메시지 (선택)",
+      "messagePlaceholder": "메시지를 추가하세요...",
+      "groupMessagePlaceholder": "그룹에 메시지를 추가하세요...",
+      "description": "이 노트를 다른 사용자와 공유하고 적절한 권한을 설정하세요.",
+      "success": "노트가 성공적으로 공유되었습니다",
+      "successGroup": "그룹에 노트가 성공적으로 공유되었습니다",
+      "error": "노트를 공유할 수 없습니다"
+    }
   },
   "chat": {
     "errors": {
@@ -331,7 +374,8 @@
       "recalled": "회수됨",
       "image": "이미지",
       "file": "파일",
-      "youPrefix": "나: "
+      "youPrefix": "나: ",
+      "noteShare": "노트 공유됨"
     },
     "chatView": {
       "status": {

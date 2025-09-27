@@ -1,8 +1,8 @@
 import { MessageCircle, MoreVertical, UserX, Trash2, Ban, Pin, PinOff } from 'lucide-react';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { formatPreviewText, formatPreviewTime } from '../../../../../utils/utils';
 import { useTranslation } from 'react-i18next';
+import { formatPreviewText, formatPreviewTime } from '../../../../../utils/utils';
 import toast from 'react-hot-toast';
 import type { ChatListProps } from '../../interface/ChatList.interface';
 import type { User, Message } from '../../interface/ChatTypes.interface';
@@ -114,6 +114,7 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                 image: t('chat.preview.image'),
                 file: t('chat.preview.file'),
                 youPrefix: t('chat.preview.youPrefix'),
+                noteShare: t('chat.preview.noteShare', 'Shared note') as string,
                 callLog: {
                   incomingVideo: t('chat.callLog.incomingVideo', 'Incoming video call') as string,
                   incomingAudio: t('chat.callLog.incomingAudio', 'Incoming audio call') as string,

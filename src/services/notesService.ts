@@ -60,6 +60,47 @@ export interface NoteStats {
   };
 }
 
+export interface SharedNote {
+  id: number;
+  noteId: number;
+  sharedWithUserId: number;
+  sharedByUserId: number;
+  canEdit: boolean;
+  canDelete: boolean;
+  message?: string;
+  sharedAt: string;
+  isActive: boolean;
+  note: Note;
+  sharedWithUser: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  sharedByUser: {
+    id: number;
+    name: string;
+    email: string;
+  };
+}
+
+export interface ShareNoteData {
+  userId: number;
+  canEdit?: boolean;
+  canDelete?: boolean;
+  message?: string;
+  messageId?: number;
+}
+
+export interface SharedNotesResponse {
+  sharedNotes: SharedNote[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 export const notesService = {
   async getNotes(params?: {
     page?: number;
@@ -107,6 +148,44 @@ export const notesService = {
 
   async ackReminder(id: number): Promise<{ message: string; note: Note }> {
     const response = await api.patch(`/notes/${id}/ack-reminder`);
+    return response.data;
+  },
+
+  // Share Notes APIs
+  async shareNote(noteId: number, data: ShareNoteData): Promise<{ message: string; sharedNote: SharedNote }> {
+    const response = await api.post(`/notes/${noteId}/share`, data);
+    return response.data;
+  },
+
+  async getSharedWithMe(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<SharedNotesResponse> {
+    const response = await api.get('/notes/shared/with-me', { params });
+    return response.data;
+  },
+
+  async getSharedByMe(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<SharedNotesResponse> {
+    const response = await api.get('/notes/shared/by-me', { params });
+    return response.data;
+  },
+
+  async removeSharedNote(sharedNoteId: number): Promise<{ message: string }> {
+    const response = await api.delete(`/notes/shared/${sharedNoteId}`);
+    return response.data;
+  },
+
+  async shareNoteToGroup(noteId: number, data: { groupId: number; message?: string; groupMessageId?: number }): Promise<{ message: string; groupSharedNote: any }> {
+    const response = await api.post(`/notes/${noteId}/share-group`, data);
     return response.data;
   },
 };

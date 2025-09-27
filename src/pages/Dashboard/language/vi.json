@@ -41,7 +41,9 @@
     "edit": "Sửa",
     "update": "Cập nhật",
     "close": "Đóng",
-    "viewDetails": "Xem chi tiết"
+    "viewDetails": "Xem chi tiết",
+    "share": "Chia sẻ",
+    "sharing": "Đang chia sẻ..."
   },
   "confirm": {
     "removeFriend": "Xóa bạn {{name}}?",
@@ -117,7 +119,46 @@
     "reminderAcknowledged": "Đã xác nhận nhắc nhở"
   },
   "errors": {
-    "reminderAcknowledgeFailed": "Xác nhận nhắc nhở thất bại"
+    "reminderAcknowledgeFailed": "Xác nhận nhắc nhở thất bại",
+    "loadUsers": "Không thể tải danh sách người dùng",
+    "loadGroups": "Không thể tải danh sách nhóm"
+  },
+  "notes": {
+    "noContent": "Không có nội dung",
+    "priority": {
+      "low": "Thấp",
+      "medium": "Trung bình",
+      "high": "Cao"
+    },
+    "category": {
+      "general": "Chung",
+      "work": "Công việc",
+      "personal": "Cá nhân"
+    },
+    "share": {
+      "title": "Chia sẻ ghi chú",
+      "groups": "Nhóm",
+      "selectUser": "Chọn người nhận",
+      "selectGroup": "Chọn nhóm",
+      "searchPlaceholderUsers": "Tìm kiếm người dùng...",
+      "searchPlaceholderGroups": "Tìm kiếm nhóm...",
+      "availableUsers": "người dùng có sẵn",
+      "availableGroups": "nhóm có sẵn",
+      "canEdit": "Cho phép chỉnh sửa",
+      "canDelete": "Cho phép xóa",
+      "message": "Tin nhắn kèm theo (tùy chọn)",
+      "messagePlaceholder": "Thêm tin nhắn...",
+      "noResults": "Không tìm thấy người dùng",
+      "noGroupResults": "Không tìm thấy nhóm",
+      "noUsers": "Chưa có người dùng",
+      "noGroups": "Chưa có nhóm",
+      "permissions": "Quyền hạn",
+      "shareButton": "Chia sẻ",
+      "cancel": "Hủy",
+      "success": "Chia sẻ ghi chú thành công",
+      "successGroup": "Đã chia sẻ ghi chú trong nhóm thành công",
+      "error": "Không thể chia sẻ ghi chú"
+    }
   },
   "chat": {
     "errors": {
@@ -327,7 +368,8 @@
       "recalled": "Đã thu hồi",
       "image": "Ảnh",
       "file": "Tệp",
-      "youPrefix": "Bạn: "
+      "youPrefix": "Bạn: ",
+      "noteShare": "Đã chia sẻ ghi chú"
     },
     "chatView": {
       "status": {
