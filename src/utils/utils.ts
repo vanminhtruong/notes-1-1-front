@@ -19,6 +19,28 @@ export const formatPreviewTime = (iso?: string) => {
   return formatDateMDYY(d);
 };
 
+// Summarize content for reply preview banner (reusable across components)
+export const summarizeReplyContent = (
+  messageType: string | undefined,
+  content: string | undefined,
+  t: (key: string, defaultValue?: any) => string
+) => {
+  if (messageType === 'image') return t('chat.reply.image', 'Hình ảnh');
+  if (messageType === 'file') return t('chat.reply.file', 'Tệp đính kèm');
+  const body = content || '';
+  if (typeof body === 'string' && body.startsWith('NOTE_SHARE::')) {
+    try {
+      const raw = body.slice('NOTE_SHARE::'.length);
+      const obj = JSON.parse(decodeURIComponent(raw));
+      const title: string = (obj && typeof obj.title === 'string' && obj.title.trim().length > 0) ? obj.title.trim() : 'Note';
+      return `${t('chat.preview.noteShare', 'Đã chia sẻ ghi chú')}: ${title}`;
+    } catch {
+      // fallthrough
+    }
+  }
+  return body;
+};
+
 // Generic date helpers
 export const formatDateMDYY = (input?: string | Date | null) => {
   if (!input) return '';

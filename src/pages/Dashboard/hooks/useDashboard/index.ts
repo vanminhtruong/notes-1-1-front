@@ -24,6 +24,7 @@ export const useDashboard = () => {
     category: 'general',
     priority: 'medium' as Priority,
     reminderAtLocal: '', // YYYY-MM-DDTHH:mm for input type="datetime-local"
+    sharedFromUserId: undefined as number | undefined,
   });
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -40,6 +41,8 @@ export const useDashboard = () => {
   // View note modal state
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewNote, setViewNote] = useState<any | null>(null);
+
+  // Removed dashboard-level create permissions UI/state; this logic lives in SharedNoteCard only.
 
   const dispatch = useAppDispatch();
   const { notes, isLoading, stats, dueReminderNoteIds } = useAppSelector((state) => state.notes);
@@ -101,6 +104,8 @@ export const useDashboard = () => {
     };
   }, []);
 
+  // Removed: load create permissions for dashboard buttons
+
   // Date helpers
   const isoToLocalInput = (iso?: string | null) => {
     if (!iso) return '';
@@ -130,8 +135,9 @@ export const useDashboard = () => {
       category: newNote.category,
       priority: newNote.priority,
       reminderAt: localInputToIso(newNote.reminderAtLocal),
+      sharedFromUserId: newNote.sharedFromUserId,
     }));
-    setNewNote({ title: '', content: '', imageUrl: '', category: 'general', priority: 'medium', reminderAtLocal: '' });
+    setNewNote({ title: '', content: '', imageUrl: '', category: 'general', priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
     setShowCreateModal(false);
     dispatch(fetchNotes({
       search: searchTerm,
@@ -389,5 +395,7 @@ export const useDashboard = () => {
     // helpers
     getPriorityColor,
     getPriorityText,
+
+    // create permissions removed from dashboard scope
   };
 };

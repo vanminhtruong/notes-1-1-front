@@ -91,6 +91,104 @@ export function useChatSocket(params: UseChatSocketParams) {
       return { id: uid, name: String(t('chat.fallback.user', { id: uid })) } as any;
     };
 
+    // Helper: detect NOTE_SHARE payload and extract note id
+    const extractSharedNoteId = (content: any): number | null => {
+      try {
+        if (typeof content !== 'string') return null;
+        const prefix = 'NOTE_SHARE::';
+        if (!content.startsWith(prefix)) return null;
+        const raw = content.slice(prefix.length);
+        const obj = JSON.parse(decodeURIComponent(raw));
+        if (obj && (obj.type === 'note' || obj.v === 1) && typeof obj.id === 'number') {
+          return obj.id as number;
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    };
+
+    // Realtime: a shared note has been removed (by owner delete or receiver remove)
+    // payload: { id: sharedNoteId, noteId: number, messageId?: number }
+    const onSharedNoteRemoved = (payload: { id: number; noteId?: number; messageId?: number }) => {
+      setMessages((prev: any[]) => {
+        return prev.filter((m: any) => {
+          // If backend provided the original messageId, remove exact message
+          if (payload?.messageId && m.id === payload.messageId) return false;
+          // Else fallback: remove NOTE_SHARE messages whose embedded noteId matches
+          const nid = extractSharedNoteId(m.content);
+          if (payload?.noteId && nid && nid === payload.noteId) return false;
+          return true;
+        });
+      });
+      // Also update chat list lastMessage if necessary
+      setChatList((prev: any[]) => prev.map((it: any) => {
+        const lm = it?.lastMessage;
+        if (!lm) return it;
+        if (payload?.messageId && lm.id === payload.messageId) return { ...it, lastMessage: null };
+        const nid = extractSharedNoteId(lm.content);
+        if (payload?.noteId && nid && nid === payload.noteId) return { ...it, lastMessage: null };
+        return it;
+      }));
+    };
+
+    // Owner-only: note deleted on my account, remove any NOTE_SHARE messages referencing this note
+    const onNoteDeleted = (payload: { id: number }) => {
+      const noteId = payload && Number(payload.id);
+      if (!noteId) return;
+      setMessages((prev: any[]) => prev.filter((m: any) => {
+        const nid = extractSharedNoteId(m.content);
+        return !(nid && nid === noteId);
+      }));
+      setChatList((prev: any[]) => prev.map((it: any) => {
+        const lm = it?.lastMessage;
+        if (!lm) return it;
+        const nid = extractSharedNoteId(lm.content);
+        return (nid && nid === noteId) ? { ...it, lastMessage: null } : it;
+      }));
+    };
+
+    // Realtime: note updated, sync NOTE_SHARE messages with new content
+    const onNoteUpdated = (payload: { note?: any }) => {
+      const updatedNote = payload?.note;
+      if (!updatedNote || !updatedNote.id) return;
+      
+      const noteId = Number(updatedNote.id);
+      const newPayload = {
+        id: noteId,
+        title: updatedNote.title || '',
+        content: updatedNote.content || '',
+        imageUrl: updatedNote.imageUrl || null,
+        category: updatedNote.category || 'personal',
+        priority: updatedNote.priority || 'medium',
+        createdAt: updatedNote.createdAt || new Date().toISOString(),
+        type: 'note',
+        v: 1
+      };
+      
+      const newContent = `NOTE_SHARE::${encodeURIComponent(JSON.stringify(newPayload))}`;
+      
+      // Update messages containing this shared note
+      setMessages((prev: any[]) => prev.map((m: any) => {
+        const nid = extractSharedNoteId(m.content);
+        if (nid && nid === noteId) {
+          return { ...m, content: newContent };
+        }
+        return m;
+      }));
+      
+      // Update chat list lastMessage if it's a NOTE_SHARE
+      setChatList((prev: any[]) => prev.map((it: any) => {
+        const lm = it?.lastMessage;
+        if (!lm) return it;
+        const nid = extractSharedNoteId(lm.content);
+        if (nid && nid === noteId) {
+          return { ...it, lastMessage: { ...lm, content: newContent } };
+        }
+        return it;
+      }));
+    };
+
     // Owner deleted all messages in a group
     const onGroupMessagesDeleted = (payload: { groupId: number; count: number }) => {
       try {
@@ -860,6 +958,88 @@ export function useChatSocket(params: UseChatSocketParams) {
       }));
     };
 
+    // ===== Shared Notes permissions realtime (admin updates) =====
+    // When admin updates shared note permissions for individual share
+    const onSharedPermissionsUpdated = (payload: {
+      sharedNoteId: number;
+      noteId: number;
+      sharedByUserId: number;
+      sharedWithUserId: number;
+      canCreate: boolean;
+      canEdit: boolean;
+      canDelete: boolean;
+      message?: string | null;
+    }) => {
+      try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('shared_permissions_updated', { detail: payload }));
+        }
+      } catch {}
+    };
+
+    // Generic refresh events emitted by backend for convenience
+    const onNoteSharedWithMe = (sharedNote: any) => {
+      try {
+        if (typeof window !== 'undefined') {
+          const detail = {
+            sharedNoteId: Number(sharedNote?.id),
+            noteId: Number(sharedNote?.noteId || sharedNote?.note?.id),
+            sharedByUserId: Number(sharedNote?.sharedByUser?.id || sharedNote?.sharedByUserId),
+            sharedWithUserId: Number(sharedNote?.sharedWithUser?.id || sharedNote?.sharedWithUserId),
+            canCreate: !!sharedNote?.canCreate,
+            canEdit: !!sharedNote?.canEdit,
+            canDelete: !!sharedNote?.canDelete,
+            message: sharedNote?.message ?? null,
+          };
+          window.dispatchEvent(new CustomEvent('note_shared_with_me', { detail }));
+        }
+      } catch {}
+    };
+
+    const onNoteSharedByMe = (sharedNote: any) => {
+      try {
+        if (typeof window !== 'undefined') {
+          const detail = {
+            sharedNoteId: Number(sharedNote?.id),
+            noteId: Number(sharedNote?.noteId || sharedNote?.note?.id),
+            sharedByUserId: Number(sharedNote?.sharedByUser?.id || sharedNote?.sharedByUserId),
+            sharedWithUserId: Number(sharedNote?.sharedWithUser?.id || sharedNote?.sharedWithUserId),
+            canCreate: !!sharedNote?.canCreate,
+            canEdit: !!sharedNote?.canEdit,
+            canDelete: !!sharedNote?.canDelete,
+            message: sharedNote?.message ?? null,
+          };
+          window.dispatchEvent(new CustomEvent('note_shared_by_me', { detail }));
+        }
+      } catch {}
+    };
+
+    // Create-permissions changed list should be refreshed
+    const onCreatePermissionsChanged = (payload: any) => {
+      try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('create_permissions_changed', { detail: payload }));
+        }
+      } catch {}
+    };
+
+    // Group shared note updated by admin -> notify open group chat
+    const onGroupSharedNoteUpdatedByAdmin = (payload: { id: number }) => {
+      try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('group_shared_note_updated_by_admin', { detail: payload }));
+        }
+      } catch {}
+    };
+
+    const onGroupSharedNoteUpdated = (payload: { id: number }) => {
+      try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('group_shared_note_updated', { detail: payload }));
+        }
+      } catch {}
+    };
+
     // Real-time nickname update for current user's view
     const onNicknameUpdated = (payload: { otherUserId: number; nickname: string | null }) => {
       try {
@@ -895,13 +1075,23 @@ export function useChatSocket(params: UseChatSocketParams) {
 
     // Dedicated handlers for recall events so we can off() them specifically
     const dmRecalledHandler = (payload: { scope: 'self' | 'all'; messageIds: number[] }) => {
+      console.log('🔄 Frontend: dmRecalledHandler received:', payload);
       setMessages((prev: any[]) => {
         if (!Array.isArray(prev) || prev.length === 0) return prev;
         const idSet = new Set(payload.messageIds);
         if (payload.scope === 'self') {
+          console.log('🔄 Filtering messages for self recall');
           return prev.filter((m: any) => !idSet.has(m.id));
         } else {
-          return prev.map((m: any) => (idSet.has(m.id) ? { ...m, isDeletedForAll: true } : m));
+          console.log('🔄 Marking messages as deletedForAll for all recall');
+          const newMessages = prev.map((m: any) => {
+            if (idSet.has(m.id)) {
+              console.log(`🔄 Marking message ${m.id} as deletedForAll`);
+              return { ...m, isDeletedForAll: true };
+            }
+            return m;
+          });
+          return newMessages;
         }
       });
       setChatList((prev: any) => {
@@ -1000,6 +1190,7 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('message_edited', (payload: { id: number; content: string; updatedAt?: string }) => {
       setMessages((prev: any[]) => prev.map((m: any) => (m.id === payload.id ? { ...m, content: payload.content, updatedAt: payload.updatedAt || m.updatedAt } : m)));
     });
+    socket.on('messages_recalled', dmRecalledHandler);
     socket.on('group_messages_recalled', groupRecalledHandler);
     socket.on('group_message_edited', (payload: { id: number; groupId: number; content: string; updatedAt?: string }) => {
       if (!selectedGroup || payload.groupId !== selectedGroup.id) return;
@@ -1009,6 +1200,9 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('message_sent', onMessageSent);
     socket.on('message_delivered', onMessageDelivered);
     socket.on('message_read', onMessageRead);
+    socket.on('shared_note_removed', onSharedNoteRemoved);
+    socket.on('note_deleted', onNoteDeleted);
+    socket.on('note_updated', onNoteUpdated);
     socket.on('message_blocked', onMessageBlocked);
     socket.on('user_blocked', onUserBlocked as any);
     socket.on('user_unblocked', onUserUnblocked as any);
@@ -1019,6 +1213,14 @@ export function useChatSocket(params: UseChatSocketParams) {
     socket.on('user_profile_updated', onUserProfileUpdated);
     socket.on('user_typing', onUserTyping);
     socket.on('group_typing', onGroupTyping as any);
+
+    // Shared notes permissions realtime (admin updates)
+    socket.on('shared_permissions_updated', onSharedPermissionsUpdated);
+    socket.on('note_shared_with_me', onNoteSharedWithMe);
+    socket.on('note_shared_by_me', onNoteSharedByMe);
+    socket.on('create_permissions_changed', onCreatePermissionsChanged);
+    socket.on('group_shared_note_updated_by_admin', onGroupSharedNoteUpdatedByAdmin);
+    socket.on('group_shared_note_updated', onGroupSharedNoteUpdated);
 
     // Reactions: direct messages
     socket.on('message_reacted', onMessageReacted);
@@ -1078,6 +1280,9 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('message_sent', onMessageSent);
       socket.off('message_delivered', onMessageDelivered);
       socket.off('message_read', onMessageRead);
+      socket.off('shared_note_removed', onSharedNoteRemoved);
+      socket.off('note_deleted', onNoteDeleted);
+      socket.off('note_updated', onNoteUpdated);
       socket.off('message_blocked', onMessageBlocked);
       socket.off('user_blocked', onUserBlocked as any);
       socket.off('user_unblocked', onUserUnblocked as any);
@@ -1091,6 +1296,12 @@ export function useChatSocket(params: UseChatSocketParams) {
       socket.off('group_updated', onGroupUpdated);
       socket.off('group_invited', onGroupInvited);
       socket.off('messages_recalled', dmRecalledHandler);
+      socket.off('shared_permissions_updated', onSharedPermissionsUpdated);
+      socket.off('note_shared_with_me', onNoteSharedWithMe);
+      socket.off('note_shared_by_me', onNoteSharedByMe);
+      socket.off('create_permissions_changed', onCreatePermissionsChanged);
+      socket.off('group_shared_note_updated_by_admin', onGroupSharedNoteUpdatedByAdmin);
+      socket.off('group_shared_note_updated', onGroupSharedNoteUpdated);
       if ((socket as any).offAny) {
         try {
           (socket as any).offAny(onAnyLogger);

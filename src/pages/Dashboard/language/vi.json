@@ -24,26 +24,24 @@
     "allPriorities": "Tất cả mức độ",
     "priority": {
       "high": "Cao",
-      "medium": "Trung bình",
       "low": "Thấp"
     }
   },
   "actions": {
     "createNote": "Tạo ghi chú",
+    "createNoteFor": "Tạo cho {{name}}",
+    "createNoteShared": "Tạo ghi chú cho {{name}}",
+    "save": "Lưu",
     "cancel": "Hủy",
-    "confirm": "Xác nhận",
     "delete": "Xóa",
-    "clearSelection": "Bỏ chọn",
-    "deleteSelected": "Xóa đã chọn",
-    "selectNote": "Chọn ghi chú",
-    "restore": "Khôi phục",
     "archive": "Lưu trữ",
-    "edit": "Sửa",
-    "update": "Cập nhật",
-    "close": "Đóng",
-    "viewDetails": "Xem chi tiết",
+    "restore": "Khôi phục",
     "share": "Chia sẻ",
-    "sharing": "Đang chia sẻ..."
+    "sharing": "Đang chia sẻ...",
+    "edit": "Chỉnh sửa",
+    "view": "Xem",
+    "close": "Đóng",
+    "viewDetails": "Xem chi tiết"
   },
   "confirm": {
     "removeFriend": "Xóa bạn {{name}}?",
@@ -131,12 +129,12 @@
       "high": "Cao"
     },
     "category": {
-      "general": "Chung",
       "work": "Công việc",
       "personal": "Cá nhân"
     },
     "share": {
       "title": "Chia sẻ ghi chú",
+      "users": "Người dùng",
       "groups": "Nhóm",
       "selectUser": "Chọn người nhận",
       "selectGroup": "Chọn nhóm",
@@ -146,6 +144,7 @@
       "availableGroups": "nhóm có sẵn",
       "canEdit": "Cho phép chỉnh sửa",
       "canDelete": "Cho phép xóa",
+      "canCreate": "Cho phép tạo ghi chú mới",
       "message": "Tin nhắn kèm theo (tùy chọn)",
       "messagePlaceholder": "Thêm tin nhắn...",
       "noResults": "Không tìm thấy người dùng",
@@ -158,9 +157,64 @@
       "success": "Chia sẻ ghi chú thành công",
       "successGroup": "Đã chia sẻ ghi chú trong nhóm thành công",
       "error": "Không thể chia sẻ ghi chú"
+    },
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "editSharedNote": "Chỉnh sửa ghi chú chia sẻ",
+    "editConfirm": "Bạn có muốn chỉnh sửa ghi chú này không?",
+    "editSuccess": "Đang mở chỉnh sửa ghi chú",
+    "editError": "Không thể chỉnh sửa ghi chú",
+    "confirmDelete": "Bạn có chắc muốn xóa ghi chú này?",
+    "deleteSuccess": "Đã xóa ghi chú thành công",
+    "deleteError": "Không thể xóa ghi chú",
+    "title": "Tiêu đề",
+    "content": "Nội dung",
+    "imageUrl": "URL hình ảnh",
+    "titleRequired": "Tiêu đề không được để trống",
+    "titlePlaceholder": "Nhập tiêu đề ghi chú...",
+    "contentPlaceholder": "Nhập nội dung ghi chú...",
+    "imageUrlPlaceholder": "https://example.com/image.jpg",
+    "save": "Lưu",
+    "updateSuccess": "Cập nhật ghi chú thành công",
+    "updateError": "Không thể cập nhật ghi chú",
+    "modal": {
+      "title": "Chỉnh sửa ghi chú chia sẻ",
+      "titleLabel": "Tiêu đề",
+      "titlePlaceholder": "Nhập tiêu đề ghi chú...",
+      "contentLabel": "Nội dung",
+      "contentPlaceholder": "Nhập nội dung ghi chú...",
+      "imageUrlLabel": "URL hình ảnh",
+      "imageUrlPlaceholder": "https://example.com/image.jpg",
+      "categoryLabel": "Danh mục",
+      "category": {
+        "personal": "Cá nhân",
+        "work": "Công việc"
+      },
+      "priorityLabel": "Độ ưu tiên",
+      "priority": {
+        "low": "Thấp",
+        "medium": "Trung bình",
+        "high": "Cao"
+      },
+      "cancel": "Hủy",
+      "save": "Lưu",
+      "titleRequired": "Tiêu đề không được để trống",
+      "updateSuccess": "Cập nhật ghi chú thành công",
+      "updateError": "Không thể cập nhật ghi chú",
+      "imageUpload": "Tải ảnh",
+      "imageUploading": "Đang tải...",
+      "imageRemove": "Xóa ảnh",
+      "imagePreviewAlt": "Ảnh",
+      "imageUploadError": "Tải ảnh thất bại"
     }
   },
   "chat": {
+    "reply": {
+      "replyingTo": "Trả lời",
+      "image": "Hình ảnh",
+      "file": "Tệp đính kèm",
+      "cancel": "Hủy trả lời"
+    },
     "errors": {
       "downloadFile": "Không thể tải tệp",
       "recall": "Không thể thu hồi tin nhắn",

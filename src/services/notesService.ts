@@ -28,6 +28,7 @@ export interface CreateNoteData {
   category?: string;
   priority?: 'low' | 'medium' | 'high';
   reminderAt?: string | null;
+  sharedFromUserId?: number; // For canCreate permission
 }
 
 export interface UpdateNoteData {
@@ -87,6 +88,7 @@ export interface ShareNoteData {
   userId: number;
   canEdit?: boolean;
   canDelete?: boolean;
+  canCreate?: boolean;
   message?: string;
   messageId?: number;
 }
@@ -181,6 +183,16 @@ export const notesService = {
 
   async removeSharedNote(sharedNoteId: number): Promise<{ message: string }> {
     const response = await api.delete(`/notes/shared/${sharedNoteId}`);
+    return response.data;
+  },
+
+  async getSharedNotePermissions(noteId: number): Promise<{ canEdit: boolean; canDelete: boolean; canCreate?: boolean; isOwner?: boolean; isShared?: boolean }> {
+    const response = await api.get(`/notes/shared/permissions/${noteId}`);
+    return response.data;
+  },
+
+  async getCreatePermissions(): Promise<{ permissions: Array<{ id: number; sharedByUserId: number; sharedByUser: { id: number; name: string; email: string }; canCreate: boolean }> }> {
+    const response = await api.get('/notes/shared/create-permissions');
     return response.data;
   },
 

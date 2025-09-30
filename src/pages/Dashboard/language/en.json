@@ -30,6 +30,8 @@
   },
   "actions": {
     "createNote": "Create note",
+    "createNoteFor": "Create for {{name}}",
+    "createNoteShared": "Create note for {{name}}",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "delete": "Delete",
@@ -161,6 +163,7 @@
       "permissions": "Permissions",
       "canEdit": "Allow editing",
       "canDelete": "Allow deleting",
+      "canCreate": "Allow creating new notes",
       "message": "Message (optional)",
       "groupMessage": "Group message (optional)",
       "messagePlaceholder": "Add a message...",
@@ -169,6 +172,36 @@
       "success": "Shared note successfully",
       "successGroup": "Shared note to group successfully",
       "error": "Unable to share note"
+    },
+    "modal": {
+      "title": "Edit shared note",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Enter note title...",
+      "contentLabel": "Content",
+      "contentPlaceholder": "Enter note content...",
+      "imageUrlLabel": "Image URL",
+      "imageUrlPlaceholder": "https://example.com/image.jpg",
+      "categoryLabel": "Category",
+      "category": {
+        "personal": "Personal",
+        "work": "Work"
+      },
+      "priorityLabel": "Priority",
+      "priority": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "cancel": "Cancel",
+      "save": "Save",
+      "titleRequired": "Title is required",
+      "updateSuccess": "Note updated successfully",
+      "updateError": "Unable to update note",
+      "imageUpload": "Upload image",
+      "imageUploading": "Uploading...",
+      "imageRemove": "Remove image",
+      "imagePreviewAlt": "Image",
+      "imageUploadError": "Failed to upload image"
     }
   },
   "errors": {

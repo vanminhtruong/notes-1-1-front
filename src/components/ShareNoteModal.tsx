@@ -41,6 +41,7 @@ const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProp
   const [selectedTarget, setSelectedTarget] = useState<ShareTarget | null>(null);
   const [canEdit, setCanEdit] = useState(false);
   const [canDelete, setCanDelete] = useState(false);
+  const [canCreate, setCanCreate] = useState(false);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -164,6 +165,7 @@ const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProp
           userId: selectedTarget.id,
           canEdit: canEdit,
           canDelete: canDelete,
+          canCreate: canCreate,
           message: message.trim() || undefined,
           messageId: messageId || undefined
         });
@@ -434,6 +436,8 @@ const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProp
                     {t('notes.share.canEdit') || 'Cho phép chỉnh sửa'}
                   </span>
                 </label>
+              </div>
+              <div>
                 <label className="flex items-center">
                   <input
                     type="checkbox"
@@ -443,6 +447,19 @@ const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProp
                   />
                   <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                     {t('notes.share.canDelete') || 'Cho phép xóa'}
+                  </span>
+                </label>
+              </div>
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={canCreate}
+                    onChange={(e) => setCanCreate(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    {t('notes.share.canCreate') || 'Cho phép tạo ghi chú mới'}
                   </span>
                 </label>
               </div>

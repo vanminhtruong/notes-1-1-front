@@ -30,6 +30,8 @@
   },
   "actions": {
     "createNote": "노트 만들기",
+    "createNoteFor": "{{name}}님을 위해 만들기",
+    "createNoteShared": "{{name}}님을 위한 노트 만들기",
     "cancel": "취소",
     "confirm": "확인",
     "delete": "삭제",
@@ -151,6 +153,7 @@
       "permissions": "권한",
       "canEdit": "편집 허용",
       "canDelete": "삭제 허용",
+      "canCreate": "새 노트 생성 허용",
       "message": "메시지 (선택)",
       "groupMessage": "그룹 메시지 (선택)",
       "messagePlaceholder": "메시지를 추가하세요...",
@@ -159,6 +162,36 @@
       "success": "노트가 성공적으로 공유되었습니다",
       "successGroup": "그룹에 노트가 성공적으로 공유되었습니다",
       "error": "노트를 공유할 수 없습니다"
+    },
+    "modal": {
+      "title": "공유 노트 편집",
+      "titleLabel": "제목",
+      "titlePlaceholder": "노트 제목을 입력하세요...",
+      "contentLabel": "내용",
+      "contentPlaceholder": "노트 내용을 입력하세요...",
+      "imageUrlLabel": "이미지 URL",
+      "imageUrlPlaceholder": "https://example.com/image.jpg",
+      "categoryLabel": "카테고리",
+      "category": {
+        "personal": "개인",
+        "work": "업무"
+      },
+      "priorityLabel": "우선순위",
+      "priority": {
+        "low": "낮음",
+        "medium": "중간",
+        "high": "높음"
+      },
+      "cancel": "취소",
+      "save": "저장",
+      "titleRequired": "제목은 필수입니다",
+      "updateSuccess": "노트가 성공적으로 업데이트되었습니다",
+      "updateError": "노트를 업데이트할 수 없습니다",
+      "imageUpload": "이미지 업로드",
+      "imageUploading": "업로드 중...",
+      "imageRemove": "이미지 삭제",
+      "imagePreviewAlt": "이미지",
+      "imageUploadError": "이미지 업로드 실패"
     }
   },
   "chat": {

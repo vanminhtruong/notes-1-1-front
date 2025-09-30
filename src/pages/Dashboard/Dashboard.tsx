@@ -39,7 +39,7 @@ const Dashboard = () => {
     showViewModal, setShowViewModal, viewNote, openView,
   } = useDashboard();
 
-  // Share Note Modal state
+  // Share Note Modal state  
   const [showShareModal, setShowShareModal] = useState(false);
 
   const handleOpenShareModal = () => {
@@ -162,6 +162,8 @@ const Dashboard = () => {
               <Plus className="w-5 h-5 lg-down:w-4 lg-down:h-4 sm-down:w-3.5 sm-down:h-3.5" />
               {t('actions.createNote')}
             </button>
+
+            {/* Removed shared permissions buttons on Dashboard */}
           </div>
         </div>
 

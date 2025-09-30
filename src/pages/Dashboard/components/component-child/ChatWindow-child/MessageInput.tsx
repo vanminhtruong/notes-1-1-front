@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { summarizeReplyContent } from '@/utils/utils';
 import { Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { MessageInputProps } from '../../interface/MessageInput.interface';
@@ -61,9 +62,7 @@ const MessageInput = ({
               {t('chat.reply.replyingTo', 'Trả lời')} {replyingToMessage.sender?.name || `User ${replyingToMessage.senderId || replyingToMessage.userId || ''}`}
             </div>
             <div className="text-sm text-blue-700/90 dark:text-blue-300/90 truncate">
-              {replyingToMessage.messageType === 'image' ? t('chat.reply.image', 'Hình ảnh') :
-               replyingToMessage.messageType === 'file' ? t('chat.reply.file', 'Tệp đính kèm') :
-               replyingToMessage.content || ''}
+              {summarizeReplyContent(replyingToMessage.messageType, replyingToMessage.content, t)}
             </div>
           </div>
           {onClearReply && (

@@ -79,6 +79,8 @@ const ChatView = ({
   const [showCommonGroups, setShowCommonGroups] = useState(false);
   // Lazy-load state
   const [isLoadingPrev, setIsLoadingPrev] = useState(false);
+  // Only display spinner when user is scrolling upwards to load older messages
+  const [showTopSpinner, setShowTopSpinner] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const pageRef = useRef<number>(1);
@@ -87,6 +89,8 @@ const ChatView = ({
   const isGroupRef = useRef<boolean>(!!isGroup);
   const selectedIdRef = useRef<number | null>(null);
   const onPrependRef = useRef<((older: any[]) => void) | null>(null);
+  // Track which pages have been loaded in this session to avoid re-fetching the same page again
+  const loadedPagesRef = useRef<Set<number>>(new Set<number>());
   // Mutex to prevent duplicate concurrent loads from scroll + IntersectionObserver
   const fetchingPrevRef = useRef<boolean>(false);
   // Throttle scroll handler to avoid rapid retriggers near the top
@@ -102,6 +106,8 @@ const ChatView = ({
   const lastScrollDirUpRef = useRef<boolean>(false);
   // Hard stop when reached the very first page to avoid any re-trigger
   const exhaustedRef = useRef<boolean>(false);
+  // Track if user has already loaded messages in this session to prevent multiple loads
+  const hasLoadedInSessionRef = useRef<boolean>(false);
   useEffect(() => { pageRef.current = page; }, [page]);
   useEffect(() => { hasMoreRef.current = hasMore; }, [hasMore]);
   useEffect(() => { loadingRef.current = isLoadingPrev; }, [isLoadingPrev]);
@@ -335,6 +341,10 @@ const ChatView = ({
     startedFromBottomRef.current = false;
     // Reset exhausted state for new conversation
     exhaustedRef.current = false;
+    // Reset session load flag for new conversation
+    hasLoadedInSessionRef.current = false;
+    // Reset loaded pages and seed with current page=1 to prevent re-loading the first page
+    loadedPagesRef.current = new Set<number>([1]);
   }, [isGroup, (selectedChat as any)?.id]);
 
   useEffect(() => {
@@ -407,6 +417,7 @@ const ChatView = ({
     socket.on('nickname_updated', onNicknameUpdated);
     // Also refresh on message recalls so stale pins disappear
     const onDmRecalled = (payload: { scope: 'self' | 'all'; messageIds: number[] }) => {
+      console.log('📌 ChatView: DM recalled, updating pinned messages:', payload);
       if (isGroup) return;
       // Optimistically drop recalled IDs from local banner to reflect instantly
       if (Array.isArray(payload?.messageIds) && payload.messageIds.length > 0) {
@@ -548,11 +559,17 @@ const ChatView = ({
         lastScrollDirUpRef.current = true;
       } else if (el.scrollTop > (prevScrollTopRef.current || 0)) {
         lastScrollDirUpRef.current = false;
+        // Hide spinner when scrolling downwards
+        if (showTopSpinner) setShowTopSpinner(false);
+        // Reset startedFromBottomRef when user scrolls back to near bottom (within 100px)
+        if (distanceToBottom <= 100) {
+          startedFromBottomRef.current = true;
+        }
       }
       // Trigger lazy-load when near top (increased threshold for reliability)
       if (el.scrollTop <= 200) {
-        // Chỉ cho phép tải khi người dùng đã cuộn lên ít nhất một lần
-        if (exhaustedRef.current || !userInteractedRef.current || !startedFromBottomRef.current || !lastScrollDirUpRef.current) {
+        // Chỉ cho phép tải khi người dùng đã cuộn lên ít nhất một lần và chưa tải trong phiên này
+        if (exhaustedRef.current || !userInteractedRef.current || !startedFromBottomRef.current || !lastScrollDirUpRef.current || hasLoadedInSessionRef.current) {
           prevScrollTopRef.current = el.scrollTop;
           return;
         }
@@ -567,9 +584,17 @@ const ChatView = ({
           try {
             fetchingPrevRef.current = true;
             startAt = Date.now();
-            setIsLoadingPrev(true);
             const prevHeight = el.scrollHeight;
             const nextPage = (pageRef.current || 1) + 1;
+            // Skip if this page was already fetched in this session
+            if (loadedPagesRef.current.has(nextPage)) {
+              fetchingPrevRef.current = false;
+              return;
+            }
+            // Confirmed we will fetch: show spinner for upward loading and mark as loaded in session
+            setShowTopSpinner(true);
+            setIsLoadingPrev(true);
+            hasLoadedInSessionRef.current = true;
             const LIMIT = 10;
             let fetched: any[] | null = null;
             let newHasMore: boolean = !!hasMoreRef.current;
@@ -621,7 +646,11 @@ const ChatView = ({
             if (bufferedFetched && onPrependRef.current) {
               prependingRef.current = true;
               onPrependRef.current(bufferedFetched);
-              if (typeof bufferedNextPage === 'number') setPage(bufferedNextPage);
+              if (typeof bufferedNextPage === 'number') {
+                setPage(bufferedNextPage);
+                // Mark this page as loaded to avoid future duplicates
+                loadedPagesRef.current.add(bufferedNextPage);
+              }
               if (typeof bufferedMore === 'boolean') setHasMore(bufferedMore);
               setTimeout(() => {
                 const newHeight = el.scrollHeight;
@@ -643,6 +672,7 @@ const ChatView = ({
             delete (el as any).__more;
             delete (el as any).__prevHeight;
             setIsLoadingPrev(false);
+            setShowTopSpinner(false);
             fetchingPrevRef.current = false;
           }
         })();
@@ -662,8 +692,8 @@ const ChatView = ({
     const io = new IntersectionObserver((entries) => {
       const e = entries[0];
       if (!e || !e.isIntersecting) return;
-      // Chỉ cho phép khi người dùng đã cuộn lên để tránh tự tải khi sentinel sẵn trong viewport
-      if (exhaustedRef.current || !userInteractedRef.current || !startedFromBottomRef.current || !lastScrollDirUpRef.current) return;
+      // Chỉ cho phép khi người dùng đã cuộn lên để tránh tự tải khi sentinel sẵn trong viewport và chưa tải trong phiên này
+      if (exhaustedRef.current || !userInteractedRef.current || !startedFromBottomRef.current || !lastScrollDirUpRef.current || hasLoadedInSessionRef.current) return;
       if (fetchingPrevRef.current || loadingRef.current || !hasMoreRef.current) return;
       // Trigger the same fetch logic as onScroll
       (async () => {
@@ -671,9 +701,17 @@ const ChatView = ({
         try {
           fetchingPrevRef.current = true;
           startAt = Date.now();
-          setIsLoadingPrev(true);
           const prevHeight = rootEl.scrollHeight;
           const nextPage = (pageRef.current || 1) + 1;
+          // Skip if already fetched this page in current session
+          if (loadedPagesRef.current.has(nextPage)) {
+            fetchingPrevRef.current = false;
+            return;
+          }
+          // Confirmed fetch -> show spinner for upward load and mark as loaded in session
+          setShowTopSpinner(true);
+          setIsLoadingPrev(true);
+          hasLoadedInSessionRef.current = true;
           const LIMIT = 10;
           let fetched: any[] | null = null;
           let newHasMore: boolean = !!hasMoreRef.current;
@@ -724,7 +762,11 @@ const ChatView = ({
             if (bufferedFetched && onPrependRef.current) {
               prependingRef.current = true;
               onPrependRef.current(bufferedFetched);
-              if (typeof bufferedNextPage === 'number') setPage(bufferedNextPage);
+              if (typeof bufferedNextPage === 'number') {
+                setPage(bufferedNextPage);
+                // Mark this page as loaded
+                loadedPagesRef.current.add(bufferedNextPage);
+              }
               if (typeof bufferedMore === 'boolean') setHasMore(bufferedMore);
               setTimeout(() => {
                 const newHeight = rootEl.scrollHeight;
@@ -745,6 +787,7 @@ const ChatView = ({
             delete (rootEl as any).__more;
             delete (rootEl as any).__prevHeight;
             setIsLoadingPrev(false);
+            setShowTopSpinner(false);
           }
           fetchingPrevRef.current = false;
         }
@@ -1230,7 +1273,7 @@ const ChatView = ({
           </div>
         )}
         {/* Top loading spinner for lazy load (placed after pinned banner) */}
-        {isLoadingPrev ? (
+        {isLoadingPrev && showTopSpinner ? (
           <div className="sticky top-0 z-40 flex items-center justify-center pt-2 pb-1 bg-transparent">
             <div className="w-6 h-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" aria-label={t('chat.loadingOlder', 'Đang tải tin nhắn cũ...')} />
           </div>
@@ -1240,7 +1283,7 @@ const ChatView = ({
         <div ref={topSentinelRef} style={{ height: 1 }} />
 
         {/* Overlay to hide older messages area during loading (spinner remains visible) */}
-        {isLoadingPrev && (
+        {isLoadingPrev && showTopSpinner && (
           <div
             className="absolute top-0 left-0 right-0 z-30 h-24 md:h-28 bg-white dark:bg-gray-900"
             aria-hidden="true"
