@@ -159,7 +159,7 @@ export const archiveNote = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await notesService.archiveNote(id);
-      toast.success(response.message);
+      // Toast handled in useDashboard hook
       return response.note;
     } catch (error: any) {
       const message = error.response?.data?.message || 'Thao tác thất bại';

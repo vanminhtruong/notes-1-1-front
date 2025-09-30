@@ -23,7 +23,7 @@ const Dashboard = () => {
     selectedIds, toggleSelect, clearSelection, confirmBulkDelete,
     showEditModal, setShowEditModal,
     editNote, setEditNote,
-    handleCreateNote, handleArchiveNote, confirmDeleteNote, openEdit, handleUpdateNote,
+    handleCreateNote, confirmArchiveNote, confirmDeleteNote, openEdit, handleUpdateNote,
     getPriorityColor, getPriorityText,
     dueReminderNoteIds,
     acknowledgeReminderNote,
@@ -68,6 +68,7 @@ const Dashboard = () => {
 
         <BulkActionsBar
           selectedCount={selectedIds.length}
+          showArchived={showArchived}
           onClearSelection={clearSelection}
           onBulkDelete={confirmBulkDelete}
         />
@@ -82,7 +83,7 @@ const Dashboard = () => {
           onToggleSelect={toggleSelect}
           onView={openView}
           onEdit={openEdit}
-          onArchive={handleArchiveNote}
+          onArchive={confirmArchiveNote}
           onDelete={confirmDeleteNote}
           onAcknowledgeReminder={acknowledgeReminderNote}
           onCreateNote={() => setShowCreateModal(true)}

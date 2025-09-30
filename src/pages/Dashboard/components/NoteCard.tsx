@@ -56,14 +56,16 @@ const NoteCard = ({
               className="peer sr-only"
             />
             <span
-              className="w-6 h-6 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white dark:bg-gray-800 shadow-sm transition-all
-                         peer-focus:ring-2 peer-focus:ring-blue-500
-                         hover:border-blue-400 hover:shadow group-active:scale-95
-                         peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:shadow-md peer-checked:ring-2 peer-checked:ring-blue-500/30 sm-down:w-5 sm-down:h-5 xs-down:w-4 xs-down:h-4"
+              className="w-6 h-6 inline-flex items-center justify-center rounded-md border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 transition-all
+                         peer-focus:ring-2 peer-focus:ring-blue-500/50
+                         hover:border-gray-400 dark:hover:border-gray-500 group-active:scale-95
+                         peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:dark:bg-blue-600 peer-checked:dark:border-blue-600 
+                         peer-checked:[&>svg]:w-4 peer-checked:[&>svg]:h-4 peer-checked:[&>svg]:opacity-100
+                         sm-down:w-5 sm-down:h-5 xs-down:w-4 xs-down:h-4 
+                         sm-down:peer-checked:[&>svg]:w-3.5 sm-down:peer-checked:[&>svg]:h-3.5 
+                         xs-down:peer-checked:[&>svg]:w-3 xs-down:peer-checked:[&>svg]:h-3"
             >
-              <Check strokeWidth={3} className="w-4 h-4 transition-all duration-150 transform scale-90
-                                              text-gray-500 dark:text-gray-400 opacity-70 group-hover:opacity-90
-                                              peer-checked:text-white peer-checked:opacity-100 peer-checked:scale-100 sm-down:w-3.5 sm-down:h-3.5 xs-down:w-3 xs-down:h-3" />
+              <Check strokeWidth={3} className="w-0 h-0 opacity-0 transition-all duration-150 text-white" />
             </span>
           </label>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 lg-down:text-base md-down:text-sm sm-down:text-sm">

@@ -19,6 +19,7 @@ interface SharedNoteData {
 interface SharedNoteCardProps {
   note: SharedNoteData;
   isOwnMessage: boolean;
+  compact?: boolean;
 }
 
 interface PermissionsResponse {
@@ -29,7 +30,7 @@ interface PermissionsResponse {
   canCreate?: boolean;
 }
 
-const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage }) => {
+const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, compact = false }) => {
   const { t } = useTranslation('dashboard');
   const [permissions, setPermissions] = useState<PermissionsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -252,11 +253,21 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage }) =
     }
   };
 
+  // Classes theo chế độ compact
+  const wrapPad = compact ? 'p-3' : 'p-6';
+  const wrapMaxW = compact ? 'max-w-[320px]' : 'max-w-[360px]';
+  const headerMb = compact ? 'mb-2' : 'mb-4';
+  const descMb = compact ? 'mb-2' : 'mb-4';
+  const imgMb = compact ? 'mb-2' : 'mb-4';
+  const titleSize = compact ? 'text-base' : 'text-lg';
+  const imgH = compact ? 'h-28' : 'h-40';
+  const rightInfoMargin = compact ? 'ml-3' : '';
+
   return (
     <>
-    <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 max-w-[360px]">
-      <div className="flex items-start justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1">
+    <div className={`bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl ${wrapPad} border border-white/20 dark:border-gray-700/30 ${wrapMaxW}`}>
+      <div className={`flex items-start justify-between ${headerMb}`}>
+        <h3 className={`${titleSize} font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1`}>
           {currentNote.title}
         </h3>
         {showActionButtons && (
@@ -295,16 +306,16 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage }) =
         )}
       </div>
       
-      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">
+      <p className={`text-gray-600 dark:text-gray-300 text-sm ${descMb} line-clamp-3`}>
         {currentNote.content || t('messages.noContent')}
       </p>
       
       {currentNote.imageUrl && (
-        <div className="mb-4">
+        <div className={`${imgMb}`}>
           <img 
             src={currentNote.imageUrl} 
             alt={currentNote.title} 
-            className="w-full h-40 object-cover rounded-xl border" 
+            className={`w-full ${imgH} object-cover rounded-xl border`} 
           />
         </div>
       )}
@@ -320,7 +331,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage }) =
             {t(`category.${currentNote.category}`)}
           </span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+        <div className={`flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 ${rightInfoMargin}`}>
           <Clock className="w-3 h-3" />
           {formatDateMDYY(currentNote.createdAt)}
         </div>

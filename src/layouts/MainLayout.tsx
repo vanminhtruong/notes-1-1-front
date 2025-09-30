@@ -2,13 +2,14 @@ import { Link, Outlet } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
-import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X } from 'lucide-react'
+import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
 import BackToTop from '@/components/BackToTop'
 import HeaderScrollProgress from '@/components/HeaderScrollProgress'
 import RotatingCube from '@/components/RotatingCube'
+import DevicesModal from '@/components/DevicesModal'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { authService } from '@/services/authService'
@@ -19,6 +20,7 @@ export default function MainLayout() {
   const { user, token, isAuthenticated } = useAppSelector((state) => state.auth);
   const [menuOpen, setMenuOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [devicesOpen, setDevicesOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -253,6 +255,17 @@ export default function MainLayout() {
                         <span>{t('user.changePassword')}</span>
                       </Link>
 
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false);
+                          setDevicesOpen(true);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
+                      >
+                        <Smartphone className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                        <span>{t('user.devices')}</span>
+                      </button>
+
                       <div className="my-2 h-px bg-white/30 dark:bg-gray-700/50" />
 
                       <button
@@ -359,6 +372,12 @@ export default function MainLayout() {
           onClose={() => setChatOpen(false)} 
         />
       )}
+
+      {/* Devices Modal */}
+      <DevicesModal 
+        isOpen={devicesOpen} 
+        onClose={() => setDevicesOpen(false)} 
+      />
 
       {/* Global Back To Top for all tabs/pages */}
       <BackToTop threshold={300} bottomOffset="1.25rem" rightOffset="1.25rem" />

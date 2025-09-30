@@ -806,6 +806,21 @@ const ChatView = ({
     return () => clearInterval(timer);
   }, []);
 
+  // Disable body scroll when chat view is open
+  useEffect(() => {
+    const htmlEl = document.documentElement;
+    const bodyEl = document.body;
+    const prevHtmlOverflow = htmlEl.style.overflow;
+    const prevBodyOverflow = bodyEl.style.overflow;
+    htmlEl.style.overflow = 'hidden';
+    bodyEl.style.overflow = 'hidden';
+
+    return () => {
+      htmlEl.style.overflow = prevHtmlOverflow;
+      bodyEl.style.overflow = prevBodyOverflow;
+    };
+  }, []);
+
   // One-shot ticks anchored to lastSeen: at 20s (to reveal "20 seconds ago") and at next minute boundary
   useEffect(() => {
     if (isGroup) return;
@@ -1259,16 +1274,45 @@ const ChatView = ({
                 <span className="inline-block w-2.5 h-2.5 bg-yellow-500 rounded-full" />
                 {t('chat.menu.pinnedMessages', 'Tin nhắn đã ghim')}
               </span>
-              {pinnedMessages.map((pm) => (
-                <button
-                  key={`pin-${pm.id}`}
-                  onClick={() => scrollToMessage(pm.id)}
-                  className="inline-flex items-center gap-1 max-w-[220px] px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800/60 border border-yellow-300/60 dark:border-yellow-700/40"
-                  title={String(pm.content || '')}
-                >
-                  <span className="truncate">{pm.messageType === 'image' ? t('chat.preview.image') : pm.messageType === 'file' ? t('chat.preview.file') : (pm.content || '')}</span>
-                </button>
-              ))}
+              {pinnedMessages.map((pm) => {
+                // Check if pinned message is a shared note
+                const prefix = 'NOTE_SHARE::';
+                const isSharedNote = typeof pm.content === 'string' && pm.content.startsWith(prefix);
+                let displayText = pm.content || '';
+                
+                if (isSharedNote && pm.content) {
+                  try {
+                    const raw = pm.content.slice(prefix.length);
+                    const obj = JSON.parse(decodeURIComponent(raw));
+                    if (obj && obj.title) {
+                      displayText = `📝 ${obj.title}`;
+                    }
+                  } catch {
+                    displayText = '📝 Ghi chú';
+                  }
+                } else if (pm.messageType === 'image') {
+                  displayText = t('chat.preview.image');
+                } else if (pm.messageType === 'file') {
+                  displayText = t('chat.preview.file');
+                } else {
+                  try {
+                    displayText = decodeURIComponent(pm.content || '');
+                  } catch {
+                    displayText = pm.content || '';
+                  }
+                }
+                
+                return (
+                  <button
+                    key={`pin-${pm.id}`}
+                    onClick={() => scrollToMessage(pm.id)}
+                    className="inline-flex items-center gap-1 max-w-[220px] px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800/60 border border-yellow-300/60 dark:border-yellow-700/40"
+                    title={displayText}
+                  >
+                    <span className="truncate">{displayText}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -1326,7 +1370,7 @@ const ChatView = ({
             </div>
           ) : null
         ) : (
-          <div className="space-y-3 relative z-10 mt-1 px-4">
+          <div className="space-y-1.5 relative z-10 mt-1 px-4">
             {(() => {
               let lastDateKey: string | null = null;
               return visibleGroups.map((group) => {

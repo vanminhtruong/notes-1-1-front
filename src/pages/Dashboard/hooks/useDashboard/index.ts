@@ -202,13 +202,65 @@ export const useDashboard = () => {
   };
 
   const handleArchiveNote = async (id: number) => {
-    await dispatch(archiveNote(id));
+    const result = await dispatch(archiveNote(id));
     dispatch(fetchNotes({
       search: searchTerm,
       category: selectedCategory || undefined,
       priority: selectedPriority || undefined,
       isArchived: showArchived,
     }));
+    
+    // Show success toast
+    if (result.meta.requestStatus === 'fulfilled') {
+      toast.success(t('toasts.archiveSuccess'), {
+        duration: 3000,
+        className: 'dark:bg-gray-800 dark:text-white',
+      });
+    }
+  };
+
+  const confirmArchiveNote = (id: number) => {
+    const tId = toast.custom((toastData) => {
+      const containerClass = `max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`;
+      return React.createElement(
+        'div',
+        { className: containerClass },
+        React.createElement(
+          'div',
+          { className: 'flex items-start gap-3' },
+          React.createElement(
+            'div',
+            { className: 'flex-1' },
+            React.createElement('p', { className: 'font-semibold' }, t('modals.confirm.archiveTitle')),
+            React.createElement('p', { className: 'text-sm text-gray-600 dark:text-gray-300' }, t('modals.confirm.archiveMessage'))
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'mt-3 flex justify-end gap-2' },
+          React.createElement(
+            'button',
+            {
+              onClick: () => toast.dismiss(toastData.id),
+              className: 'px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm',
+            },
+            t('actions.cancel')
+          ),
+          React.createElement(
+            'button',
+            {
+              onClick: async () => {
+                await handleArchiveNote(id);
+                toast.dismiss(toastData.id);
+              },
+              className: 'px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm',
+            },
+            t('actions.archive')
+          )
+        )
+      );
+    }, { duration: 8000 });
+    return tId;
   };
 
   const openEdit = (note: any) => {
@@ -390,7 +442,7 @@ export const useDashboard = () => {
 
     // actions
     confirmDeleteNote,
-    handleArchiveNote,
+    confirmArchiveNote,
 
     // helpers
     getPriorityColor,

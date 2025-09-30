@@ -417,11 +417,36 @@ const MessageBubble = ({
                 const replyTo = (message as any)?.replyToMessage;
                 if (!replyTo) return null;
                 const handleJump = () => { if (onJumpToMessage && replyTo?.id) onJumpToMessage(Number(replyTo.id)); };
+                
+                // Check if replyTo is a shared note
+                const prefix = 'NOTE_SHARE::';
+                const isSharedNote = typeof replyTo.content === 'string' && replyTo.content.startsWith(prefix);
+                
+                if (isSharedNote) {
+                  try {
+                    const raw = replyTo.content.slice(prefix.length);
+                    const obj = JSON.parse(decodeURIComponent(raw));
+                    if (obj && (obj.type === 'note' || obj.v === 1)) {
+                      const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
+                      return (
+                        <div className="mb-0.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleJump(); }}>
+                          <div className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-0.5 px-2">
+                            {replyTo.sender?.name || `User ${replyTo.senderId}`}
+                          </div>
+                          <div className="origin-top-left">
+                            <SharedNoteCard note={note} isOwnMessage={isOwnMessage} compact />
+                          </div>
+                        </div>
+                      );
+                    }
+                  } catch {}
+                }
+                
                 return (
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); handleJump(); }}
-                    className="mb-1.5 w-full text-left px-2.5 py-1.5 rounded-md bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/40 dark:hover:bg-blue-900/55 border-l-4 border-blue-500 text-[13px] transition-colors"
+                    className="mb-0.5 w-full text-left px-2.5 py-1.5 rounded-md bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/40 dark:hover:bg-blue-900/55 border-l-4 border-blue-500 text-[13px] transition-colors"
                     title={t('chat.reply.jumpToMessage', 'Đi tới tin nhắn gốc')}
                     aria-label={t('chat.reply.jumpToMessage', 'Đi tới tin nhắn gốc')}
                   >
@@ -431,7 +456,7 @@ const MessageBubble = ({
                     <div className="text-blue-800/90 dark:text-blue-200/90 line-clamp-2">
                       {replyTo.messageType === 'image' ? '📷 Hình ảnh' :
                        replyTo.messageType === 'file' ? '📎 Tệp đính kèm' :
-                       replyTo.content}
+                       decodeURIComponent(replyTo.content || '')}
                     </div>
                   </button>
                 );
@@ -462,11 +487,35 @@ const MessageBubble = ({
       if (onJumpToMessage && replyTo?.id) onJumpToMessage(Number(replyTo.id));
     };
 
+    // Check if replyTo is a shared note
+    const prefix = 'NOTE_SHARE::';
+    const isSharedNote = typeof replyTo.content === 'string' && replyTo.content.startsWith(prefix);
+    
+    if (isSharedNote && replyTo.content) {
+      try {
+        const raw = replyTo.content.slice(prefix.length);
+        const obj = JSON.parse(decodeURIComponent(raw));
+        if (obj && (obj.type === 'note' || obj.v === 1)) {
+          const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
+          return (
+            <div className="mb-0.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleJump(); }}>
+              <div className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-0.5">
+                {replyTo.sender?.name || `User ${replyTo.senderId}`}
+              </div>
+              <div className="origin-top-left">
+                <SharedNoteCard note={note} isOwnMessage={isOwnMessage} compact />
+              </div>
+            </div>
+          );
+        }
+      } catch {}
+    }
+
     return (
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); handleJump(); }}
-        className={`mb-2 w-full text-left px-3 py-2 rounded-lg border-l-4 border-blue-500 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/40 dark:hover:bg-blue-900/55 text-sm transition-colors`}
+        className={`mb-0.5 w-full text-left px-3 py-2 rounded-lg border-l-4 border-blue-500 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/40 dark:hover:bg-blue-900/55 text-sm transition-colors`}
         title={t('chat.reply.jumpToMessage', 'Đi tới tin nhắn gốc')}
         aria-label={t('chat.reply.jumpToMessage', 'Đi tới tin nhắn gốc')}
       >
@@ -476,7 +525,7 @@ const MessageBubble = ({
         <div className="text-blue-800/90 dark:text-blue-200/90 line-clamp-2">
           {replyTo.messageType === 'image' ? '📷 Hình ảnh' :
            replyTo.messageType === 'file' ? '📎 Tệp đính kèm' :
-           replyTo.content}
+           decodeURIComponent(replyTo.content || '')}
         </div>
       </button>
     );

@@ -77,11 +77,16 @@
     "other": "Khác",
     "unspecified": "Không xác định"
   },
+  "toasts": {
+    "archiveSuccess": "Đã lưu trữ ghi chú thành công"
+  },
   "modals": {
     "confirm": {
       "deleteTitle": "Xóa ghi chú?",
       "bulkDeleteTitle": "Xóa các ghi chú đã chọn?",
-      "irreversible": "Hành động này không thể hoàn tác."
+      "irreversible": "Hành động này không thể hoàn tác.",
+      "archiveTitle": "Lưu trữ ghi chú?",
+      "archiveMessage": "Ghi chú sẽ được chuyển vào mục Đã lưu trữ."
     },
     "create": {
       "title": "Tạo ghi chú mới",

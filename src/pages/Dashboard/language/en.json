@@ -82,11 +82,16 @@
     "other": "Other",
     "unspecified": "Unspecified"
   },
+  "toasts": {
+    "archiveSuccess": "Note archived successfully"
+  },
   "modals": {
     "confirm": {
       "deleteTitle": "Delete note?",
       "bulkDeleteTitle": "Delete selected notes?",
-      "irreversible": "This action cannot be undone."
+      "irreversible": "This action cannot be undone.",
+      "archiveTitle": "Archive note?",
+      "archiveMessage": "The note will be moved to Archived."
     },
     "create": {
       "title": "Create new note",

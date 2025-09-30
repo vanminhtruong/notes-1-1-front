@@ -35,7 +35,8 @@ export const loginUser = createAsyncThunk(
     try {
       const response = await authService.login(data);
       localStorage.setItem('token', response.token);
-      toast.success(response.message);
+      const msg = response.message || i18n.t('auth:success.loginSuccess');
+      toast.success(msg);
       return response;
     } catch (error: any) {
       let message: string = error.response?.data?.message || i18n.t('auth:errors.loginFailed');
@@ -59,7 +60,8 @@ export const loginWithGoogle = createAsyncThunk(
     try {
       const response = await authService.loginWithGoogle(idToken);
       localStorage.setItem('token', response.token);
-      toast.success(response.message || 'Đăng nhập thành công');
+      const msg = response.message || i18n.t('auth:success.loginSuccess');
+      toast.success(msg);
       return response;
     } catch (error: any) {
       let message: string = error.response?.data?.message || i18n.t('auth:errors.googleFailed');
@@ -81,7 +83,8 @@ export const loginWithFacebook = createAsyncThunk(
     try {
       const response = await authService.loginWithFacebook(accessToken);
       localStorage.setItem('token', response.token);
-      toast.success(response.message || 'Đăng nhập thành công');
+      const msg = response.message || i18n.t('auth:success.loginSuccess');
+      toast.success(msg);
       return response;
     } catch (error: any) {
       let message: string = error.response?.data?.message || i18n.t('auth:errors.facebookFailed');

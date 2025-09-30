@@ -81,11 +81,16 @@
     "other": "기타",
     "unspecified": "미지정"
   },
+  "toasts": {
+    "archiveSuccess": "노트가 보관되었습니다"
+  },
   "modals": {
     "confirm": {
       "deleteTitle": "노트를 삭제하시겠습니까?",
       "bulkDeleteTitle": "선택한 노트를 삭제하시겠습니까?",
-      "irreversible": "이 작업은 되돌릴 수 없습니다."
+      "irreversible": "이 작업은 되돌릴 수 없습니다.",
+      "archiveTitle": "노트를 보관하시겠습니까?",
+      "archiveMessage": "노트가 보관함으로 이동됩니다."
     },
     "create": {
       "title": "새 노트 만들기",
