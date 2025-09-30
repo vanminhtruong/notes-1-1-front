@@ -146,6 +146,7 @@
       "work": "Work",
       "personal": "Personal"
     },
+    "createdAt": "Created at",
     "share": {
       "title": "Share note",
       "users": "Users",
@@ -201,7 +202,8 @@
       "imageUploading": "Uploading...",
       "imageRemove": "Remove image",
       "imagePreviewAlt": "Image",
-      "imageUploadError": "Failed to upload image"
+      "imageUploadError": "Failed to upload image",
+      "close": "Close"
     }
   },
   "errors": {
@@ -686,6 +688,35 @@
         "wrongCurrentPassword": "Current password is incorrect",
         "updateFailed": "Failed to update password"
       }
+    }
+  },
+  "sharedNotes": {
+    "title": "Shared Notes",
+    "received": "Received",
+    "sent": "Sent",
+    "sharedBy": "Shared by",
+    "sharedWith": "Shared with",
+    "viewNote": "View note",
+    "editNote": "Edit note",
+    "addNote": "Add note",
+    "createFromNote": "Create new note from this",
+    "remove": "Remove",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "loadingMore": "Loading more...",
+    "loadMore": "Load more",
+    "canEdit": "Can edit",
+    "viewOnly": "View only",
+    "noReceivedNotes": "No shared notes",
+    "noReceivedNotesDesc": "When someone shares a note with you, it will appear here",
+    "noSentNotes": "No shared notes yet",
+    "noSentNotesDesc": "Notes you share with others will appear here",
+    "confirmRemoveReceived": "Are you sure you want to remove this shared note?",
+    "confirmRemoveSent": "Are you sure you want to unshare this note?",
+    "removeSuccess": "Successfully removed shared note",
+    "errors": {
+      "fetchFailed": "Failed to load shared notes list",
+      "removeFailed": "Failed to remove shared note"
     }
   }
 }

@@ -120,6 +120,16 @@ const ChatHeader = ({
           >
             {t('chat.header.tabs.groups')}
           </button>
+          <button
+            onClick={() => onTabChange('sharedNotes')}
+            className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
+              activeTab === 'sharedNotes'
+                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+          >
+            {t('sharedNotes.title')}
+          </button>
         </div>
       )}
     </div>

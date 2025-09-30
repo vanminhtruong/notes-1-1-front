@@ -46,6 +46,19 @@ const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProp
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
 
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Load data (users and groups)
   useEffect(() => {
     if (isOpen) {
@@ -227,7 +240,7 @@ const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProp
   if (!isOpen || !note) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[99999]">
       <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full h-[90vh] max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 shrink-0">

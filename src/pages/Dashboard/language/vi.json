@@ -164,6 +164,7 @@
     "editConfirm": "Bạn có muốn chỉnh sửa ghi chú này không?",
     "editSuccess": "Đang mở chỉnh sửa ghi chú",
     "editError": "Không thể chỉnh sửa ghi chú",
+    "createdAt": "Tạo lúc",
     "confirmDelete": "Bạn có chắc muốn xóa ghi chú này?",
     "deleteSuccess": "Đã xóa ghi chú thành công",
     "deleteError": "Không thể xóa ghi chú",
@@ -205,7 +206,8 @@
       "imageUploading": "Đang tải...",
       "imageRemove": "Xóa ảnh",
       "imagePreviewAlt": "Ảnh",
-      "imageUploadError": "Tải ảnh thất bại"
+      "imageUploadError": "Tải ảnh thất bại",
+      "close": "Đóng"
     }
   },
   "chat": {
@@ -692,6 +694,35 @@
         "wrongCurrentPassword": "Mật khẩu hiện tại không đúng",
         "updateFailed": "Cập nhật mật khẩu thất bại"
       }
+    }
+  },
+  "sharedNotes": {
+    "title": "Ghi chú chia sẻ",
+    "received": "Đã nhận",
+    "sent": "Đã gửi",
+    "sharedBy": "Được chia sẻ bởi",
+    "sharedWith": "Đã chia sẻ với",
+    "viewNote": "Xem ghi chú",
+    "editNote": "Chỉnh sửa ghi chú",
+    "addNote": "Thêm ghi chú",
+    "createFromNote": "Tạo ghi chú mới từ ghi chú này",
+    "remove": "Xóa",
+    "refresh": "Làm mới",
+    "loading": "Đang tải...",
+    "loadingMore": "Đang tải thêm...",
+    "loadMore": "Tải thêm",
+    "canEdit": "Có thể chỉnh sửa",
+    "viewOnly": "Chỉ xem",
+    "noReceivedNotes": "Không có ghi chú được chia sẻ",
+    "noReceivedNotesDesc": "Khi ai đó chia sẻ ghi chú với bạn, chúng sẽ xuất hiện ở đây",
+    "noSentNotes": "Chưa chia sẻ ghi chú nào",
+    "noSentNotesDesc": "Ghi chú bạn chia sẻ với người khác sẽ xuất hiện ở đây",
+    "confirmRemoveReceived": "Bạn có chắc muốn xóa ghi chú được chia sẻ này?",
+    "confirmRemoveSent": "Bạn có chắc muốn hủy chia sẻ ghi chú này?",
+    "removeSuccess": "Đã xóa chia sẻ ghi chú thành công",
+    "errors": {
+      "fetchFailed": "Không thể tải danh sách ghi chú chia sẻ",
+      "removeFailed": "Không thể xóa chia sẻ ghi chú"
     }
   }
 }

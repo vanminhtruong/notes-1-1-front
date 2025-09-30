@@ -136,6 +136,7 @@
       "work": "업무",
       "personal": "개인"
     },
+    "createdAt": "생성 시간",
     "share": {
       "title": "노트 공유",
       "users": "사용자",
@@ -191,7 +192,8 @@
       "imageUploading": "업로드 중...",
       "imageRemove": "이미지 삭제",
       "imagePreviewAlt": "이미지",
-      "imageUploadError": "이미지 업로드 실패"
+      "imageUploadError": "이미지 업로드 실패",
+      "close": "닫기"
     }
   },
   "chat": {
@@ -661,6 +663,35 @@
         "wrongCurrentPassword": "현재 비밀번호가 올바르지 않습니다",
         "updateFailed": "비밀번호를 업데이트할 수 없습니다"
       }
+    }
+  },
+  "sharedNotes": {
+    "title": "공유된 노트",
+    "received": "받은 노트",
+    "sent": "보낸 노트",
+    "sharedBy": "공유자",
+    "sharedWith": "공유 대상",
+    "viewNote": "노트 보기",
+    "editNote": "노트 편집",
+    "addNote": "노트 추가",
+    "createFromNote": "이 노트로부터 새 노트 만들기",
+    "remove": "제거",
+    "refresh": "새로고침",
+    "loading": "로딩 중...",
+    "loadingMore": "더 로딩 중...",
+    "loadMore": "더 보기",
+    "canEdit": "편집 가능",
+    "viewOnly": "보기만 가능",
+    "noReceivedNotes": "공유된 노트가 없습니다",
+    "noReceivedNotesDesc": "누군가 노트를 공유하면 여기에 표시됩니다",
+    "noSentNotes": "공유한 노트가 없습니다",
+    "noSentNotesDesc": "다른 사람과 공유한 노트가 여기에 표시됩니다",
+    "confirmRemoveReceived": "이 공유 노트를 제거하시겠습니까?",
+    "confirmRemoveSent": "이 노트의 공유를 취소하시겠습니까?",
+    "removeSuccess": "공유 노트가 성공적으로 제거되었습니다",
+    "errors": {
+      "fetchFailed": "공유 노트 목록을 로드할 수 없습니다",
+      "removeFailed": "공유 노트를 제거할 수 없습니다"
     }
   }
 }

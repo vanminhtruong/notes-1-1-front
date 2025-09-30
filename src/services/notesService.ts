@@ -68,6 +68,7 @@ export interface SharedNote {
   sharedByUserId: number;
   canEdit: boolean;
   canDelete: boolean;
+  canCreate?: boolean;
   message?: string;
   sharedAt: string;
   isActive: boolean;

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 export function useVisibilityRefresh(
-  activeTab: 'users' | 'chats' | 'unread' | 'groups',
+  activeTab: 'users' | 'chats' | 'unread' | 'groups' | 'sharedNotes',
   searchTerm: string,
   loadUsers: (term?: string) => any,
   loadFriendRequests: () => any,

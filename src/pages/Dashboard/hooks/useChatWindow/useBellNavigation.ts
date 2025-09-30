@@ -9,7 +9,7 @@ export function useBellNavigation(
     myGroups: GroupSummary[];
     startChat: (user: User) => void;
     startGroupChat: (group: GroupSummary) => void;
-    setActiveTab: React.Dispatch<React.SetStateAction<'users' | 'chats' | 'unread' | 'groups'>>;
+    setActiveTab: React.Dispatch<React.SetStateAction<'users' | 'chats' | 'unread' | 'groups' | 'sharedNotes'>>;
   }
 ) {
   const { friends, users, myGroups, startChat, startGroupChat, setActiveTab } = params;

@@ -11,7 +11,7 @@ export function useChatOpeners(params: {
   users: User[];
   setSelectedChat: React.Dispatch<React.SetStateAction<User | null>>;
   setSelectedGroup: React.Dispatch<React.SetStateAction<GroupSummary | null>>;
-  setActiveTab: React.Dispatch<React.SetStateAction<'users' | 'chats' | 'unread' | 'groups'>>;
+  setActiveTab: React.Dispatch<React.SetStateAction<'users' | 'chats' | 'unread' | 'groups' | 'sharedNotes'>>;
   markChatAsRead: (userId: number, onSuccess?: () => void) => Promise<void>;
   markGroupAsRead: (groupId: number) => void;
   refreshChatList: () => Promise<void>;

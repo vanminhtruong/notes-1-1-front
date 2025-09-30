@@ -41,6 +41,19 @@ const EditSharedNoteModal: React.FC<EditSharedNoteModalProps> = ({
   });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Initialize form data when note changes
   useEffect(() => {
     if (note) {
@@ -136,11 +149,10 @@ const EditSharedNoteModal: React.FC<EditSharedNoteModalProps> = ({
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-md"
-        onClick={onClose}
       />
       
       {/* Modal */}

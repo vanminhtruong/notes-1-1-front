@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { type User, type Message, type MessageGroup, type ChatWindowProps, type GroupSummary, useState, useEffect, useRef, toast, useTranslation, chatService, groupService, getSocket, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettings, useChatBackground, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, getCachedUser } from './interface/chatWindowImports';
+import { type User, type Message, type MessageGroup, type ChatWindowProps, type GroupSummary, useState, useEffect, useRef, toast, useTranslation, chatService, groupService, getSocket, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettings, useChatBackground, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
 import { blockService, type BlockStatus } from '@/services/blockService';
 import { notificationService } from '@/services/notificationService';
 import type { NotificationPagination } from './interface/NotificationBell.interface';
@@ -7,7 +7,7 @@ import type { NotificationPagination } from './interface/NotificationBell.interf
 const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const { t } = useTranslation('dashboard');
   const currentUser = getCachedUser();
-  const [activeTab, setActiveTab] = useState<'users' | 'chats' | 'unread' | 'groups'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'chats' | 'unread' | 'groups' | 'sharedNotes'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [friends, setFriends] = useState<User[]>([]);
   const [friendRequests, setFriendRequests] = useState<User[]>([]);
@@ -572,7 +572,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
 
   return (
     <div
-      className="fixed inset-y-0 right-0 w-[26rem] max-w-full bg-white dark:bg-gray-900 shadow-2xl border-l border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-all duration-300 xl-down:w-[24rem] lg-down:w-[22rem] md-down:inset-0 md-down:w-full md-down:h-full md-down:max-h-screen md-down:shadow-none md-down:border-0 md-down:rounded-none md-down:bg-white/95 md-down:dark:bg-gray-900/95 md-down:backdrop-blur sm-down:bg-white sm-down:dark:bg-gray-900"
+      className="fixed inset-y-0 right-0 w-[32rem] max-w-full bg-white dark:bg-gray-900 shadow-2xl border-l border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-all duration-300 xl-down:w-[28rem] lg-down:w-[26rem] md-down:inset-0 md-down:w-full md-down:h-full md-down:max-h-screen md-down:shadow-none md-down:border-0 md-down:rounded-none md-down:bg-white/95 md-down:dark:bg-gray-900/95 md-down:backdrop-blur sm-down:bg-white sm-down:dark:bg-gray-900"
     >
       {/* Header */}
       <ChatHeader
@@ -886,6 +886,13 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
               <GroupsTab onSelectGroup={startGroupChat} />
             )}
           </div>
+        )}
+
+        {activeTab === 'sharedNotes' && (
+          <SharedNotesTab 
+            searchTerm={searchTerm}
+            currentUserId={currentUser?.id}
+          />
         )}
           </>
         )}
