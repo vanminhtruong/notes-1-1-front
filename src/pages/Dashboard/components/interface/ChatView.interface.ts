@@ -46,4 +46,6 @@ export interface ChatViewProps {
   replyingToMessage?: any;
   onClearReply?: () => void;
   onReplyRequested?: (message: any) => void;
+  // Update recipient status when loading messages
+  onUpdateRecipientStatus?: (isActive: boolean) => void;
 }

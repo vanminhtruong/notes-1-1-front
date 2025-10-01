@@ -495,6 +495,44 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     };
   }, [selectedChat?.id, currentUser?.id]);
 
+  // Listen for user status changes (banned/unbanned)
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleUserStatusUpdate = (data: { userId: number; isActive: boolean }) => {
+      // Update selectedChat if it matches
+      if (selectedChat && selectedChat.id === data.userId) {
+        setSelectedChat((prev) => prev ? { ...prev, isActive: data.isActive } : null);
+      }
+
+      // Update users list
+      setUsers((prev) => 
+        prev.map((u) => u.id === data.userId ? { ...u, isActive: data.isActive } : u)
+      );
+
+      // Update friends list
+      setFriends((prev) => 
+        prev.map((u) => u.id === data.userId ? { ...u, isActive: data.isActive } : u)
+      );
+
+      // Update chatList
+      setChatList((prev) =>
+        prev.map((chat) =>
+          chat.friend.id === data.userId
+            ? { ...chat, friend: { ...chat.friend, isActive: data.isActive } }
+            : chat
+        )
+      );
+    };
+
+    socket.on('user_status_updated', handleUserStatusUpdate);
+
+    return () => {
+      socket.off('user_status_updated', handleUserStatusUpdate);
+    };
+  }, [selectedChat]);
+
   // Friend request actions extracted
   const { sendFriendRequest, acceptFriendRequest, rejectFriendRequest } = useFriendRequestActions({
     setUsers,
@@ -687,6 +725,11 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   }}
                   blocked={blockStatus ? !!blockStatus.isEitherBlocked : true}
                   onReplyRequested={(m) => setReplyingToMessage(m)}
+                  onUpdateRecipientStatus={(isActive) => {
+                    if (selectedChat) {
+                      setSelectedChat((prev) => prev ? { ...prev, isActive } : null);
+                    }
+                  }}
                 />
                 {!(blockStatus?.isEitherBlocked) ? (
                   <MessageInput
@@ -708,6 +751,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                     }}
                     replyingToMessage={replyingToMessage as any}
                     onClearReply={() => setReplyingToMessage(null)}
+                    recipientIsActive={selectedChat?.isActive !== false}
                   />
                 ) : (
                   <div className="p-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">

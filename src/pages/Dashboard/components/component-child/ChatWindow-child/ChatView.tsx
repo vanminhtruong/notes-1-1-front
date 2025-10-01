@@ -49,6 +49,7 @@ const ChatView = ({
   onPrependMessages,
   onRemoveMessages,
   onReplyRequested,
+  onUpdateRecipientStatus,
 }: ChatViewProps) => {
   const { t, i18n } = useTranslation('dashboard');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -615,6 +616,10 @@ const ChatView = ({
               if (res?.success && Array.isArray(res.data)) {
                 fetched = res.data as any[];
                 newHasMore = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
+                // Update recipient status if provided
+                if (res.recipient && typeof res.recipient.isActive === 'boolean' && onUpdateRecipientStatus) {
+                  onUpdateRecipientStatus(res.recipient.isActive);
+                }
               } else {
                 newHasMore = false;
               }
@@ -732,6 +737,10 @@ const ChatView = ({
             if (!cancelled && res?.success && Array.isArray(res.data)) {
               fetched = res.data as any[];
               newHasMore = (res as any)?.pagination ? !!(res as any).pagination.hasMore : (res.data.length === LIMIT);
+              // Update recipient status if provided
+              if (res.recipient && typeof res.recipient.isActive === 'boolean' && onUpdateRecipientStatus) {
+                onUpdateRecipientStatus(res.recipient.isActive);
+              }
             } else if (!cancelled) {
               newHasMore = false;
             }

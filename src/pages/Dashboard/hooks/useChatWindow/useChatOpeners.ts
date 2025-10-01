@@ -86,6 +86,10 @@ export function useChatOpeners(params: {
       setHistoryLoading(true);
       const response = await chatService.getChatMessages(user.id);
       if (response.success) {
+        // Update selectedChat with recipient status if provided
+        if (response.recipient && typeof response.recipient.isActive === 'boolean') {
+          setSelectedChat((prev) => prev ? { ...prev, isActive: response.recipient.isActive } : null);
+        }
         // Normalize DM read receipts for persistence across reloads
         const msgs = (response.data as any[]).map((m: any) => {
           // Prefer existing readBy if already provided

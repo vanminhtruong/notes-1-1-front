@@ -513,7 +513,8 @@
       "removeImageAria": "Remove image",
       "removeFileAria": "Remove file",
       "attachFileAria": "Attach files",
-      "placeholder": "Aa"
+      "placeholder": "Aa",
+      "recipientBanned": "Account has been deactivated due to policy violations"
     },
     "blocked": {
       "inputHidden": "You cannot send messages or upload files in this conversation because one of you has blocked the other."

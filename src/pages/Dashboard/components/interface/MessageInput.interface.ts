@@ -14,4 +14,6 @@ export interface MessageInputProps {
   // Reply preview
   replyingToMessage?: any;
   onClearReply?: () => void;
+  // Recipient status
+  recipientIsActive?: boolean;
 }

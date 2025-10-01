@@ -519,7 +519,8 @@
       "removeImageAria": "Xóa ảnh",
       "removeFileAria": "Xóa tệp",
       "attachFileAria": "Đính kèm tệp",
-      "placeholder": "Aa"
+      "placeholder": "Aa",
+      "recipientBanned": "Tài khoản bị vô hiệu hóa do vi phạm chính sách"
     },
     "blocked": {
       "inputHidden": "Bạn không thể gửi tin nhắn hoặc tải tệp lên trong cuộc trò chuyện này vì một trong hai đã chặn người kia."
