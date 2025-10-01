@@ -46,7 +46,9 @@
     "sessionRevokedMessage": "세션 목록이 업데이트되었습니다",
     "allSessionsRevokedMessage": "기기 목록이 업데이트되었습니다",
     "confirm": "확인",
-    "cancel": "취소"
+    "cancel": "취소",
+    "deleteCurrentWarning": "현재 기기에서 로그아웃됩니다.",
+    "deleteDevice": "이 기기 삭제"
   },
   "footer": {
     "copyright": "모든 권리 보유",

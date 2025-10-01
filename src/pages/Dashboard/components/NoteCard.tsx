@@ -47,27 +47,29 @@ const NoteCard = ({
     <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-2 sm-down:gap-1.5">
-          <label className="mt-1 inline-flex items-center cursor-pointer select-none group" title={t('actions.selectNote')}>
-            <input
-              type="checkbox"
-              aria-label={t('actions.selectNote')}
-              checked={isSelected}
-              onChange={onToggleSelect}
-              className="peer sr-only"
-            />
-            <span
-              className="w-6 h-6 inline-flex items-center justify-center rounded-md border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 transition-all
-                         peer-focus:ring-2 peer-focus:ring-blue-500/50
-                         hover:border-gray-400 dark:hover:border-gray-500 group-active:scale-95
-                         peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:dark:bg-blue-600 peer-checked:dark:border-blue-600 
-                         peer-checked:[&>svg]:w-4 peer-checked:[&>svg]:h-4 peer-checked:[&>svg]:opacity-100
-                         sm-down:w-5 sm-down:h-5 xs-down:w-4 xs-down:h-4 
-                         sm-down:peer-checked:[&>svg]:w-3.5 sm-down:peer-checked:[&>svg]:h-3.5 
-                         xs-down:peer-checked:[&>svg]:w-3 xs-down:peer-checked:[&>svg]:h-3"
-            >
-              <Check strokeWidth={3} className="w-0 h-0 opacity-0 transition-all duration-150 text-white" />
-            </span>
-          </label>
+          {!showArchived && (
+            <label className="mt-1 inline-flex items-center cursor-pointer select-none group" title={t('actions.selectNote')}>
+              <input
+                type="checkbox"
+                aria-label={t('actions.selectNote')}
+                checked={isSelected}
+                onChange={onToggleSelect}
+                className="peer sr-only"
+              />
+              <span
+                className="w-6 h-6 inline-flex items-center justify-center rounded-md border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 transition-all
+                           peer-focus:ring-2 peer-focus:ring-blue-500/50
+                           hover:border-gray-400 dark:hover:border-gray-500 group-active:scale-95
+                           peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:dark:bg-blue-600 peer-checked:dark:border-blue-600 
+                           peer-checked:[&>svg]:w-4 peer-checked:[&>svg]:h-4 peer-checked:[&>svg]:opacity-100
+                           sm-down:w-5 sm-down:h-5 xs-down:w-4 xs-down:h-4 
+                           sm-down:peer-checked:[&>svg]:w-3.5 sm-down:peer-checked:[&>svg]:h-3.5 
+                           xs-down:peer-checked:[&>svg]:w-3 xs-down:peer-checked:[&>svg]:h-3"
+              >
+                <Check strokeWidth={3} className="w-0 h-0 opacity-0 transition-all duration-150 text-white" />
+              </span>
+            </label>
+          )}
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 lg-down:text-base md-down:text-sm sm-down:text-sm">
             {note.title}
           </h3>

@@ -6,6 +6,7 @@ import { authService } from '@/services/authService';
 import { loginUser, loginWithGoogle, loginWithFacebook } from '@/store/slices/authSlice';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import GoogleSignInModal from '@/components/GoogleSignInModal';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -25,6 +26,7 @@ interface LoginFormData {
 const Login = () => {
   const { t } = useTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
@@ -89,32 +91,6 @@ const Login = () => {
     })();
   }, []);
 
-  // Map GIS/FedCM reasons to user-friendly messages
-  const reasonMessage = (reason: string) => {
-    switch (reason) {
-      case 'suppressed_by_user':
-      case 'blocked_by_settings':
-        return 'Trình duyệt đang chặn "Third‑party sign‑in" (FedCM). Hãy cho phép trong Site settings của localhost:5173.';
-      case 'opt_out_or_no_session':
-        return 'Bạn chưa đăng nhập Google trong trình duyệt, hoặc đã tắt One Tap. Hãy đăng nhập tại accounts.google.com rồi thử lại.';
-      case 'browser_not_supported':
-        return 'Trình duyệt hiện tại không hỗ trợ FedCM. Hãy cập nhật Chrome/Edge lên bản mới nhất.';
-      case 'missing_client_id':
-      case 'invalid_client':
-        return 'Cấu hình Client ID không hợp lệ. Kiểm tra VITE_GOOGLE_CLIENT_ID/GOOGLE_CLIENT_ID.';
-      case 'unregistered_origin':
-      case 'origin_mismatch':
-        return 'Origin không khớp. Thêm http://localhost:5173 vào Authorized JavaScript origins trong Google Cloud Console.';
-      case 'secure_http_required':
-        return 'Yêu cầu HTTPS trong bối cảnh hiện tại. Dùng localhost:5173 trong dev.';
-      case 'user_cancel':
-      case 'tap_outside':
-      case 'auto_cancel':
-        return 'Bạn đã đóng hoặc bỏ qua hộp thoại đăng nhập.';
-      default:
-        return `Không thể mở cửa sổ đăng nhập (lý do: ${reason}). Hãy kiểm tra cài đặt trình duyệt hoặc cấu hình OAuth.`;
-    }
-  };
 
   // Load Google Identity Services and initialize
   useEffect(() => {
@@ -184,40 +160,19 @@ const Login = () => {
 
   const handleGoogleClick = () => {
     if (!GOOGLE_CLIENT_ID) {
-      toast.error('Thiếu cấu hình VITE_GOOGLE_CLIENT_ID');
+      toast.error('Thiếu cấu hình Google Client ID');
       return;
     }
     if (!window.google?.accounts?.id) {
       toast.error('Google Sign-In chưa sẵn sàng, vui lòng thử lại.');
       return;
     }
-    // Ensure initialized (idempotent)
-    window.google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: (response: any) => {
-        handleGoogleResponse(response);
-      },
-      auto_select: false,
-      cancel_on_tap_outside: true,
-    });
-    // Trigger One Tap / account chooser with diagnostics
-    window.google.accounts.id.prompt((notification: any) => {
-      const notDisplayed = notification?.getNotDisplayedReason?.();
-      const dismissed = notification?.getDismissedReason?.();
-      const skipped = notification?.getSkippedReason?.();
+    setShowGoogleModal(true);
+  };
 
-      if (notDisplayed) {
-        // Common: blocked_by_settings, suppressed_by_user, origin_mismatch
-        console.warn('GIS notDisplayed:', notDisplayed);
-        toast.error(reasonMessage(notDisplayed));
-      } else if (dismissed && dismissed !== 'credential_returned') {
-        console.warn('GIS dismissed:', dismissed);
-        toast.error(reasonMessage(dismissed));
-      } else if (skipped) {
-        console.warn('GIS skipped:', skipped);
-        toast.error(reasonMessage(skipped));
-      }
-    });
+  const handleGoogleSuccess = async (credential: string) => {
+    setShowGoogleModal(false);
+    await handleGoogleResponse({ credential });
   };
 
   const handleFacebookClick = () => {
@@ -496,6 +451,15 @@ t('login')
           </div>
         </div>
       </div>
+
+      {/* Google Sign-In Modal */}
+      {showGoogleModal && GOOGLE_CLIENT_ID && (
+        <GoogleSignInModal
+          clientId={GOOGLE_CLIENT_ID}
+          onSuccess={handleGoogleSuccess}
+          onClose={() => setShowGoogleModal(false)}
+        />
+      )}
     </div>
   );
 };

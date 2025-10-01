@@ -5,6 +5,9 @@ import type { UserSession } from '@/services/sessionService';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { socketService } from '@/services/socketService';
+import { useDispatch } from 'react-redux';
+import { resetAuth } from '@/store/slices/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 interface DevicesModalProps {
   isOpen: boolean;
@@ -13,6 +16,8 @@ interface DevicesModalProps {
 
 export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
   const { t } = useTranslation('layout');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState<UserSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -21,7 +26,17 @@ export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
   useEffect(() => {
     if (isOpen) {
       fetchSessions();
+      // Disable body scroll when modal opens
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Re-enable body scroll when modal closes
+      document.body.style.overflow = '';
     }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
   // Listen for real-time session revoke events
@@ -67,6 +82,9 @@ export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
   };
 
   const handleDeleteSession = async (sessionId: number) => {
+    const session = sessions.find(s => s.id === sessionId);
+    const isCurrent = session?.isCurrent;
+    
     toast.custom((toastData) => (
       <div
         className={`max-w-sm w-full rounded-xl shadow-lg border ${
@@ -77,7 +95,9 @@ export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
           <div className="flex-1">
             <p className="font-semibold text-red-600 dark:text-red-400">{t('devices.confirmDelete')}</p>
             <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-              {t('devices.confirmDeleteMessage')}
+              {isCurrent 
+                ? t('devices.confirmDeleteMessage') + ' ' + t('devices.deleteCurrentWarning')
+                : t('devices.confirmDeleteMessage')}
             </p>
           </div>
         </div>
@@ -93,9 +113,17 @@ export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
               toast.dismiss(toastData.id);
               try {
                 setDeletingId(sessionId);
-                await sessionService.deleteSession(sessionId);
+                const result = await sessionService.deleteSession(sessionId);
                 toast.success(t('devices.deleteSuccess'));
-                fetchSessions();
+                
+                // If deleted current session, logout immediately
+                if (result.isCurrentSession) {
+                  dispatch(resetAuth());
+                  onClose();
+                  navigate('/login');
+                } else {
+                  fetchSessions();
+                }
               } catch (error: any) {
                 toast.error(error?.response?.data?.message || t('devices.deleteError'));
               } finally {
@@ -270,19 +298,18 @@ export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
                       </div>
                     </div>
 
-                    {!session.isCurrent && (
-                      <button
-                        onClick={() => handleDeleteSession(session.id)}
-                        disabled={deletingId === session.id}
-                        className="p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
-                      >
-                        {deletingId === session.id ? (
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div>
-                        ) : (
-                          <Trash2 className="w-5 h-5" />
-                        )}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleDeleteSession(session.id)}
+                      disabled={deletingId === session.id}
+                      className="p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+                      title={session.isCurrent ? t('devices.deleteCurrentWarning') : t('devices.deleteDevice')}
+                    >
+                      {deletingId === session.id ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div>
+                      ) : (
+                        <Trash2 className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
                 </div>
               ))}

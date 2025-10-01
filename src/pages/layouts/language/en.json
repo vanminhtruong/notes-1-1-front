@@ -48,7 +48,9 @@
     "sessionRevokedMessage": "Session list updated",
     "allSessionsRevokedMessage": "Device list updated",
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "deleteCurrentWarning": "You will be logged out from the current device.",
+    "deleteDevice": "Delete this device"
   },
   "footer": {
     "copyright": "All rights reserved",

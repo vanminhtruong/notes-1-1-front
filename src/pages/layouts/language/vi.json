@@ -47,7 +47,9 @@
     "sessionRevokedMessage": "Phiên đăng nhập đã được cập nhật",
     "allSessionsRevokedMessage": "Danh sách thiết bị đã được cập nhật",
     "confirm": "Xác nhận",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "deleteCurrentWarning": "Bạn sẽ bị đăng xuất khỏi thiết bị hiện tại.",
+    "deleteDevice": "Xóa thiết bị này"
   },
   "footer": {
     "copyright": "Tất cả quyền được bảo lưu",

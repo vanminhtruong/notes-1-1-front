@@ -31,8 +31,9 @@ class SessionService {
   /**
    * Delete a specific session
    */
-  async deleteSession(sessionId: number): Promise<void> {
-    await api.delete(`/sessions/${sessionId}`);
+  async deleteSession(sessionId: number): Promise<{ isCurrentSession: boolean }> {
+    const response = await api.delete(`/sessions/${sessionId}`);
+    return response.data;
   }
 
   /**
