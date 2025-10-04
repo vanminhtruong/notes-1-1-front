@@ -53,6 +53,7 @@
   "messages": {
     "selectedCount": "Đã chọn {{count}} mục",
     "noContent": "Không có nội dung",
+    "videoNotSupported": "Trình duyệt của bạn không hỗ trợ video",
     "noArchived": "Không có ghi chú lưu trữ",
     "noNotes": "Chưa có ghi chú nào",
     "switchToActive": "Chuyển sang tab Đang hoạt động để xem ghi chú hiện tại",
@@ -96,6 +97,10 @@
         "content": "Nội dung",
         "contentPlaceholder": "Nhập nội dung ghi chú",
         "image": "Hình ảnh",
+        "media": "Phương tiện",
+        "video": "Video",
+        "youtube": "YouTube URL",
+        "youtubePlaceholder": "Nhập URL video YouTube",
         "category": "Danh mục",
         "priority": "Mức độ ưu tiên",
         "reminderAt": "Thời điểm nhắc",
@@ -726,6 +731,13 @@
     "confirmRemoveReceived": "Bạn có chắc muốn xóa ghi chú được chia sẻ này?",
     "confirmRemoveSent": "Bạn có chắc muốn hủy chia sẻ ghi chú này?",
     "removeSuccess": "Đã xóa chia sẻ ghi chú thành công",
+    "modal": {
+      "title": "Tiêu đề",
+      "content": "Nội dung",
+      "image": "Hình ảnh",
+      "video": "Video",
+      "youtube": "YouTube"
+    },
     "errors": {
       "fetchFailed": "Không thể tải danh sách ghi chú chia sẻ",
       "removeFailed": "Không thể xóa chia sẻ ghi chú"

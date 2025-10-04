@@ -5,6 +5,8 @@ export interface Note {
   title: string;
   content: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
   category: string;
   priority: 'low' | 'medium' | 'high';
   isArchived: boolean;
@@ -18,6 +20,7 @@ export interface Note {
     id: number;
     name: string;
     email: string;
+    avatar?: string | null;
   };
 }
 
@@ -25,6 +28,8 @@ export interface CreateNoteData {
   title: string;
   content?: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
   category?: string;
   priority?: 'low' | 'medium' | 'high';
   reminderAt?: string | null;
@@ -35,6 +40,8 @@ export interface UpdateNoteData {
   title?: string;
   content?: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
   category?: string;
   priority?: 'low' | 'medium' | 'high';
   isArchived?: boolean;
@@ -77,11 +84,13 @@ export interface SharedNote {
     id: number;
     name: string;
     email: string;
+    avatar?: string | null;
   };
   sharedByUser: {
     id: number;
     name: string;
     email: string;
+    avatar?: string | null;
   };
 }
 

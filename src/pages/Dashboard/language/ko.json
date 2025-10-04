@@ -51,14 +51,14 @@
     "removeFriend": "{{name}}님을 친구에서 삭제하시겠습니까?",
     "deleteMessages": "{{name}}님과의 모든 메시지를 삭제하시겠습니까?",
     "blockUser": "{{name}}님을 차단하시겠습니까?",
-    "blockUserHint": "서로 메시지를 주고받을 수 없게 됩니다.",
     "unblockUser": "{{name}}님을 차단 해제하시겠습니까?"
   },
   "messages": {
     "selectedCount": "{{count}}개 선택됨",
     "noContent": "내용 없음",
+    "videoNotSupported": "브라우저가 비디오를 지원하지 않습니다",
     "noArchived": "보관된 노트 없음",
-    "noNotes": "아직 노트가 없습니다",
+    "noNotes": "노트가 없습니다",
     "switchToActive": "현재 노트를 보려면 활성 탭으로 전환하세요",
     "createFirst": "첫 번째 노트를 생성해 시작하세요"
   },
@@ -100,6 +100,10 @@
         "content": "내용",
         "contentPlaceholder": "노트 내용을 입력하세요",
         "image": "이미지",
+        "media": "미디어",
+        "video": "비디오",
+        "youtube": "YouTube URL",
+        "youtubePlaceholder": "YouTube 비디오 URL을 입력하세요",
         "category": "카테고리",
         "priority": "우선순위"
       }
@@ -694,6 +698,13 @@
     "confirmRemoveReceived": "이 공유 노트를 제거하시겠습니까?",
     "confirmRemoveSent": "이 노트의 공유를 취소하시겠습니까?",
     "removeSuccess": "공유 노트가 성공적으로 제거되었습니다",
+    "modal": {
+      "title": "제목",
+      "content": "내용",
+      "image": "이미지",
+      "video": "비디오",
+      "youtube": "유튜브"
+    },
     "errors": {
       "fetchFailed": "공유 노트 목록을 로드할 수 없습니다",
       "removeFailed": "공유 노트를 제거할 수 없습니다"

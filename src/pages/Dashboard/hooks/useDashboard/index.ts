@@ -21,6 +21,8 @@ export const useDashboard = () => {
     title: '',
     content: '',
     imageUrl: '' as string,
+    videoUrl: '' as string,
+    youtubeUrl: '' as string,
     category: 'general',
     priority: 'medium' as Priority,
     reminderAtLocal: '', // YYYY-MM-DDTHH:mm for input type="datetime-local"
@@ -33,6 +35,8 @@ export const useDashboard = () => {
     title: '',
     content: '',
     imageUrl: '' as string,
+    videoUrl: '' as string,
+    youtubeUrl: '' as string,
     category: 'general',
     priority: 'medium' as Priority,
     reminderAtLocal: '',
@@ -132,12 +136,14 @@ export const useDashboard = () => {
       title: newNote.title,
       content: newNote.content || undefined,
       imageUrl: newNote.imageUrl ? newNote.imageUrl : undefined,
+      videoUrl: newNote.videoUrl ? newNote.videoUrl : undefined,
+      youtubeUrl: newNote.youtubeUrl ? newNote.youtubeUrl : undefined,
       category: newNote.category,
       priority: newNote.priority,
       reminderAt: localInputToIso(newNote.reminderAtLocal),
       sharedFromUserId: newNote.sharedFromUserId,
     }));
-    setNewNote({ title: '', content: '', imageUrl: '', category: 'general', priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
+    setNewNote({ title: '', content: '', imageUrl: '', videoUrl: '', youtubeUrl: '', category: 'general', priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
     setShowCreateModal(false);
     dispatch(fetchNotes({
       search: searchTerm,
@@ -269,6 +275,8 @@ export const useDashboard = () => {
       title: note.title || '',
       content: note.content || '',
       imageUrl: note.imageUrl || '',
+      videoUrl: note.videoUrl || '',
+      youtubeUrl: note.youtubeUrl || '',
       category: note.category || 'general',
       priority: (note.priority as Priority) || 'medium',
       reminderAtLocal: isoToLocalInput(note.reminderAt),
@@ -283,17 +291,23 @@ export const useDashboard = () => {
 
   const handleUpdateNote = async () => {
     if (!editNote.title.trim()) return;
+    
+    const updateData = {
+      title: editNote.title,
+      content: editNote.content,
+      imageUrl: editNote.imageUrl?.trim() || null,
+      videoUrl: editNote.videoUrl?.trim() || null,
+      youtubeUrl: editNote.youtubeUrl?.trim() || null,
+      category: editNote.category,
+      priority: editNote.priority,
+      reminderAt: editNote.reminderAtLocal ? localInputToIso(editNote.reminderAtLocal) ?? null : null,
+    };
+    
     await dispatch(updateNote({
       id: editNote.id,
-      data: {
-        title: editNote.title,
-        content: editNote.content,
-        imageUrl: editNote.imageUrl ? editNote.imageUrl : null,
-        category: editNote.category,
-        priority: editNote.priority,
-        reminderAt: editNote.reminderAtLocal ? localInputToIso(editNote.reminderAtLocal) ?? null : null,
-      },
+      data: updateData,
     }));
+    
     setShowEditModal(false);
     dispatch(fetchNotes({
       search: searchTerm,

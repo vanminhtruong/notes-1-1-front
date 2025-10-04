@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
 
 interface GoogleSignInModalProps {
   clientId: string;
@@ -12,9 +13,9 @@ const GoogleSignInModal = ({ clientId, onSuccess, onClose }: GoogleSignInModalPr
 
   // Disable body scroll when modal is mounted
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    lockBodyScroll('GoogleSignInModal');
     return () => {
-      document.body.style.overflow = '';
+      unlockBodyScroll('GoogleSignInModal');
     };
   }, []);
 

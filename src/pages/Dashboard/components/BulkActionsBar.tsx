@@ -14,7 +14,7 @@ const BulkActionsBar = ({ selectedCount, showArchived, onClearSelection, onBulkD
   if (selectedCount === 0 || showArchived) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-2rem)] max-w-2xl
                     flex items-center justify-between bg-white/70 dark:bg-gray-800/90 
                     backdrop-blur-lg rounded-2xl p-4 border border-white/20 dark:border-gray-700/30 shadow-2xl
                     animate-in slide-in-from-bottom duration-300

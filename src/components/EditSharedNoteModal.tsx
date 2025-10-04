@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
-import { X, Save, Loader2, ImagePlus, Trash2 } from 'lucide-react';
+import { X, Save, Loader2 } from 'lucide-react';
 import { notesService } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import { uploadService } from '@/services/uploadService';
+import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
 
 interface SharedNoteData {
   id: number;
   title: string;
   content?: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
   category: string;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
@@ -31,27 +34,26 @@ const EditSharedNoteModal: React.FC<EditSharedNoteModalProps> = ({
 }) => {
   const { t } = useTranslation('dashboard');
   const [isLoading, setIsLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     imageUrl: '',
+    videoUrl: '',
+    youtubeUrl: '',
     category: 'personal',
     priority: 'medium' as 'low' | 'medium' | 'high'
   });
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [activeMediaTab, setActiveMediaTab] = useState<'image' | 'video' | 'youtube'>('image');
 
-  // Disable body scroll when modal is open
+  // Disable body scroll when modal is open (reference-counted)
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+      lockBodyScroll('EditSharedNoteModal');
+      return () => {
+        unlockBodyScroll('EditSharedNoteModal');
+      };
     }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return;
   }, [isOpen]);
 
   // Initialize form data when note changes
@@ -61,6 +63,8 @@ const EditSharedNoteModal: React.FC<EditSharedNoteModalProps> = ({
         title: note.title || '',
         content: note.content || '',
         imageUrl: note.imageUrl || '',
+        videoUrl: note.videoUrl || '',
+        youtubeUrl: note.youtubeUrl || '',
         category: note.category || 'personal',
         priority: note.priority || 'medium'
       });
@@ -72,31 +76,6 @@ const EditSharedNoteModal: React.FC<EditSharedNoteModalProps> = ({
       ...prev,
       [field]: value
     }));
-  };
-
-  const handlePickImage = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.currentTarget.value = '';
-    if (!file) return;
-    try {
-      setIsUploading(true);
-      const up = await uploadService.uploadImage(file);
-      setFormData(prev => ({ ...prev, imageUrl: up.url }));
-      toast.success(t('notes.modal.updateSuccess', { defaultValue: 'Cập nhật ghi chú thành công' }));
-    } catch (err: any) {
-      console.error('Upload image failed:', err);
-      toast.error(t('notes.modal.imageUploadError', { defaultValue: 'Tải ảnh thất bại' }));
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setFormData(prev => ({ ...prev, imageUrl: '' }));
   };
 
   const handleSave = async () => {
@@ -112,6 +91,8 @@ const EditSharedNoteModal: React.FC<EditSharedNoteModalProps> = ({
         title: formData.title.trim(),
         content: formData.content.trim(),
         imageUrl: formData.imageUrl.trim() || null,
+        videoUrl: formData.videoUrl.trim() || null,
+        youtubeUrl: formData.youtubeUrl.trim() || null,
         category: formData.category,
         priority: formData.priority
       };
@@ -206,60 +187,133 @@ const EditSharedNoteModal: React.FC<EditSharedNoteModalProps> = ({
               />
             </div>
 
-            {/* Image Upload */}
+            {/* Media Upload - Tabs */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t('notes.modal.imageUrlLabel', { defaultValue: 'URL hình ảnh' })}
+                {t('notes.modal.mediaLabel', { defaultValue: 'Media' })}
               </label>
-              {formData.imageUrl ? (
-                <div className="space-y-3">
-                  <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={formData.imageUrl} alt={t('notes.modal.imagePreviewAlt', { defaultValue: 'Ảnh' })} className="w-full h-full object-contain" />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={handlePickImage}
-                      disabled={isUploading || isLoading}
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 disabled:opacity-50"
-                    >
-                      {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
-                      {isUploading ? t('notes.modal.imageUploading', { defaultValue: 'Đang tải...' }) : t('notes.modal.imageUpload', { defaultValue: 'Tải ảnh' })}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      disabled={isUploading || isLoading}
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      {t('notes.modal.imageRemove', { defaultValue: 'Xóa ảnh' })}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <input
-                    type="url"
-                    value={formData.imageUrl}
-                    onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                    className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
-                    placeholder={t('notes.modal.imageUrlPlaceholder', { defaultValue: 'https://example.com/image.jpg' })}
-                    disabled={isLoading || isUploading}
-                  />
-                  <button
-                    type="button"
-                    onClick={handlePickImage}
-                    disabled={isUploading || isLoading}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 disabled:opacity-50"
-                  >
-                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
-                    {isUploading ? t('notes.modal.imageUploading', { defaultValue: 'Đang tải...' }) : t('notes.modal.imageUpload', { defaultValue: 'Tải ảnh' })}
-                  </button>
+              
+              {/* Tabs */}
+              <div className="flex border-b border-gray-200 dark:border-gray-600 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setActiveMediaTab('image')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${
+                    activeMediaTab === 'image'
+                      ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  📷 {t('modals.create.fields.image', { defaultValue: 'Hình ảnh' })}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveMediaTab('video')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${
+                    activeMediaTab === 'video'
+                      ? 'border-b-2 border-green-600 text-green-600 dark:text-green-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  🎬 {t('modals.create.fields.video', { defaultValue: 'Video' })}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveMediaTab('youtube')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${
+                    activeMediaTab === 'youtube'
+                      ? 'border-b-2 border-red-600 text-red-600 dark:text-red-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  📺 {t('modals.create.fields.youtube', { defaultValue: 'YouTube' })}
+                </button>
+              </div>
+
+              {/* Tab Content - Image */}
+              {activeMediaTab === 'image' && (
+                <div>
+                  {formData.imageUrl ? (
+                    <div className="space-y-3">
+                      <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                        <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-contain" />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleInputChange('imageUrl', '')}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-sm"
+                      >
+                        Xóa ảnh
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const { url } = await uploadService.uploadImage(file);
+                          handleInputChange('imageUrl', url);
+                          handleInputChange('videoUrl', '');
+                          handleInputChange('youtubeUrl', '');
+                        } catch (_err) { }
+                      }}
+                      className="w-full text-sm"
+                    />
+                  )}
                 </div>
               )}
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelected} className="hidden" />
+
+              {/* Tab Content - Video */}
+              {activeMediaTab === 'video' && (
+                <div>
+                  {formData.videoUrl ? (
+                    <div className="space-y-3">
+                      <video src={formData.videoUrl} controls preload="metadata" className="w-full h-48 rounded-lg border" />
+                      <button
+                        type="button"
+                        onClick={() => handleInputChange('videoUrl', '')}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-sm"
+                      >
+                        Xóa video
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const { url } = await uploadService.uploadFile(file);
+                          handleInputChange('videoUrl', url);
+                          handleInputChange('imageUrl', '');
+                          handleInputChange('youtubeUrl', '');
+                        } catch (_err) { }
+                      }}
+                      className="w-full text-sm"
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* Tab Content - YouTube */}
+              {activeMediaTab === 'youtube' && (
+                <input
+                  type="url"
+                  value={formData.youtubeUrl}
+                  onChange={(e) => {
+                    handleInputChange('youtubeUrl', e.target.value);
+                    handleInputChange('imageUrl', '');
+                    handleInputChange('videoUrl', '');
+                  }}
+                  placeholder="https://youtube.com/watch?v=..."
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
+                />
+              )}
             </div>
 
             {/* Category and Priority */}

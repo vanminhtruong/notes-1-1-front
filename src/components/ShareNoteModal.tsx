@@ -7,6 +7,7 @@ import { chatService } from '../services/chatService';
 import { groupService, type GroupSummary } from '../services/groupService';
 import type { Note } from '../services/notesService';
 import toast from 'react-hot-toast';
+import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
 
 interface User {
   id: number;
@@ -46,17 +47,15 @@ const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProp
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Disable body scroll when modal is open
+  // Disable body scroll when modal is open (reference-counted)
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+      lockBodyScroll('ShareNoteModal');
+      return () => {
+        unlockBodyScroll('ShareNoteModal');
+      };
     }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return;
   }, [isOpen]);
 
   // Load data (users and groups)

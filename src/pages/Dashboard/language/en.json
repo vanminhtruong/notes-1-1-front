@@ -58,6 +58,7 @@
   "messages": {
     "selectedCount": "{{count}} selected",
     "noContent": "No content",
+    "videoNotSupported": "Your browser does not support video",
     "noArchived": "No archived notes",
     "noNotes": "No notes yet",
     "switchToActive": "Switch to the Active tab to see current notes",
@@ -101,6 +102,10 @@
         "content": "Content",
         "contentPlaceholder": "Enter note content",
         "image": "Image",
+        "media": "Media",
+        "video": "Video",
+        "youtube": "YouTube URL",
+        "youtubePlaceholder": "Enter YouTube video URL",
         "category": "Category",
         "priority": "Priority",
         "reminderAt": "Reminder at",
@@ -720,6 +725,13 @@
     "confirmRemoveReceived": "Are you sure you want to remove this shared note?",
     "confirmRemoveSent": "Are you sure you want to unshare this note?",
     "removeSuccess": "Successfully removed shared note",
+    "modal": {
+      "title": "Title",
+      "content": "Content",
+      "image": "Image",
+      "video": "Video",
+      "youtube": "YouTube"
+    },
     "errors": {
       "fetchFailed": "Failed to load shared notes list",
       "removeFailed": "Failed to remove shared note"

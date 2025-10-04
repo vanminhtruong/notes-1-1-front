@@ -1,8 +1,9 @@
 import { FileText, User, Calendar, Edit2, Eye, Trash2, AlertCircle, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { SharedNoteItemProps } from '../interface/SharedNotes.interface';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { userService } from '@/services/userService';
 
 const getTimeAgo = (date: string): string => {
   const now = new Date();
@@ -22,6 +23,25 @@ export const SharedNoteItem = ({ sharedNote, type, onRemove, onViewNote, onEditN
   const [isRemoving, setIsRemoving] = useState(false);
   const isReceived = type === 'received';
   const otherUser = isReceived ? sharedNote.sharedByUser : sharedNote.sharedWithUser;
+  const [avatarUrl, setAvatarUrl] = useState<string | null | undefined>(otherUser?.avatar ?? null);
+
+  // Nếu payload thiếu avatar, lấy bổ sung từ backend để hiển thị đúng
+  useEffect(() => {
+    let canceled = false;
+    setAvatarUrl(otherUser?.avatar ?? null);
+    if (!otherUser?.avatar && otherUser?.id) {
+      (async () => {
+        try {
+          const res = await userService.getUserById(Number(otherUser.id));
+          const url = res?.user?.avatar || null;
+          if (!canceled) setAvatarUrl(url);
+        } catch (_) {
+          // silent fallback -> giữ icon mặc định
+        }
+      })();
+    }
+    return () => { canceled = true; };
+  }, [otherUser?.id, otherUser?.avatar]);
   
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -113,8 +133,12 @@ export const SharedNoteItem = ({ sharedNote, type, onRemove, onViewNote, onEditN
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-            <User className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={otherUser.name} className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-4 h-4 text-white" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 dark:text-white truncate">

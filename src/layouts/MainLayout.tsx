@@ -13,6 +13,7 @@ import DevicesModal from '@/components/DevicesModal'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { authService } from '@/services/authService'
+import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock'
 
 export default function MainLayout() {
   const { t } = useTranslation('layout');
@@ -142,20 +143,16 @@ export default function MainLayout() {
     };
   }, []);
 
-  // Hide desktop scroll when chat is open
+  // Hide desktop scroll when chat or mobile nav is open (reference-counted)
   useEffect(() => {
-    if (chatOpen || mobileNavOpen) {
-      // Add class to hide scrollbar
-      document.body.style.overflow = 'hidden';
-    } else {
-      // Restore scrollbar
-      document.body.style.overflow = 'auto';
+    const shouldLock = chatOpen || mobileNavOpen;
+    if (shouldLock) {
+      lockBodyScroll('MainLayout');
+      return () => {
+        unlockBodyScroll('MainLayout');
+      };
     }
-
-    // Cleanup function to restore scroll when component unmounts
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
+    return;
   }, [chatOpen, mobileNavOpen]);
 
   return (

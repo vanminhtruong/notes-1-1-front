@@ -2,12 +2,16 @@ import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X, FileText, Tag, AlertCircle } from 'lucide-react';
+import { getYouTubeEmbedUrl } from '@/utils/youtube';
+import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
 
 interface SharedNoteData {
   id: number;
   title: string;
   content?: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
   category: string;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
@@ -44,17 +48,15 @@ const ViewSharedNoteModal: React.FC<ViewSharedNoteModalProps> = ({
     }
   };
 
-  // Disable body scroll when modal is open
+  // Disable body scroll when modal is open (reference-counted)
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+      lockBodyScroll('ViewSharedNoteModal');
+      return () => {
+        unlockBodyScroll('ViewSharedNoteModal');
+      };
     }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return;
   }, [isOpen]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -94,14 +96,13 @@ const ViewSharedNoteModal: React.FC<ViewSharedNoteModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
-
         {/* Body */}
         <div className="p-6 overflow-y-auto flex-1">
           <div className="space-y-6">
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                {t('notes.modal.titleLabel') || 'Tiêu đề'}
+                {t('sharedNotes.modal.title') || 'Tiêu đề'}
               </label>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {note.title}
@@ -120,11 +121,28 @@ const ViewSharedNoteModal: React.FC<ViewSharedNoteModalProps> = ({
               </div>
             </div>
 
-            {/* Image */}
-            {note.imageUrl && (
+            {/* Video */}
+            {note.videoUrl && (
               <div>
                 <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                  {t('notes.modal.imageUrlLabel') || 'Hình ảnh'}
+                  {t('sharedNotes.modal.video') || 'Video'}
+                </label>
+                <div className="w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
+                  <video
+                    controls
+                    src={note.videoUrl}
+                    preload="metadata"
+                    className="w-full max-h-96 object-contain"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Image */}
+            {note.imageUrl && !note.videoUrl && (
+              <div>
+                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  {t('sharedNotes.modal.image') || 'Hình ảnh'}
                 </label>
                 <div className="w-full h-64 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -137,11 +155,29 @@ const ViewSharedNoteModal: React.FC<ViewSharedNoteModalProps> = ({
               </div>
             )}
 
+            {/* YouTube */}
+            {note.youtubeUrl && getYouTubeEmbedUrl(note.youtubeUrl) && (
+              <div>
+                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  {t('sharedNotes.modal.youtube') || 'YouTube'}
+                </label>
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    src={getYouTubeEmbedUrl(note.youtubeUrl) || ''}
+                    title={note.title}
+                    className="absolute top-0 left-0 w-full h-full rounded-lg border border-gray-200 dark:border-gray-600"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Content */}
             {note.content && (
               <div>
                 <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                  {t('notes.modal.contentLabel') || 'Nội dung'}
+                  {t('sharedNotes.modal.content') || 'Nội dung'}
                 </label>
                 <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
                   <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">

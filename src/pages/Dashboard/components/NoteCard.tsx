@@ -1,12 +1,15 @@
-import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check } from 'lucide-react';
+import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
+import { extractYouTubeId } from '@/utils/youtube';
 
 export interface Note {
   id: number;
   title: string;
   content: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
   priority: 'low' | 'medium' | 'high';
   category: string;
   createdAt: string;
@@ -128,9 +131,37 @@ const NoteCard = ({
         {note.content || t('messages.noContent')}
       </p>
 
-      {note.imageUrl && (
+      {note.videoUrl && (
+        <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 relative group">
+          <video
+            src={note.videoUrl}
+            preload="metadata"
+            playsInline
+            muted
+            className="w-full h-40 object-cover rounded-xl border lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl">
+            <Play className="w-12 h-12 text-white" />
+          </div>
+        </div>
+      )}
+
+      {note.imageUrl && !note.videoUrl && (
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5">
           <img src={note.imageUrl} alt={note.title} className="w-full h-40 object-cover rounded-xl border lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
+        </div>
+      )}
+      
+      {note.youtubeUrl && extractYouTubeId(note.youtubeUrl) && (
+        <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 relative group">
+          <img 
+            src={`https://img.youtube.com/vi/${extractYouTubeId(note.youtubeUrl)}/hqdefault.jpg`} 
+            alt={note.title} 
+            className="w-full h-40 object-cover rounded-xl border lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" 
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl">
+            <Play className="w-12 h-12 text-white" />
+          </div>
         </div>
       )}
 

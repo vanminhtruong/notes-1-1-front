@@ -2,6 +2,7 @@ import { Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
 import { type Note } from './NoteCard';
+import { getYouTubeEmbedUrl } from '@/utils/youtube';
 
 interface ViewNoteModalProps {
   isOpen: boolean;
@@ -33,6 +34,29 @@ const ViewNoteModal = ({ isOpen, onClose, note, onOpenShare, getPriorityColor, g
 
           {note.imageUrl && (
             <img src={note.imageUrl} alt={note.title} className="w-full max-h-80 object-contain rounded-xl border" />
+          )}
+          
+          {note.videoUrl && (
+            <video
+              controls
+              preload="metadata"
+              className="w-full max-h-80 rounded-xl border"
+              src={note.videoUrl}
+            >
+              {t('messages.videoNotSupported') || 'Trình duyệt của bạn không hỗ trợ video.'}
+            </video>
+          )}
+          
+          {note.youtubeUrl && getYouTubeEmbedUrl(note.youtubeUrl) && (
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                src={getYouTubeEmbedUrl(note.youtubeUrl) || ''}
+                title={note.title}
+                className="absolute top-0 left-0 w-full h-full rounded-xl border"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
           )}
 
           <div className="flex flex-wrap items-center gap-2 text-sm">

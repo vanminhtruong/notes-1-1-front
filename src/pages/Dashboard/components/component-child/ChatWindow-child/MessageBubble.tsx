@@ -212,6 +212,8 @@ const MessageBubble = ({
   
   // Check if this is a shared message (shared note)
   const isSharedMessage = typeof message.content === 'string' && message.content.startsWith('NOTE_SHARE::');
+  // Check if this is a call log message
+  const isCallLogMessage = typeof message.content === 'string' && message.content.startsWith('CALL_LOG::');
   const renderImageMessage = () => (
     <div
       className={`px-2.5 py-2 rounded-2xl w-fit ${
@@ -282,7 +284,7 @@ const MessageBubble = ({
           const raw = message.content.slice(prefix.length);
           const obj = JSON.parse(decodeURIComponent(raw));
           if (obj && (obj.type === 'note' || obj.v === 1)) {
-            const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
+            const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
             return (
               <SharedNoteCard 
                 note={note} 
@@ -427,7 +429,7 @@ const MessageBubble = ({
                     const raw = replyTo.content.slice(prefix.length);
                     const obj = JSON.parse(decodeURIComponent(raw));
                     if (obj && (obj.type === 'note' || obj.v === 1)) {
-                      const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
+                      const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
                       return (
                         <div className="mb-0.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleJump(); }}>
                           <div className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-0.5 px-2">
@@ -496,7 +498,7 @@ const MessageBubble = ({
         const raw = replyTo.content.slice(prefix.length);
         const obj = JSON.parse(decodeURIComponent(raw));
         if (obj && (obj.type === 'note' || obj.v === 1)) {
-          const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
+          const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
           return (
             <div className="mb-0.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleJump(); }}>
               <div className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-0.5">
@@ -617,7 +619,7 @@ const MessageBubble = ({
         </div>
       </div>
       {/* Reply button - positioned to the left of message */}
-      {!isRecalled && onReplyMessage && (
+      {!isRecalled && !isCallLogMessage && onReplyMessage && (
         <button
           type="button"
           className={`absolute ${isOwnMessage ? '-left-8' : '-left-8'} top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-600 dark:text-gray-300 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity hover:bg-gray-50 dark:hover:bg-gray-700`}
@@ -748,7 +750,7 @@ const MessageBubble = ({
               <div className={`absolute z-50 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
                 onMouseLeave={() => onMenuToggle(null)}
               >
-                {typeof onTogglePinMessage === 'function' && !isRecalled && (
+                {typeof onTogglePinMessage === 'function' && !isRecalled && !isCallLogMessage && (
                   <button
                     onClick={() => onTogglePinMessage(message.id as any, !isPinned)}
                     className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"

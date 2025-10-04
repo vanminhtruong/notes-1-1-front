@@ -8,6 +8,7 @@ import { socketService } from '@/services/socketService';
 import { useDispatch } from 'react-redux';
 import { resetAuth } from '@/store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
 
 interface DevicesModalProps {
   isOpen: boolean;
@@ -26,17 +27,12 @@ export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
   useEffect(() => {
     if (isOpen) {
       fetchSessions();
-      // Disable body scroll when modal opens
-      document.body.style.overflow = 'hidden';
-    } else {
-      // Re-enable body scroll when modal closes
-      document.body.style.overflow = '';
+      lockBodyScroll('DevicesModal');
+      return () => {
+        unlockBodyScroll('DevicesModal');
+      };
     }
-
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return;
   }, [isOpen]);
 
   // Listen for real-time session revoke events

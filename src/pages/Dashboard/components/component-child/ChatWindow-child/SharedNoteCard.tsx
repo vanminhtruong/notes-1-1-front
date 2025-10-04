@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock, Edit2, Trash2, Plus } from 'lucide-react';
+import { Clock, Edit2, Trash2, Plus, Play } from 'lucide-react';
 import { formatDateMDYY } from '@/utils/utils';
 import { notesService } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import EditSharedNoteModal from '@/components/EditSharedNoteModal';
+import { extractYouTubeId } from '@/utils/youtube';
 
 interface SharedNoteData {
   id: number;
   title: string;
   content?: string;
   imageUrl?: string | null;
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
   category: string;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
@@ -102,6 +105,8 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
           title: n.title,
           content: n.content || '',
           imageUrl: n.imageUrl || '',
+          videoUrl: n.videoUrl || '',
+          youtubeUrl: n.youtubeUrl || '',
           category: n.category,
           priority: n.priority,
           createdAt: n.createdAt,
@@ -237,6 +242,8 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
           title: (currentNote.title || '').trim() || t('notes.untitled') || 'Ghi chú không tiêu đề',
           content: currentNote.content || undefined,
           imageUrl: currentNote.imageUrl ? String(currentNote.imageUrl) : undefined,
+          videoUrl: currentNote.videoUrl ? String(currentNote.videoUrl) : undefined,
+          youtubeUrl: currentNote.youtubeUrl ? String(currentNote.youtubeUrl) : undefined,
           category: currentNote.category,
           priority: currentNote.priority,
           sharedFromUserId: ownerUserId,
@@ -310,13 +317,38 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
         {currentNote.content || t('messages.noContent')}
       </p>
       
-      {currentNote.imageUrl && (
+      {currentNote.videoUrl && (
+        <div className={`${imgMb}`}>
+          <video
+            controls
+            src={currentNote.videoUrl}
+            preload="metadata"
+            playsInline
+            className={`w-full ${imgH} object-cover rounded-xl border`}
+          />
+        </div>
+      )}
+
+      {currentNote.imageUrl && !currentNote.videoUrl && (
         <div className={`${imgMb}`}>
           <img 
             src={currentNote.imageUrl} 
             alt={currentNote.title} 
             className={`w-full ${imgH} object-cover rounded-xl border`} 
           />
+        </div>
+      )}
+      
+      {currentNote.youtubeUrl && extractYouTubeId(currentNote.youtubeUrl) && (
+        <div className={`${imgMb} relative group`}>
+          <img 
+            src={`https://img.youtube.com/vi/${extractYouTubeId(currentNote.youtubeUrl)}/hqdefault.jpg`} 
+            alt={currentNote.title} 
+            className={`w-full ${imgH} object-cover rounded-xl border`} 
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl">
+            <Play className="w-8 h-8 text-white" />
+          </div>
         </div>
       )}
       
