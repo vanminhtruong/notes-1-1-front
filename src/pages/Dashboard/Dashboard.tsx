@@ -10,14 +10,16 @@ import NotesGrid from '@/pages/Dashboard/components/NotesGrid';
 import CreateNoteModal from '@/pages/Dashboard/components/CreateNoteModal';
 import ViewNoteModal from '@/pages/Dashboard/components/ViewNoteModal';
 import EditNoteModal from '@/pages/Dashboard/components/EditNoteModal';
+import LazyLoad from '@/components/LazyLoad';
 
 const Dashboard = () => {
   const {
-    notes, isLoading, stats,
+    notes, isLoading, stats, pagination,
     searchTerm, setSearchTerm,
     selectedCategory, setSelectedCategory,
     selectedPriority, setSelectedPriority,
     showArchived, setShowArchived,
+    currentPage, setCurrentPage,
     showCreateModal, setShowCreateModal,
     newNote, setNewNote,
     selectedIds, toggleSelect, clearSelection, confirmBulkDelete,
@@ -50,21 +52,27 @@ const Dashboard = () => {
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 xl-down:py-7 lg-down:py-6 md-down:py-5 sm-down:py-4 xs-down:py-3 xl-down:px-3 md-down:px-2">
         {/* Stats Cards */}
-        <StatsCards stats={stats} />
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={0}>
+          <StatsCards stats={stats} />
+        </LazyLoad>
 
         {/* View Toggle */}
-        <ViewToggle showArchived={showArchived} setShowArchived={setShowArchived} />
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={100}>
+          <ViewToggle showArchived={showArchived} setShowArchived={setShowArchived} />
+        </LazyLoad>
 
         {/* Controls */}
-        <SearchAndFilters
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedPriority={selectedPriority}
-          setSelectedPriority={setSelectedPriority}
-          onCreateNote={() => setShowCreateModal(true)}
-        />
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={200}>
+          <SearchAndFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            selectedPriority={selectedPriority}
+            setSelectedPriority={setSelectedPriority}
+            onCreateNote={() => setShowCreateModal(true)}
+          />
+        </LazyLoad>
 
         <BulkActionsBar
           selectedCount={selectedIds.length}
@@ -74,22 +82,27 @@ const Dashboard = () => {
         />
 
         {/* Notes Grid */}
-        <NotesGrid
-          notes={notes}
-          isLoading={isLoading}
-          showArchived={showArchived}
-          selectedIds={selectedIds}
-          dueReminderNoteIds={dueReminderNoteIds}
-          onToggleSelect={toggleSelect}
-          onView={openView}
-          onEdit={openEdit}
-          onArchive={confirmArchiveNote}
-          onDelete={confirmDeleteNote}
-          onAcknowledgeReminder={acknowledgeReminderNote}
-          onCreateNote={() => setShowCreateModal(true)}
-          getPriorityColor={getPriorityColor}
-          getPriorityText={getPriorityText}
-        />
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={400}>
+          <NotesGrid
+            notes={notes}
+            isLoading={isLoading}
+            showArchived={showArchived}
+            selectedIds={selectedIds}
+            dueReminderNoteIds={dueReminderNoteIds}
+            onToggleSelect={toggleSelect}
+            onView={openView}
+            onEdit={openEdit}
+            onArchive={confirmArchiveNote}
+            onDelete={confirmDeleteNote}
+            onAcknowledgeReminder={acknowledgeReminderNote}
+            onCreateNote={() => setShowCreateModal(true)}
+            getPriorityColor={getPriorityColor}
+            getPriorityText={getPriorityText}
+            currentPage={currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </LazyLoad>
       </div>
 
       {/* Create Note Modal */}

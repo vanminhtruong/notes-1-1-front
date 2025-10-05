@@ -91,10 +91,10 @@ export const SharedNoteItem = ({ sharedNote, type, onRemove, onViewNote, onEditN
                 try {
                   setIsRemoving(true);
                   await onRemove(sharedNote.id);
-                  toast.success(t('sharedNotes.removeSuccess') || 'Đã xóa chia sẻ ghi chú thành công');
                 } catch (err) {
+                  // toast lỗi đã được hiển thị trong hook removeSharedNote
+                } finally {
                   setIsRemoving(false);
-                  toast.error(t('sharedNotes.errors.removeFailed') || 'Không thể xóa chia sẻ ghi chú');
                 }
               }}
               className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"

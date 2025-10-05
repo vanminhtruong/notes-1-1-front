@@ -17,6 +17,8 @@ export const useDashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedPriority, setSelectedPriority] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 6;
   const [newNote, setNewNote] = useState({
     title: '',
     content: '',
@@ -49,7 +51,7 @@ export const useDashboard = () => {
   // Removed dashboard-level create permissions UI/state; this logic lives in SharedNoteCard only.
 
   const dispatch = useAppDispatch();
-  const { notes, isLoading, stats, dueReminderNoteIds } = useAppSelector((state) => state.notes);
+  const { notes, isLoading, stats, dueReminderNoteIds, pagination } = useAppSelector((state) => state.notes);
 
   // Continuous ringing while any due reminders exist; vibrate on new arrivals
   const prevDueCount = useRef(0);
@@ -82,6 +84,11 @@ export const useDashboard = () => {
   // Stop ringing on unmount just in case
   useEffect(() => () => stopReminderRinging(), []);
 
+  // Reset về trang 1 khi filters thay đổi
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, selectedPriority, showArchived]);
+
   // Sync filters + fetch notes and stats
   useEffect(() => {
     dispatch(setFilters({
@@ -92,13 +99,15 @@ export const useDashboard = () => {
     }));
 
     dispatch(fetchNotes({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
       search: searchTerm,
       category: selectedCategory || undefined,
       priority: selectedPriority || undefined,
       isArchived: showArchived,
     }));
     dispatch(fetchNoteStats());
-  }, [dispatch, searchTerm, selectedCategory, selectedPriority, showArchived]);
+  }, [dispatch, searchTerm, selectedCategory, selectedPriority, showArchived, currentPage]);
 
   // Socket lifecycle
   useEffect(() => {
@@ -146,6 +155,8 @@ export const useDashboard = () => {
     setNewNote({ title: '', content: '', imageUrl: '', videoUrl: '', youtubeUrl: '', category: 'general', priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
     setShowCreateModal(false);
     dispatch(fetchNotes({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
       search: searchTerm,
       category: selectedCategory || undefined,
       priority: selectedPriority || undefined,
@@ -156,6 +167,8 @@ export const useDashboard = () => {
   const handleDeleteNote = async (id: number) => {
     await dispatch(deleteNote(id));
     dispatch(fetchNotes({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
       search: searchTerm,
       category: selectedCategory || undefined,
       priority: selectedPriority || undefined,
@@ -210,6 +223,8 @@ export const useDashboard = () => {
   const handleArchiveNote = async (id: number) => {
     const result = await dispatch(archiveNote(id));
     dispatch(fetchNotes({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
       search: searchTerm,
       category: selectedCategory || undefined,
       priority: selectedPriority || undefined,
@@ -310,6 +325,8 @@ export const useDashboard = () => {
     
     setShowEditModal(false);
     dispatch(fetchNotes({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
       search: searchTerm,
       category: selectedCategory || undefined,
       priority: selectedPriority || undefined,
@@ -328,6 +345,8 @@ export const useDashboard = () => {
     await Promise.all(selectedIds.map((id) => dispatch(deleteNote(id))));
     setSelectedIds([]);
     dispatch(fetchNotes({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
       search: searchTerm,
       category: selectedCategory || undefined,
       priority: selectedPriority || undefined,
@@ -415,6 +434,7 @@ export const useDashboard = () => {
     isLoading,
     stats,
     dueReminderNoteIds,
+    pagination,
 
     // filters & view
     searchTerm,
@@ -425,6 +445,8 @@ export const useDashboard = () => {
     setSelectedPriority,
     showArchived,
     setShowArchived,
+    currentPage,
+    setCurrentPage,
 
     // create modal
     showCreateModal,

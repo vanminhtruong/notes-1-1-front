@@ -11,6 +11,7 @@ import {
   Globe,
   Award
 } from 'lucide-react';
+import LazyLoad from '@/components/LazyLoad';
 
 const About = () => {
   const { t } = useTranslation('about');
@@ -67,7 +68,8 @@ const About = () => {
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md-down:py-10 sm-down:py-8 xs-down:py-6">
         {/* Hero Section */}
-        <div className="text-center mb-16">
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={0}>
+          <div className="text-center mb-16">
           <div className="flex items-center justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
               <BookOpen className="w-8 h-8 text-white" />
@@ -87,10 +89,12 @@ const About = () => {
               {t('hero.rating')}
             </span>
           </div>
-        </div>
+          </div>
+        </LazyLoad>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm-down:gap-4 xs-down:gap-3 mb-16 xs-down:mb-10">
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={100}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm-down:gap-4 xs-down:gap-3 mb-16 xs-down:mb-10">
           {stats.map((stat, index) => (
             <div key={index} className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 sm-down:p-5 xs-down:p-4 border border-white/20 dark:border-gray-700/30 text-center">
               <div className="text-3xl xs-down:text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
@@ -101,10 +105,12 @@ const About = () => {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        </LazyLoad>
 
         {/* Mission Section */}
-        <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-12 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30 mb-16 xs-down:mb-10">
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={200}>
+          <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-12 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30 mb-16 xs-down:mb-10">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl sm-down:text-2xl xs-down:text-xl font-bold text-gray-900 dark:text-white mb-6 xs-down:mb-4">
               {t('mission.title')}
@@ -132,10 +138,12 @@ const About = () => {
               </div>
             ))}
           </div>
-        </div>
+          </div>
+        </LazyLoad>
 
         {/* Values Section */}
-        <div className="mb-16 xs-down:mb-10">
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={300}>
+          <div className="mb-16 xs-down:mb-10">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl sm-down:text-2xl xs-down:text-xl font-bold text-gray-900 dark:text-white mb-6 xs-down:mb-4">
               {t('values.title')}
@@ -160,10 +168,12 @@ const About = () => {
               </div>
             ))}
           </div>
-        </div>
+          </div>
+        </LazyLoad>
 
         {/* Why Choose Us Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 md:p-12 sm-down:p-6 xs-down:p-5 text-white mb-16 xs-down:mb-10">
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={400}>
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 md:p-12 sm-down:p-6 xs-down:p-5 text-white mb-16 xs-down:mb-10">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl sm-down:text-2xl xs-down:text-xl font-bold mb-6 xs-down:mb-4">
               {t('whyChoose.title')}
@@ -188,10 +198,12 @@ const About = () => {
               </div>
             ))}
           </div>
-        </div>
+          </div>
+        </LazyLoad>
 
         {/* Team Section */}
-        <div className="text-center mb-16 xs-down:mb-10">
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={500}>
+          <div className="text-center mb-16 xs-down:mb-10">
           <h2 className="text-3xl md:text-4xl sm-down:text-2xl xs-down:text-xl font-bold text-gray-900 dark:text-white mb-6 xs-down:mb-4">
             {t('team.title')}
           </h2>
@@ -210,10 +222,12 @@ const About = () => {
               {t('team.award.description')}
             </p>
           </div>
-        </div>
+          </div>
+        </LazyLoad>
 
         {/* Contact Section */}
-        <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-12 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30 text-center">
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={600}>
+          <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-12 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30 text-center">
           <h2 className="text-3xl md:text-4xl sm-down:text-2xl xs-down:text-xl font-bold text-gray-900 dark:text-white mb-6 xs-down:mb-4">
             {t('contact.title')}
           </h2>
@@ -228,7 +242,8 @@ const About = () => {
               {t('contact.button.secondary')}
             </button>
           </div>
-        </div>
+          </div>
+        </LazyLoad>
       </div>
     </div>
   );

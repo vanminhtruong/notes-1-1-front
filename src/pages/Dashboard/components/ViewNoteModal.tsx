@@ -1,4 +1,4 @@
-import { Clock } from 'lucide-react';
+import { Clock, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
 import { type Note } from './NoteCard';
@@ -23,7 +23,13 @@ const ViewNoteModal = ({ isOpen, onClose, note, onOpenShare, getPriorityColor, g
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-2xl w-full p-6 max-h-[85vh] flex flex-col">
         <div className="flex items-start justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('modals.view.title')}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" aria-label={t('actions.close')}>✕</button>
+          <button 
+            onClick={onClose} 
+            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" 
+            title="Đóng"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="space-y-4 flex-1 overflow-y-auto pr-1">

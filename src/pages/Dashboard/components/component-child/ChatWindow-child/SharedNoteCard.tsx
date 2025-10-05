@@ -5,6 +5,7 @@ import { formatDateMDYY } from '@/utils/utils';
 import { notesService } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import EditSharedNoteModal from '@/components/EditSharedNoteModal';
+import ViewSharedNoteModal from '@/pages/Dashboard/components/component-child/ViewSharedNoteModal';
 import { extractYouTubeId } from '@/utils/youtube';
 
 interface SharedNoteData {
@@ -40,6 +41,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentNote, setCurrentNote] = useState<SharedNoteData>(note);
   const [ownerUserId, setOwnerUserId] = useState<number | undefined>(undefined);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   // Load permissions if this is not own message (i.e., received shared note)
   useEffect(() => {
@@ -318,29 +320,55 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
       </p>
       
       {currentNote.videoUrl && (
-        <div className={`${imgMb}`}>
+        <div
+          className={`${imgMb} relative z-10`}
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          style={{ pointerEvents: 'auto' }}
+        >
           <video
             controls
+            controlsList="nodownload"
             src={currentNote.videoUrl}
             preload="metadata"
             playsInline
-            className={`w-full ${imgH} object-cover rounded-xl border`}
-          />
-        </div>
-      )}
-
-      {currentNote.imageUrl && !currentNote.videoUrl && (
-        <div className={`${imgMb}`}>
-          <img 
-            src={currentNote.imageUrl} 
-            alt={currentNote.title} 
-            className={`w-full ${imgH} object-cover rounded-xl border`} 
+            tabIndex={0}
+            onClick={(e) => {
+              e.stopPropagation();
+              const video = e.currentTarget;
+              if (video.paused) {
+                void video.play()?.catch(err => console.log('Play prevented:', err));
+              } else {
+                video.pause();
+              }
+            }}
+            onMouseDown={(e) => e.stopPropagation()} 
+            onContextMenu={(e) => e.stopPropagation()}
+            onError={(e) => {
+              try {
+                const el = e.currentTarget;
+                el.style.display = 'none';
+                const wrap = el.parentElement;
+                if (wrap) {
+                  const fallback = document.createElement('div');
+                  fallback.className = 'w-full rounded-xl border p-3 bg-gray-50 dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200';
+                  fallback.innerHTML = `Không phát được video. <a href="${currentNote.videoUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">Mở trong tab mới</a>`;
+                  wrap.appendChild(fallback);
+                }
+              } catch {}
+            }}
+            className={`w-full ${imgH} object-cover rounded-xl border cursor-pointer pointer-events-auto`}
+            style={{ pointerEvents: 'auto' }}
           />
         </div>
       )}
       
       {currentNote.youtubeUrl && extractYouTubeId(currentNote.youtubeUrl) && (
-        <div className={`${imgMb} relative group`}>
+        <button
+          type="button"
+          className={`${imgMb} relative group w-full text-left`}
+          onClick={(e) => { e.stopPropagation(); setIsViewModalOpen(true); }}
+        >
           <img 
             src={`https://img.youtube.com/vi/${extractYouTubeId(currentNote.youtubeUrl)}/hqdefault.jpg`} 
             alt={currentNote.title} 
@@ -349,14 +377,14 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-xl">
             <Play className="w-8 h-8 text-white" />
           </div>
-        </div>
+        </button>
       )}
       
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
           <span className={priorityChip(currentNote.priority)}>
-            {currentNote.priority === 'high' ? t('priority.high') : 
-             currentNote.priority === 'medium' ? t('priority.medium') : 
+            {currentNote.priority === 'high' ? t('priority.high') :
+             currentNote.priority === 'medium' ? t('priority.medium') :
              t('priority.low')}
           </span>
           <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600">
@@ -376,6 +404,13 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
       onClose={() => setIsEditModalOpen(false)}
       note={currentNote}
       onNoteUpdated={handleNoteUpdated}
+    />
+
+    {/* View Modal (for YouTube or full view) */}
+    <ViewSharedNoteModal
+      isOpen={isViewModalOpen}
+      onClose={() => setIsViewModalOpen(false)}
+      note={currentNote}
     />
   </>
   );

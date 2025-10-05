@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail, Phone, MapPin, Send, MessageSquare, ShieldCheck, HeartHandshake } from 'lucide-react';
 import toast from 'react-hot-toast';
+import LazyLoad from '@/components/LazyLoad';
 
 const Contact = () => {
   const { t } = useTranslation('contact');
@@ -25,7 +26,8 @@ const Contact = () => {
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md-down:py-10 sm-down:py-8 xs-down:py-6">
         {/* Hero */}
-        <div className="text-center mb-12">
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={0}>
+          <div className="text-center mb-12">
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/70 dark:bg-gray-800/90 border border-white/20 dark:border-gray-700/30 shadow-sm mb-4">
             <MessageSquare className="w-4 h-4 text-blue-600" />
             <span className="text-sm text-gray-700 dark:text-gray-300">{t('hero.badge')}</span>
@@ -36,10 +38,12 @@ const Contact = () => {
           <p className="text-lg sm-down:text-base xs-down:text-sm text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-2">
             {t('hero.subtitle')}
           </p>
-        </div>
+          </div>
+        </LazyLoad>
 
         {/* Contact Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm-down:gap-5 xs-down:gap-4 mb-12 xs-down:mb-8">
+        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={100}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm-down:gap-5 xs-down:gap-4 mb-12 xs-down:mb-8">
           {[{
             icon: <Mail className="w-6 h-6" />, title: t('cards.email.title'), value: t('cards.email.value')
           },{
@@ -55,11 +59,13 @@ const Contact = () => {
               <p className="text-gray-600 dark:text-gray-300 mt-1 xs-down:text-sm">{c.value}</p>
             </div>
           ))}
-        </div>
+          </div>
+        </LazyLoad>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm-down:gap-6 xs-down:gap-5 items-start">
           {/* Form */}
-          <div className="lg:col-span-2 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-10 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30">
+          <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={200}>
+            <div className="lg:col-span-2 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-10 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30">
             <h2 className="text-2xl sm-down:text-xl xs-down:text-lg font-bold text-gray-900 dark:text-white mb-6 xs-down:mb-4">{t('form.title')}</h2>
             <form onSubmit={handleSubmit} className="space-y-5 xs-down:space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 xs-down:gap-4">
@@ -91,10 +97,12 @@ const Contact = () => {
                 </button>
               </div>
             </form>
-          </div>
+            </div>
+          </LazyLoad>
 
           {/* Aside */}
-          <div className="space-y-6">
+          <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={300}>
+            <div className="space-y-6">
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl p-7 sm-down:p-6 xs-down:p-5 text-white">
               <h3 className="text-xl xs-down:text-lg font-bold mb-2">{t('aside.title')}</h3>
               <p className="text-white/90 mb-4 xs-down:text-sm">{t('aside.subtitle')}</p>
@@ -110,7 +118,8 @@ const Contact = () => {
                 <li>{t('hours.weekend')}</li>
               </ul>
             </div>
-          </div>
+            </div>
+          </LazyLoad>
         </div>
       </div>
     </div>

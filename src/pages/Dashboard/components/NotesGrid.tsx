@@ -1,6 +1,8 @@
 import { StickyNote, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import NoteCard, { type Note } from './NoteCard';
+import Pagination from '@/components/Pagination';
+import LazyLoad from '@/components/LazyLoad';
 
 interface NotesGridProps {
   notes: Note[];
@@ -17,6 +19,9 @@ interface NotesGridProps {
   onCreateNote: () => void;
   getPriorityColor: (priority: string) => string;
   getPriorityText: (priority: string) => string;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 const NotesGrid = ({
@@ -33,7 +38,10 @@ const NotesGrid = ({
   onAcknowledgeReminder,
   onCreateNote,
   getPriorityColor,
-  getPriorityText
+  getPriorityText,
+  currentPage,
+  totalPages,
+  onPageChange
 }: NotesGridProps) => {
   const { t } = useTranslation('dashboard');
 
@@ -69,25 +77,41 @@ const NotesGrid = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl-down:gap-5 lg-down:gap-4 md-down:gap-3 sm-down:gap-2.5 xs-down:gap-2">
-      {notes.map((note) => (
-        <NoteCard
-          key={note.id}
-          note={note}
-          isSelected={selectedIds.includes(note.id)}
-          onToggleSelect={() => onToggleSelect(note.id)}
-          onView={() => onView(note)}
-          onEdit={() => onEdit(note)}
-          onArchive={() => onArchive(note.id)}
-          onDelete={() => onDelete(note.id)}
-          showArchived={showArchived}
-          showReminder={dueReminderNoteIds.includes(note.id)}
-          onAcknowledgeReminder={() => onAcknowledgeReminder(note.id)}
-          getPriorityColor={getPriorityColor}
-          getPriorityText={getPriorityText}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl-down:gap-5 lg-down:gap-4 md-down:gap-3 sm-down:gap-2.5 xs-down:gap-2">
+        {notes.map((note, index) => (
+          <LazyLoad
+            key={note.id}
+            threshold={0.1}
+            rootMargin="100px"
+            animationDuration={500}
+            delay={index * 80}
+          >
+            <NoteCard
+              note={note}
+              isSelected={selectedIds.includes(note.id)}
+              onToggleSelect={() => onToggleSelect(note.id)}
+              onView={() => onView(note)}
+              onEdit={() => onEdit(note)}
+              onArchive={() => onArchive(note.id)}
+              onDelete={() => onDelete(note.id)}
+              showArchived={showArchived}
+              showReminder={dueReminderNoteIds.includes(note.id)}
+              onAcknowledgeReminder={() => onAcknowledgeReminder(note.id)}
+              getPriorityColor={getPriorityColor}
+              getPriorityText={getPriorityText}
+            />
+          </LazyLoad>
+        ))}
+      </div>
+
+      {/* Pagination Component */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
+    </>
   );
 };
 
