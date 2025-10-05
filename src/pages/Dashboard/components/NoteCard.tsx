@@ -48,10 +48,10 @@ const NoteCard = ({
 
   return (
     <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start gap-2 sm-down:gap-1.5">
+      <div className="flex items-start justify-between gap-2 mb-4">
+        <div className="flex items-start gap-2 sm-down:gap-1.5 flex-1 min-w-0">
           {!showArchived && (
-            <label className="mt-1 inline-flex items-center cursor-pointer select-none group" title={t('actions.selectNote')}>
+            <label className="mt-1 inline-flex items-center cursor-pointer select-none group flex-shrink-0" title={t('actions.selectNote')}>
               <input
                 type="checkbox"
                 aria-label={t('actions.selectNote')}
@@ -73,11 +73,11 @@ const NoteCard = ({
               </span>
             </label>
           )}
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 lg-down:text-base md-down:text-sm sm-down:text-sm">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate lg-down:text-base md-down:text-sm sm-down:text-sm flex-1 min-w-0">
             {note.title}
           </h3>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-shrink-0">
           {showReminder && (
             <button
               onClick={onAcknowledgeReminder}
@@ -127,7 +127,7 @@ const NoteCard = ({
         </div>
       </div>
 
-      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3 md-down:text-xs sm-down:mb-3 xs-down:mb-2.5">
+      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2 md-down:text-xs sm-down:mb-3 xs-down:mb-2.5">
         {note.content || t('messages.noContent')}
       </p>
 

@@ -131,7 +131,7 @@ export const SharedNoteItem = ({ sharedNote, type, onRemove, onViewNote, onEditN
       onClick={handleView}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
             {avatarUrl ? (
@@ -151,7 +151,7 @@ export const SharedNoteItem = ({ sharedNote, type, onRemove, onViewNote, onEditN
         </div>
         
         {/* Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <button
             onClick={handleView}
             className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors opacity-0 group-hover:opacity-100"
@@ -195,9 +195,9 @@ export const SharedNoteItem = ({ sharedNote, type, onRemove, onViewNote, onEditN
 
       {/* Note Info */}
       <div className="space-y-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate flex-1 min-w-0">
             {sharedNote.note.title}
           </h4>
         </div>

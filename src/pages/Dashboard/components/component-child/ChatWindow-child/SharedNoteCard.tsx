@@ -275,12 +275,12 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
   return (
     <>
     <div className={`bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl ${wrapPad} border border-white/20 dark:border-gray-700/30 ${wrapMaxW}`}>
-      <div className={`flex items-start justify-between ${headerMb}`}>
-        <h3 className={`${titleSize} font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1`}>
+      <div className={`flex items-start justify-between gap-2 ${headerMb}`}>
+        <h3 className={`${titleSize} font-semibold text-gray-900 dark:text-white truncate flex-1 min-w-0`}>
           {currentNote.title}
         </h3>
         {showActionButtons && (
-          <div className="flex items-center gap-1 ml-2">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {permissions.canEdit && (
               <button
                 onClick={handleEdit}
@@ -315,7 +315,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
         )}
       </div>
       
-      <p className={`text-gray-600 dark:text-gray-300 text-sm ${descMb} line-clamp-3`}>
+      <p className={`text-gray-600 dark:text-gray-300 text-sm ${descMb} line-clamp-2`}>
         {currentNote.content || t('messages.noContent')}
       </p>
       

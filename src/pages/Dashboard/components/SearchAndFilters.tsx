@@ -27,7 +27,7 @@ const SearchAndFilters = ({
       {/* Search */}
       <div className="flex-1">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 md-down:w-4 md-down:h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400 md-down:w-4 md-down:h-4 pointer-events-none z-10" />
           <input
             type="text"
             placeholder={t('search.placeholder')}
