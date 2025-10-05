@@ -42,30 +42,29 @@ const Contact = () => {
         </LazyLoad>
 
         {/* Contact Cards */}
-        <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={100}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm-down:gap-5 xs-down:gap-4 mb-12 xs-down:mb-8">
-          {[{
-            icon: <Mail className="w-6 h-6" />, title: t('cards.email.title'), value: t('cards.email.value')
-          },{
-            icon: <Phone className="w-6 h-6" />, title: t('cards.phone.title'), value: t('cards.phone.value')
-          },{
-            icon: <MapPin className="w-6 h-6" />, title: t('cards.address.title'), value: t('cards.address.value')
-          }].map((c, i) => (
-            <div key={i} className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 sm-down:p-5 xs-down:p-4 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm-down:gap-5 xs-down:gap-4 mb-12 xs-down:mb-8">
+        {[{
+          icon: <Mail className="w-6 h-6" />, title: t('cards.email.title'), value: t('cards.email.value')
+        },{
+          icon: <Phone className="w-6 h-6" />, title: t('cards.phone.title'), value: t('cards.phone.value')
+        },{
+          icon: <MapPin className="w-6 h-6" />, title: t('cards.address.title'), value: t('cards.address.value')
+        }].map((c, i) => (
+          <LazyLoad key={i} threshold={0.1} rootMargin="50px" animationDuration={500} delay={100 + (i * 100)}>
+            <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 sm-down:p-5 xs-down:p-4 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]">
               <div className="w-12 h-12 xs-down:w-10 xs-down:h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
                 {c.icon}
               </div>
               <h3 className="text-lg xs-down:text-base font-semibold text-gray-900 dark:text-white">{c.title}</h3>
               <p className="text-gray-600 dark:text-gray-300 mt-1 xs-down:text-sm">{c.value}</p>
             </div>
-          ))}
-          </div>
-        </LazyLoad>
+          </LazyLoad>
+        ))}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm-down:gap-6 xs-down:gap-5 items-start">
           {/* Form */}
-          <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={200}>
-            <div className="lg:col-span-2 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-10 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30">
+          <div className="lg:col-span-2 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-10 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30">
             <h2 className="text-2xl sm-down:text-xl xs-down:text-lg font-bold text-gray-900 dark:text-white mb-6 xs-down:mb-4">{t('form.title')}</h2>
             <form onSubmit={handleSubmit} className="space-y-5 xs-down:space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 xs-down:gap-4">
@@ -97,12 +96,10 @@ const Contact = () => {
                 </button>
               </div>
             </form>
-            </div>
-          </LazyLoad>
+          </div>
 
           {/* Aside */}
-          <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={300}>
-            <div className="space-y-6">
+          <div className="space-y-6">
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl p-7 sm-down:p-6 xs-down:p-5 text-white">
               <h3 className="text-xl xs-down:text-lg font-bold mb-2">{t('aside.title')}</h3>
               <p className="text-white/90 mb-4 xs-down:text-sm">{t('aside.subtitle')}</p>
@@ -118,8 +115,7 @@ const Contact = () => {
                 <li>{t('hours.weekend')}</li>
               </ul>
             </div>
-            </div>
-          </LazyLoad>
+          </div>
         </div>
       </div>
     </div>
