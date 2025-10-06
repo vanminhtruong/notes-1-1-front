@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { UseSharedNotesReturn } from '../components/interface/SharedNotes.interface';
 import { getSocket } from '@/services/socket';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 3;
 
 export const useSharedNotes = (): UseSharedNotesReturn => {
   const { t } = useTranslation('dashboard');
@@ -17,10 +17,12 @@ export const useSharedNotes = (): UseSharedNotesReturn => {
   // Pagination states
   const [pageWithMe, setPageWithMe] = useState(1);
   const [pageByMe, setPageByMe] = useState(1);
-  const [hasMoreWithMe, setHasMoreWithMe] = useState(false);
-  const [hasMoreByMe, setHasMoreByMe] = useState(false);
+  const [totalPagesWithMe, setTotalPagesWithMe] = useState(1);
+  const [totalPagesByMe, setTotalPagesByMe] = useState(1);
+  const [totalWithMe, setTotalWithMe] = useState(0);
+  const [totalByMe, setTotalByMe] = useState(0);
 
-  const fetchSharedWithMe = useCallback(async (page: number = 1, append: boolean = false) => {
+  const fetchSharedWithMe = useCallback(async (page: number = 1) => {
     try {
       setIsLoading(true);
       const response = await notesService.getSharedWithMe({
@@ -30,13 +32,9 @@ export const useSharedNotes = (): UseSharedNotesReturn => {
         sortOrder: 'DESC',
       });
 
-      if (append) {
-        setSharedWithMe(prev => [...prev, ...response.sharedNotes]);
-      } else {
-        setSharedWithMe(response.sharedNotes);
-      }
-
-      setHasMoreWithMe(response.pagination.page < response.pagination.totalPages);
+      setSharedWithMe(response.sharedNotes);
+      setTotalPagesWithMe(response.pagination.totalPages);
+      setTotalWithMe(response.pagination.total);
       setPageWithMe(page);
     } catch (err: any) {
       setError(err?.response?.data?.message || t('sharedNotes.errors.fetchFailed'));
@@ -46,7 +44,7 @@ export const useSharedNotes = (): UseSharedNotesReturn => {
     }
   }, [t]);
 
-  const fetchSharedByMe = useCallback(async (page: number = 1, append: boolean = false) => {
+  const fetchSharedByMe = useCallback(async (page: number = 1) => {
     try {
       setIsLoading(true);
       const response = await notesService.getSharedByMe({
@@ -56,13 +54,9 @@ export const useSharedNotes = (): UseSharedNotesReturn => {
         sortOrder: 'DESC',
       });
 
-      if (append) {
-        setSharedByMe(prev => [...prev, ...response.sharedNotes]);
-      } else {
-        setSharedByMe(response.sharedNotes);
-      }
-
-      setHasMoreByMe(response.pagination.page < response.pagination.totalPages);
+      setSharedByMe(response.sharedNotes);
+      setTotalPagesByMe(response.pagination.totalPages);
+      setTotalByMe(response.pagination.total);
       setPageByMe(page);
     } catch (err: any) {
       setError(err?.response?.data?.message || t('sharedNotes.errors.fetchFailed'));
@@ -75,8 +69,8 @@ export const useSharedNotes = (): UseSharedNotesReturn => {
   const refreshSharedNotes = useCallback(async () => {
     setError(null);
     await Promise.all([
-      fetchSharedWithMe(1, false),
-      fetchSharedByMe(1, false),
+      fetchSharedWithMe(1),
+      fetchSharedByMe(1),
     ]);
   }, [fetchSharedWithMe, fetchSharedByMe]);
 
@@ -95,17 +89,17 @@ export const useSharedNotes = (): UseSharedNotesReturn => {
     }
   }, [t]);
 
-  const loadMoreWithMe = useCallback(async () => {
-    if (hasMoreWithMe && !isLoading) {
-      await fetchSharedWithMe(pageWithMe + 1, true);
+  const changePageWithMe = useCallback(async (page: number) => {
+    if (!isLoading) {
+      await fetchSharedWithMe(page);
     }
-  }, [hasMoreWithMe, isLoading, pageWithMe, fetchSharedWithMe]);
+  }, [isLoading, fetchSharedWithMe]);
 
-  const loadMoreByMe = useCallback(async () => {
-    if (hasMoreByMe && !isLoading) {
-      await fetchSharedByMe(pageByMe + 1, true);
+  const changePageByMe = useCallback(async (page: number) => {
+    if (!isLoading) {
+      await fetchSharedByMe(page);
     }
-  }, [hasMoreByMe, isLoading, pageByMe, fetchSharedByMe]);
+  }, [isLoading, fetchSharedByMe]);
 
   useEffect(() => {
     refreshSharedNotes();
@@ -169,13 +163,21 @@ export const useSharedNotes = (): UseSharedNotesReturn => {
     error,
     refreshSharedNotes,
     removeSharedNote,
-    hasMore: {
-      withMe: hasMoreWithMe,
-      byMe: hasMoreByMe,
+    pagination: {
+      withMe: {
+        currentPage: pageWithMe,
+        totalPages: totalPagesWithMe,
+        total: totalWithMe,
+      },
+      byMe: {
+        currentPage: pageByMe,
+        totalPages: totalPagesByMe,
+        total: totalByMe,
+      },
     },
-    loadMore: {
-      withMe: loadMoreWithMe,
-      byMe: loadMoreByMe,
+    changePage: {
+      withMe: changePageWithMe,
+      byMe: changePageByMe,
     },
   };
 };

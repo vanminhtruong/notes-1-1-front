@@ -22,12 +22,20 @@ export interface UseSharedNotesReturn {
   error: string | null;
   refreshSharedNotes: () => Promise<void>;
   removeSharedNote: (sharedNoteId: number) => Promise<void>;
-  hasMore: {
-    withMe: boolean;
-    byMe: boolean;
+  pagination: {
+    withMe: {
+      currentPage: number;
+      totalPages: number;
+      total: number;
+    };
+    byMe: {
+      currentPage: number;
+      totalPages: number;
+      total: number;
+    };
   };
-  loadMore: {
-    withMe: () => Promise<void>;
-    byMe: () => Promise<void>;
+  changePage: {
+    withMe: (page: number) => Promise<void>;
+    byMe: (page: number) => Promise<void>;
   };
 }

@@ -377,7 +377,7 @@ export default function MainLayout() {
       />
 
       {/* Global Back To Top for all tabs/pages */}
-      <BackToTop threshold={300} bottomOffset="1.25rem" rightOffset="1.25rem" />
+      <BackToTop threshold={300} bottomOffset="1.25rem" rightOffset="1.25rem" hideWhenChatOpen={chatOpen} />
 
       <footer className="border-t border-white/20 dark:border-gray-700/30 bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-gray-600 dark:text-gray-300 flex items-center justify-between xl-down:px-3 md-down:px-2 md-down:py-4 sm-down:flex-col sm-down:gap-3 sm-down:text-center">

@@ -46,7 +46,7 @@ const MediaTabs = ({ editNote, setEditNote, t }: { editNote: any; setEditNote: (
       </div>
 
       {/* Tab Content */}
-      <div className="min-h-[100px]">
+      <div className="min-h-[50px]">
         {activeTab === 'image' && (
           <div className="flex items-center gap-3">
             <input

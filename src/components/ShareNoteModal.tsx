@@ -153,6 +153,8 @@ const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProp
           title: note.title,
           content: note.content || '',
           imageUrl: note.imageUrl || null,
+          videoUrl: note.videoUrl || null,
+          youtubeUrl: note.youtubeUrl || null,
           category: note.category,
           priority: note.priority,
         };

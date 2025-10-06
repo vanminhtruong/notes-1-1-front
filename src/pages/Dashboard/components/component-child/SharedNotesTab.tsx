@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Loader2, Inbox, ArrowDownUp, RefreshCw } from 'lucide-react';
+import { Loader2, Inbox, RefreshCw } from 'lucide-react';
 import { SharedNoteItem } from './SharedNoteItem';
 import { useSharedNotes } from '../../hooks/useSharedNotes';
 import type { SharedNotesTabProps } from '../interface/SharedNotes.interface';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { notesService } from '@/services/notesService';
 import EditSharedNoteModal from '@/components/EditSharedNoteModal';
 import ViewSharedNoteModal from '~/pages/Dashboard/components/component-child/ViewSharedNoteModal';
+import Pagination from '@/components/Pagination';
 
 export const SharedNotesTab = ({ searchTerm, currentUserId }: SharedNotesTabProps) => {
   const { t } = useTranslation('dashboard');
@@ -24,8 +25,8 @@ export const SharedNotesTab = ({ searchTerm, currentUserId }: SharedNotesTabProp
     error,
     refreshSharedNotes,
     removeSharedNote,
-    hasMore,
-    loadMore,
+    pagination,
+    changePage,
   } = useSharedNotes();
 
   const handleViewNote = async (noteId: number) => {
@@ -174,8 +175,8 @@ export const SharedNotesTab = ({ searchTerm, currentUserId }: SharedNotesTabProp
   }, [sharedByMe, searchTerm]);
 
   const currentNotes = subTab === 'received' ? filteredReceivedNotes : filteredSentNotes;
-  const hasMoreCurrent = subTab === 'received' ? hasMore.withMe : hasMore.byMe;
-  const loadMoreCurrent = subTab === 'received' ? loadMore.withMe : loadMore.byMe;
+  const currentPagination = subTab === 'received' ? pagination.withMe : pagination.byMe;
+  const currentChangePage = subTab === 'received' ? changePage.withMe : changePage.byMe;
 
   return (
     <div className="flex flex-col h-full">
@@ -226,7 +227,8 @@ export const SharedNotesTab = ({ searchTerm, currentUserId }: SharedNotesTabProp
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {isLoading && currentNotes.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
             <Loader2 className="w-8 h-8 animate-spin mb-2" />
@@ -266,28 +268,22 @@ export const SharedNotesTab = ({ searchTerm, currentUserId }: SharedNotesTabProp
                 currentUserId={currentUserId}
               />
             ))}
-
-            {/* Load More Button */}
-            {hasMoreCurrent && (
-              <button
-                onClick={loadMoreCurrent}
-                disabled={isLoading}
-                className="w-full py-2.5 px-4 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {t('sharedNotes.loadingMore')}
-                  </>
-                ) : (
-                  <>
-                    <ArrowDownUp className="w-4 h-4" />
-                    {t('sharedNotes.loadMore')}
-                  </>
-                )}
-              </button>
-            )}
           </>
+        )}
+        </div>
+
+        {/* Pagination */}
+        {!isLoading && currentNotes.length > 0 && (
+          <div className="border-t border-gray-200 dark:border-gray-700 px-2 py-1.5">
+            <div className="scale-75 origin-center">
+              <Pagination
+                currentPage={currentPagination.currentPage}
+                totalPages={currentPagination.totalPages}
+                onPageChange={currentChangePage}
+                className="mt-0"
+              />
+            </div>
+          </div>
         )}
       </div>
 
