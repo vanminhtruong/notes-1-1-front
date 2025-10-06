@@ -1,5 +1,5 @@
 import { Reply, Pin, MoreVertical, Video, Phone } from 'lucide-react';
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import MessageStatus from './MessageStatus';
 import ReactionDetailsModal from './ReactionDetailsModal';
@@ -10,7 +10,7 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import { useOptionalCall } from '@/contexts/CallContext';
 import SharedNoteCard from './SharedNoteCard';
 
-const MessageBubble = ({
+const MessageBubble = memo(({
   message,
   isOwnMessage,
   isRecalled = false,
@@ -798,7 +798,9 @@ const MessageBubble = ({
     )}
     </Tooltip.Provider>
   );
-};
+});
+
+MessageBubble.displayName = 'MessageBubble';
 
 function isDarkMode() {
   if (typeof document === 'undefined') return false;

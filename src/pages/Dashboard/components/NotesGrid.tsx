@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { StickyNote, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import NoteCard, { type Note } from './NoteCard';
@@ -24,7 +25,7 @@ interface NotesGridProps {
   onPageChange: (page: number) => void;
 }
 
-const NotesGrid = ({
+const NotesGrid = memo(({
   notes,
   isLoading,
   showArchived,
@@ -86,6 +87,7 @@ const NotesGrid = ({
             rootMargin="100px"
             animationDuration={500}
             delay={index * 80}
+            reAnimate={true}
           >
             <NoteCard
               note={note}
@@ -113,6 +115,8 @@ const NotesGrid = ({
       />
     </>
   );
-};
+});
+
+NotesGrid.displayName = 'NotesGrid';
 
 export default NotesGrid;

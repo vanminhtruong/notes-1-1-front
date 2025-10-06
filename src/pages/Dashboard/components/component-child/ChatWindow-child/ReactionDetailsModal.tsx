@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import NicknameModal from './NicknameModal';
 import { chatService } from '@/services/chatService';
 import { toast } from 'react-hot-toast';
@@ -28,7 +28,7 @@ const EMOJI: Record<ReactionType, string> = {
   angry: '😡',
 };
 
-export default function ReactionDetailsModal({ open, onClose, reactions, resolveUser, t, onOpenProfile, currentUserId }: Props) {
+const ReactionDetailsModal = memo(function ReactionDetailsModal({ open, onClose, reactions, resolveUser, t, onOpenProfile, currentUserId }: Props) {
   if (!open) return null;
 
   const list = Array.isArray(reactions) ? reactions : [];
@@ -178,8 +178,11 @@ export default function ReactionDetailsModal({ open, onClose, reactions, resolve
       </div>
     </div>
   );
-}
+});
 
+ReactionDetailsModal.displayName = 'ReactionDetailsModal';
+
+export default ReactionDetailsModal;
 function SidebarItem({ active, icon, label, count, onClick }: { active: boolean; icon: string | null; label: string; count: number; onClick: () => void }) {
   return (
     <button

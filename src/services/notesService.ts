@@ -113,6 +113,22 @@ export interface SharedNotesResponse {
   };
 }
 
+export interface SearchSuggestion {
+  id: number;
+  title: string;
+  snippet: string;
+  category: string;
+  priority: 'low' | 'medium' | 'high';
+  matchType: 'title' | 'content';
+  createdAt: string;
+}
+
+export interface SearchAutocompleteResponse {
+  suggestions: SearchSuggestion[];
+  query: string;
+  count: number;
+}
+
 export const notesService = {
   async getNotes(params?: {
     page?: number;
@@ -125,6 +141,13 @@ export const notesService = {
     sortOrder?: 'ASC' | 'DESC';
   }): Promise<NotesResponse> {
     const response = await api.get('/notes', { params });
+    return response.data;
+  },
+
+  async searchAutocomplete(query: string): Promise<SearchAutocompleteResponse> {
+    const response = await api.get('/notes/search/autocomplete', { 
+      params: { q: query } 
+    });
     return response.data;
   },
 

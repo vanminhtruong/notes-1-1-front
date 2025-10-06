@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import { ChevronUp } from 'lucide-react';
 
 interface BackToTopProps {
@@ -8,7 +8,7 @@ interface BackToTopProps {
   hideWhenChatOpen?: boolean; // hide when chat sidebar is open
 }
 
-const BackToTop = ({ threshold = 300, bottomOffset = '1rem', rightOffset = '1rem', hideWhenChatOpen = false }: BackToTopProps) => {
+const BackToTop = memo(({ threshold = 300, bottomOffset = '1rem', rightOffset = '1rem', hideWhenChatOpen = false }: BackToTopProps) => {
   const [visible, setVisible] = useState(false);
 
   const onScroll = useCallback(() => {
@@ -56,6 +56,8 @@ const BackToTop = ({ threshold = 300, bottomOffset = '1rem', rightOffset = '1rem
       </button>
     </div>
   );
-};
+});
+
+BackToTop.displayName = 'BackToTop';
 
 export default BackToTop;

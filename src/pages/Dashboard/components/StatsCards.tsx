@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Star, Archive, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -8,7 +9,7 @@ interface StatsCardsProps {
   };
 }
 
-const StatsCards = ({ stats }: StatsCardsProps) => {
+const StatsCards = memo(({ stats }: StatsCardsProps) => {
   const { t } = useTranslation('dashboard');
 
   return (
@@ -48,6 +49,8 @@ const StatsCards = ({ stats }: StatsCardsProps) => {
       </div>
     </div>
   );
-};
+});
+
+StatsCards.displayName = 'StatsCards';
 
 export default StatsCards;

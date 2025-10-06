@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '@/store';
 
@@ -5,7 +6,7 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = memo(({ children }: ProtectedRouteProps) => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const location = useLocation();
 
@@ -14,6 +15,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   return <>{children}</>;
-};
+});
+
+ProtectedRoute.displayName = 'ProtectedRoute';
 
 export default ProtectedRoute;

@@ -1,16 +1,16 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type BlockedUser = { id: number; name: string; email?: string; avatar?: string | null };
 
 interface BlockedUsersModalProps {
   isOpen: boolean;
-  users: BlockedUser[];
+  users: readonly BlockedUser[];
   onUnblock: (userId: number) => void;
   onClose: () => void;
 }
 
-const BlockedUsersModal: React.FC<BlockedUsersModalProps> = ({ isOpen, users, onUnblock, onClose }) => {
+const BlockedUsersModal = memo(({ isOpen, users, onUnblock, onClose }: BlockedUsersModalProps) => {
   const { t } = useTranslation('dashboard');
   const [query, setQuery] = useState('');
 
@@ -90,6 +90,8 @@ const BlockedUsersModal: React.FC<BlockedUsersModalProps> = ({ isOpen, users, on
       </div>
     </div>
   );
-};
+});
+
+BlockedUsersModal.displayName = 'BlockedUsersModal';
 
 export default BlockedUsersModal;

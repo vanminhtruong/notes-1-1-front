@@ -12,7 +12,24 @@
     "archived": "보관됨"
   },
   "search": {
-    "placeholder": "노트 검색..."
+    "placeholder": "노트 검색...",
+    "today": "오늘",
+    "yesterday": "어제",
+    "daysAgo": "일 전",
+    "matchInTitle": "제목",
+    "matchInContent": "내용",
+    "found": "찾음",
+    "results": "결과",
+    "pressEnter": "Enter를 눌러 전체 검색",
+    "noResults": "결과 없음",
+    "tryDifferent": "다른 키워드로 검색해보세요"
+  },
+  "categories": {
+    "work": "업무",
+    "personal": "개인",
+    "general": "일반",
+    "shopping": "쇼핑",
+    "health": "건강"
   },
   "filters": {
     "allCategories": "전체 카테고리",

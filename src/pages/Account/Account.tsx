@@ -5,6 +5,7 @@ import { Mail, User, ArrowLeft, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import EditProfileModal from './EditProfileModal';
+import LazyLoad from '@/components/LazyLoad';
 
 export default function Account() {
   const { t } = useTranslation('account');
@@ -66,7 +67,8 @@ export default function Account() {
 
           <div className="p-6 space-y-6 lg-down:p-5 lg-down:space-y-5 md-down:p-4 md-down:space-y-4 sm-down:p-3.5 sm-down:space-y-3.5 xs-down:p-3 xs-down:space-y-3">
             {/* Avatar display */}
-            <div className="space-y-2">
+            <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={0} reAnimate={true}>
+              <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 md-down:text-xs">{t('avatar.label')}</label>
               <div className="flex items-center gap-4 sm-down:gap-3 xs-down:gap-2.5">
                 {user?.avatar ? (
@@ -85,9 +87,11 @@ export default function Account() {
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 sm-down:text-[11px] xs-down:text-[10px]">{t('avatar.info')}</p>
             </div>
+            </LazyLoad>
 
             {/* Info grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg-down:gap-5 md-down:gap-4 sm-down:gap-3.5">
+            <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={100} reAnimate={true}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg-down:gap-5 md-down:gap-4 sm-down:gap-3.5">
               <div className="col-span-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 md-down:text-xs">{t('form.name')}</label>
                 <div className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 lg-down:px-2.5 lg-down:py-1.5 md-down:text-sm sm-down:text-xs">
@@ -109,8 +113,10 @@ export default function Account() {
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 sm-down:text-[11px] xs-down:text-[10px]">{t('form.emailNote')}</p>
               </div>
             </div>
+            </LazyLoad>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg-down:gap-5 md-down:gap-4 sm-down:gap-3.5 md-down:grid-cols-1">
+            <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={200} reAnimate={true}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg-down:gap-5 md-down:gap-4 sm-down:gap-3.5 md-down:grid-cols-1">
               <div className="col-span-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 md-down:text-xs">{t('form.phone', { defaultValue: 'Số điện thoại' })}</label>
                 <div className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 lg-down:px-2.5 lg-down:py-1.5 md-down:text-sm sm-down:text-xs">
@@ -130,6 +136,7 @@ export default function Account() {
                 </div>
               </div>
             </div>
+            </LazyLoad>
           </div>
         </div>
 

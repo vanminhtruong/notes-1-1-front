@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, memo } from 'react';
 import { MoreVertical, ChevronDown, Pencil, Users, Video, Key } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import NicknameModal from './NicknameModal';
@@ -14,7 +14,7 @@ import { getSocket } from '@/services/socket';
 import { useOptionalCall } from '@/contexts/CallContext';
 import { toast } from 'react-hot-toast';
 import type { ChatViewProps } from '../../interface/ChatView.interface';
-const ChatView = ({
+const ChatView = memo(({
   selectedChat,
   messages,
   groupedMessages,
@@ -2003,6 +2003,8 @@ const ChatView = ({
       {/* Call modal is rendered globally via GlobalCallUI */}
     </>
   );
-};
+});
+
+ChatView.displayName = 'ChatView';
 
 export default ChatView;

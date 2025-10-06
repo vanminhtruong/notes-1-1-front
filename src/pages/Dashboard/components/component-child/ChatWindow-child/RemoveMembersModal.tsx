@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RemoveMembersModalProps } from '../../interface/ChatUI.interface';
 
-const RemoveMembersModal: React.FC<RemoveMembersModalProps> = ({ isOpen, members, onClose, onConfirm }) => {
+const RemoveMembersModal = memo(({ isOpen, members, onClose, onConfirm }: RemoveMembersModalProps) => {
   const { t } = useTranslation('dashboard');
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -150,6 +150,8 @@ const RemoveMembersModal: React.FC<RemoveMembersModalProps> = ({ isOpen, members
       </div>
     </div>
   );
-};
+});
+
+RemoveMembersModal.displayName = 'RemoveMembersModal';
 
 export default RemoveMembersModal;

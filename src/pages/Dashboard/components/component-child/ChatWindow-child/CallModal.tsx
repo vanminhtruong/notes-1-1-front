@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, memo } from 'react';
 import { Phone, PhoneIncoming, PhoneOutgoing, PhoneOff, X, Video, VideoOff, Mic, MicOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/store/hooks';
@@ -24,18 +24,19 @@ interface CallModalProps {
   micOn?: boolean;
   onAccept?: () => void;
   onReject?: () => void;
-  onCancel?: () => void;
   onEnd?: () => void;
   onToggleCamera?: () => void;
   onToggleMic?: () => void;
 }
 
-const CallModal: React.FC<CallModalProps> = ({ open, mode, user, elapsedSeconds = 0, dialProgress = 0, mediaType = 'audio', localStream = null, remoteStream = null, cameraOn = false, micOn = true, onAccept, onReject, onCancel, onEnd, onToggleCamera, onToggleMic }) => {
+const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0, mediaType = 'audio', localStream = null, remoteStream = null, cameraOn = false, micOn = true, onAccept, onReject, onEnd, onToggleCamera, onToggleMic }: CallModalProps) => {
   const { t } = useTranslation('dashboard');
   const me = useAppSelector((s) => s.auth.user);
   // Keep hooks order stable across renders: define refs/effects before any early return
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  if (!open || mode === 'hidden') return null;
 
   const bindRemoteVideoRef = useCallback((node: HTMLVideoElement | null) => {
     remoteVideoRef.current = node;
@@ -88,7 +89,7 @@ const CallModal: React.FC<CallModalProps> = ({ open, mode, user, elapsedSeconds 
       } catch {}
     }
   }, [localStream]);
-  if (!open || mode === 'hidden') return null;
+  if (!open) return null;
   const pad = (n: number) => String(n).padStart(2, '0');
   const mins = Math.floor(elapsedSeconds / 60);
   const secs = elapsedSeconds % 60;
@@ -96,7 +97,7 @@ const CallModal: React.FC<CallModalProps> = ({ open, mode, user, elapsedSeconds 
   const title = mode === 'incoming' ? t('chat.call.title.incoming') : mode === 'outgoing' ? t('chat.call.title.outgoing') : t('chat.call.title.active');
   const primaryAction = () => {
     if (mode === 'incoming') return onAccept;
-    if (mode === 'outgoing') return onCancel;
+    if (mode === 'outgoing') return onReject;
     return onEnd;
   };
   const primaryText = mode === 'incoming' ? t('chat.call.actions.accept') : mode === 'outgoing' ? t('chat.call.actions.cancel') : t('chat.call.actions.end');
@@ -251,6 +252,8 @@ const CallModal: React.FC<CallModalProps> = ({ open, mode, user, elapsedSeconds 
       </div>
     </div>
   );
-};
+});
+
+CallModal.displayName = 'CallModal';
 
 export default CallModal;

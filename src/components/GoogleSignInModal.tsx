@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import { X } from 'lucide-react';
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
 
@@ -8,7 +8,7 @@ interface GoogleSignInModalProps {
   onClose: () => void;
 }
 
-const GoogleSignInModal = ({ clientId, onSuccess, onClose }: GoogleSignInModalProps) => {
+const GoogleSignInModal = memo(({ clientId, onSuccess, onClose }: GoogleSignInModalProps) => {
   const buttonRef = useRef<HTMLDivElement>(null);
 
   // Disable body scroll when modal is mounted
@@ -97,6 +97,8 @@ const GoogleSignInModal = ({ clientId, onSuccess, onClose }: GoogleSignInModalPr
       </div>
     </>
   );
-};
+});
+
+GoogleSignInModal.displayName = 'GoogleSignInModal';
 
 export default GoogleSignInModal;

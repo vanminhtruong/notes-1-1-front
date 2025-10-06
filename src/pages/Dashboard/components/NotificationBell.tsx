@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Bell } from 'lucide-react';
 import type { NotificationBellProps } from './interface/NotificationBell.interface';
 
-export default function NotificationBell({ total, ring, ringSeq, items, pagination, isLoading, onItemClick, onClearAll, onItemDismissed, onLoadMore }: NotificationBellProps) {
+const NotificationBell = memo(({ total, ring, ringSeq, items, pagination, isLoading, onItemClick, onClearAll, onItemDismissed, onLoadMore }: NotificationBellProps) => {
   const { t } = useTranslation('dashboard');
   const [open, setOpen] = useState(false);
   const [periodic, setPeriodic] = useState(false);
@@ -283,4 +283,8 @@ export default function NotificationBell({ total, ring, ringSeq, items, paginati
       )}
     </div>
   );
-}
+});
+
+NotificationBell.displayName = 'NotificationBell';
+
+export default NotificationBell;

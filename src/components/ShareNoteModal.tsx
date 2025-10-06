@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, UserCheck, Users as UsersIcon, Search, Send } from 'lucide-react';
 import { notesService } from '../services/notesService';
@@ -32,7 +32,7 @@ interface ShareNoteModalProps {
   onSuccess?: () => void;
 }
 
-const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProps) => {
+const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModalProps) => {
   const { t } = useTranslation('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [shareType, setShareType] = useState<'users' | 'groups'>('users');
@@ -532,6 +532,8 @@ const ShareNoteModal = ({ isOpen, onClose, note, onSuccess }: ShareNoteModalProp
       </div>
     </div>
   );
-};
+});
+
+ShareNoteModal.displayName = 'ShareNoteModal';
 
 export default ShareNoteModal;

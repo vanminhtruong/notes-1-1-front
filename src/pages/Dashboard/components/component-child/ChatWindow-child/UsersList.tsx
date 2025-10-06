@@ -1,11 +1,12 @@
 import { Search, Check, X, UserPlus, MessageSquare, Ban, MoreVertical } from 'lucide-react';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { UsersListProps } from '../../interface/ChatUI.interface';
 import type { User } from '../../interface/ChatTypes.interface';
+import LazyLoad from '@/components/LazyLoad';
 
-const UsersList = ({
+const UsersList = memo(({
   friendRequests,
   filteredUsers,
   onAcceptFriendRequest,
@@ -28,11 +29,16 @@ const UsersList = ({
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 px-2 md-down:mt-2">
               {t('chat.usersList.friendRequests')}
             </h4>
-            {friendRequests.map((user) => (
-              <div
+            {friendRequests.map((user, index) => (
+              <LazyLoad
                 key={user.id}
-                className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg md-down:bg-white/70 md-down:dark:bg-gray-800/70 md-down:backdrop-blur md-down:shadow-sm md-down:mb-3 md-down:last:mb-0"
+                threshold={0.1}
+                rootMargin="50px"
+                animationDuration={400}
+                delay={index * 30}
+                reAnimate={true}
               >
+                <div className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg md-down:bg-white/70 md-down:dark:bg-gray-800/70 md-down:backdrop-blur md-down:shadow-sm md-down:mb-3 md-down:last:mb-0">
                 <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
                   {user.avatar ? (
                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
@@ -65,6 +71,7 @@ const UsersList = ({
                   </button>
                 </div>
               </div>
+              </LazyLoad>
             ))}
           </div>
         )}
@@ -75,11 +82,16 @@ const UsersList = ({
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 px-2 md-down:mt-2 md-down:mb-2">
               {t('chat.usersList.users')}
             </h4>
-            {filteredUsers.map((user) => (
-              <div
+            {filteredUsers.map((user, index) => (
+              <LazyLoad
                 key={user.id}
-                className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg md-down:bg-white/70 md-down:dark:bg-gray-800/70 md-down:backdrop-blur md-down:shadow-sm md-down:mb-3 md-down:last:mb-0"
+                threshold={0.1}
+                rootMargin="50px"
+                animationDuration={400}
+                delay={index * 30}
+                reAnimate={true}
               >
+                <div className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg md-down:bg-white/70 md-down:dark:bg-gray-800/70 md-down:backdrop-blur md-down:shadow-sm md-down:mb-3 md-down:last:mb-0">
                 <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
                   {user.avatar ? (
                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
@@ -127,6 +139,7 @@ const UsersList = ({
                   </div>
                 </div>
               </div>
+              </LazyLoad>
             ))}
           </div>
         )}
@@ -193,6 +206,8 @@ const UsersList = ({
         : null}
     </div>
   );
-};
+});
+
+UsersList.displayName = 'UsersList';
 
 export default UsersList;

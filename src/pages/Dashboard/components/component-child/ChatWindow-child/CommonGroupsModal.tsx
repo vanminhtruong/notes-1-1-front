@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pin, Users } from 'lucide-react';
 import { groupService, type GroupSummary } from '@/services/groupService';
@@ -9,7 +9,7 @@ interface CommonGroupsModalProps {
   userId: number | null;
 }
 
-export default function CommonGroupsModal({ open, onClose, userId }: CommonGroupsModalProps) {
+const CommonGroupsModal = memo(function CommonGroupsModal({ open, onClose, userId }: CommonGroupsModalProps) {
   const { t } = useTranslation('dashboard');
   const [activeTab, setActiveTab] = useState<'all'|'mine'>('all');
   const [loading, setLoading] = useState(false);
@@ -146,4 +146,8 @@ export default function CommonGroupsModal({ open, onClose, userId }: CommonGroup
     </div>
   </div>
   );
-}
+});
+
+CommonGroupsModal.displayName = 'CommonGroupsModal';
+
+export default CommonGroupsModal;

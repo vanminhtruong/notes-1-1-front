@@ -1,5 +1,7 @@
-import { Plus, Search } from 'lucide-react';
+import { memo } from 'react';
+import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import SearchAutocomplete from '@/components/SearchAutocomplete';
 
 interface SearchAndFiltersProps {
   searchTerm: string;
@@ -11,8 +13,7 @@ interface SearchAndFiltersProps {
   onCreateNote: () => void;
 }
 
-const SearchAndFilters = ({
-  searchTerm,
+const SearchAndFilters = memo(({
   setSearchTerm,
   selectedCategory,
   setSelectedCategory,
@@ -24,18 +25,12 @@ const SearchAndFilters = ({
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 xl-down:gap-3.5 lg-down:gap-3 md-down:gap-2.5 sm-down:gap-2 xs-down:gap-1.5 mb-8 lg-down:mb-7 md-down:mb-6 sm-down:mb-5 xs-down:mb-4">
-      {/* Search */}
-      <div className="flex-1">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400 md-down:w-4 md-down:h-4 pointer-events-none z-10" />
-          <input
-            type="text"
-            placeholder={t('search.placeholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg border border-white/20 dark:border-gray-700/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 lg-down:py-2.5 md-down:py-2.5 md-down:pl-9 sm-down:text-sm xs-down:text-xs"
-          />
-        </div>
+      {/* Search Autocomplete */}
+      <div className="flex-1 relative z-[10000]">
+        <SearchAutocomplete
+          onSearch={setSearchTerm}
+          placeholder={t('search.placeholder')}
+        />
       </div>
 
       {/* Filters */}
@@ -72,6 +67,8 @@ const SearchAndFilters = ({
       </div>
     </div>
   );
-};
+});
+
+SearchAndFilters.displayName = 'SearchAndFilters';
 
 export default SearchAndFilters;

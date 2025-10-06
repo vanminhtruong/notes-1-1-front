@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock, Edit2, Trash2, Plus, Play } from 'lucide-react';
 import { formatDateMDYY } from '@/utils/utils';
@@ -34,7 +34,7 @@ interface PermissionsResponse {
   canCreate?: boolean;
 }
 
-const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, compact = false }) => {
+const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage, compact = false }) => {
   const { t } = useTranslation('dashboard');
   const [permissions, setPermissions] = useState<PermissionsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -414,6 +414,8 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = ({ note, isOwnMessage, com
     />
   </>
   );
-};
+});
+
+SharedNoteCard.displayName = 'SharedNoteCard';
 
 export default SharedNoteCard;

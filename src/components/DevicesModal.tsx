@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { X, Smartphone, Monitor, Tablet, MapPin, Clock, Trash2, LogOut } from 'lucide-react';
 import { sessionService } from '@/services/sessionService';
 import type { UserSession } from '@/services/sessionService';
@@ -9,13 +9,14 @@ import { useDispatch } from 'react-redux';
 import { resetAuth } from '@/store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
+import LazyLoad from '@/components/LazyLoad';
 
 interface DevicesModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
+const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
   const { t } = useTranslation('layout');
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -243,10 +244,17 @@ export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              {sessions.map((session) => (
-                <div
+              {sessions.map((session, index) => (
+                <LazyLoad
                   key={session.id}
-                  className={`p-4 rounded-xl border transition-all ${
+                  threshold={0.1}
+                  rootMargin="50px"
+                  animationDuration={400}
+                  delay={index * 50}
+                  reAnimate={true}
+                >
+                  <div
+                    className={`p-4 rounded-xl border transition-all ${
                     session.isCurrent
                       ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700'
                       : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
@@ -308,6 +316,7 @@ export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
                     </button>
                   </div>
                 </div>
+                </LazyLoad>
               ))}
             </div>
           )}
@@ -338,4 +347,8 @@ export default function DevicesModal({ isOpen, onClose }: DevicesModalProps) {
       </div>
     </div>
   );
-}
+});
+
+DevicesModal.displayName = 'DevicesModal';
+
+export default DevicesModal;

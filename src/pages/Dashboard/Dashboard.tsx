@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useDashboard } from '@/pages/Dashboard/hooks/useDashboard';
 import { useBodyScrollLock } from '@/pages/Dashboard/hooks/useBodyScrollLock';
 import ShareNoteModal from '@/components/ShareNoteModal';
@@ -39,14 +39,27 @@ const Dashboard = () => {
   // Disable body scroll when modals are open
   useBodyScrollLock(showViewModal || showEditModal || showShareModal || showCreateModal);
 
-  const handleOpenShareModal = () => {
+  const handleOpenShareModal = useCallback(() => {
     setShowShareModal(true);
-  };
+  }, []);
 
-  const handleShareSuccess = () => {
+  const handleShareSuccess = useCallback(() => {
     // Optionally refresh notes or update UI
     setShowViewModal(false);
-  };
+  }, []);
+
+  const handleCloseCreateModal = useCallback(() => setShowCreateModal(false), []);
+  const handleOpenCreateModal = useCallback(() => setShowCreateModal(true), []);
+  const handleCloseViewModal = useCallback(() => setShowViewModal(false), []);
+  const handleCloseEditModal = useCallback(() => setShowEditModal(false), []);
+  const handleCloseShareModal = useCallback(() => setShowShareModal(false), []);
+  
+  const handleSelectNote = useCallback((noteId: number) => {
+    const note = notes.find(n => n.id === noteId);
+    if (note) {
+      openView(note);
+    }
+  }, [notes, openView]);
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 min-h-screen">
@@ -70,7 +83,8 @@ const Dashboard = () => {
             setSelectedCategory={setSelectedCategory}
             selectedPriority={selectedPriority}
             setSelectedPriority={setSelectedPriority}
-            onCreateNote={() => setShowCreateModal(true)}
+            onCreateNote={handleOpenCreateModal}
+            onSelectNote={handleSelectNote}
           />
         </LazyLoad>
 
@@ -95,7 +109,7 @@ const Dashboard = () => {
             onArchive={confirmArchiveNote}
             onDelete={confirmDeleteNote}
             onAcknowledgeReminder={acknowledgeReminderNote}
-            onCreateNote={() => setShowCreateModal(true)}
+            onCreateNote={handleOpenCreateModal}
             getPriorityColor={getPriorityColor}
             getPriorityText={getPriorityText}
             currentPage={currentPage}
@@ -108,16 +122,16 @@ const Dashboard = () => {
       {/* Create Note Modal */}
       <CreateNoteModal
         isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onClose={handleCloseCreateModal}
         newNote={newNote}
-        setNewNote={(note) => setNewNote(note)}
+        setNewNote={setNewNote}
         onSubmit={handleCreateNote}
       />
 
       {/* View Note Modal */}
       <ViewNoteModal
         isOpen={showViewModal}
-        onClose={() => setShowViewModal(false)}
+        onClose={handleCloseViewModal}
         note={viewNote}
         onOpenShare={handleOpenShareModal}
         getPriorityColor={getPriorityColor}
@@ -126,16 +140,16 @@ const Dashboard = () => {
       {/* Edit Note Modal */}
       <EditNoteModal
         isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        onClose={handleCloseEditModal}
         editNote={editNote}
-        setEditNote={(note) => setEditNote(note)}
+        setEditNote={setEditNote}
         onSubmit={handleUpdateNote}
       />
 
       {/* Share Note Modal */}
       <ShareNoteModal
         isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
+        onClose={handleCloseShareModal}
         note={viewNote}
         onSuccess={handleShareSuccess}
       />

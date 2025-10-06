@@ -1,7 +1,7 @@
 import { FileText, User, Calendar, Edit2, Eye, Trash2, AlertCircle, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { SharedNoteItemProps } from '../interface/SharedNotes.interface';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import toast from 'react-hot-toast';
 import { userService } from '@/services/userService';
 
@@ -18,7 +18,7 @@ const getTimeAgo = (date: string): string => {
   return `${Math.floor(seconds / 31536000)} năm trước`;
 };
 
-export const SharedNoteItem = ({ sharedNote, type, onRemove, onViewNote, onEditNote, onCreateFromNote }: SharedNoteItemProps) => {
+export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, onEditNote, onCreateFromNote }: SharedNoteItemProps) => {
   const { t } = useTranslation('dashboard');
   const [isRemoving, setIsRemoving] = useState(false);
   const isReceived = type === 'received';
@@ -256,4 +256,6 @@ export const SharedNoteItem = ({ sharedNote, type, onRemove, onViewNote, onEditN
       </div>
     </div>
   );
-};
+});
+
+SharedNoteItem.displayName = 'SharedNoteItem';

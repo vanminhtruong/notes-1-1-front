@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Inbox, RefreshCw } from 'lucide-react';
 import { SharedNoteItem } from './SharedNoteItem';
@@ -9,8 +9,9 @@ import { notesService } from '@/services/notesService';
 import EditSharedNoteModal from '@/components/EditSharedNoteModal';
 import ViewSharedNoteModal from '~/pages/Dashboard/components/component-child/ViewSharedNoteModal';
 import Pagination from '@/components/Pagination';
+import LazyLoad from '@/components/LazyLoad';
 
-export const SharedNotesTab = ({ searchTerm, currentUserId }: SharedNotesTabProps) => {
+export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTabProps) => {
   const { t } = useTranslation('dashboard');
   const [subTab, setSubTab] = useState<'received' | 'sent'>('received');
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -256,17 +257,25 @@ export const SharedNotesTab = ({ searchTerm, currentUserId }: SharedNotesTabProp
           </div>
         ) : (
           <>
-            {currentNotes.map((sharedNote) => (
-              <SharedNoteItem
+            {currentNotes.map((sharedNote, index) => (
+              <LazyLoad
                 key={sharedNote.id}
-                sharedNote={sharedNote}
-                type={subTab === 'received' ? 'received' : 'sent'}
-                onRemove={removeSharedNote}
-                onViewNote={handleViewNote}
-                onEditNote={handleEditNote}
-                onCreateFromNote={handleCreateFromNote}
-                currentUserId={currentUserId}
-              />
+                threshold={0.1}
+                rootMargin="100px"
+                animationDuration={500}
+                delay={index * 50}
+                reAnimate={true}
+              >
+                <SharedNoteItem
+                  sharedNote={sharedNote}
+                  type={subTab === 'received' ? 'received' : 'sent'}
+                  onRemove={removeSharedNote}
+                  onViewNote={handleViewNote}
+                  onEditNote={handleEditNote}
+                  onCreateFromNote={handleCreateFromNote}
+                  currentUserId={currentUserId}
+                />
+              </LazyLoad>
             ))}
           </>
         )}
@@ -310,4 +319,6 @@ export const SharedNotesTab = ({ searchTerm, currentUserId }: SharedNotesTabProp
       )}
     </div>
   );
-};
+});
+
+SharedNotesTab.displayName = 'SharedNotesTab';

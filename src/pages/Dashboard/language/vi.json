@@ -12,7 +12,24 @@
     "archived": "Đã lưu trữ"
   },
   "search": {
-    "placeholder": "Tìm kiếm ghi chú..."
+    "placeholder": "Tìm kiếm ghi chú...",
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "daysAgo": "ngày trước",
+    "matchInTitle": "Tiêu đề",
+    "matchInContent": "Nội dung",
+    "found": "Tìm thấy",
+    "results": "kết quả",
+    "pressEnter": "Nhấn Enter để tìm kiếm đầy đủ",
+    "noResults": "Không tìm thấy kết quả",
+    "tryDifferent": "Thử tìm kiếm với từ khóa khác"
+  },
+  "categories": {
+    "work": "Công việc",
+    "personal": "Cá nhân",
+    "general": "Chung",
+    "shopping": "Mua sắm",
+    "health": "Sức khỏe"
   },
   "filters": {
     "allCategories": "Tất cả danh mục",

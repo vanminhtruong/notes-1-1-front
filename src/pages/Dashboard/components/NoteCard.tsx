@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
@@ -30,7 +31,7 @@ interface NoteCardProps {
   getPriorityText: (priority: string) => string;
 }
 
-const NoteCard = ({
+const NoteCard = memo(({
   note,
   isSelected,
   onToggleSelect,
@@ -181,6 +182,8 @@ const NoteCard = ({
       </div>
     </div>
   );
-};
+});
+
+NoteCard.displayName = 'NoteCard';
 
 export default NoteCard;

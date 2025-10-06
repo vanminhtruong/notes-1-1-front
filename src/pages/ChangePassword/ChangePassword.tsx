@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { ChevronLeft, Eye, EyeOff, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { changePassword } from '@/services/authService'
+import LazyLoad from '@/components/LazyLoad'
 
 interface ChangePasswordForm {
   currentPassword: string
@@ -82,7 +83,8 @@ export default function ChangePassword() {
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 lg-down:space-y-5 md-down:space-y-4 sm-down:space-y-3.5 xs-down:space-y-3">
               {/* Current Password */}
-              <div>
+              <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={0} reAnimate={true}>
+                <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs sm-down:mb-1.5">
                   {t('auth.changePassword.currentPassword')}
                 </label>
@@ -113,9 +115,11 @@ export default function ChangePassword() {
                   </p>
                 )}
               </div>
+              </LazyLoad>
 
               {/* New Password */}
-              <div>
+              <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={100} reAnimate={true}>
+                <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs sm-down:mb-1.5">
                   {t('auth.changePassword.newPassword')}
                 </label>
@@ -150,9 +154,11 @@ export default function ChangePassword() {
                   </p>
                 )}
               </div>
+              </LazyLoad>
 
               {/* Confirm Password */}
-              <div>
+              <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={200} reAnimate={true}>
+                <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs sm-down:mb-1.5">
                   {t('auth.changePassword.confirmPassword')}
                 </label>
@@ -185,9 +191,11 @@ export default function ChangePassword() {
                   </p>
                 )}
               </div>
+              </LazyLoad>
 
               {/* Submit Button */}
-              <div className="flex gap-3 pt-4 lg-down:gap-2.5 md-down:pt-3 sm-down:gap-2 xs-down:pt-2.5">
+              <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={300} reAnimate={true}>
+                <div className="flex gap-3 pt-4 lg-down:gap-2.5 md-down:pt-3 sm-down:gap-2 xs-down:pt-2.5">
                 <Link
                   to="/account"
                   className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-center lg-down:py-2.5 lg-down:px-3.5 md-down:text-sm md-down:rounded-lg sm-down:py-2 sm-down:px-3 sm-down:text-xs xs-down:rounded-lg"
@@ -209,6 +217,7 @@ export default function ChangePassword() {
                   )}
                 </button>
               </div>
+              </LazyLoad>
             </form>
           </div>
         </div>

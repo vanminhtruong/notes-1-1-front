@@ -1,5 +1,5 @@
 import { CheckIcon, CheckCheckIcon } from 'lucide-react';
-import { useMemo, useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import type { MessageStatusProps } from '../../interface/MessageStatus.interface';
 import { useTranslation } from 'react-i18next';
 
@@ -76,8 +76,7 @@ const avatarAnimationStyles = `
 `;
 
  
-
-const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] }: MessageStatusProps) => {
+const MessageStatus = memo(({ message, isOwnMessage, currentUserId }: MessageStatusProps) => {
   const { t, i18n } = useTranslation('dashboard');
   // Inject custom CSS styles for animations
   useEffect(() => {
@@ -94,32 +93,6 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
   if (!isOwnMessage || !message.status) {
     return null;
   }
-
-  // Calculate latest read message for each user to avoid duplicate avatars
-  const latestReadByUser = useMemo(() => {
-    if (!allMessages.length || !message.readBy) return new Map();
-
-    const userLatestReads = new Map<number, { messageId: number; readAt: string }>();
-    
-    // Go through all messages and find the latest read message for each user
-    allMessages
-      .filter(msg => msg.senderId === currentUserId && msg.readBy) // Only own messages with readBy data
-      .forEach(msg => {
-        msg.readBy?.forEach(readInfo => {
-          if (readInfo.userId === currentUserId) return; // Skip current user
-          
-          const existing = userLatestReads.get(readInfo.userId);
-          if (!existing || new Date(readInfo.readAt) > new Date(existing.readAt)) {
-            userLatestReads.set(readInfo.userId, {
-              messageId: msg.id,
-              readAt: readInfo.readAt
-            });
-          }
-        });
-      });
-
-    return userLatestReads;
-  }, [allMessages, currentUserId, message.readBy]);
 
   const renderStatusIcon = () => {
     switch (message.status) {
@@ -139,22 +112,9 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
     }
   };
 
-  // Điền thông tin user từ danh sách messages nếu thiếu (fix realtime avatar 'U')
-  const resolveUserRich = (uid: number, fallback?: any) => {
-    // 1) Nếu đã có avatar => dùng luôn
-    if (fallback?.avatar) return fallback;
-    // 2) Tìm trong allMessages: ưu tiên từ cuối danh sách (mới nhất)
-    for (let i = allMessages.length - 1; i >= 0; i--) {
-      const m: any = allMessages[i];
-      if (m?.sender && Number(m.sender.id) === Number(uid)) {
-        if (m.sender.avatar || m.sender.name) return m.sender;
-      }
-      if (m?.receiver && Number(m.receiver.id) === Number(uid)) {
-        if (m.receiver.avatar || m.receiver.name) return m.receiver;
-      }
-    }
-    // 3) Trả về fallback hoặc tên mặc định
-    return fallback || { id: uid, name: String(t('chat.fallback.user', { id: uid })) };
+  // Simple resolve: just use the user data provided in readBy
+  const resolveUser = (readInfo: any) => {
+    return readInfo.user || { id: readInfo.userId, name: String(t('chat.fallback.user', { id: readInfo.userId })) };
   };
 
   const renderReadByAvatars = () => {
@@ -169,20 +129,13 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
       return null;
     }
 
-    // Only show avatars on the latest read message for each user to avoid duplicates
-    const avatarsToShow = readByOthers.filter(readInfo => {
-      const latestRead = latestReadByUser.get(readInfo.userId);
-      return latestRead && latestRead.messageId === message.id;
-    });
-
-    if (avatarsToShow.length === 0) {
-      return null;
-    }
+    // Show read avatars directly
+    const avatarsToShow = readByOthers;
 
     return (
       <div className="flex -space-x-1 ml-1 transform transition-all duration-300 ease-out">
         {avatarsToShow.slice(0, 3).map((readInfo, index) => {
-          const user = resolveUserRich(readInfo.userId, readInfo.user);
+          const user = resolveUser(readInfo);
           const displayName = user?.name || t('chat.fallback.user', { id: readInfo.userId });
           return (
             <div
@@ -227,6 +180,8 @@ const MessageStatus = ({ message, isOwnMessage, currentUserId, allMessages = [] 
       </div>
     </div>
   );
-};
+});
+
+MessageStatus.displayName = 'MessageStatus';
 
 export default MessageStatus;

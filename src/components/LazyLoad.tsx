@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, memo, type ReactNode } from 'react';
 
 interface LazyLoadProps {
   children: ReactNode;
@@ -9,7 +9,7 @@ interface LazyLoadProps {
   reAnimate?: boolean;
 }
 
-const LazyLoad = ({
+const LazyLoad = memo(({
   children,
   threshold = 0.1,
   rootMargin = '50px',
@@ -61,13 +61,16 @@ const LazyLoad = ({
       ref={elementRef}
       style={{
         opacity: isVisible ? 1 : 0,
-        transition: `opacity ${animationDuration}ms ease-out`,
-        willChange: isVisible ? 'auto' : 'opacity',
+        transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',
+        transition: `opacity ${animationDuration}ms ease-out, transform ${animationDuration}ms ease-out`,
+        willChange: isVisible ? 'auto' : 'opacity, transform',
       }}
     >
       {children}
     </div>
   );
-};
+});
+
+LazyLoad.displayName = 'LazyLoad';
 
 export default LazyLoad;

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Clock, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
@@ -13,7 +14,7 @@ interface ViewNoteModalProps {
   getPriorityText: (priority: string) => string;
 }
 
-const ViewNoteModal = ({ isOpen, onClose, note, onOpenShare, getPriorityColor, getPriorityText }: ViewNoteModalProps) => {
+const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityColor, getPriorityText }: ViewNoteModalProps) => {
   const { t } = useTranslation('dashboard');
 
   if (!isOpen || !note) return null;
@@ -104,6 +105,8 @@ const ViewNoteModal = ({ isOpen, onClose, note, onOpenShare, getPriorityColor, g
       </div>
     </div>
   );
-};
+});
+
+ViewNoteModal.displayName = 'ViewNoteModal';
 
 export default ViewNoteModal;

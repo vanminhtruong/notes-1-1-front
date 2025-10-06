@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { Search, X } from 'lucide-react';
 import NotificationBell from '../../NotificationBell';
 import { useTranslation } from 'react-i18next';
 import type { ChatHeaderProps } from '../../interface/ChatHeader.interface';
-const ChatHeader = ({
+const ChatHeader = memo(({
   totalUnread,
   ring,
   ringSeq,
@@ -134,6 +135,8 @@ const ChatHeader = ({
       )}
     </div>
   );
-};
+});
+
+ChatHeader.displayName = 'ChatHeader';
 
 export default ChatHeader;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X, Save, Loader2 } from 'lucide-react';
@@ -26,8 +26,7 @@ interface EditSharedNoteModalProps {
   onNoteUpdated?: (updatedNote: SharedNoteData) => void;
 }
 
-const EditSharedNoteModal: React.FC<EditSharedNoteModalProps> = ({
-  isOpen,
+const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
   onClose,
   note,
   onNoteUpdated
@@ -380,6 +379,8 @@ const EditSharedNoteModal: React.FC<EditSharedNoteModalProps> = ({
     </div>,
     document.body
   );
-};
+});
+
+EditSharedNoteModal.displayName = 'EditSharedNoteModal';
 
 export default EditSharedNoteModal;

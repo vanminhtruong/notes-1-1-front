@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface ViewToggleProps {
@@ -5,7 +6,7 @@ interface ViewToggleProps {
   setShowArchived: (value: boolean) => void;
 }
 
-const ViewToggle = ({ showArchived, setShowArchived }: ViewToggleProps) => {
+const ViewToggle = memo(({ showArchived, setShowArchived }: ViewToggleProps) => {
   const { t } = useTranslation('dashboard');
 
   return (
@@ -32,6 +33,8 @@ const ViewToggle = ({ showArchived, setShowArchived }: ViewToggleProps) => {
       </button>
     </div>
   );
-};
+});
+
+ViewToggle.displayName = 'ViewToggle';
 
 export default ViewToggle;

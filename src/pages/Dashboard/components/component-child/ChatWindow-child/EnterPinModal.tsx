@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, memo } from 'react';
 import type { EnterPinModalProps } from '../../interface/ChatUI.interface';
 
 async function hashPIN(pin: string): Promise<string> {
@@ -9,7 +9,7 @@ async function hashPIN(pin: string): Promise<string> {
   return bytes.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-const EnterPinModal: React.FC<EnterPinModalProps> = ({ isOpen, onClose, onUnlock, expectedHash }) => {
+const EnterPinModal = memo(({ isOpen, onClose, onUnlock, expectedHash }: EnterPinModalProps) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
@@ -53,6 +53,8 @@ const EnterPinModal: React.FC<EnterPinModalProps> = ({ isOpen, onClose, onUnlock
       </div>
     </div>
   );
-};
+});
+
+EnterPinModal.displayName = 'EnterPinModal';
 
 export default EnterPinModal;

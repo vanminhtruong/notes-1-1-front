@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback, memo } from 'react';
 import { type User, type Message, type MessageGroup, type ChatWindowProps, type GroupSummary, useState, useEffect, useRef, toast, useTranslation, chatService, groupService, getSocket, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettings, useChatBackground, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
 import { blockService, type BlockStatus } from '@/services/blockService';
 import { notificationService } from '@/services/notificationService';
 import type { NotificationPagination } from './interface/NotificationBell.interface';
 
-const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
+const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   const { t } = useTranslation('dashboard');
   const currentUser = getCachedUser();
   const [activeTab, setActiveTab] = useState<'users' | 'chats' | 'unread' | 'groups' | 'sharedNotes'>('users');
@@ -72,7 +72,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const [bellBadgeTotal, setBellBadgeTotal] = useState<number>(0);
   const [bellPagination, setBellPagination] = useState<NotificationPagination | undefined>(undefined);
   const [bellLoading, setBellLoading] = useState<boolean>(false);
-  const loadBellFeed = async (page: number = 1, limit: number = 4) => {
+  const loadBellFeed = useCallback(async (page: number = 1, limit: number = 4) => {
     setBellLoading(true);
     try {
       const [feedRes, badgeRes] = await Promise.all([
@@ -92,20 +92,20 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     finally {
       setBellLoading(false);
     }
-  };
+  }, []);
 
-  const handleLoadMoreNotifications = () => {
+  const handleLoadMoreNotifications = useCallback(() => {
     if (bellPagination?.hasNextPage) {
       loadBellFeed(bellPagination.currentPage + 1);
     }
-  };
+  }, [bellPagination, loadBellFeed]);
 
   useEffect(() => {
     loadNotifications();
     loadBellFeed();
   }, []);
 
-  const handleBellItemDismiss = async (id: number) => {
+  const handleBellItemDismiss = useCallback(async (id: number) => {
     try {
       if (id === -1001) {
         await notificationService.dismissBellItem('fr');
@@ -126,7 +126,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     } catch (e) {
       // soft fail, keep UI unchanged if error
     }
-  };
+  }, [loadBellFeed]);
 
   const bellNotificationItems = useMemo(() => {
     return (bellFeedItems || []).map((it) => ({
@@ -138,9 +138,9 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     }));
   }, [bellFeedItems]);
 
-  const reloadBellFeed = async () => {
+  const reloadBellFeed = useCallback(async () => {
     await loadBellFeed(1);
-  };
+  }, [loadBellFeed]);
 
   const unreadChats = useUnreadChats(chatList, unreadMap);
 
@@ -172,7 +172,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const { chatBackgroundUrl, changeBackground, changeBackgroundForBoth, resetBackground } = useChatBackground(selectedChat?.id ?? null, t);
 
   // Prepend older messages (lazy load). Keep order ascending and dedupe by id.
-  const handlePrependMessages = (older: any[]) => {
+  const handlePrependMessages = useCallback((older: any[]) => {
     if (!Array.isArray(older) || older.length === 0) return;
     setMessages((prev) => {
       const existingIds = new Set(prev.map((m: any) => m.id));
@@ -181,15 +181,15 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
       if (dedup.length === 0) return prev;
       return [...dedup, ...prev];
     });
-  };
+  }, []);
 
   // Remove messages by IDs (for admin deletion)
-  const handleRemoveMessages = (messageIds: number[]) => {
+  const handleRemoveMessages = useCallback((messageIds: number[]) => {
     setMessages((prev) => prev.filter((m: any) => !messageIds.includes(m.id)));
-  };
+  }, []);
 
   // Update or insert a chatList entry with a new last message
-  const upsertChatListWithMessage = (otherUserId: number, msg: Message) => {
+  const upsertChatListWithMessage = useCallback((otherUserId: number, msg: Message) => {
     setChatList((prev) => {
       const baseFriend = friends.find((f) => f.id === otherUserId) || users.find((u) => u.id === otherUserId);
       if (!baseFriend) return prev;
@@ -217,11 +217,11 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
           : it
       ));
     });
-  };
+  }, [friends, users]);
 
   const tt = t;
 
-  const confirmWithToast = (message: string) => new Promise<boolean>((resolve) => {
+  const confirmWithToast = useCallback((message: string) => new Promise<boolean>((resolve) => {
     const id = toast.custom((toastObj) => (
       <div className={`max-w-sm w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 ${toastObj.visible ? 'animate-in fade-in zoom-in' : 'animate-out fade-out zoom-out'}`}>
         <div className="text-sm text-gray-800 dark:text-gray-100 mb-3">{message}</div>
@@ -241,7 +241,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         </div>
       </div>
     ), { duration: Infinity });
-  });
+  }), [tt]);
 
   const { loadUsers, loadFriends, loadChatList, loadFriendRequests, loadPendingInvites, loadNotifications } = useChatData({
     setUsers,
@@ -260,7 +260,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     loadNotifications();
   }, []);
 
-  const editMessage = async (msg: Message, content: string) => {
+  const editMessage = useCallback(async (msg: Message, content: string) => {
     try {
       if (selectedGroup) {
         const res = await groupService.editGroupMessage(selectedGroup.id, msg.id, content);
@@ -283,7 +283,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     } catch (error: any) {
       toast.error(error?.response?.data?.message || t('chat.errors.generic'));
     }
-  };
+  }, [selectedGroup, selectedChat, t]);
 
   const { downloadAttachment } = useAttachmentDownloader(t);
 
@@ -375,7 +375,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     setActiveTab,
   });
 
-  const recallGroup = async (group: MessageGroup, scope: 'self' | 'all') => {
+  const recallGroup = useCallback(async (group: MessageGroup, scope: 'self' | 'all') => {
     const ids = group.items.map((i) => i.id);
     try {
       let ok = false;
@@ -401,9 +401,9 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     } catch (error: any) {
       toast.error(error.response?.data?.message || t('chat.errors.recall'));
     }
-  };
+  }, [selectedGroup, selectedChat, t]);
 
-  const recallMessage = async (msg: Message, scope: 'self' | 'all') => {
+  const recallMessage = useCallback(async (msg: Message, scope: 'self' | 'all') => {
     try {
       let ok = false;
       if (selectedGroup) {
@@ -433,7 +433,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     } catch (error: any) {
       toast.error(error.response?.data?.message || t('chat.errors.recall'));
     }
-  };
+  }, [selectedGroup, selectedChat, t]);
 
   useAutoScroll(messages, isPartnerTyping, scrollToBottom, selectedChat?.id, selectedGroup?.id);
 
@@ -544,7 +544,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     t,
   });
 
-  const handleDeleteMessages = async (friendId: number, friendName: string) => {
+  const handleDeleteMessages = useCallback(async (friendId: number, friendName: string) => {
     try {
       const response = await chatService.deleteAllMessages(friendId);
       if (response.success) {
@@ -563,10 +563,10 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     } catch (error: any) {
       toast.error(error.response?.data?.message || t('chat.errors.generic'));
     }
-  };
+  }, [selectedChat?.id, t]);
 
   // Block a user (for non-friends in Users tab)
-  const handleBlockUser = async (user: User) => {
+  const handleBlockUser = useCallback(async (user: User) => {
     try {
       const ok = await confirmWithToast(String(t('chat.confirm.block', { name: user.name, defaultValue: `Bạn có chắc chắn muốn chặn ${user.name}?` } as any)));
       if (!ok) return;
@@ -582,7 +582,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
       // Nếu backend trả lỗi (ví dụ đã chặn), hiển thị thông báo
       toast.error(error?.response?.data?.message || t('chat.errors.generic'));
     }
-  };
+  }, [confirmWithToast, t, loadUsers, searchTerm]);
 
   if (!isOpen) return null;
 
@@ -595,7 +595,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   );
 
   // Remove friend function
-  const handleRemoveFriend = async (friendshipId: number, friendName: string) => {
+  const handleRemoveFriend = useCallback(async (friendshipId: number, friendName: string) => {
     try {
       const response = await chatService.removeFriend(friendshipId);
       if (response.success) {
@@ -606,7 +606,146 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
     } catch (error: any) {
       toast.error(error.response?.data?.message || t('chat.errors.generic'));
     }
-  };
+  }, [t, loadFriends, loadChatList]);
+
+  // Inline callback handlers - memoized
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+    loadUsers(value);
+  }, [loadUsers]);
+
+  const handleClearAll = useCallback(async () => {
+    try {
+      await markAllRead();
+      await notificationService.markAllRead();
+      try { await loadNotifications(); } catch {}
+      try { await loadPendingInvites(); } catch {}
+      try { await loadBellFeed(1); } catch {}
+    } catch {}
+  }, [markAllRead, loadNotifications, loadPendingInvites, loadBellFeed]);
+
+  const handleBackToChats = useCallback(() => {
+    setSelectedChat(null);
+    setActiveTab('chats');
+  }, []);
+
+  const handleBackToGroups = useCallback(() => {
+    const gid = selectedGroup?.id;
+    setSelectedGroup(null);
+    setActiveTab('groups');
+    if (typeof window !== 'undefined' && gid) {
+      setTimeout(() => {
+        try { window.dispatchEvent(new CustomEvent('group_marked_read', { detail: { groupId: gid } })); } catch {}
+      }, 60);
+    }
+  }, [selectedGroup?.id]);
+
+  const handleUnlock = useCallback(() => setShowEnterPin(true), []);
+  const handleSetReplyingToMessage = useCallback((m: any) => setReplyingToMessage(m), []);
+  const handleClearReply = useCallback(() => setReplyingToMessage(null), []);
+  const handleCloseGroupEditor = useCallback(() => setShowGroupEditor(false), []);
+  const handleCloseRemoveMembers = useCallback(() => setShowRemoveMembers(false), []);
+  const handlePreviewImage = useCallback((url: string | null) => setPreviewImage(url), []);
+  const handleClosePreview = useCallback(() => setPreviewImage(null), []);
+  const handleRemoveImage = useCallback((id: string) => setPendingImages((prev) => prev.filter((p) => p.id !== id)), []);
+  const handleRemoveFile = useCallback((id: string) => setPendingFiles((prev) => prev.filter((p) => p.id !== id)), []);
+
+  const handleTypingStop = useCallback(() => {
+    const socket = getSocket();
+    if (socket && selectedChat) {
+      socket.emit('typing_stop', { receiverId: selectedChat.id });
+      typingSentRef.current = false;
+    }
+  }, [selectedChat]);
+
+  const handleGroupTypingStop = useCallback(() => {
+    const socket = getSocket();
+    if (socket && selectedGroup) {
+      socket.emit('group_typing', { groupId: selectedGroup.id, isTyping: false });
+      typingSentRef.current = false;
+    }
+  }, [selectedGroup]);
+
+  const handleChangeBackground = useCallback(async () => {
+    if (!selectedChat) return;
+    await changeBackground(selectedChat.id);
+  }, [selectedChat, changeBackground]);
+
+  const handleChangeBackgroundForBoth = useCallback(async () => {
+    if (!selectedChat) return;
+    await changeBackgroundForBoth(selectedChat.id);
+  }, [selectedChat, changeBackgroundForBoth]);
+
+  const handleResetBackground = useCallback(async () => {
+    if (!selectedChat) return;
+    await resetBackground(selectedChat.id);
+  }, [selectedChat, resetBackground]);
+
+  const handleUpdateRecipientStatus = useCallback((isActive: boolean) => {
+    if (selectedChat) {
+      setSelectedChat((prev) => prev ? { ...prev, isActive } : null);
+    }
+  }, [selectedChat]);
+
+  const handleGroupEditorSuccess = useCallback((g: GroupSummary) => {
+    setSelectedGroup((prev) => (prev && prev.id === g.id ? g : prev));
+  }, []);
+
+  const handleRemoveMembersConfirm = useCallback(async (memberIds: number[]) => {
+    if (!selectedGroup) return;
+    try {
+      const res = await groupService.removeMembers(selectedGroup.id, memberIds);
+      if (res.success) {
+        toast.success(t('chat.groups.success.removed'));
+        setShowRemoveMembers(false);
+        setSelectedGroup((prev) => prev ? { ...prev, members: prev.members.filter((id) => !memberIds.includes(id)) } : prev);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || t('chat.groups.errors.removeFailed'));
+    }
+  }, [selectedGroup, t]);
+
+  const handleLeaveGroup = useCallback(async () => {
+    if (!selectedGroup) return;
+    const ok = await confirmWithToast(String(t('chat.groups.confirm.leave')));
+    if (!ok) return;
+    try {
+      const res = await groupService.leaveGroup(selectedGroup.id);
+      if (res.success) {
+        toast.success(t('chat.groups.success.left'));
+        setSelectedGroup(null);
+        setMessages([]);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || t('chat.errors.generic'));
+    }
+  }, [selectedGroup, confirmWithToast, t]);
+
+  const handleDeleteGroup = useCallback(async () => {
+    if (!selectedGroup) return;
+    const ok = await confirmWithToast(String(t('chat.groups.confirm.delete')));
+    if (!ok) return;
+    try {
+      const res = await groupService.deleteGroup(selectedGroup.id);
+      if (res.success) {
+        setSelectedGroup(null);
+        setMessages([]);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || t('chat.groups.errors.deleteFailed'));
+    }
+  }, [selectedGroup, confirmWithToast, t]);
+
+  const handleEditGroup = useCallback(() => setShowGroupEditor(true), []);
+  const handleRemoveMembersOpen = useCallback(() => setShowRemoveMembers(true), []);
+
+  const handleSetPinClose = useCallback(() => setShowSetPin(false), []);
+  const handleEnterPinClose = useCallback(() => setShowEnterPin(false), []);
+  const handleEnterPinUnlock = useCallback(() => {
+    setE2EEUnlocked(true);
+    sessionStorage.setItem('e2ee_unlocked', '1');
+    setShowEnterPin(false);
+  }, []);
 
   return (
     <div
@@ -626,26 +765,8 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         onItemClick={handleBellItemClick}
         onItemDismissed={handleBellItemDismiss}
         onLoadMoreNotifications={handleLoadMoreNotifications}
-        onClearAll={() => {
-          // Mark per-chat and per-group counters as read locally for snappy UI + call backend APIs
-          void (async () => {
-            try {
-              await markAllRead();
-              // Persist: mark backend notifications (friend_request, group_invite) as read  
-              await notificationService.markAllRead();
-              // Refresh persisted notifications so aggregates disappear across refresh
-              try { await loadNotifications(); } catch {}
-              try { await loadPendingInvites(); } catch {}
-              try {
-                await loadBellFeed(1);
-              } catch {}
-            } catch {}
-          })();
-        }}
-        onSearchChange={(value) => {
-          setSearchTerm(value);
-          loadUsers(value);
-        }}
+        onClearAll={handleClearAll}
+        onSearchChange={handleSearchChange}
         onTabChange={setActiveTab}
         onOpenSettings={openSettings}
         showSettings={showSettings}
@@ -664,7 +785,7 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
             blockedUsers={blockedUsers as any}
             onBack={closeSettings}
             onToggle={handleToggleE2EE}
-            onChangePin={() => setShowSetPin(true)}
+            onChangePin={handleEditGroup}
             onToggleReadStatus={handleToggleReadStatus}
             onToggleHidePhone={handleToggleHidePhone}
             onToggleHideBirthDate={handleToggleHideBirthDate}
@@ -697,39 +818,26 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   menuOpenKey={menuOpenKey}
                   currentUserId={currentUser?.id}
                   initialAlias={(chatList.find((c) => c.friend.id === selectedChat.id) as any)?.nickname ?? null}
-                  onBack={() => { setSelectedChat(null); setActiveTab('chats'); }}
+                  onBack={handleBackToChats}
                   onMenuToggle={setMenuOpenKey}
                   onRecallMessage={recallMessage}
                   onRecallGroup={recallGroup}
                   onEditMessage={editMessage}
                   onDownloadAttachment={downloadAttachment}
-                  onPreviewImage={setPreviewImage}
+                  onPreviewImage={handlePreviewImage}
                   initialLoading={historyLoading}
                   onPrependMessages={handlePrependMessages}
                   onRemoveMessages={handleRemoveMessages}
                   maskMessages={e2eeEnabled && !e2eeUnlocked}
                   lockedNotice={t('chat.encryption.chatLocked')}
-                  onUnlock={() => setShowEnterPin(true)}
+                  onUnlock={handleUnlock}
                   backgroundUrl={chatBackgroundUrl}
-                  onChangeBackground={async () => {
-                    if (!selectedChat) return;
-                    await changeBackground(selectedChat.id);
-                  }}
-                  onChangeBackgroundForBoth={async () => {
-                    if (!selectedChat) return;
-                    await changeBackgroundForBoth(selectedChat.id);
-                  }}
-                  onResetBackground={async () => {
-                    if (!selectedChat) return;
-                    await resetBackground(selectedChat.id);
-                  }}
+                  onChangeBackground={handleChangeBackground}
+                  onChangeBackgroundForBoth={handleChangeBackgroundForBoth}
+                  onResetBackground={handleResetBackground}
                   blocked={blockStatus ? !!blockStatus.isEitherBlocked : true}
-                  onReplyRequested={(m) => setReplyingToMessage(m)}
-                  onUpdateRecipientStatus={(isActive) => {
-                    if (selectedChat) {
-                      setSelectedChat((prev) => prev ? { ...prev, isActive } : null);
-                    }
-                  }}
+                  onReplyRequested={handleSetReplyingToMessage}
+                  onUpdateRecipientStatus={handleUpdateRecipientStatus}
                 />
                 {!(blockStatus?.isEitherBlocked) ? (
                   <MessageInput
@@ -739,18 +847,12 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                     onMessageChange={setNewMessage}
                     onSendMessage={sendMessage}
                     onFileChange={handleFileChange}
-                    onRemoveImage={(id: string) => setPendingImages((prev) => prev.filter((p) => p.id !== id))}
-                    onRemoveFile={(id: string) => setPendingFiles((prev) => prev.filter((p) => p.id !== id))}
+                    onRemoveImage={handleRemoveImage}
+                    onRemoveFile={handleRemoveFile}
                     onTyping={handleTyping}
-                    onTypingStop={() => {
-                      const socket = getSocket();
-                      if (socket && selectedChat) {
-                        socket.emit('typing_stop', { receiverId: selectedChat.id });
-                        typingSentRef.current = false;
-                      }
-                    }}
+                    onTypingStop={handleTypingStop}
                     replyingToMessage={replyingToMessage as any}
-                    onClearReply={() => setReplyingToMessage(null)}
+                    onClearReply={handleClearReply}
                     recipientIsActive={selectedChat?.isActive !== false}
                   />
                 ) : (
@@ -807,87 +909,33 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                   typingUsers={groupTypingUsers}
                   menuOpenKey={menuOpenKey}
                   currentUserId={currentUser?.id}
-                  onBack={() => {
-                    const gid = selectedGroup?.id;
-                    setSelectedGroup(null);
-                    setActiveTab('groups');
-                    // After switching view, notify GroupsTab to clear badge and refresh
-                    try {
-                      if (typeof window !== 'undefined' && gid) {
-                        setTimeout(() => {
-                          try { window.dispatchEvent(new CustomEvent('group_marked_read', { detail: { groupId: gid } })); } catch {}
-                        }, 60);
-                      }
-                    } catch {}
-                  }}
+                  onBack={handleBackToGroups}
                   onMenuToggle={setMenuOpenKey}
                   onRecallMessage={recallMessage}
                   onRecallGroup={recallGroup}
                   onEditMessage={editMessage}
                   onDownloadAttachment={downloadAttachment}
-                  onPreviewImage={setPreviewImage}
+                  onPreviewImage={handlePreviewImage}
                   initialLoading={historyLoading}
                   onPrependMessages={handlePrependMessages}
                   onRemoveMessages={handleRemoveMessages}
                   isGroup
                   groupOnline={isSelectedGroupOnline}
                   isGroupOwner={!!currentUser && currentUser.id === selectedGroup.ownerId}
-                  onEditGroup={() => setShowGroupEditor(true)}
-                  onRemoveMembers={() => setShowRemoveMembers(true)}
-                  onLeaveGroup={async () => {
-                    // Shown only for non-owners by ChatView
-                    if (!selectedGroup) return;
-                    const ok = await confirmWithToast(String(t('chat.groups.confirm.leave')));
-                    if (!ok) return;
-                    try {
-                      const res = await groupService.leaveGroup(selectedGroup.id);
-                      if (res.success) {
-                        toast.success(t('chat.groups.success.left'));
-                        setSelectedGroup(null);
-                        setMessages([]);
-                      }
-                    } catch (err: any) {
-                      toast.error(err.response?.data?.message || t('chat.errors.generic'));
-                    }
-                  }}
-                  onDeleteGroup={async () => {
-                    // Shown only for owners by ChatView
-                    if (!selectedGroup) return;
-                    const ok = await confirmWithToast(String(t('chat.groups.confirm.delete')));
-                    if (!ok) return;
-                    try {
-                      const res = await groupService.deleteGroup(selectedGroup.id);
-                      if (res.success) {
-                        setSelectedGroup(null);
-                        setMessages([]);
-                      }
-                    } catch (err: any) {
-                      toast.error(err.response?.data?.message || t('chat.groups.errors.deleteFailed'));
-                    }
-                  }}
+                  onEditGroup={handleEditGroup}
+                  onRemoveMembers={handleRemoveMembersOpen}
+                  onLeaveGroup={handleLeaveGroup}
+                  onDeleteGroup={handleDeleteGroup}
                   maskMessages={e2eeEnabled && !e2eeUnlocked}
                   lockedNotice={t('chat.encryption.groupLocked')}
-                  onUnlock={() => setShowEnterPin(true)}
-                  onReplyRequested={(m) => setReplyingToMessage(m)}
+                  onUnlock={handleUnlock}
+                  onReplyRequested={handleSetReplyingToMessage}
                 />
                 <RemoveMembersModal
                   isOpen={showRemoveMembers}
-                  onClose={() => setShowRemoveMembers(false)}
+                  onClose={handleCloseRemoveMembers}
                   members={removableMembers}
-                  onConfirm={async (memberIds: number[]) => {
-                    if (!selectedGroup) return;
-                    try {
-                      const res = await groupService.removeMembers(selectedGroup.id, memberIds);
-                      if (res.success) {
-                        toast.success(t('chat.groups.success.removed'));
-                        setShowRemoveMembers(false);
-                        // Update members locally; socket will also sync
-                        setSelectedGroup((prev) => prev ? { ...prev, members: prev.members.filter((id) => !memberIds.includes(id)) } : prev);
-                      }
-                    } catch (err: any) {
-                      toast.error(err.response?.data?.message || t('chat.groups.errors.removeFailed'));
-                    }
-                  }}
+                  onConfirm={handleRemoveMembersConfirm}
                 />
                 {(() => {
                   const isOwner = !!currentUser && selectedGroup.ownerId === currentUser.id;
@@ -904,18 +952,12 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
                         onMessageChange={setNewMessage}
                         onSendMessage={sendGroupMessage}
                         onFileChange={handleFileChange}
-                        onRemoveImage={(id: string) => setPendingImages((prev) => prev.filter((p) => p.id !== id))}
-                        onRemoveFile={(id: string) => setPendingFiles((prev) => prev.filter((p) => p.id !== id))}
+                        onRemoveImage={handleRemoveImage}
+                        onRemoveFile={handleRemoveFile}
                         onTyping={handleGroupTyping}
-                        onTypingStop={() => {
-                          const socket = getSocket();
-                          if (socket && selectedGroup) {
-                            socket.emit('group_typing', { groupId: selectedGroup.id, isTyping: false });
-                            typingSentRef.current = false;
-                          }
-                        }}
+                        onTypingStop={handleGroupTypingStop}
                         replyingToMessage={replyingToMessage as any}
-                        onClearReply={() => setReplyingToMessage(null)}
+                        onClearReply={handleClearReply}
                       />
                     );
                   }
@@ -947,36 +989,32 @@ const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         isOpen={showGroupEditor}
         mode="edit"
         initial={selectedGroup || undefined}
-        onClose={() => setShowGroupEditor(false)}
-        onSuccess={(g) => {
-          setSelectedGroup((prev) => (prev && prev.id === g.id ? g : prev));
-        }}
+        onClose={handleCloseGroupEditor}
+        onSuccess={handleGroupEditorSuccess}
       />
 
       <ImagePreview
         previewImage={previewImage}
-        onClose={() => setPreviewImage(null)}
+        onClose={handleClosePreview}
       />
 
       {/* E2EE PIN modals */}
       <SetPinModal
         isOpen={showSetPin}
-        onClose={() => setShowSetPin(false)}
+        onClose={handleSetPinClose}
         hasExisting={!!e2eePinHash}
         onSet={handleSetPin}
       />
       <EnterPinModal
         isOpen={showEnterPin}
-        onClose={() => setShowEnterPin(false)}
-        onUnlock={() => {
-          setE2EEUnlocked(true);
-          sessionStorage.setItem('e2ee_unlocked', '1');
-          setShowEnterPin(false);
-        }}
+        onClose={handleEnterPinClose}
+        onUnlock={handleEnterPinUnlock}
         expectedHash={e2eePinHash}
       />
     </div>
   );
-};
+});
+
+ChatWindow.displayName = 'ChatWindow';
 
 export default ChatWindow;

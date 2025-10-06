@@ -1,9 +1,9 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, memo } from 'react';
 import { summarizeReplyContent } from '@/utils/utils';
 import { Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { MessageInputProps } from '../../interface/MessageInput.interface';
-const MessageInput = ({
+const MessageInput = memo(({
   newMessage,
   pendingImages,
   pendingFiles,
@@ -197,6 +197,8 @@ const MessageInput = ({
       </div>
     </div>
   );
-};
+});
+
+MessageInput.displayName = 'MessageInput';
 
 export default MessageInput;

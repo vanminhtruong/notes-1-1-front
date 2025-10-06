@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 
-const HeaderScrollProgress: React.FC = () => {
+const HeaderScrollProgress = memo(() => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -31,6 +31,8 @@ const HeaderScrollProgress: React.FC = () => {
       />
     </div>
   );
-};
+});
+
+HeaderScrollProgress.displayName = 'HeaderScrollProgress';
 
 export default HeaderScrollProgress;

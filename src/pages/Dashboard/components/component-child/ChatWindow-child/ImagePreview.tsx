@@ -1,10 +1,10 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ImagePreviewProps } from '../../interface/ChatUI.interface';
 
-const ImagePreview = ({ previewImage, onClose }: ImagePreviewProps) => {
+const ImagePreview = memo(({ previewImage, onClose }: ImagePreviewProps) => {
   const { t } = useTranslation('dashboard');
   if (!previewImage) return null;
-
   return (
     <div
       className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4"
@@ -29,6 +29,8 @@ const ImagePreview = ({ previewImage, onClose }: ImagePreviewProps) => {
       </div>
     </div>
   );
-};
+});
+
+ImagePreview.displayName = 'ImagePreview';
 
 export default ImagePreview;

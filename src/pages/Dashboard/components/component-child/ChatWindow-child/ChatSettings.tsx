@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ChatSettingsProps } from '../../interface/ChatSettings.interface';
 import BlockedUsersModal from './BlockedUsersModal';
 
-const ChatSettings: React.FC<ChatSettingsProps> = ({ enabled, hasPin, readStatusEnabled, hidePhone, hideBirthDate, allowMessagesFromNonFriends, blockedUsers, onBack, onToggle, onChangePin, onToggleReadStatus, onToggleHidePhone, onToggleHideBirthDate, onToggleAllowMessagesFromNonFriends, onUnblockUser }) => {
+const ChatSettings: React.FC<ChatSettingsProps> = memo(({ enabled, hasPin, readStatusEnabled, hidePhone, hideBirthDate, allowMessagesFromNonFriends, blockedUsers, onBack, onToggle, onChangePin, onToggleReadStatus, onToggleHidePhone, onToggleHideBirthDate, onToggleAllowMessagesFromNonFriends, onUnblockUser }) => {
   const { t } = useTranslation('dashboard');
   
   const [showBlocked, setShowBlocked] = useState(false);
@@ -147,6 +147,8 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ enabled, hasPin, readStatus
       />
     </div>
   );
-};
+});
+
+ChatSettings.displayName = 'ChatSettings';
 
 export default ChatSettings;

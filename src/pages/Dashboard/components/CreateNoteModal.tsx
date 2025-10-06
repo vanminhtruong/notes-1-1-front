@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { X } from 'lucide-react';
 
 // MediaTabs Component
-const MediaTabs = ({ newNote, setNewNote, t }: { newNote: any; setNewNote: (note: any) => void; t: any }) => {
+const MediaTabs = memo(({ newNote, setNewNote, t }: { newNote: any; setNewNote: (note: any) => void; t: any }) => {
   const [activeTab, setActiveTab] = useState<'image' | 'video' | 'youtube'>('image');
 
   return (
@@ -107,7 +107,9 @@ const MediaTabs = ({ newNote, setNewNote, t }: { newNote: any; setNewNote: (note
       </div>
     </div>
   );
-};
+});
+
+MediaTabs.displayName = 'MediaTabs';
 
 export interface NewNote {
   title: string;
@@ -129,7 +131,7 @@ interface CreateNoteModalProps {
   onSubmit: () => void;
 }
 
-const CreateNoteModal = ({ isOpen, onClose, newNote, setNewNote, onSubmit }: CreateNoteModalProps) => {
+const CreateNoteModal = memo(({ isOpen, onClose, newNote, setNewNote, onSubmit }: CreateNoteModalProps) => {
   const { t } = useTranslation('dashboard');
 
   if (!isOpen) return null;
@@ -248,6 +250,8 @@ const CreateNoteModal = ({ isOpen, onClose, newNote, setNewNote, onSubmit }: Cre
       </div>
     </div>
   );
-};
+});
+
+CreateNoteModal.displayName = 'CreateNoteModal';
 
 export default CreateNoteModal;

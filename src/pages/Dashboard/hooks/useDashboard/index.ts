@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import toast from 'react-hot-toast';
 import { fetchNotes, fetchNoteStats, createNote, deleteNote, archiveNote, setFilters, updateNote, ackReminder } from '@/store/slices/notesSlice';
@@ -18,7 +18,7 @@ export const useDashboard = () => {
   const [selectedPriority, setSelectedPriority] = useState('');
   const [showArchived, setShowArchived] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 6;
+  const ITEMS_PER_PAGE = 9;
   const [newNote, setNewNote] = useState({
     title: '',
     content: '',
@@ -120,7 +120,7 @@ export const useDashboard = () => {
   // Removed: load create permissions for dashboard buttons
 
   // Date helpers
-  const isoToLocalInput = (iso?: string | null) => {
+  const isoToLocalInput = useCallback((iso?: string | null) => {
     if (!iso) return '';
     const d = new Date(iso);
     const pad = (n: number) => String(n).padStart(2, '0');
@@ -130,16 +130,16 @@ export const useDashboard = () => {
     const hh = pad(d.getHours());
     const mm = pad(d.getMinutes());
     return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
-  };
+  }, []);
 
-  const localInputToIso = (local: string | undefined) => {
+  const localInputToIso = useCallback((local: string | undefined) => {
     if (!local) return undefined;
     const date = new Date(local);
     if (isNaN(date.getTime())) return undefined;
     return date.toISOString();
-  };
+  }, []);
 
-  const handleCreateNote = async () => {
+  const handleCreateNote = useCallback(async () => {
     if (!newNote.title.trim()) return;
     await dispatch(createNote({
       title: newNote.title,
@@ -162,9 +162,9 @@ export const useDashboard = () => {
       priority: selectedPriority || undefined,
       isArchived: showArchived,
     }));
-  };
+  }, [newNote, dispatch, localInputToIso, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived]);
 
-  const handleDeleteNote = async (id: number) => {
+  const handleDeleteNote = useCallback(async (id: number) => {
     await dispatch(deleteNote(id));
     dispatch(fetchNotes({
       page: currentPage,
@@ -174,9 +174,9 @@ export const useDashboard = () => {
       priority: selectedPriority || undefined,
       isArchived: showArchived,
     }));
-  };
+  }, [dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived]);
 
-  const confirmDeleteNote = (id: number) => {
+  const confirmDeleteNote = useCallback((id: number) => {
     const tId = toast.custom((toastData) => {
       const containerClass = `max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`;
       return React.createElement(
@@ -218,9 +218,9 @@ export const useDashboard = () => {
       );
     }, { duration: 8000 });
     return tId;
-  };
+  }, [handleDeleteNote, t]);
 
-  const handleArchiveNote = async (id: number) => {
+  const handleArchiveNote = useCallback(async (id: number) => {
     const result = await dispatch(archiveNote(id));
     dispatch(fetchNotes({
       page: currentPage,
@@ -238,9 +238,9 @@ export const useDashboard = () => {
         className: 'dark:bg-gray-800 dark:text-white',
       });
     }
-  };
+  }, [dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived, t]);
 
-  const confirmArchiveNote = (id: number) => {
+  const confirmArchiveNote = useCallback((id: number) => {
     const tId = toast.custom((toastData) => {
       const containerClass = `max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`;
       return React.createElement(
@@ -282,9 +282,9 @@ export const useDashboard = () => {
       );
     }, { duration: 8000 });
     return tId;
-  };
+  }, [handleArchiveNote, t]);
 
-  const openEdit = (note: any) => {
+  const openEdit = useCallback((note: any) => {
     setEditNote({
       id: note.id,
       title: note.title || '',
@@ -297,14 +297,14 @@ export const useDashboard = () => {
       reminderAtLocal: isoToLocalInput(note.reminderAt),
     });
     setShowEditModal(true);
-  };
+  }, [isoToLocalInput]);
 
-  const openView = (note: any) => {
+  const openView = useCallback((note: any) => {
     setViewNote(note);
     setShowViewModal(true);
-  };
+  }, []);
 
-  const handleUpdateNote = async () => {
+  const handleUpdateNote = useCallback(async () => {
     if (!editNote.title.trim()) return;
     
     const updateData = {
@@ -332,15 +332,15 @@ export const useDashboard = () => {
       priority: selectedPriority || undefined,
       isArchived: showArchived,
     }));
-  };
+  }, [editNote, localInputToIso, dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived]);
 
-  const toggleSelect = (id: number) => {
+  const toggleSelect = useCallback((id: number) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  };
+  }, []);
 
-  const clearSelection = () => setSelectedIds([]);
+  const clearSelection = useCallback(() => setSelectedIds([]), []);
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = useCallback(async () => {
     if (selectedIds.length === 0) return;
     await Promise.all(selectedIds.map((id) => dispatch(deleteNote(id))));
     setSelectedIds([]);
@@ -352,9 +352,9 @@ export const useDashboard = () => {
       priority: selectedPriority || undefined,
       isArchived: showArchived,
     }));
-  };
+  }, [selectedIds, dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived]);
 
-  const confirmBulkDelete = () => {
+  const confirmBulkDelete = useCallback(() => {
     const tId = toast.custom((toastData) => {
       const containerClass = `max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`;
       return React.createElement(
@@ -396,9 +396,9 @@ export const useDashboard = () => {
       );
     }, { duration: 8000 });
     return tId;
-  };
+  }, [handleBulkDelete, t]);
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = useCallback((priority: string) => {
     switch (priority) {
       case 'high':
         return 'bg-red-100 text-red-800 border-red-200';
@@ -409,9 +409,9 @@ export const useDashboard = () => {
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
-  };
+  }, []);
 
-  const getPriorityText = (priority: string) => {
+  const getPriorityText = useCallback((priority: string) => {
     switch (priority) {
       case 'high':
         return t('priority.high');
@@ -422,7 +422,7 @@ export const useDashboard = () => {
       default:
         return t('priority.medium');
     }
-  };
+  }, [t]);
 
   return {
     // i18n
@@ -468,7 +468,7 @@ export const useDashboard = () => {
     setEditNote,
     openEdit,
     handleUpdateNote,
-    acknowledgeReminderNote: (id: number) => dispatch(ackReminder(id)),
+    acknowledgeReminderNote: useCallback((id: number) => dispatch(ackReminder(id)), [dispatch]),
 
     // view modal
     showViewModal,

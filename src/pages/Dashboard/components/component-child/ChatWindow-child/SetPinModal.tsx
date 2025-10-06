@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, memo } from 'react';
 import type { SetPinModalProps } from '../../interface/ChatUI.interface';
 
 async function hashPIN(pin: string): Promise<string> {
@@ -9,7 +9,7 @@ async function hashPIN(pin: string): Promise<string> {
   return bytes.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-const SetPinModal: React.FC<SetPinModalProps> = ({ isOpen, onClose, hasExisting, onSet }) => {
+const SetPinModal = memo(({ isOpen, onClose, hasExisting, onSet }: SetPinModalProps) => {
   const [oldPin, setOldPin] = useState('');
   const [pin, setPin] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -90,6 +90,8 @@ const SetPinModal: React.FC<SetPinModalProps> = ({ isOpen, onClose, hasExisting,
       </div>
     </div>
   );
-};
+});
+
+SetPinModal.displayName = 'SetPinModal';
 
 export default SetPinModal;

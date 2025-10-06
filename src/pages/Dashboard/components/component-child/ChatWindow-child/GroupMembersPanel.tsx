@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { groupService } from '@/services/groupService';
 import { chatService } from '@/services/chatService';
@@ -28,7 +28,7 @@ interface GroupMembersPanelProps {
   currentUserId?: number;
 }
 
-export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfile, isOwner = false, currentUserId }: GroupMembersPanelProps) {
+const GroupMembersPanel = memo(function GroupMembersPanel({ open, groupId, onClose, onOpenProfile, isOwner = false, currentUserId }: GroupMembersPanelProps) {
   const { t } = useTranslation('dashboard');
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<GroupMemberInfo[]>([]);
@@ -325,6 +325,9 @@ export default function GroupMembersPanel({ open, groupId, onClose, onOpenProfil
       </div>
     </div>
   );
-}
+});
 
+GroupMembersPanel.displayName = 'GroupMembersPanel';
+
+export default GroupMembersPanel;
 

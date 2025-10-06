@@ -12,7 +12,24 @@
     "archived": "Archived"
   },
   "search": {
-    "placeholder": "Search notes..."
+    "placeholder": "Search notes...",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "days ago",
+    "matchInTitle": "Title",
+    "matchInContent": "Content",
+    "found": "Found",
+    "results": "results",
+    "pressEnter": "Press Enter to search fully",
+    "noResults": "No results found",
+    "tryDifferent": "Try searching with different keywords"
+  },
+  "categories": {
+    "work": "Work",
+    "personal": "Personal",
+    "general": "General",
+    "shopping": "Shopping",
+    "health": "Health"
   },
   "filters": {
     "allCategories": "All categories",

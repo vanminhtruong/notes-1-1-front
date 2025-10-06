@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
   onConfirm: (nickname: string | null) => Promise<void> | void;
 };
 
-export default function NicknameModal({ open, onClose, user, initialNickname = '', onConfirm }: Props) {
+const NicknameModal = memo(function NicknameModal({ open, onClose, user, initialNickname = '', onConfirm }: Props) {
   const { t } = useTranslation('dashboard');
   const [value, setValue] = useState(initialNickname || '');
   const [saving, setSaving] = useState(false);
@@ -92,4 +92,8 @@ export default function NicknameModal({ open, onClose, user, initialNickname = '
       </div>
     </div>
   );
-}
+});
+
+NicknameModal.displayName = 'NicknameModal';
+
+export default NicknameModal;

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Globe, ChevronDown } from 'lucide-react';
@@ -21,7 +21,7 @@ interface LanguageSwitcherProps {
   direction?: 'up' | 'down';
 }
 
-export default function LanguageSwitcher({ direction = 'down' }: LanguageSwitcherProps) {
+const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -181,4 +181,8 @@ export default function LanguageSwitcher({ direction = 'down' }: LanguageSwitche
       )}
     </div>
   );
-}
+});
+
+LanguageSwitcher.displayName = 'LanguageSwitcher';
+
+export default LanguageSwitcher;

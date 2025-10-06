@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { uploadService } from '../../../../../services/uploadService';
 import { groupService } from '../../../../../services/groupService';
 import type { GroupEditorModalProps } from '../../interface/ChatUI.interface';
 
-const GroupEditorModal: React.FC<GroupEditorModalProps> = ({ isOpen, mode, initial, onClose, onSuccess }) => {
+const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, initial, onClose, onSuccess }) => {
   const { t } = useTranslation('dashboard');
 
   const [name, setName] = useState('');
@@ -203,6 +203,8 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = ({ isOpen, mode, initi
       </div>
     </div>
   );
-};
+});
+
+GroupEditorModal.displayName = 'GroupEditorModal';
 
 export default GroupEditorModal;

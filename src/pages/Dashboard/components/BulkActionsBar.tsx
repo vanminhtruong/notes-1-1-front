@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -8,7 +9,7 @@ interface BulkActionsBarProps {
   onBulkDelete: () => void;
 }
 
-const BulkActionsBar = ({ selectedCount, showArchived, onClearSelection, onBulkDelete }: BulkActionsBarProps) => {
+const BulkActionsBar = memo(({ selectedCount, showArchived, onClearSelection, onBulkDelete }: BulkActionsBarProps) => {
   const { t } = useTranslation('dashboard');
 
   if (selectedCount === 0 || showArchived) return null;
@@ -39,6 +40,8 @@ const BulkActionsBar = ({ selectedCount, showArchived, onClearSelection, onBulkD
       </div>
     </div>
   );
-};
+});
+
+BulkActionsBar.displayName = 'BulkActionsBar';
 
 export default BulkActionsBar;

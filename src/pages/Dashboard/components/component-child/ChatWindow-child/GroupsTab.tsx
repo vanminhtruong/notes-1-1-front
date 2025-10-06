@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import React from 'react';
 import { groupService } from '../../../../../services/groupService';
 import { getSocket } from '../../../../../services/socket';
@@ -10,8 +10,9 @@ import GroupEditorModal from './GroupEditorModal';
 import { pinService } from '../../../../../services/pinService';
 import { MoreVertical, Pin, PinOff } from 'lucide-react';
 import type { GroupsTabProps, GroupItem, PendingInvite } from '../../interface/ChatUI.interface';
+import LazyLoad from '@/components/LazyLoad';
 
-const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
+const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
   const { t } = useTranslation('dashboard');
   const [groups, setGroups] = useState<GroupItem[]>([]);
   const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
@@ -384,11 +385,16 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
             {t('chat.groups.pendingInvites.title', 'Group Invitations')} ({pendingInvites.length})
           </h3>
           <div className="space-y-2">
-            {pendingInvites.map((invite) => (
-              <div
+            {pendingInvites.map((invite, index) => (
+              <LazyLoad
                 key={invite.id}
-                className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg"
+                threshold={0.1}
+                rootMargin="50px"
+                animationDuration={400}
+                delay={index * 30}
+                reAnimate={true}
               >
+              <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md flex-shrink-0">
                     {invite.group.avatar ? (
@@ -421,6 +427,7 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
                   </button>
                 </div>
               </div>
+              </LazyLoad>
             ))}
           </div>
         </div>
@@ -437,9 +444,16 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
           </div>
         ) : (
           <ul className="space-y-2">
-            {groups.map((g) => (
-              <li
+            {groups.map((g, index) => (
+              <LazyLoad
                 key={g.id}
+                threshold={0.1}
+                rootMargin="50px"
+                animationDuration={400}
+                delay={index * 30}
+                reAnimate={true}
+              >
+              <li
                 className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                 onClick={() => {
                   // Optimistically reset unread count when opening the group
@@ -538,6 +552,7 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
                   </div>
                 </div>
               </li>
+              </LazyLoad>
             ))}
           </ul>
         )}
@@ -663,9 +678,8 @@ const GroupsTab = ({ onSelectGroup }: GroupsTabProps) => {
       )}
     </div>
   );
+});
 
-  
-}
-;
+GroupsTab.displayName = 'GroupsTab';
 
 export default GroupsTab;

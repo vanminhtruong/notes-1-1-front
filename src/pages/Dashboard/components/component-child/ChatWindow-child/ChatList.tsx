@@ -1,5 +1,6 @@
+import React from 'react';
 import { MessageCircle, MoreVertical, UserX, Trash2, Ban, Pin, PinOff } from 'lucide-react';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { formatPreviewText, formatPreviewTime } from '../../../../../utils/utils';
@@ -8,7 +9,8 @@ import type { ChatListProps } from '../../interface/ChatList.interface';
 import type { User, Message } from '../../interface/ChatTypes.interface';
 import { blockService, type BlockStatus } from '@/services/blockService';
 import { pinService } from '@/services/pinService';
-const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
+import LazyLoad from '@/components/LazyLoad';
+const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
   const { t } = useTranslation('dashboard');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
@@ -103,7 +105,7 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
       {/* Chat List when no chat is selected */}
       <div className="p-2 md-down:p-0 md-down:space-y-3">
         {/* Conversations List with previews */}
-        {chatList.map((item: { friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean; nickname?: string | null }) => {
+        {chatList.map((item: { friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean; nickname?: string | null }, index: number) => {
           const friend = item.friend;
           const displayName = (item as any).nickname && (item as any).nickname.trim().length > 0 ? (item as any).nickname : friend.name;
           const online = friends.find((f) => f.id === friend.id)?.isOnline ?? friend.isOnline;
@@ -154,11 +156,18 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
             isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
           }`;
           return (
-            <div
+            <LazyLoad
               key={friend.id}
-              onClick={() => onStartChat(friend)}
-              className="flex items-center gap-3 p-3 md-down:p-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl cursor-pointer transition-colors md-down:bg-white/80 md-down:dark:bg-gray-800/80 md-down:backdrop-blur md-down:shadow-sm md-down:border md-down:border-gray-200/60 md-down:dark:border-gray-700/60 md-down:mb-3 md-down:last:mb-0"
+              threshold={0.1}
+              rootMargin="50px"
+              animationDuration={400}
+              delay={index * 30}
+              reAnimate={true}
             >
+              <div
+                onClick={() => onStartChat(friend)}
+                className="flex items-center gap-3 p-3 md-down:p-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl cursor-pointer transition-colors md-down:bg-white/80 md-down:dark:bg-gray-800/80 md-down:backdrop-blur md-down:shadow-sm md-down:border md-down:border-gray-200/60 md-down:dark:border-gray-700/60 md-down:mb-3 md-down:last:mb-0"
+              >
               <div className="relative flex-shrink-0">
                 <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
                   {friend.avatar ? (
@@ -383,6 +392,7 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
                 </div>
               </div>
             </div>
+            </LazyLoad>
           );
         })}
 
@@ -397,7 +407,9 @@ const ChatList = ({ chatList, friends, unreadMap, currentUserId, onStartChat, on
       </div>
     </div>
   );
-};
+});
+
+ChatList.displayName = 'ChatList';
 
 export default ChatList;
 

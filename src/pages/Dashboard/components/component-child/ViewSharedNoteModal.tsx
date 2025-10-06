@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X, FileText, Tag, AlertCircle } from 'lucide-react';
@@ -23,11 +23,7 @@ interface ViewSharedNoteModalProps {
   note: SharedNoteData;
 }
 
-const ViewSharedNoteModal: React.FC<ViewSharedNoteModalProps> = ({
-  isOpen,
-  onClose,
-  note
-}) => {
+const ViewSharedNoteModal = memo<ViewSharedNoteModalProps>(({ isOpen, onClose, note }) => {
   const { t } = useTranslation('dashboard');
 
   const getPriorityColor = (priority: string) => {
@@ -207,6 +203,8 @@ const ViewSharedNoteModal: React.FC<ViewSharedNoteModalProps> = ({
     </div>,
     document.body
   );
-};
+});
+
+ViewSharedNoteModal.displayName = 'ViewSharedNoteModal';
 
 export default ViewSharedNoteModal;

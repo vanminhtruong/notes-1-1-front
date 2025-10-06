@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, memo } from 'react';
 import { StickyNote, FileText, Edit, Bookmark, Star, Heart } from 'lucide-react';
 
 interface RotatingCubeProps {
@@ -6,7 +6,7 @@ interface RotatingCubeProps {
   className?: string;
 }
 
-const RotatingCube: React.FC<RotatingCubeProps> = ({ size = 32, className = '' }) => {
+const RotatingCube = memo(({ size = 32, className = '' }: RotatingCubeProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -203,6 +203,8 @@ const RotatingCube: React.FC<RotatingCubeProps> = ({ size = 32, className = '' }
       }} />
     </div>
   );
-};
+});
+
+RotatingCube.displayName = 'RotatingCube';
 
 export default RotatingCube;
