@@ -9,7 +9,8 @@
   },
   "view": {
     "active": "Active",
-    "archived": "Archived"
+    "archived": "Archived",
+    "folders": "Folders"
   },
   "search": {
     "placeholder": "Search notes...",
@@ -49,6 +50,7 @@
     "createNote": "Create note",
     "createNoteFor": "Create for {{name}}",
     "createNoteShared": "Create note for {{name}}",
+    "save": "Save",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "delete": "Delete",
@@ -63,21 +65,23 @@
     "close": "Close",
     "viewDetails": "View details",
     "share": "Share",
-    "sharing": "Sharing..."
+    "sharing": "Sharing...",
+    "back": "Back"
   },
   "confirm": {
     "removeFriend": "Remove {{name}} as friend?",
-    "deleteMessages": "Delete all messages with {{name}}?",
     "blockUser": "Block {{name}}?",
     "blockUserHint": "You and this user will not be able to message each other.",
     "unblockUser": "Unblock {{name}}?"
   },
   "messages": {
-    "selectedCount": "{{count}} selected",
+    "selectedCount": "{{count}} items selected",
+    "noNotes": "No notes yet",
+    "selectedNotes": "{{count}} notes selected",
+    "confirmBulkRemove": "Are you sure you want to remove {{count}} notes from this folder?",
     "noContent": "No content",
     "videoNotSupported": "Your browser does not support video",
     "noArchived": "No archived notes",
-    "noNotes": "No notes yet",
     "switchToActive": "Switch to the Active tab to see current notes",
     "createFirst": "Create your first note to get started"
   },
@@ -101,7 +105,11 @@
     "unspecified": "Unspecified"
   },
   "toasts": {
-    "archiveSuccess": "Note archived successfully"
+    "archiveSuccess": "Note archived successfully",
+    "noteCreated": "Note created successfully",
+    "noteUpdated": "Note updated successfully",
+    "noteCreateFailed": "Failed to create note",
+    "noteUpdateFailed": "Failed to update note"
   },
   "modals": {
     "confirm": {
@@ -752,6 +760,56 @@
     "errors": {
       "fetchFailed": "Failed to load shared notes list",
       "removeFailed": "Failed to remove shared note"
+    }
+  },
+  "folders": {
+    "title": "Folders",
+    "createFolder": "Create folder",
+    "editFolder": "Edit folder",
+    "deleteFolder": "Delete folder",
+    "folderName": "Folder name",
+    "folderNamePlaceholder": "Enter folder name...",
+    "folderColor": "Color",
+    "folderIcon": "Icon",
+    "notesCount": "{{count}} notes",
+    "inFolder": "In folder",
+    "noFolders": "No folders yet",
+    "noFoldersDesc": "Create folders to organize your notes by topic",
+    "confirmDelete": "Are you sure you want to delete this folder?",
+    "confirmDeleteDesc": "Notes in this folder will not be deleted, just moved out.",
+    "createSuccess": "Folder created successfully",
+    "updateSuccess": "Folder updated successfully",
+    "deleteSuccess": "Folder deleted successfully",
+    "createError": "Failed to create folder",
+    "updateError": "Failed to update folder",
+    "deleteError": "Failed to delete folder",
+    "loadError": "Failed to load folders list",
+    "viewFolder": "View folder",
+    "moveToFolder": "Move to folder",
+    "moveOutOfFolder": "Move out of folder",
+    "removeFromFolder": "Remove from folder",
+    "selectDestination": "Select destination to move note:",
+    "moveToActive": "Move to Active Tab",
+    "moveToActiveDesc": "Note will appear in active notes list",
+    "moveToArchived": "Move to Archived Tab",
+    "moveToArchivedDesc": "Note will be archived and hidden from main list",
+    "selectFolder": "Select folder",
+    "noFolder": "No folder",
+    "moveSuccess": "Note moved to folder",
+    "moveError": "Failed to move note",
+    "searchPlaceholder": "Search folders...",
+    "noFoldersFound": "No folders found",
+    "moveButton": "Move",
+    "notes": "notes",
+    "colors": {
+      "blue": "Blue",
+      "green": "Green",
+      "red": "Red",
+      "yellow": "Yellow",
+      "purple": "Purple",
+      "pink": "Pink",
+      "orange": "Orange",
+      "gray": "Gray"
     }
   }
 }

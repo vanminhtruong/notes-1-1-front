@@ -419,3 +419,4 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
 SharedNoteCard.displayName = 'SharedNoteCard';
 
 export default SharedNoteCard;
+

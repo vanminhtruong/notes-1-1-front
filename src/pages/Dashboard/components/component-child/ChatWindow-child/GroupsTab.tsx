@@ -683,3 +683,4 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
 GroupsTab.displayName = 'GroupsTab';
 
 export default GroupsTab;
+

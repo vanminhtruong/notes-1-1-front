@@ -185,3 +185,4 @@ const MessageStatus = memo(({ message, isOwnMessage, currentUserId }: MessageSta
 MessageStatus.displayName = 'MessageStatus';
 
 export default MessageStatus;
+

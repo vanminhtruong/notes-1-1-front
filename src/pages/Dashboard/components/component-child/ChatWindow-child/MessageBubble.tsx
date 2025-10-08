@@ -808,3 +808,4 @@ function isDarkMode() {
 }
 
 export default MessageBubble;
+

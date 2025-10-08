@@ -259,3 +259,4 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
 });
 
 SharedNoteItem.displayName = 'SharedNoteItem';
+

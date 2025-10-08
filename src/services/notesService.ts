@@ -129,6 +129,45 @@ export interface SearchAutocompleteResponse {
   count: number;
 }
 
+export interface NoteFolder {
+  id: number;
+  name: string;
+  color: string;
+  icon: string;
+  userId: number;
+  notesCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFolderData {
+  name: string;
+  color?: string;
+  icon?: string;
+}
+
+export interface UpdateFolderData {
+  name?: string;
+  color?: string;
+  icon?: string;
+}
+
+export interface FoldersResponse {
+  folders: NoteFolder[];
+  total: number;
+}
+
+export interface FolderWithNotesResponse {
+  folder: NoteFolder;
+  notes: Note[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 export const notesService = {
   async getNotes(params?: {
     page?: number;
@@ -231,6 +270,44 @@ export const notesService = {
 
   async shareNoteToGroup(noteId: number, data: { groupId: number; message?: string; groupMessageId?: number }): Promise<{ message: string; groupSharedNote: any }> {
     const response = await api.post(`/notes/${noteId}/share-group`, data);
+    return response.data;
+  },
+
+  // Folder APIs
+  async getFolders(params?: {
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<FoldersResponse> {
+    const response = await api.get('/notes/folders', { params });
+    return response.data;
+  },
+
+  async getFolderById(id: number, params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<FolderWithNotesResponse> {
+    const response = await api.get(`/notes/folders/${id}`, { params });
+    return response.data;
+  },
+
+  async createFolder(data: CreateFolderData): Promise<{ message: string; folder: NoteFolder }> {
+    const response = await api.post('/notes/folders', data);
+    return response.data;
+  },
+
+  async updateFolder(id: number, data: UpdateFolderData): Promise<{ message: string; folder: NoteFolder }> {
+    const response = await api.put(`/notes/folders/${id}`, data);
+    return response.data;
+  },
+
+  async deleteFolder(id: number): Promise<{ message: string }> {
+    const response = await api.delete(`/notes/folders/${id}`);
+    return response.data;
+  },
+
+  async moveNoteToFolder(noteId: number, folderId: number | null): Promise<{ message: string; note: Note }> {
+    const response = await api.patch(`/notes/${noteId}/move-to-folder`, { folderId });
     return response.data;
   },
 };

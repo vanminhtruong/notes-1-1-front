@@ -9,7 +9,8 @@
   },
   "view": {
     "active": "Đang hoạt động",
-    "archived": "Đã lưu trữ"
+    "archived": "Đã lưu trữ",
+    "folders": "Thư mục"
   },
   "search": {
     "placeholder": "Tìm kiếm ghi chú...",
@@ -58,14 +59,15 @@
     "edit": "Chỉnh sửa",
     "view": "Xem",
     "close": "Đóng",
-    "viewDetails": "Xem chi tiết"
+    "viewDetails": "Xem chi tiết",
+    "back": "Quay lại",
+    "update": "Cập nhật"
   },
   "confirm": {
     "removeFriend": "Xóa bạn {{name}}?",
     "deleteMessages": "Xóa toàn bộ tin nhắn với {{name}}?",
     "blockUser": "Chặn {{name}}?",
-    "blockUserHint": "Bạn và người này sẽ không thể nhắn tin cho nhau.",
-    "unblockUser": "Bỏ chặn {{name}}?"
+    "blockUserHint": "Bạn và người này sẽ không thể nhắn tin cho nhau."
   },
   "messages": {
     "selectedCount": "Đã chọn {{count}} mục",
@@ -73,6 +75,8 @@
     "videoNotSupported": "Trình duyệt của bạn không hỗ trợ video",
     "noArchived": "Không có ghi chú lưu trữ",
     "noNotes": "Chưa có ghi chú nào",
+    "selectedNotes": "Đã chọn {{count}} ghi chú",
+    "confirmBulkRemove": "Bạn có chắc muốn xóa {{count}} ghi chú khỏi thư mục này?",
     "switchToActive": "Chuyển sang tab Đang hoạt động để xem ghi chú hiện tại",
     "createFirst": "Tạo ghi chú đầu tiên của bạn để bắt đầu"
   },
@@ -96,7 +100,11 @@
     "unspecified": "Không xác định"
   },
   "toasts": {
-    "archiveSuccess": "Đã lưu trữ ghi chú thành công"
+    "archiveSuccess": "Đã lưu trữ ghi chú thành công",
+    "noteCreated": "Tạo ghi chú thành công",
+    "noteUpdated": "Cập nhật ghi chú thành công",
+    "noteCreateFailed": "Không thể tạo ghi chú",
+    "noteUpdateFailed": "Không thể cập nhật ghi chú"
   },
   "modals": {
     "confirm": {
@@ -758,6 +766,53 @@
     "errors": {
       "fetchFailed": "Không thể tải danh sách ghi chú chia sẻ",
       "removeFailed": "Không thể xóa chia sẻ ghi chú"
+    }
+  },
+  "folders": {
+    "title": "Thư mục",
+    "create": "Tạo thư mục",
+    "edit": "Chỉnh sửa thư mục",
+    "delete": "Xóa thư mục",
+    "name": "Tên thư mục",
+    "color": "Màu",
+    "icon": "Biểu tượng",
+    "notesCount": "{{count}} ghi chú",
+    "inFolder": "Trong thư mục",
+    "confirmDelete": "Bạn có chắc muốn xóa thư mục này?",
+    "confirmDeleteDesc": "Các ghi chú trong thư mục sẽ không bị xóa, chỉ được di chuyển ra ngoài.",
+    "createSuccess": "Tạo thư mục thành công",
+    "updateSuccess": "Cập nhật thư mục thành công",
+    "deleteSuccess": "Xóa thư mục thành công",
+    "createError": "Không thể tạo thư mục",
+    "updateError": "Không thể cập nhật thư mục",
+    "deleteError": "Không thể xóa thư mục",
+    "loadError": "Không thể tải danh sách thư mục",
+    "viewFolder": "Xem thư mục",
+    "moveToFolder": "Chuyển vào thư mục",
+    "moveOutOfFolder": "Di chuyển ra khỏi thư mục",
+    "removeFromFolder": "Xóa khỏi thư mục",
+    "selectDestination": "Chọn vị trí đích để di chuyển ghi chú:",
+    "moveToActive": "Di chuyển về Tab Active",
+    "moveToActiveDesc": "Ghi chú sẽ xuất hiện trong danh sách ghi chú đang hoạt động",
+    "moveToArchived": "Di chuyển về Tab Archived",
+    "moveToArchivedDesc": "Ghi chú sẽ được lưu trữ và ẩn khỏi danh sách chính",
+    "selectFolder": "Chọn thư mục",
+    "noFolder": "Không có thư mục",
+    "moveSuccess": "Đã chuyển ghi chú vào thư mục",
+    "moveError": "Không thể chuyển ghi chú",
+    "searchPlaceholder": "Tìm thư mục...",
+    "noFoldersFound": "Không tìm thấy thư mục",
+    "moveButton": "Di chuyển",
+    "notes": "ghi chú",
+    "colors": {
+      "blue": "Xanh dương",
+      "green": "Xanh lá",
+      "red": "Đỏ",
+      "yellow": "Vàng",
+      "purple": "Tím",
+      "pink": "Hồng",
+      "orange": "Cam",
+      "gray": "Xám"
     }
   }
 }

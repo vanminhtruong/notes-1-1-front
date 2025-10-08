@@ -288,3 +288,4 @@ const NotificationBell = memo(({ total, ring, ringSeq, items, pagination, isLoad
 NotificationBell.displayName = 'NotificationBell';
 
 export default NotificationBell;
+

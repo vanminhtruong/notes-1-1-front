@@ -34,3 +34,4 @@ const ImagePreview = memo(({ previewImage, onClose }: ImagePreviewProps) => {
 ImagePreview.displayName = 'ImagePreview';
 
 export default ImagePreview;
+

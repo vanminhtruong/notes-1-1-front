@@ -211,3 +211,4 @@ function Avatar({ src, name }: { src?: string | null; name: string }) {
     </div>
   );
 }
+

@@ -97,3 +97,4 @@ const NicknameModal = memo(function NicknameModal({ open, onClose, user, initial
 NicknameModal.displayName = 'NicknameModal';
 
 export default NicknameModal;
+

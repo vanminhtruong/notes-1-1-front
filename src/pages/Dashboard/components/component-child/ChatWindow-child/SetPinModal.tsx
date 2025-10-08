@@ -95,3 +95,4 @@ const SetPinModal = memo(({ isOpen, onClose, hasExisting, onSet }: SetPinModalPr
 SetPinModal.displayName = 'SetPinModal';
 
 export default SetPinModal;
+

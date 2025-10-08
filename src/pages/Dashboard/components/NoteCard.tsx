@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play } from 'lucide-react';
+import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play, FolderInput, FolderOutput } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
 import { extractYouTubeId } from '@/utils/youtube';
@@ -24,6 +24,8 @@ interface NoteCardProps {
   onEdit: () => void;
   onArchive: () => void;
   onDelete: () => void;
+  onMoveToFolder?: () => void;
+  onMoveOutOfFolder?: () => void;
   showArchived: boolean;
   showReminder: boolean;
   onAcknowledgeReminder: () => void;
@@ -39,6 +41,8 @@ const NoteCard = memo(({
   onEdit,
   onArchive,
   onDelete,
+  onMoveToFolder,
+  onMoveOutOfFolder,
   showArchived,
   showReminder,
   onAcknowledgeReminder,
@@ -167,13 +171,37 @@ const NoteCard = memo(({
       )}
 
       <div className="flex items-center justify-between sm-down:flex-col sm-down:gap-2 sm-down:items-start">
-        <div className="flex gap-2 sm-down:gap-1.5 xs-down:gap-1">
+        <div className="flex items-center gap-2 sm-down:gap-1.5 xs-down:gap-1">
           <span className={`px-2 py-1 text-xs font-medium rounded-lg border ${getPriorityColor(note.priority)} xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px]`}>
             {getPriorityText(note.priority)}
           </span>
           <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600 xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px]">
             {t(`category.${note.category}`)}
           </span>
+          {onMoveToFolder && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveToFolder();
+              }}
+              className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 xs-down:p-0.5"
+              title={t('folders.moveToFolder')}
+            >
+              <FolderInput className="w-4 h-4 xs-down:w-3.5 xs-down:h-3.5" />
+            </button>
+          )}
+          {onMoveOutOfFolder && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveOutOfFolder();
+              }}
+              className="p-1 text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 rounded-md hover:bg-orange-50 dark:hover:bg-orange-900/20 xs-down:p-0.5"
+              title={t('folders.moveOutOfFolder')}
+            >
+              <FolderOutput className="w-4 h-4 xs-down:w-3.5 xs-down:h-3.5" />
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 xs-down:text-[10px]">
           <Clock className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" />

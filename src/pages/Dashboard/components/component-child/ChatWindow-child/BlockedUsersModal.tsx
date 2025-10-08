@@ -95,3 +95,4 @@ const BlockedUsersModal = memo(({ isOpen, users, onUnblock, onClose }: BlockedUs
 BlockedUsersModal.displayName = 'BlockedUsersModal';
 
 export default BlockedUsersModal;
+

@@ -19,9 +19,10 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number; maxHeight: number } | null>(null);
   const suppressNextOpenRef = useRef<boolean>(false);
 
   // Debounced search
@@ -91,10 +92,18 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
 
   // Tính và cập nhật vị trí dropdown theo input (dùng fixed + portal để tránh stacking context)
   const updateDropdownPosition = useCallback(() => {
-    const el = inputRef.current;
+    const el = containerRef.current || inputRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    setDropdownPos({ top: rect.bottom + 8 /* giống mt-2 */, left: rect.left, width: rect.width });
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom - 16; // 16px padding từ bottom
+    const maxHeight = Math.min(spaceBelow, 500); // Tối đa 500px hoặc không gian còn lại
+    setDropdownPos({ 
+      top: rect.bottom + 8, 
+      left: rect.left, 
+      width: rect.width,
+      maxHeight: Math.max(maxHeight, 200) // Tối thiểu 200px
+    });
   }, []);
 
   useEffect(() => {
@@ -102,9 +111,26 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
       updateDropdownPosition();
       window.addEventListener('resize', updateDropdownPosition);
       window.addEventListener('scroll', updateDropdownPosition, true);
+      
+      // Ngăn scroll của body khi dropdown mở (bù trừ độ rộng scrollbar để tránh lệch vị trí)
+      const originalOverflow = document.body.style.overflow;
+      const originalPaddingRight = document.body.style.paddingRight;
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
+      }
+      document.body.style.overflow = 'hidden';
+
+      // Sau khi khóa scroll, layout có thể dịch chuyển -> cập nhật lại vị trí dropdown
+      requestAnimationFrame(() => {
+        updateDropdownPosition();
+      });
+      
       return () => {
         window.removeEventListener('resize', updateDropdownPosition);
         window.removeEventListener('scroll', updateDropdownPosition, true);
+        document.body.style.overflow = originalOverflow;
+        document.body.style.paddingRight = originalPaddingRight;
       };
     }
   }, [isOpen, updateDropdownPosition]);
@@ -233,7 +259,7 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
   return (
     <div className="relative w-full">
       {/* Search Input */}
-      <div className="relative">
+      <div ref={containerRef} className="relative">
         <div className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3 pointer-events-none">
           <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 dark:text-gray-500" />
         </div>
@@ -270,14 +296,19 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
       {isOpen && suggestions.length > 0 && dropdownPos && createPortal(
         <div
           ref={dropdownRef}
-          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl shadow-2xl max-h-[300px] sm:max-h-[400px] md:max-h-[450px] lg:max-h-[500px] overflow-y-auto"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl shadow-2xl overflow-y-auto"
           style={{
             position: 'fixed',
-            top: dropdownPos.top,
-            left: dropdownPos.left,
-            width: dropdownPos.width,
+            top: `${dropdownPos.top}px`,
+            left: `${dropdownPos.left}px`,
+            width: `${dropdownPos.width}px`,
+            maxHeight: `${dropdownPos.maxHeight}px`,
             zIndex: 100000,
             backdropFilter: 'blur(8px)'
+          }}
+          onWheel={(e) => {
+            // Ngăn scroll lan ra desktop - chỉ cho phép scroll trong dropdown
+            e.stopPropagation();
           }}
         >
           <div className="py-1 sm:py-2">

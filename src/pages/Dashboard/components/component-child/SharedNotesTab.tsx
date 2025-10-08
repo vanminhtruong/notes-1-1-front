@@ -322,3 +322,4 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
 });
 
 SharedNotesTab.displayName = 'SharedNotesTab';
+

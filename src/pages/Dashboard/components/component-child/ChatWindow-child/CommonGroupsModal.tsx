@@ -151,3 +151,4 @@ const CommonGroupsModal = memo(function CommonGroupsModal({ open, onClose, userI
 CommonGroupsModal.displayName = 'CommonGroupsModal';
 
 export default CommonGroupsModal;
+

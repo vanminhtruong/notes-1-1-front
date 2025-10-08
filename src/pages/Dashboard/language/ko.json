@@ -9,7 +9,8 @@
   },
   "view": {
     "active": "활성",
-    "archived": "보관됨"
+    "archived": "보관됨",
+    "folders": "폴더"
   },
   "search": {
     "placeholder": "노트 검색...",
@@ -49,6 +50,7 @@
     "createNote": "노트 만들기",
     "createNoteFor": "{{name}}님을 위해 만들기",
     "createNoteShared": "{{name}}님을 위한 노트 만들기",
+    "save": "저장",
     "cancel": "취소",
     "confirm": "확인",
     "delete": "삭제",
@@ -62,20 +64,22 @@
     "close": "닫기",
     "viewDetails": "자세히 보기",
     "share": "공유",
-    "sharing": "공유 중..."
+    "sharing": "공유 중...",
+    "back": "뒤로"
   },
   "confirm": {
-    "removeFriend": "{{name}}님을 친구에서 삭제하시겠습니까?",
     "deleteMessages": "{{name}}님과의 모든 메시지를 삭제하시겠습니까?",
     "blockUser": "{{name}}님을 차단하시겠습니까?",
     "unblockUser": "{{name}}님을 차단 해제하시겠습니까?"
   },
   "messages": {
-    "selectedCount": "{{count}}개 선택됨",
+    "selectedCount": "{{count}}개 항목 선택됨",
+    "noNotes": "메모가 없습니다",
+    "selectedNotes": "{{count}}개 메모 선택됨",
+    "confirmBulkRemove": "이 폴더에서 {{count}}개의 메모를 제거하시겠습니까?",
     "noContent": "내용 없음",
     "videoNotSupported": "브라우저가 비디오를 지원하지 않습니다",
     "noArchived": "보관된 노트 없음",
-    "noNotes": "노트가 없습니다",
     "switchToActive": "현재 노트를 보려면 활성 탭으로 전환하세요",
     "createFirst": "첫 번째 노트를 생성해 시작하세요"
   },
@@ -99,7 +103,11 @@
     "unspecified": "미지정"
   },
   "toasts": {
-    "archiveSuccess": "노트가 보관되었습니다"
+    "archiveSuccess": "노트가 보관되었습니다",
+    "noteCreated": "노트가 생성되었습니다",
+    "noteUpdated": "노트가 업데이트되었습니다",
+    "noteCreateFailed": "노트를 생성할 수 없습니다",
+    "noteUpdateFailed": "노트를 업데이트할 수 없습니다"
   },
   "modals": {
     "confirm": {
@@ -725,6 +733,55 @@
     "errors": {
       "fetchFailed": "공유 노트 목록을 로드할 수 없습니다",
       "removeFailed": "공유 노트를 제거할 수 없습니다"
+    }
+  },
+  "folders": {
+    "title": "폴더",
+    "createFolder": "폴더 만들기",
+    "editFolder": "폴더 편집",
+    "deleteFolder": "폴더 삭제",
+    "folderName": "폴더 이름",
+    "folderNamePlaceholder": "폴더 이름 입력...",
+    "folderColor": "색상",
+    "folderIcon": "아이콘",
+    "notesCount": "{{count}}개 노트",
+    "inFolder": "폴더에서",
+    "noFolders": "폴더가 없습니다",
+    "noFoldersDesc": "주제별로 노트를 정리하기 위해 폴더를 만드세요",
+    "confirmDelete": "이 폴더를 삭제하시겠습니까?",
+    "confirmDeleteDesc": "폴더에 있는 노트는 삭제되지 않고 이동됩니다.",
+    "createSuccess": "폴더가 성공적으로 생성되었습니다",
+    "updateSuccess": "폴더가 성공적으로 업데이트되었습니다",
+    "deleteSuccess": "폴더가 성공적으로 삭제되었습니다",
+    "createError": "폴더를 생성할 수 없습니다",
+    "updateError": "폴더를 업데이트할 수 없습니다",
+    "deleteError": "폴더를 삭제할 수 없습니다",
+    "loadError": "폴더 목록을 로드할 수 없습니다",
+    "viewFolder": "폴더 보기",
+    "moveToFolder": "폴더로 이동",
+    "moveOutOfFolder": "폴더에서 나가기",
+    "removeFromFolder": "폴더에서 제거",
+    "selectDestination": "노트를 이동할 대상을 선택하세요:",
+    "moveToActive": "활성 탭으로 이동",
+    "moveToActiveDesc": "노트가 활성 노트 목록에 표시됩니다",
+    "moveToArchived": "보관 탭으로 이동",
+    "moveToArchivedDesc": "노트가 보관되어 기본 목록에서 숨겨집니다",
+    "selectFolder": "폴더 선택",
+    "noFolder": "폴더 없음",
+    "moveSuccess": "노트를 폴더로 이동했습니다",
+    "moveError": "노트를 이동할 수 없습니다",
+    "searchPlaceholder": "폴더 검색...",
+    "noFoldersFound": "폴더를 찾을 수 없습니다",
+    "moveButton": "이동",
+    "notes": "노트",
+    "colors": {
+      "blue": "파란색",
+      "green": "초록색",
+      "red": "빨간색",
+      "yellow": "노란색",
+      "pink": "분홍색",
+      "orange": "주황색",
+      "gray": "회색"
     }
   }
 }

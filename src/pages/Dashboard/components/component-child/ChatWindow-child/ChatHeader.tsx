@@ -140,3 +140,4 @@ const ChatHeader = memo(({
 ChatHeader.displayName = 'ChatHeader';
 
 export default ChatHeader;
+

@@ -16,6 +16,7 @@ interface NotesGridProps {
   onEdit: (note: Note) => void;
   onArchive: (id: number) => void;
   onDelete: (id: number) => void;
+  onMoveToFolder?: (note: Note) => void;
   onAcknowledgeReminder: (id: number) => void;
   onCreateNote: () => void;
   getPriorityColor: (priority: string) => string;
@@ -36,6 +37,7 @@ const NotesGrid = memo(({
   onEdit,
   onArchive,
   onDelete,
+  onMoveToFolder,
   onAcknowledgeReminder,
   onCreateNote,
   getPriorityColor,
@@ -97,6 +99,7 @@ const NotesGrid = memo(({
               onEdit={() => onEdit(note)}
               onArchive={() => onArchive(note.id)}
               onDelete={() => onDelete(note.id)}
+              onMoveToFolder={onMoveToFolder ? () => onMoveToFolder(note) : undefined}
               showArchived={showArchived}
               showReminder={dueReminderNoteIds.includes(note.id)}
               onAcknowledgeReminder={() => onAcknowledgeReminder(note.id)}

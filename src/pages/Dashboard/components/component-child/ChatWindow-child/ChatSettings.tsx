@@ -152,3 +152,4 @@ const ChatSettings: React.FC<ChatSettingsProps> = memo(({ enabled, hasPin, readS
 ChatSettings.displayName = 'ChatSettings';
 
 export default ChatSettings;
+

@@ -58,3 +58,4 @@ const EnterPinModal = memo(({ isOpen, onClose, onUnlock, expectedHash }: EnterPi
 EnterPinModal.displayName = 'EnterPinModal';
 
 export default EnterPinModal;
+
