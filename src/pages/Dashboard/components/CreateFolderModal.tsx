@@ -19,13 +19,19 @@ const COLORS = [
   { value: 'gray', class: 'bg-gray-500' },
 ];
 
-const ICONS = ['📁', '📂', '🗂️', '📋', '📝', '💼', '🎯', '⭐', '🔖'];
+const ICONS = [
+  '📁', '💰', '📖', '🎓', '✏️', '🍃',
+  '💻', '😊', '🎵', '🍿', '🛠️', '🎨',
+  '🌱', '🪷', '📷', '📊', '⭐', '💪',
+  '📋', '⚖️', '🔍', '✈️', '🌐', '🔧',
+  '🐾', '🧪', '⚾', '❤️', '☕', '🎯'
+];
 
 const CreateFolderModal = ({ isOpen, onClose, onSubmit }: CreateFolderModalProps) => {
   const { t } = useTranslation('dashboard');
   const [name, setName] = useState('');
   const [color, setColor] = useState('blue');
-  const [icon, setIcon] = useState('');
+  const [icon, setIcon] = useState('📁');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Prevent body scroll when modal is open
@@ -46,10 +52,10 @@ const CreateFolderModal = ({ isOpen, onClose, onSubmit }: CreateFolderModalProps
 
     setIsSubmitting(true);
     try {
-      await onSubmit({ name: name.trim(), color, icon });
+      await onSubmit({ name: name.trim(), color, icon: icon || '📁' });
       setName('');
       setColor('blue');
-      setIcon('');
+      setIcon('📁');
       onClose();
     } catch (error) {
       console.error('Create folder error:', error);

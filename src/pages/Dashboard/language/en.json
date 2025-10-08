@@ -5,6 +5,8 @@
     "total": "Total notes",
     "active": "Active",
     "archived": "Archived",
+    "folders": "Folders",
+    "notesInFolders": "Notes in Folders",
     "uptime": "Uptime"
   },
   "view": {
@@ -51,6 +53,7 @@
     "createNoteFor": "Create for {{name}}",
     "createNoteShared": "Create note for {{name}}",
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "delete": "Delete",

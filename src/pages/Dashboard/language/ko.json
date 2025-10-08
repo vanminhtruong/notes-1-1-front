@@ -5,6 +5,8 @@
     "total": "총 노트",
     "active": "활성",
     "archived": "보관됨",
+    "folders": "폴더",
+    "notesInFolders": "폴더 내 노트",
     "uptime": "가동률"
   },
   "view": {
@@ -51,6 +53,7 @@
     "createNoteFor": "{{name}}님을 위해 만들기",
     "createNoteShared": "{{name}}님을 위한 노트 만들기",
     "save": "저장",
+    "saving": "저장 중...",
     "cancel": "취소",
     "confirm": "확인",
     "delete": "삭제",

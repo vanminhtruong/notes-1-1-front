@@ -5,6 +5,8 @@
     "total": "Tổng ghi chú",
     "active": "Đang hoạt động",
     "archived": "Đã lưu trữ",
+    "folders": "Thư mục",
+    "notesInFolders": "Ghi chú trong thư mục",
     "uptime": "Hoạt động"
   },
   "view": {
@@ -50,6 +52,7 @@
     "createNoteFor": "Tạo cho {{name}}",
     "createNoteShared": "Tạo ghi chú cho {{name}}",
     "save": "Lưu",
+    "saving": "Đang lưu...",
     "cancel": "Hủy",
     "delete": "Xóa",
     "archive": "Lưu trữ",

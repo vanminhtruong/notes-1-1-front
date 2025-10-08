@@ -21,7 +21,13 @@ const COLORS = [
   { value: 'gray', class: 'bg-gray-500' },
 ];
 
-const ICONS = ['📁', '📂', '🗂️', '📋', '📝', '💼', '🎯', '⭐', '🔖'];
+const ICONS = [
+  '📁', '💰', '📖', '🎓', '✏️', '🍃',
+  '💻', '😊', '🎵', '🍿', '🛠️', '🎨',
+  '🌱', '🪷', '📷', '📊', '⭐', '💪',
+  '📋', '⚖️', '🔍', '✈️', '🌐', '🔧',
+  '🐾', '🧪', '⚾', '❤️', '☕', '🎯'
+];
 
 const EditFolderModal = ({ isOpen, folder, onClose, onSubmit }: EditFolderModalProps) => {
   const { t } = useTranslation('dashboard');
@@ -34,6 +40,8 @@ const EditFolderModal = ({ isOpen, folder, onClose, onSubmit }: EditFolderModalP
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      // Ensure button state is reset each time the modal opens
+      setIsSubmitting(false);
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -60,6 +68,8 @@ const EditFolderModal = ({ isOpen, folder, onClose, onSubmit }: EditFolderModalP
       onClose();
     } catch (error) {
       console.error('Update folder error:', error);
+    } finally {
+      // Always reset submitting state so reopening the modal doesn't get stuck
       setIsSubmitting(false);
     }
   };
@@ -146,7 +156,7 @@ const EditFolderModal = ({ isOpen, folder, onClose, onSubmit }: EditFolderModalP
               className="flex-1 px-4 py-2 md-down:px-3 md-down:py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md-down:text-xs"
               disabled={isSubmitting || !name.trim()}
             >
-              {isSubmitting ? (t('actions.saving') || 'Đang lưu...') : t('actions.save')}
+              {isSubmitting ? t('actions.saving') : t('actions.save')}
             </button>
           </div>
         </form>

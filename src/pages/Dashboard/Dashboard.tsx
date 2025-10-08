@@ -289,6 +289,48 @@ const Dashboard = () => {
     };
   }, [dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, viewMode]);
 
+  // Listen to folder and note events to refresh stats (for totalFolders and notesInFolders counts)
+  useEffect(() => {
+    const socket = socketService.getSocket();
+    if (!socket) return;
+
+    const handleStatsUpdate = () => {
+      // Refresh stats when folders/notes are created/deleted/updated or notes are moved
+      dispatch(fetchNoteStats());
+    };
+
+    // Listen to folder-related events
+    socket.on('folder_created', handleStatsUpdate);
+    socket.on('folder_deleted', handleStatsUpdate);
+    socket.on('folder_updated', handleStatsUpdate);
+    socket.on('admin_folder_created', handleStatsUpdate);
+    socket.on('admin_folder_deleted', handleStatsUpdate);
+    socket.on('admin_folder_updated', handleStatsUpdate);
+    
+    // Listen to note events (for notes in folders count)
+    socket.on('note_created', handleStatsUpdate);
+    socket.on('note_deleted', handleStatsUpdate);
+    socket.on('note_updated', handleStatsUpdate);
+    socket.on('admin_note_created', handleStatsUpdate);
+    socket.on('admin_note_deleted', handleStatsUpdate);
+    socket.on('admin_note_updated', handleStatsUpdate);
+
+    return () => {
+      socket.off('folder_created', handleStatsUpdate);
+      socket.off('folder_deleted', handleStatsUpdate);
+      socket.off('folder_updated', handleStatsUpdate);
+      socket.off('admin_folder_created', handleStatsUpdate);
+      socket.off('admin_folder_deleted', handleStatsUpdate);
+      socket.off('admin_folder_updated', handleStatsUpdate);
+      socket.off('note_created', handleStatsUpdate);
+      socket.off('note_deleted', handleStatsUpdate);
+      socket.off('note_updated', handleStatsUpdate);
+      socket.off('admin_note_created', handleStatsUpdate);
+      socket.off('admin_note_deleted', handleStatsUpdate);
+      socket.off('admin_note_updated', handleStatsUpdate);
+    };
+  }, [dispatch]);
+
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 xl-down:py-7 lg-down:py-6 md-down:py-5 sm-down:py-4 xs-down:py-3 xl-down:px-3 md-down:px-2">
