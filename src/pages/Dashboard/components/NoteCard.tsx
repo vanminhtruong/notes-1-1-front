@@ -137,7 +137,7 @@ const NoteCard = memo(({
         </div>
       </div>
 
-      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2 md-down:text-xs sm-down:mb-3 xs-down:mb-2.5">
+      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 truncate md-down:text-xs sm-down:mb-3 xs-down:mb-2.5">
         {note.content || t('messages.noContent')}
       </p>
 
