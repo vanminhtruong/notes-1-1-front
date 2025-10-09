@@ -25,7 +25,9 @@
     "results": "kết quả",
     "pressEnter": "Nhấn Enter để tìm kiếm đầy đủ",
     "noResults": "Không tìm thấy kết quả",
-    "tryDifferent": "Thử tìm kiếm với từ khóa khác"
+    "tryDifferent": "Thử tìm kiếm với từ khóa khác",
+    "foundResults": "Tìm thấy {{count}} kết quả",
+    "tryDifferentKeywords": "Thử tìm kiếm với từ khóa khác"
   },
   "categories": {
     "work": "Công việc",
@@ -160,6 +162,8 @@
     "loadGroups": "Không thể tải danh sách nhóm"
   },
   "notes": {
+    "title": "Ghi chú",
+    "inFolders": "ghi chú trong thư mục",
     "noContent": "Không có nội dung",
     "priority": {
       "low": "Thấp",
@@ -206,7 +210,7 @@
     "confirmDelete": "Bạn có chắc muốn xóa ghi chú này?",
     "deleteSuccess": "Đã xóa ghi chú thành công",
     "deleteError": "Không thể xóa ghi chú",
-    "title": "Tiêu đề",
+    "titleField": "Tiêu đề",
     "content": "Nội dung",
     "imageUrl": "URL hình ảnh",
     "titleRequired": "Tiêu đề không được để trống",

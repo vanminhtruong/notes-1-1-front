@@ -72,14 +72,7 @@ export const useFolders = () => {
   // Delete folder
   const deleteFolder = useCallback(async (id: number) => {
     try {
-      await notesService.deleteFolder(id);
-      // Socket listener will handle it to avoid duplicates
-      // setFolders(prev => prev.filter(f => f.id !== id));
-      // if (selectedFolder?.id === id) {
-      //   setSelectedFolder(null);
-      //   setFolderNotes([]);
-      // }
-      
+      await notesService.deleteFolder(id);    
       toast.success(t('folders.deleteSuccess'));
     } catch (error: any) {
       console.error('Delete folder error:', error);

@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Inbox, RefreshCw } from 'lucide-react';
 import { SharedNoteItem } from './SharedNoteItem';
-import { useSharedNotes } from '../../hooks/useSharedNotes';
+import { useSharedNotes } from '../../hooks/useDashboard/useSharedNotes';
 import type { SharedNotesTabProps } from '../interface/SharedNotes.interface';
 import toast from 'react-hot-toast';
 import { notesService } from '@/services/notesService';

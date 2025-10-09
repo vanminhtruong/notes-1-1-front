@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { notesService, type SharedNote } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import type { UseSharedNotesReturn } from '../components/interface/SharedNotes.interface';
+import type { UseSharedNotesReturn } from '../../components/interface/SharedNotes.interface';
 import { getSocket } from '@/services/socket';
 
 const ITEMS_PER_PAGE = 3;

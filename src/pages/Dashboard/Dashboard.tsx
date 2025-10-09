@@ -1,18 +1,16 @@
 import {
-  useState, useCallback, useEffect,
-  useTranslation, toast,
+  useCallback,
   useDashboard, useFolders, useBodyScrollLock, useFolderNotes,
-  StatsCards, ViewToggle, type ViewMode, SearchAndFilters, BulkActionsBar, NotesGrid,
+  useViewMode, useModals, useFolderHandlers, useMoveToFolder, useMoveOutOfFolder, useSocketListeners,
+  StatsCards, ViewToggle, SearchAndFilters, BulkActionsBar, NotesGrid,
   FoldersView, FolderNotesView,
   CreateNoteModal, ViewNoteModal, EditNoteModal, CreateNoteInFolderModal, EditNoteInFolderModal,
   CreateFolderModal, EditFolderModal, MoveToFolderModal, MoveOutOfFolderModal,
   ShareNoteModal, LazyLoad,
-  type NoteFolder, socketService,
-  useAppDispatch, fetchNotes, fetchNoteStats
+  useAppDispatch
 } from '@/pages/Dashboard/import';
 
 const Dashboard = () => {
-  const { t } = useTranslation('dashboard');
   const dispatch = useAppDispatch();
   const {
     notes, isLoading, stats, pagination,
@@ -49,35 +47,30 @@ const Dashboard = () => {
     setSelectedFolder,
   } = useFolders();
 
-  // View mode state
-  const [viewMode, setViewMode] = useState<ViewMode>('active');
+  // View mode hook
+  const { viewMode, setViewMode } = useViewMode({ setShowArchived, setCurrentPage });
 
-  // Sync viewMode with showArchived filter
-  useEffect(() => {
-    if (viewMode === 'archived') {
-      setShowArchived(true);
-    } else if (viewMode === 'active') {
-      setShowArchived(false);
-    }
-    // Reset to first page when switching tabs
-    setCurrentPage(1);
-  }, [viewMode, setShowArchived, setCurrentPage]);
-
-  // Share Note Modal state  
-  const [showShareModal, setShowShareModal] = useState(false);
-
-  // Move to Folder Modal state
-  const [showMoveToFolderModal, setShowMoveToFolderModal] = useState(false);
-  const [noteToMove, setNoteToMove] = useState<any>(null);
-
-  // Move Out of Folder Modal state
-  const [showMoveOutOfFolderModal, setShowMoveOutOfFolderModal] = useState(false);
-  const [noteToMoveOut, setNoteToMoveOut] = useState<any>(null);
-
-  // Folder Modals state
-  const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
-  const [showEditFolderModal, setShowEditFolderModal] = useState(false);
-  const [editingFolder, setEditingFolder] = useState<NoteFolder | null>(null);
+  // Modals hook
+  const {
+    showShareModal,
+    handleOpenShareModal,
+    handleCloseShareModal,
+    showMoveToFolderModal,
+    noteToMove,
+    handleOpenMoveToFolder,
+    handleCloseMoveToFolder,
+    showMoveOutOfFolderModal,
+    noteToMoveOut,
+    handleOpenMoveOutOfFolder,
+    handleCloseMoveOutOfFolder,
+    showCreateFolderModal,
+    showEditFolderModal,
+    editingFolder,
+    handleOpenCreateFolderModal,
+    handleCloseCreateFolderModal,
+    handleOpenEditFolderModal,
+    handleCloseEditFolderModal,
+  } = useModals();
 
   // Folder notes hook (for create/edit notes within folder)
   const {
@@ -99,237 +92,64 @@ const Dashboard = () => {
     }
   });
 
+  // Folder handlers hook
+  const {
+    handleDeleteFolder,
+    handleViewFolder,
+    handleBackFromFolder,
+    handleArchiveNoteInFolder,
+    handleDeleteNoteInFolder,
+    handleRemoveFromFolder,
+  } = useFolderHandlers({
+    deleteFolder,
+    fetchFolderNotes,
+    setSelectedFolder,
+    confirmArchiveNote,
+    confirmDeleteNote,
+    moveNoteToFolder,
+    selectedFolder,
+  });
+
+  // Move to folder hook
+  const { handleSelectFolder } = useMoveToFolder({
+    noteToMove,
+    moveNoteToFolder,
+    handleCloseMoveToFolder,
+  });
+
+  // Move out of folder hook
+  const { handleMoveToActive, handleMoveToArchived } = useMoveOutOfFolder({
+    noteToMoveOut,
+    moveNoteToFolder,
+    confirmArchiveNote,
+    handleCloseMoveOutOfFolder,
+    selectedFolder,
+    fetchFolderNotes,
+  });
+
+  // Socket listeners hook
+  useSocketListeners({
+    dispatch,
+    currentPage,
+    searchTerm,
+    selectedCategory,
+    selectedPriority,
+    viewMode,
+  });
+
   // Disable body scroll when modals are open
   useBodyScrollLock(showViewModal || showEditModal || showShareModal || showCreateModal);
-
-  const handleOpenShareModal = useCallback(() => {
-    setShowShareModal(true);
-  }, []);
 
   const handleShareSuccess = useCallback(() => {
     // Optionally refresh notes or update UI
     setShowViewModal(false);
-  }, []);
+  }, [setShowViewModal]);
 
-  const handleCloseCreateModal = useCallback(() => setShowCreateModal(false), []);
-  const handleOpenCreateModal = useCallback(() => setShowCreateModal(true), []);
-  const handleCloseViewModal = useCallback(() => setShowViewModal(false), []);
-  const handleCloseEditModal = useCallback(() => setShowEditModal(false), []);
-  const handleCloseShareModal = useCallback(() => setShowShareModal(false), []);
+  const handleCloseCreateModal = useCallback(() => setShowCreateModal(false), [setShowCreateModal]);
+  const handleOpenCreateModal = useCallback(() => setShowCreateModal(true), [setShowCreateModal]);
+  const handleCloseViewModal = useCallback(() => setShowViewModal(false), [setShowViewModal]);
+  const handleCloseEditModal = useCallback(() => setShowEditModal(false), [setShowEditModal]);
 
-  // Folder handlers
-  const handleOpenCreateFolderModal = useCallback(() => setShowCreateFolderModal(true), []);
-  const handleCloseCreateFolderModal = useCallback(() => setShowCreateFolderModal(false), []);
-
-  const handleOpenEditFolderModal = useCallback((folder: NoteFolder) => {
-    setEditingFolder(folder);
-    setShowEditFolderModal(true);
-  }, []);
-
-  const handleCloseEditFolderModal = useCallback(() => {
-    setShowEditFolderModal(false);
-    setEditingFolder(null);
-  }, []);
-
-  const handleDeleteFolder = useCallback((folder: NoteFolder) => {
-    toast.custom((toastData) => {
-      const containerClass = `max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`;
-      return (
-        <div className={containerClass}>
-          <div className="flex items-start gap-3">
-            <div className="flex-1">
-              <p className="font-semibold">{t('folders.confirmDelete')}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                {t('folders.confirmDeleteDesc')}
-              </p>
-            </div>
-          </div>
-          <div className="mt-3 flex justify-end gap-2">
-            <button
-              onClick={() => toast.dismiss(toastData.id)}
-              className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
-            >
-              {t('actions.cancel')}
-            </button>
-            <button
-              onClick={async () => {
-                await deleteFolder(folder.id);
-                toast.dismiss(toastData.id);
-              }}
-              className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"
-            >
-              {t('actions.delete')}
-            </button>
-          </div>
-        </div>
-      );
-    }, { duration: 8000 });
-  }, [deleteFolder, t]);
-
-  const handleViewFolder = useCallback((folder: NoteFolder) => {
-    fetchFolderNotes(folder.id);
-  }, [fetchFolderNotes]);
-
-  const handleBackFromFolder = useCallback(() => {
-    setSelectedFolder(null);
-  }, [setSelectedFolder]);
-
-  // Wrapper functions for folder note actions
-  const handleArchiveNoteInFolder = useCallback((note: any) => {
-    confirmArchiveNote(note.id);
-  }, [confirmArchiveNote]);
-
-  const handleDeleteNoteInFolder = useCallback((note: any) => {
-    confirmDeleteNote(note.id);
-  }, [confirmDeleteNote]);
-
-  const handleRemoveFromFolder = useCallback(async (noteId: number) => {
-    await moveNoteToFolder(noteId, null); // Move to root (remove from folder)
-    // Refresh folder notes
-    if (selectedFolder) {
-      fetchFolderNotes(selectedFolder.id);
-    }
-  }, [moveNoteToFolder, selectedFolder, fetchFolderNotes]);
-
-  // Move to folder handlers
-  const handleOpenMoveToFolder = useCallback((note: any) => {
-    setNoteToMove(note);
-    setShowMoveToFolderModal(true);
-  }, []);
-
-  const handleCloseMoveToFolder = useCallback(() => {
-    setShowMoveToFolderModal(false);
-    setNoteToMove(null);
-  }, []);
-
-  const handleSelectFolder = useCallback(async (folderId: number) => {
-    if (!noteToMove) return;
-    
-    try {
-      await moveNoteToFolder(noteToMove.id, folderId);
-      handleCloseMoveToFolder();
-    } catch (error) {
-      // Error already handled by hook
-    }
-  }, [noteToMove, moveNoteToFolder, handleCloseMoveToFolder]);
-
-  // Move out of folder handlers
-  const handleOpenMoveOutOfFolder = useCallback((note: any) => {
-    setNoteToMoveOut(note);
-    setShowMoveOutOfFolderModal(true);
-  }, []);
-
-  const handleCloseMoveOutOfFolder = useCallback(() => {
-    setShowMoveOutOfFolderModal(false);
-    setNoteToMoveOut(null);
-  }, []);
-
-  const handleMoveToActive = useCallback(async () => {
-    if (!noteToMoveOut) return;
-    
-    try {
-      // Move out of folder (folderId = null) and unarchive (isArchived = false)
-      await moveNoteToFolder(noteToMoveOut.id, null);
-      // Also need to unarchive if it was archived
-      if (noteToMoveOut.isArchived) {
-        await confirmArchiveNote(noteToMoveOut.id); // Toggle archive status
-      }
-      handleCloseMoveOutOfFolder();
-      // Refresh folder notes
-      if (selectedFolder) {
-        fetchFolderNotes(selectedFolder.id);
-      }
-    } catch (error) {
-      // Error already handled
-    }
-  }, [noteToMoveOut, moveNoteToFolder, confirmArchiveNote, handleCloseMoveOutOfFolder, selectedFolder, fetchFolderNotes]);
-
-  const handleMoveToArchived = useCallback(async () => {
-    if (!noteToMoveOut) return;
-    
-    try {
-      // Move out of folder (folderId = null) and archive (isArchived = true)
-      await moveNoteToFolder(noteToMoveOut.id, null);
-      // Also need to archive if not already archived
-      if (!noteToMoveOut.isArchived) {
-        await confirmArchiveNote(noteToMoveOut.id); // Toggle archive status
-      }
-      handleCloseMoveOutOfFolder();
-      // Refresh folder notes
-      if (selectedFolder) {
-        fetchFolderNotes(selectedFolder.id);
-      }
-    } catch (error) {
-      // Error already handled
-    }
-  }, [noteToMoveOut, moveNoteToFolder, confirmArchiveNote, handleCloseMoveOutOfFolder, selectedFolder, fetchFolderNotes]);
-
-  // Listen to note_moved_to_folder event to refresh Active/Archived tabs
-  useEffect(() => {
-    const socket = socketService.getSocket();
-    if (!socket) return;
-
-    const handleNoteMoved = () => {
-      // Refresh notes list and stats
-      dispatch(fetchNotes({
-        page: currentPage,
-        limit: 10,
-        search: searchTerm,
-        category: selectedCategory || undefined,
-        priority: selectedPriority || undefined,
-        isArchived: viewMode === 'archived',
-      }));
-      dispatch(fetchNoteStats());
-    };
-
-    socket.on('note_moved_to_folder', handleNoteMoved);
-
-    return () => {
-      socket.off('note_moved_to_folder', handleNoteMoved);
-    };
-  }, [dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, viewMode]);
-
-  // Listen to folder and note events to refresh stats (for totalFolders and notesInFolders counts)
-  useEffect(() => {
-    const socket = socketService.getSocket();
-    if (!socket) return;
-
-    const handleStatsUpdate = () => {
-      // Refresh stats when folders/notes are created/deleted/updated or notes are moved
-      dispatch(fetchNoteStats());
-    };
-
-    // Listen to folder-related events
-    socket.on('folder_created', handleStatsUpdate);
-    socket.on('folder_deleted', handleStatsUpdate);
-    socket.on('folder_updated', handleStatsUpdate);
-    socket.on('admin_folder_created', handleStatsUpdate);
-    socket.on('admin_folder_deleted', handleStatsUpdate);
-    socket.on('admin_folder_updated', handleStatsUpdate);
-    
-    // Listen to note events (for notes in folders count)
-    socket.on('note_created', handleStatsUpdate);
-    socket.on('note_deleted', handleStatsUpdate);
-    socket.on('note_updated', handleStatsUpdate);
-    socket.on('admin_note_created', handleStatsUpdate);
-    socket.on('admin_note_deleted', handleStatsUpdate);
-    socket.on('admin_note_updated', handleStatsUpdate);
-
-    return () => {
-      socket.off('folder_created', handleStatsUpdate);
-      socket.off('folder_deleted', handleStatsUpdate);
-      socket.off('folder_updated', handleStatsUpdate);
-      socket.off('admin_folder_created', handleStatsUpdate);
-      socket.off('admin_folder_deleted', handleStatsUpdate);
-      socket.off('admin_folder_updated', handleStatsUpdate);
-      socket.off('note_created', handleStatsUpdate);
-      socket.off('note_deleted', handleStatsUpdate);
-      socket.off('note_updated', handleStatsUpdate);
-      socket.off('admin_note_created', handleStatsUpdate);
-      socket.off('admin_note_deleted', handleStatsUpdate);
-      socket.off('admin_note_updated', handleStatsUpdate);
-    };
-  }, [dispatch]);
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 min-h-screen">
@@ -392,6 +212,7 @@ const Dashboard = () => {
                 selectedPriority={selectedPriority}
                 setSelectedPriority={setSelectedPriority}
                 onCreateNote={handleOpenCreateModal}
+                showArchived={viewMode === 'archived'}
               />
             </LazyLoad>
 

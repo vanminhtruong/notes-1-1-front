@@ -5,9 +5,15 @@ export { default as toast } from 'react-hot-toast';
 
 // Custom hooks
 export { useDashboard } from '@/pages/Dashboard/hooks/useDashboard';
-export { useFolders } from '@/pages/Dashboard/hooks/useFolders';
-export { useBodyScrollLock } from '@/pages/Dashboard/hooks/useBodyScrollLock';
-export { useFolderNotes } from '@/pages/Dashboard/hooks/useFolderNotes';
+export { useFolders } from '~/pages/Dashboard/hooks/useDashboard/useFolders';
+export { useBodyScrollLock } from '~/pages/Dashboard/hooks/useDashboard/useBodyScrollLock';
+export { useFolderNotes } from '~/pages/Dashboard/hooks/useDashboard/useFolderNotes';
+export { useViewMode } from '~/pages/Dashboard/hooks/useDashboard/useViewMode';
+export { useModals } from '~/pages/Dashboard/hooks/useDashboard/useModals';
+export { useFolderHandlers } from '~/pages/Dashboard/hooks/useDashboard/useFolderHandlers';
+export { useMoveToFolder } from '~/pages/Dashboard/hooks/useDashboard/useMoveToFolder';
+export { useMoveOutOfFolder } from '~/pages/Dashboard/hooks/useDashboard/useMoveOutOfFolder';
+export { useSocketListeners } from '~/pages/Dashboard/hooks/useDashboard/useSocketListeners';
 
 // Components - Dashboard specific
 export { default as StatsCards } from '@/pages/Dashboard/components/StatsCards';

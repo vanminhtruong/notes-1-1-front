@@ -168,6 +168,13 @@ export interface FolderWithNotesResponse {
   };
 }
 
+export interface SearchFoldersResponse {
+  folders: NoteFolder[];
+  notes: Note[];
+  total: number;
+  query: string;
+}
+
 export const notesService = {
   async getNotes(params?: {
     page?: number;
@@ -308,6 +315,15 @@ export const notesService = {
 
   async moveNoteToFolder(noteId: number, folderId: number | null): Promise<{ message: string; note: Note }> {
     const response = await api.patch(`/notes/${noteId}/move-to-folder`, { folderId });
+    return response.data;
+  },
+
+  async searchFolders(params?: {
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<SearchFoldersResponse> {
+    const response = await api.get('/notes/folders/search/all', { params });
     return response.data;
   },
 };

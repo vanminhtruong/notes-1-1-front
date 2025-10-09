@@ -25,7 +25,9 @@
     "results": "results",
     "pressEnter": "Press Enter to search fully",
     "noResults": "No results found",
-    "tryDifferent": "Try searching with different keywords"
+    "tryDifferent": "Try searching with different keywords",
+    "foundResults": "Found {{count}} result(s)",
+    "tryDifferentKeywords": "Try searching with different keywords"
   },
   "categories": {
     "work": "Work",
@@ -173,6 +175,8 @@
     "reminderAcknowledged": "Reminder acknowledged"
   },
   "notes": {
+    "title": "Notes",
+    "inFolders": "notes in folders",
     "noContent": "No content",
     "priority": {
       "low": "Low",
