@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Folder, Plus, FolderOutput } from 'lucide-react';
+import { ArrowLeft, Plus, FolderOutput } from 'lucide-react';
 import { type NoteFolder, type Note } from '@/services/notesService';
 import NoteCard from './NoteCard';
 import toast from 'react-hot-toast';
+import { getFolderIcon, getFolderColorClass } from '@/pages/Dashboard/utils/folderIcons';
 
 interface FolderNotesViewProps {
   folder: NoteFolder | null;
@@ -23,16 +24,6 @@ interface FolderNotesViewProps {
   getPriorityText: (priority: string) => string;
 }
 
-const COLOR_CLASSES: Record<string, string> = {
-  blue: 'bg-blue-500',
-  green: 'bg-green-500',
-  red: 'bg-red-500',
-  yellow: 'bg-yellow-500',
-  purple: 'bg-purple-500',
-  pink: 'bg-pink-500',
-  orange: 'bg-orange-500',
-  gray: 'bg-gray-500',
-};
 
 const FolderNotesView = ({
   folder,
@@ -120,12 +111,12 @@ const FolderNotesView = ({
 
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className={`${COLOR_CLASSES[folder.color] || COLOR_CLASSES.blue} p-4 rounded-xl`}>
-              {folder.icon && folder.icon !== 'folder' ? (
-                <div className="text-3xl text-white leading-none">{folder.icon}</div>
-              ) : (
-                <Folder className="w-8 h-8 text-white" />
-              )}
+            <div className="p-4 rounded-xl">
+              {(() => {
+                const IconComponent = getFolderIcon(folder.icon || 'folder');
+                const colorClass = getFolderColorClass(folder.color);
+                return <IconComponent className={`w-10 h-10 ${colorClass}`} strokeWidth={2} />;
+              })()}
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{folder.name}</h2>

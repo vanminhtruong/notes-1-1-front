@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Folder } from 'lucide-react';
+import { 
+  X, Folder, DollarSign, Book, GraduationCap, Pencil, Leaf,
+  Code, Smile, Music, Popcorn, Wrench, Palette,
+  Sprout, Flower, Camera, BarChart, Star, Dumbbell,
+  ClipboardList, Scale, Search, Plane, Globe, Settings,
+  Footprints, FlaskConical, Trophy, Heart, Coffee, Target
+} from 'lucide-react';
 import { type NoteFolder } from '@/services/notesService';
 
 interface EditFolderModalProps {
@@ -11,22 +17,47 @@ interface EditFolderModalProps {
 }
 
 const COLORS = [
-  { value: 'blue', class: 'bg-blue-500' },
-  { value: 'green', class: 'bg-green-500' },
-  { value: 'red', class: 'bg-red-500' },
-  { value: 'yellow', class: 'bg-yellow-500' },
-  { value: 'purple', class: 'bg-purple-500' },
-  { value: 'pink', class: 'bg-pink-500' },
-  { value: 'orange', class: 'bg-orange-500' },
-  { value: 'gray', class: 'bg-gray-500' },
+  { value: 'blue', class: 'text-blue-500 border-blue-500' },
+  { value: 'green', class: 'text-green-500 border-green-500' },
+  { value: 'red', class: 'text-red-500 border-red-500' },
+  { value: 'yellow', class: 'text-yellow-500 border-yellow-500' },
+  { value: 'purple', class: 'text-purple-500 border-purple-500' },
+  { value: 'pink', class: 'text-pink-500 border-pink-500' },
+  { value: 'orange', class: 'text-orange-500 border-orange-500' },
+  { value: 'gray', class: 'text-gray-500 border-gray-500' },
 ];
 
 const ICONS = [
-  '📁', '💰', '📖', '🎓', '✏️', '🍃',
-  '💻', '😊', '🎵', '🍿', '🛠️', '🎨',
-  '🌱', '🪷', '📷', '📊', '⭐', '💪',
-  '📋', '⚖️', '🔍', '✈️', '🌐', '🔧',
-  '🐾', '🧪', '⚾', '❤️', '☕', '🎯'
+  { name: 'folder', icon: Folder },
+  { name: 'dollar', icon: DollarSign },
+  { name: 'book', icon: Book },
+  { name: 'graduation', icon: GraduationCap },
+  { name: 'pencil', icon: Pencil },
+  { name: 'leaf', icon: Leaf },
+  { name: 'code', icon: Code },
+  { name: 'smile', icon: Smile },
+  { name: 'music', icon: Music },
+  { name: 'popcorn', icon: Popcorn },
+  { name: 'wrench', icon: Wrench },
+  { name: 'palette', icon: Palette },
+  { name: 'sprout', icon: Sprout },
+  { name: 'flower', icon: Flower },
+  { name: 'camera', icon: Camera },
+  { name: 'chart', icon: BarChart },
+  { name: 'star', icon: Star },
+  { name: 'dumbbell', icon: Dumbbell },
+  { name: 'clipboard', icon: ClipboardList },
+  { name: 'scale', icon: Scale },
+  { name: 'search', icon: Search },
+  { name: 'plane', icon: Plane },
+  { name: 'globe', icon: Globe },
+  { name: 'settings', icon: Settings },
+  { name: 'footprints', icon: Footprints },
+  { name: 'flask', icon: FlaskConical },
+  { name: 'trophy', icon: Trophy },
+  { name: 'heart', icon: Heart },
+  { name: 'coffee', icon: Coffee },
+  { name: 'target', icon: Target },
 ];
 
 const EditFolderModal = ({ isOpen, folder, onClose, onSubmit }: EditFolderModalProps) => {
@@ -113,8 +144,8 @@ const EditFolderModal = ({ isOpen, folder, onClose, onSubmit }: EditFolderModalP
                   key={colorOption.value}
                   type="button"
                   onClick={() => setColor(colorOption.value)}
-                  className={`w-10 h-10 md-down:w-9 md-down:h-9 sm-down:w-8 sm-down:h-8 rounded-lg ${colorOption.class} transition-all ${
-                    color === colorOption.value ? 'ring-4 ring-blue-500 ring-offset-2 dark:ring-offset-gray-800 scale-110' : 'hover:scale-105'
+                  className={`w-10 h-10 md-down:w-9 md-down:h-9 sm-down:w-8 sm-down:h-8 rounded-full border-4 ${colorOption.class} transition-all bg-white dark:bg-gray-800 ${
+                    color === colorOption.value ? 'ring-4 ring-blue-300 dark:ring-blue-600 ring-offset-2 dark:ring-offset-gray-800 scale-110' : 'hover:scale-105'
                   }`}
                   title={t(`folders.colors.${colorOption.value}`)}
                 />
@@ -125,19 +156,25 @@ const EditFolderModal = ({ isOpen, folder, onClose, onSubmit }: EditFolderModalP
           {/* Icon Selection */}
           <div>
             <label className="block text-sm md-down:text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">{t('folders.folderIcon') || 'Icon'}</label>
-            <div className="flex gap-2 flex-wrap">
-              {ICONS.map((iconOption) => (
-                <button
-                  key={iconOption}
-                  type="button"
-                  onClick={() => setIcon(iconOption)}
-                  className={`w-12 h-12 md-down:w-11 md-down:h-11 sm-down:w-10 sm-down:h-10 text-2xl md-down:text-xl sm-down:text-lg rounded-lg border-2 transition-all ${
-                    icon === iconOption ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-110' : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 hover:scale-105'
-                  }`}
-                >
-                  {iconOption}
-                </button>
-              ))}
+            <div className="grid grid-cols-6 gap-2">
+              {ICONS.map((iconOption) => {
+                const IconComponent = iconOption.icon;
+                const selectedColor = COLORS.find(c => c.value === color);
+                return (
+                  <button
+                    key={iconOption.name}
+                    type="button"
+                    onClick={() => setIcon(iconOption.name)}
+                    className={`w-12 h-12 md-down:w-11 md-down:h-11 sm-down:w-10 sm-down:h-10 rounded-lg border-2 flex items-center justify-center transition-all ${
+                      icon === iconOption.name
+                        ? `${selectedColor?.class} bg-gray-50 dark:bg-gray-700/50 scale-110`
+                        : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 hover:scale-105'
+                    }`}
+                  >
+                    <IconComponent className="w-6 h-6 md-down:w-5 md-down:h-5 sm-down:w-4.5 sm-down:h-4.5" strokeWidth={2} />
+                  </button>
+                );
+              })}
             </div>
           </div>
 

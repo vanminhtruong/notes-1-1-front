@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Folder, Edit2, Trash2, ChevronRight, Plus } from 'lucide-react';
+import { Folder, Edit2, Trash2, Plus } from 'lucide-react';
 import Pagination from '@/components/Pagination';
 import SearchFolders from '@/components/SearchFolders';
 import { type NoteFolder, notesService } from '@/services/notesService';
+import { getFolderIcon, getFolderColorClass } from '@/pages/Dashboard/utils/folderIcons';
 
 interface FoldersViewProps {
   folders: NoteFolder[];
@@ -14,16 +15,6 @@ interface FoldersViewProps {
   onViewFolder: (folder: NoteFolder) => void;
 }
 
-const COLOR_CLASSES: Record<string, string> = {
-  blue: 'bg-blue-500',
-  green: 'bg-green-500',
-  red: 'bg-red-500',
-  yellow: 'bg-yellow-500',
-  purple: 'bg-purple-500',
-  pink: 'bg-pink-500',
-  orange: 'bg-orange-500',
-  gray: 'bg-gray-500',
-};
 
 const FoldersView = ({
   folders,
@@ -169,29 +160,21 @@ const FoldersView = ({
           {displayedFolders.map((folder) => (
           <div
             key={folder.id}
-            className="group bg-white dark:bg-gray-800 rounded-xl xl-down:rounded-lg lg-down:rounded-lg md-down:rounded-lg sm-down:rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="group bg-white dark:bg-gray-800 rounded-xl xl-down:rounded-lg lg-down:rounded-lg md-down:rounded-lg sm-down:rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer"
+            onClick={() => onViewFolder(folder)}
           >
-            {/* Folder Header */}
-            <div
-              className={`${COLOR_CLASSES[folder.color] || COLOR_CLASSES.blue} p-4 xl-down:p-3 lg-down:p-3 md-down:p-3 sm-down:p-2.5 xs-down:p-2 cursor-pointer`}
-              onClick={() => onViewFolder(folder)}
-            >
-              <div className="flex items-center justify-between text-white">
-                {folder.icon && folder.icon !== 'folder' ? (
-                  <div className="text-3xl xl-down:text-2xl lg-down:text-2xl md-down:text-2xl sm-down:text-xl xs-down:text-lg leading-none">{folder.icon}</div>
-                ) : (
-                  <Folder className="w-8 h-8 xl-down:w-7 xl-down:h-7 lg-down:w-7 lg-down:h-7 md-down:w-6 md-down:h-6 sm-down:w-6 sm-down:h-6 xs-down:w-5 xs-down:h-5" />
-                )}
-                <ChevronRight className="w-5 h-5 xl-down:w-4 xl-down:h-4 md-down:w-4 md-down:h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
+            {/* Folder Icon - Centered */}
+            <div className="p-6 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-4 xs-down:p-3 flex items-center justify-center border-b border-gray-100 dark:border-gray-700">
+              {(() => {
+                const IconComponent = getFolderIcon(folder.icon || 'folder');
+                const colorClass = getFolderColorClass(folder.color);
+                return <IconComponent className={`w-16 h-16 xl-down:w-14 xl-down:h-14 lg-down:w-12 lg-down:h-12 md-down:w-10 md-down:h-10 sm-down:w-10 sm-down:h-10 ${colorClass}`} strokeWidth={1.5} />;
+              })()}
             </div>
 
             {/* Folder Content */}
             <div className="p-4 xl-down:p-3 lg-down:p-3 md-down:p-3 sm-down:p-2.5 xs-down:p-2">
-              <h3
-                className="text-lg xl-down:text-base lg-down:text-base md-down:text-sm sm-down:text-sm xs-down:text-sm font-semibold text-gray-900 dark:text-white mb-2 truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                onClick={() => onViewFolder(folder)}
-              >
+              <h3 className="text-lg xl-down:text-base lg-down:text-base md-down:text-sm sm-down:text-sm xs-down:text-sm font-semibold text-gray-900 dark:text-white mb-2 truncate">
                 {folder.name}
               </h3>
               <p className="text-sm xs-down:text-xs text-gray-600 dark:text-gray-400 mb-4 sm-down:mb-3 xs-down:mb-2.5">
@@ -201,14 +184,20 @@ const FoldersView = ({
               {/* Actions */}
               <div className="flex gap-2 sm-down:gap-2 xs-down:gap-1.5">
                 <button
-                  onClick={() => onEditFolder(folder)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditFolder(folder);
+                  }}
                   className="flex-1 flex items-center justify-center gap-2 px-3 py-2 md-down:px-2.5 md-down:py-1.5 sm-down:px-2 sm-down:py-1.5 xs-down:px-2 xs-down:py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm md-down:text-xs"
                 >
                   <Edit2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                   <span className="text-sm md-down:text-xs">{t('actions.edit')}</span>
                 </button>
                 <button
-                  onClick={() => onDeleteFolder(folder)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteFolder(folder);
+                  }}
                   className="flex items-center justify-center px-3 py-2 md-down:px-2.5 md-down:py-1.5 sm-down:px-2 sm-down:py-1.5 xs-down:px-2 xs-down:py-1.5 border border-red-300 dark:border-red-600 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 >
                   <Trash2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
