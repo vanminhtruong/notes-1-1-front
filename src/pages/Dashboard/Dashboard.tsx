@@ -39,6 +39,8 @@ const Dashboard = () => {
     selectedFolder,
     folderNotes,
     isFolderNotesLoading,
+    folderNotesPagination,
+    currentPage: folderCurrentPage,
     fetchFolderNotes,
     createFolder,
     updateFolder,
@@ -108,6 +110,7 @@ const Dashboard = () => {
     confirmDeleteNote,
     moveNoteToFolder,
     selectedFolder,
+    currentPage: folderCurrentPage,
   });
 
   // Move to folder hook
@@ -125,7 +128,14 @@ const Dashboard = () => {
     handleCloseMoveOutOfFolder,
     selectedFolder,
     fetchFolderNotes,
+    currentPage: folderCurrentPage,
   });
+
+  // Pin note handler
+  const handlePinUpdate = useCallback((updatedNote: any) => {
+    // Notes will be automatically refreshed via Redux state
+    console.log('Note pinned/unpinned:', updatedNote);
+  }, []);
 
   // Socket listeners hook
   useSocketListeners({
@@ -183,8 +193,16 @@ const Dashboard = () => {
                 onCreateNote={handleOpenCreateNoteInFolder}
                 onRemoveFromFolder={handleRemoveFromFolder}
                 onMoveOutOfFolder={handleOpenMoveOutOfFolder}
+                onPinUpdate={handlePinUpdate}
                 getPriorityColor={getPriorityColor}
                 getPriorityText={getPriorityText}
+                currentPage={folderCurrentPage}
+                totalPages={folderNotesPagination.totalPages}
+                onPageChange={(page) => {
+                  if (selectedFolder) {
+                    fetchFolderNotes(selectedFolder.id, page);
+                  }
+                }}
               />
             </LazyLoad>
           ) : (
@@ -237,6 +255,7 @@ const Dashboard = () => {
                 onArchive={confirmArchiveNote}
                 onDelete={confirmDeleteNote}
                 onMoveToFolder={handleOpenMoveToFolder}
+                onPinUpdate={handlePinUpdate}
                 onAcknowledgeReminder={acknowledgeReminderNote}
                 onCreateNote={handleOpenCreateModal}
                 getPriorityColor={getPriorityColor}

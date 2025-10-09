@@ -10,6 +10,7 @@ export interface Note {
   category: string;
   priority: 'low' | 'medium' | 'high';
   isArchived: boolean;
+  isPinned: boolean;
   reminderAt: string | null;
   reminderSent: boolean;
   reminderAcknowledged: boolean;
@@ -324,6 +325,16 @@ export const notesService = {
     sortOrder?: 'ASC' | 'DESC';
   }): Promise<SearchFoldersResponse> {
     const response = await api.get('/notes/folders/search/all', { params });
+    return response.data;
+  },
+
+  async pinNote(id: number): Promise<{ message: string; note: Note }> {
+    const response = await api.patch(`/notes/${id}/pin`);
+    return response.data;
+  },
+
+  async unpinNote(id: number): Promise<{ message: string; note: Note }> {
+    const response = await api.patch(`/notes/${id}/unpin`);
     return response.data;
   },
 };

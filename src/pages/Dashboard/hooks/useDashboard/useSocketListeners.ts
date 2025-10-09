@@ -30,7 +30,7 @@ export const useSocketListeners = ({
       // Refresh notes list and stats
       dispatch(fetchNotes({
         page: currentPage,
-        limit: 10,
+        limit: 9, // Match ITEMS_PER_PAGE from useDashboard
         search: searchTerm,
         category: selectedCategory || undefined,
         priority: selectedPriority || undefined,
@@ -39,10 +39,26 @@ export const useSocketListeners = ({
       dispatch(fetchNoteStats());
     };
 
+    const handleNotePinned = () => {
+      // Refresh notes list to show updated order (pinned notes on top)
+      dispatch(fetchNotes({
+        page: currentPage,
+        limit: 9, // Match ITEMS_PER_PAGE from useDashboard
+        search: searchTerm,
+        category: selectedCategory || undefined,
+        priority: selectedPriority || undefined,
+        isArchived: viewMode === 'archived',
+      }));
+    };
+
     socket.on('note_moved_to_folder', handleNoteMoved);
+    socket.on('note:pinned', handleNotePinned);
+    socket.on('note:unpinned', handleNotePinned);
 
     return () => {
       socket.off('note_moved_to_folder', handleNoteMoved);
+      socket.off('note:pinned', handleNotePinned);
+      socket.off('note:unpinned', handleNotePinned);
     };
   }, [dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, viewMode]);
 

@@ -785,7 +785,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
             blockedUsers={blockedUsers as any}
             onBack={closeSettings}
             onToggle={handleToggleE2EE}
-            onChangePin={handleEditGroup}
+            onChangePin={() => setShowSetPin(true)}
             onToggleReadStatus={handleToggleReadStatus}
             onToggleHidePhone={handleToggleHidePhone}
             onToggleHideBirthDate={handleToggleHideBirthDate}

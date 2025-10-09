@@ -165,6 +165,12 @@
     "title": "Ghi chú",
     "inFolders": "ghi chú trong thư mục",
     "noContent": "Không có nội dung",
+    "pinSuccess": "Đã ghim ghi chú thành công",
+    "unpinSuccess": "Đã bỏ ghim ghi chú thành công",
+    "pinError": "Không thể ghim ghi chú",
+    "unpinError": "Không thể bỏ ghim ghi chú",
+    "pinAction": "Ghim ghi chú",
+    "unpinAction": "Bỏ ghim ghi chú",
     "priority": {
       "low": "Thấp",
       "medium": "Trung bình",

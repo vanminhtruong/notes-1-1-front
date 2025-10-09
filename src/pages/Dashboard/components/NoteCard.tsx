@@ -3,6 +3,8 @@ import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play,
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
 import { extractYouTubeId } from '@/utils/youtube';
+import PinButton from './PinButton';
+import type { Note as ServiceNote } from '@/services/notesService';
 
 export interface Note {
   id: number;
@@ -14,6 +16,7 @@ export interface Note {
   priority: 'low' | 'medium' | 'high';
   category: string;
   createdAt: string;
+  isPinned?: boolean;
 }
 
 interface NoteCardProps {
@@ -26,6 +29,7 @@ interface NoteCardProps {
   onDelete: () => void;
   onMoveToFolder?: () => void;
   onMoveOutOfFolder?: () => void;
+  onPinUpdate?: (note: ServiceNote) => void;
   showArchived: boolean;
   showReminder: boolean;
   onAcknowledgeReminder: () => void;
@@ -43,6 +47,7 @@ const NoteCard = memo(({
   onDelete,
   onMoveToFolder,
   onMoveOutOfFolder,
+  onPinUpdate,
   showArchived,
   showReminder,
   onAcknowledgeReminder,
@@ -190,6 +195,12 @@ const NoteCard = memo(({
               <FolderInput className="w-4 h-4 xs-down:w-3.5 xs-down:h-3.5" />
             </button>
           )}
+          <PinButton
+            note={note as ServiceNote}
+            onPinUpdate={onPinUpdate}
+            size="sm"
+            variant="ghost"
+          />
           {onMoveOutOfFolder && (
             <button
               onClick={(e) => {

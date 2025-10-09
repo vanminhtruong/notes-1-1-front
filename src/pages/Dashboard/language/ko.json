@@ -163,6 +163,12 @@
   },
   "notes": {
     "noContent": "내용 없음",
+    "pinSuccess": "노트가 성공적으로 고정되었습니다",
+    "unpinSuccess": "노트 고정이 성공적으로 해제되었습니다",
+    "pinError": "노트를 고정할 수 없습니다",
+    "unpinError": "노트 고정을 해제할 수 없습니다",
+    "pinAction": "노트 고정",
+    "unpinAction": "노트 고정 해제",
     "priority": {
       "low": "낮음",
       "medium": "중간",

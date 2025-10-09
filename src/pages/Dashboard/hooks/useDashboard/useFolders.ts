@@ -11,6 +11,13 @@ export const useFolders = () => {
   const [selectedFolder, setSelectedFolder] = useState<NoteFolder | null>(null);
   const [folderNotes, setFolderNotes] = useState<Note[]>([]);
   const [isFolderNotesLoading, setIsFolderNotesLoading] = useState(false);
+  const [folderNotesPagination, setFolderNotesPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 9,
+    totalPages: 0,
+  });
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch all folders
   const fetchFolders = useCallback(async () => {
@@ -27,12 +34,14 @@ export const useFolders = () => {
   }, [t]);
 
   // Fetch folder with notes
-  const fetchFolderNotes = useCallback(async (folderId: number) => {
+  const fetchFolderNotes = useCallback(async (folderId: number, page: number = 1) => {
     try {
       setIsFolderNotesLoading(true);
-      const response = await notesService.getFolderById(folderId);
+      const response = await notesService.getFolderById(folderId, { page, limit: 9 });
       setSelectedFolder(response.folder);
       setFolderNotes(response.notes);
+      setFolderNotesPagination(response.pagination);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Fetch folder notes error:', error);
       toast.error(t('folders.loadError'));
@@ -193,6 +202,17 @@ export const useFolders = () => {
       }
     };
 
+    const handleNotePinned = (data: { noteId: number; note: Note; isPinned: boolean }) => {
+      // Update note in folder notes if viewing that folder and note is in this folder
+      if (selectedFolder && (data.note as any).folderId === selectedFolder.id) {
+        setFolderNotes(prev => prev.map(n => 
+          n.id === data.noteId ? { ...n, isPinned: data.isPinned } : n
+        ));
+        // Re-fetch to get proper ordering (pinned notes first)
+        fetchFolderNotes(selectedFolder.id, currentPage);
+      }
+    };
+
     socket.on('folder_created', handleFolderCreated);
     socket.on('folder_updated', handleFolderUpdated);
     socket.on('folder_deleted', handleFolderDeleted);
@@ -201,6 +221,8 @@ export const useFolders = () => {
     socket.on('note_deleted', handleNoteDeleted);
     socket.on('note_updated', handleNoteUpdated);
     socket.on('note_archived', handleNoteArchived);
+    socket.on('note:pinned', handleNotePinned);
+    socket.on('note:unpinned', handleNotePinned);
 
     return () => {
       socket.off('folder_created', handleFolderCreated);
@@ -211,8 +233,10 @@ export const useFolders = () => {
       socket.off('note_deleted', handleNoteDeleted);
       socket.off('note_updated', handleNoteUpdated);
       socket.off('note_archived', handleNoteArchived);
+      socket.off('note:pinned', handleNotePinned);
+      socket.off('note:unpinned', handleNotePinned);
     };
-  }, [selectedFolder, fetchFolders]);
+  }, [selectedFolder, fetchFolders, fetchFolderNotes, currentPage]);
 
   // Initial fetch
   useEffect(() => {
@@ -225,6 +249,8 @@ export const useFolders = () => {
     selectedFolder,
     folderNotes,
     isFolderNotesLoading,
+    folderNotesPagination,
+    currentPage,
     fetchFolders,
     fetchFolderNotes,
     createFolder,
@@ -232,5 +258,6 @@ export const useFolders = () => {
     deleteFolder,
     moveNoteToFolder,
     setSelectedFolder,
+    setCurrentPage,
   };
 };

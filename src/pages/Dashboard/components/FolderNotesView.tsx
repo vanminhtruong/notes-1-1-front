@@ -1,27 +1,32 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Plus, FolderOutput } from 'lucide-react';
-import { type NoteFolder, type Note } from '@/services/notesService';
+import type { NoteFolder, Note as ServiceNote } from '@/services/notesService';
 import NoteCard from './NoteCard';
 import toast from 'react-hot-toast';
 import { getFolderIcon, getFolderColorClass } from '@/pages/Dashboard/utils/folderIcons';
+import Pagination from '@/components/Pagination';
 
 interface FolderNotesViewProps {
   folder: NoteFolder | null;
-  notes: Note[];
+  notes: ServiceNote[];
   isLoading: boolean;
   dueReminderNoteIds: number[];
   onBack: () => void;
-  onView: (note: Note) => void;
-  onEdit: (note: Note) => void;
-  onArchive: (note: Note) => void;
-  onDelete: (note: Note) => void;
+  onView: (note: ServiceNote) => void;
+  onEdit: (note: ServiceNote) => void;
+  onArchive: (note: ServiceNote) => void;
+  onDelete: (note: ServiceNote) => void;
   onAcknowledgeReminder: (noteId: number) => void;
   onCreateNote?: () => void;
   onRemoveFromFolder?: (noteId: number) => void;
-  onMoveOutOfFolder?: (note: Note) => void;
+  onMoveOutOfFolder?: (note: ServiceNote) => void;
+  onPinUpdate?: (note: ServiceNote) => void;
   getPriorityColor: (priority: string) => string;
   getPriorityText: (priority: string) => string;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 
@@ -39,8 +44,12 @@ const FolderNotesView = ({
   onCreateNote,
   onRemoveFromFolder,
   onMoveOutOfFolder,
+  onPinUpdate,
   getPriorityColor,
   getPriorityText,
+  currentPage,
+  totalPages,
+  onPageChange,
 }: FolderNotesViewProps) => {
   const { t } = useTranslation('dashboard');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -178,26 +187,36 @@ const FolderNotesView = ({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl-down:gap-5 lg-down:gap-4 md-down:gap-3 sm-down:gap-2.5 xs-down:gap-2">
-          {notes.map((note) => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              isSelected={selectedIds.includes(note.id)}
-              showArchived={false}
-              showReminder={dueReminderNoteIds.includes(note.id)}
-              onToggleSelect={() => toggleSelect(note.id)}
-              onView={() => onView(note)}
-              onEdit={() => onEdit(note)}
-              onArchive={() => onArchive(note)}
-              onDelete={() => onDelete(note)}
-              onMoveOutOfFolder={onMoveOutOfFolder ? () => onMoveOutOfFolder(note) : undefined}
-              onAcknowledgeReminder={() => onAcknowledgeReminder(note.id)}
-              getPriorityColor={getPriorityColor}
-              getPriorityText={getPriorityText}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl-down:gap-5 lg-down:gap-4 md-down:gap-3 sm-down:gap-2.5 xs-down:gap-2">
+            {notes.map((note) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                isSelected={selectedIds.includes(note.id)}
+                showArchived={false}
+                showReminder={dueReminderNoteIds.includes(note.id)}
+                onToggleSelect={() => toggleSelect(note.id)}
+                onView={() => onView(note)}
+                onEdit={() => onEdit(note)}
+                onArchive={() => onArchive(note)}
+                onDelete={() => onDelete(note)}
+                onMoveOutOfFolder={onMoveOutOfFolder ? () => onMoveOutOfFolder(note) : undefined}
+                onPinUpdate={onPinUpdate}
+                onAcknowledgeReminder={() => onAcknowledgeReminder(note.id)}
+                getPriorityColor={getPriorityColor}
+                getPriorityText={getPriorityText}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+          />
+        </>
       )}
     </div>
   );

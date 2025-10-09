@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { StickyNote, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import NoteCard, { type Note } from './NoteCard';
+import type { Note as ServiceNote } from '@/services/notesService';
 import Pagination from '@/components/Pagination';
 import LazyLoad from '@/components/LazyLoad';
 
@@ -17,6 +18,7 @@ interface NotesGridProps {
   onArchive: (id: number) => void;
   onDelete: (id: number) => void;
   onMoveToFolder?: (note: Note) => void;
+  onPinUpdate?: (note: ServiceNote) => void;
   onAcknowledgeReminder: (id: number) => void;
   onCreateNote: () => void;
   getPriorityColor: (priority: string) => string;
@@ -38,6 +40,7 @@ const NotesGrid = memo(({
   onArchive,
   onDelete,
   onMoveToFolder,
+  onPinUpdate,
   onAcknowledgeReminder,
   onCreateNote,
   getPriorityColor,
@@ -100,6 +103,7 @@ const NotesGrid = memo(({
               onArchive={() => onArchive(note.id)}
               onDelete={() => onDelete(note.id)}
               onMoveToFolder={onMoveToFolder ? () => onMoveToFolder(note) : undefined}
+              onPinUpdate={onPinUpdate}
               showArchived={showArchived}
               showReminder={dueReminderNoteIds.includes(note.id)}
               onAcknowledgeReminder={() => onAcknowledgeReminder(note.id)}

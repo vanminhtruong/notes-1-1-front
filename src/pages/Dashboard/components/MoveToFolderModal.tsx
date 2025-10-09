@@ -1,7 +1,8 @@
-import { useState, memo } from 'react';
-import { X, Folder, FolderOpen, Search } from 'lucide-react';
+import { useState, memo, useEffect } from 'react';
+import { X, FolderOpen, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { NoteFolder } from '@/services/notesService';
+import { getFolderIcon, getFolderColorClass } from '../utils/folderIcons';
 
 interface MoveToFolderModalProps {
   isOpen: boolean;
@@ -11,21 +12,27 @@ interface MoveToFolderModalProps {
   noteTitle: string;
 }
 
-const COLOR_CLASSES: Record<string, string> = {
-  blue: 'bg-gradient-to-br from-blue-500 to-blue-600',
-  green: 'bg-gradient-to-br from-green-500 to-green-600',
-  red: 'bg-gradient-to-br from-red-500 to-red-600',
-  yellow: 'bg-gradient-to-br from-yellow-500 to-yellow-600',
-  purple: 'bg-gradient-to-br from-purple-500 to-purple-600',
-  pink: 'bg-gradient-to-br from-pink-500 to-pink-600',
-  orange: 'bg-gradient-to-br from-orange-500 to-orange-600',
-  gray: 'bg-gradient-to-br from-gray-500 to-gray-600',
-};
 
 const MoveToFolderModal = memo(({ isOpen, onClose, folders, onSelectFolder, noteTitle }: MoveToFolderModalProps) => {
   const { t } = useTranslation('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
+
+  // Disable scroll khi modal mở
+  useEffect(() => {
+    if (isOpen) {
+      // Lưu trạng thái scroll hiện tại
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      
+      // Disable scroll
+      document.body.style.overflow = 'hidden';
+      
+      // Cleanup function: enable lại scroll khi modal đóng
+      return () => {
+        document.body.style.overflow = originalStyle;
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -93,7 +100,7 @@ const MoveToFolderModal = memo(({ isOpen, onClose, folders, onSelectFolder, note
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {filteredFolders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Folder className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-3" />
+              <FolderOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-3" />
               <p className="text-gray-600 dark:text-gray-400">
                 {searchTerm ? t('folders.noFoldersFound') || 'Không tìm thấy thư mục' : t('folders.noFolder')}
               </p>
@@ -110,9 +117,15 @@ const MoveToFolderModal = memo(({ isOpen, onClose, folders, onSelectFolder, note
                       : 'bg-gray-50 dark:bg-gray-700/50 border-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
                   }`}
                 >
-                  <div className={`${COLOR_CLASSES[folder.color] || COLOR_CLASSES.blue} p-2.5 rounded-lg flex-shrink-0`}>
-                    <Folder className="w-5 h-5 text-white" />
-                  </div>
+                  {(() => {
+                    const IconComponent = getFolderIcon(folder.icon || 'folder');
+                    const colorClass = getFolderColorClass(folder.color);
+                    return (
+                      <div className={`p-2.5 rounded-lg border-2 flex-shrink-0 bg-white dark:bg-gray-800 ${colorClass}`}>
+                        <IconComponent className={`w-5 h-5 ${colorClass}`} strokeWidth={2} />
+                      </div>
+                    );
+                  })()}
                   <div className="flex-1 text-left min-w-0">
                     <p className={`font-medium truncate ${
                       selectedFolderId === folder.id

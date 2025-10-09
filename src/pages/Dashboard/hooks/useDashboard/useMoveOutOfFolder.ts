@@ -7,7 +7,8 @@ interface UseMoveOutOfFolderProps {
   confirmArchiveNote: (noteId: number) => void;
   handleCloseMoveOutOfFolder: () => void;
   selectedFolder: NoteFolder | null;
-  fetchFolderNotes: (folderId: number) => void;
+  fetchFolderNotes: (folderId: number, page?: number) => void;
+  currentPage: number;
 }
 
 export const useMoveOutOfFolder = ({
@@ -17,6 +18,7 @@ export const useMoveOutOfFolder = ({
   handleCloseMoveOutOfFolder,
   selectedFolder,
   fetchFolderNotes,
+  currentPage,
 }: UseMoveOutOfFolderProps) => {
   const handleMoveToActive = useCallback(async () => {
     if (!noteToMoveOut) return;
@@ -31,12 +33,12 @@ export const useMoveOutOfFolder = ({
       handleCloseMoveOutOfFolder();
       // Refresh folder notes
       if (selectedFolder) {
-        fetchFolderNotes(selectedFolder.id);
+        fetchFolderNotes(selectedFolder.id, currentPage);
       }
     } catch (error) {
       // Error already handled
     }
-  }, [noteToMoveOut, moveNoteToFolder, confirmArchiveNote, handleCloseMoveOutOfFolder, selectedFolder, fetchFolderNotes]);
+  }, [noteToMoveOut, moveNoteToFolder, confirmArchiveNote, handleCloseMoveOutOfFolder, selectedFolder, fetchFolderNotes, currentPage]);
 
   const handleMoveToArchived = useCallback(async () => {
     if (!noteToMoveOut) return;
@@ -51,12 +53,12 @@ export const useMoveOutOfFolder = ({
       handleCloseMoveOutOfFolder();
       // Refresh folder notes
       if (selectedFolder) {
-        fetchFolderNotes(selectedFolder.id);
+        fetchFolderNotes(selectedFolder.id, currentPage);
       }
     } catch (error) {
       // Error already handled
     }
-  }, [noteToMoveOut, moveNoteToFolder, confirmArchiveNote, handleCloseMoveOutOfFolder, selectedFolder, fetchFolderNotes]);
+  }, [noteToMoveOut, moveNoteToFolder, confirmArchiveNote, handleCloseMoveOutOfFolder, selectedFolder, fetchFolderNotes, currentPage]);
 
   return {
     handleMoveToActive,

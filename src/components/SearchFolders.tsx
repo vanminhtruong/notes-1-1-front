@@ -125,6 +125,7 @@ const SearchFolders = ({ onSearch, onSelectFolder, onSelectNote, placeholder }: 
             value={inputValue}
             onChange={handleInputChange}
             placeholder={placeholder || t('folders.searchPlaceholder')}
+            autoComplete="off"
             className="w-full pl-10 pr-10 py-3 xl-down:pl-9 xl-down:pr-9 xl-down:py-2.5 lg-down:pl-8 lg-down:pr-8 lg-down:py-2.5 md-down:pl-8 md-down:pr-8 md-down:py-2 sm-down:pl-7 sm-down:pr-7 sm-down:py-2 xs-down:pl-7 xs-down:pr-7 xs-down:py-1.5 text-base xl-down:text-sm lg-down:text-sm md-down:text-sm sm-down:text-xs xs-down:text-xs rounded-xl xl-down:rounded-lg lg-down:rounded-lg md-down:rounded-lg sm-down:rounded-md xs-down:rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
           />
           {(isLoading || inputValue) && (

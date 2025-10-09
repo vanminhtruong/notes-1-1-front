@@ -5,12 +5,13 @@ import type { NoteFolder } from '@/services/notesService';
 
 interface UseFolderHandlersProps {
   deleteFolder: (folderId: number) => Promise<void>;
-  fetchFolderNotes: (folderId: number) => void;
+  fetchFolderNotes: (folderId: number, page?: number) => void;
   setSelectedFolder: (folder: NoteFolder | null) => void;
   confirmArchiveNote: (noteId: number) => void;
   confirmDeleteNote: (noteId: number) => void;
   moveNoteToFolder: (noteId: number, folderId: number | null) => Promise<void>;
   selectedFolder: NoteFolder | null;
+  currentPage: number;
 }
 
 export const useFolderHandlers = ({
@@ -21,6 +22,7 @@ export const useFolderHandlers = ({
   confirmDeleteNote,
   moveNoteToFolder,
   selectedFolder,
+  currentPage,
 }: UseFolderHandlersProps) => {
   const { t } = useTranslation('dashboard');
 
@@ -78,9 +80,9 @@ export const useFolderHandlers = ({
   const handleRemoveFromFolder = useCallback(async (noteId: number) => {
     await moveNoteToFolder(noteId, null);
     if (selectedFolder) {
-      fetchFolderNotes(selectedFolder.id);
+      fetchFolderNotes(selectedFolder.id, currentPage);
     }
-  }, [moveNoteToFolder, selectedFolder, fetchFolderNotes]);
+  }, [moveNoteToFolder, selectedFolder, fetchFolderNotes, currentPage]);
 
   return {
     handleDeleteFolder,

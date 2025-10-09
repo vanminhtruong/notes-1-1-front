@@ -178,6 +178,12 @@
     "title": "Notes",
     "inFolders": "notes in folders",
     "noContent": "No content",
+    "pinSuccess": "Note pinned successfully",
+    "unpinSuccess": "Note unpinned successfully",
+    "pinError": "Unable to pin note",
+    "unpinError": "Unable to unpin note",
+    "pinAction": "Pin note",
+    "unpinAction": "Unpin note",
     "priority": {
       "low": "Low",
       "medium": "Medium",

@@ -273,6 +273,7 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
             if (suggestions.length > 0) setIsOpen(true);
           }}
           placeholder={placeholder || t('search.placeholder', 'Tìm kiếm ghi chú...')}
+          autoComplete="off"
           className="w-full pl-8 sm:pl-10 pr-9 sm:pr-10 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
         />
         {(query || isLoading) && (
