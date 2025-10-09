@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, X, Folder, FileText } from 'lucide-react';
+import { Search, X, FileText, Folder } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notesService, type NoteFolder, type Note } from '@/services/notesService';
+import { getFolderIcon, getFolderColorClass } from '@/pages/Dashboard/utils/folderIcons';
 
 // Simple debounce implementation
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number) {
@@ -161,11 +162,11 @@ const SearchFolders = ({ onSearch, onSelectFolder, onSelectNote, placeholder }: 
                   className="w-full flex items-center gap-3 xl-down:gap-2.5 lg-down:gap-2 md-down:gap-2 sm-down:gap-1.5 xs-down:gap-1.5 px-3 py-2 xl-down:px-2.5 xl-down:py-1.5 lg-down:px-2 lg-down:py-1.5 md-down:px-2 md-down:py-1.5 sm-down:px-1.5 sm-down:py-1 xs-down:px-1.5 xs-down:py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg xl-down:rounded-md lg-down:rounded-md md-down:rounded sm-down:rounded xs-down:rounded transition-colors text-left"
                 >
                   <div className="flex-shrink-0">
-                    {folder.icon && folder.icon !== 'folder' ? (
-                      <div className="text-2xl xl-down:text-xl lg-down:text-lg md-down:text-base sm-down:text-sm xs-down:text-sm">{folder.icon}</div>
-                    ) : (
-                      <Folder className="w-5 h-5 xl-down:w-4 xl-down:h-4 lg-down:w-4 lg-down:h-4 md-down:w-3.5 md-down:h-3.5 sm-down:w-3 sm-down:h-3 xs-down:w-3 xs-down:h-3 text-blue-500" />
-                    )}
+                    {(() => {
+                      const IconComponent = getFolderIcon(folder.icon || 'folder');
+                      const colorClass = getFolderColorClass(folder.color);
+                      return <IconComponent className={`w-5 h-5 xl-down:w-4 xl-down:h-4 lg-down:w-4 lg-down:h-4 md-down:w-3.5 md-down:h-3.5 sm-down:w-3 sm-down:h-3 xs-down:w-3 xs-down:h-3 ${colorClass}`} strokeWidth={2} />;
+                    })()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-gray-900 dark:text-white truncate text-sm xl-down:text-sm lg-down:text-xs md-down:text-xs sm-down:text-xs xs-down:text-[11px]">
