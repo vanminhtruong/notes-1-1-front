@@ -76,7 +76,7 @@ const avatarAnimationStyles = `
 `;
 
  
-const MessageStatus = memo(({ message, isOwnMessage, currentUserId }: MessageStatusProps) => {
+const MessageStatus = memo(({ message, isOwnMessage, currentUserId, allMessages }: MessageStatusProps) => {
   const { t, i18n } = useTranslation('dashboard');
   // Inject custom CSS styles for animations
   useEffect(() => {
@@ -129,8 +129,39 @@ const MessageStatus = memo(({ message, isOwnMessage, currentUserId }: MessageSta
       return null;
     }
 
-    // Show read avatars directly
-    const avatarsToShow = readByOthers;
+    // Find the last message sent by current user that each reader has read
+    // Only show avatars on the last message that each person read
+    if (!allMessages || allMessages.length === 0) {
+      return null;
+    }
+
+    // Get all messages from current user sorted by ID (newest last)
+    const myMessages = allMessages
+      .filter(m => m.senderId === currentUserId)
+      .sort((a, b) => a.id - b.id);
+
+    // For each reader, find the last message they read
+    const readersOnLastMessage = readByOthers.filter(readInfo => {
+      // Find all messages this person has read
+      const messagesReadByThisPerson = myMessages.filter(m => 
+        m.readBy && m.readBy.some(rb => rb.userId === readInfo.userId)
+      );
+      
+      if (messagesReadByThisPerson.length === 0) return false;
+      
+      // Get the last message they read
+      const lastReadMessage = messagesReadByThisPerson[messagesReadByThisPerson.length - 1];
+      
+      // Only show avatar if this is that last message
+      return lastReadMessage.id === message.id;
+    });
+
+    if (readersOnLastMessage.length === 0) {
+      return null;
+    }
+
+    // Show read avatars only for users whose last read message is this one
+    const avatarsToShow = readersOnLastMessage;
 
     return (
       <div className="flex -space-x-1 ml-1 transform transition-all duration-300 ease-out">
