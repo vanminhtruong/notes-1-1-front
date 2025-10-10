@@ -119,7 +119,12 @@ export interface SearchSuggestion {
   id: number;
   title: string;
   snippet: string;
-  category: string;
+  category: {
+    id: number;
+    name: string;
+    color: string;
+    icon: string;
+  } | null;
   priority: 'low' | 'medium' | 'high';
   matchType: 'title' | 'content';
   createdAt: string;

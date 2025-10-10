@@ -133,6 +133,7 @@
         "youtube": "YouTube URL",
         "youtubePlaceholder": "Nhập URL video YouTube",
         "category": "Danh mục",
+        "selectCategory": "Chọn danh mục",
         "priority": "Mức độ ưu tiên",
         "reminderAt": "Thời điểm nhắc",
         "reminderHint": "Tùy chọn — bạn sẽ thấy chuông khi đến hạn"

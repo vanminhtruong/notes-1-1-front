@@ -134,6 +134,7 @@
         "youtube": "YouTube URL",
         "youtubePlaceholder": "YouTube 비디오 URL을 입력하세요",
         "category": "카테고리",
+        "selectCategory": "카테고리 선택",
         "priority": "우선순위"
       }
     },

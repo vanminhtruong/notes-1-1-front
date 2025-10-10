@@ -138,6 +138,7 @@
         "youtube": "YouTube URL",
         "youtubePlaceholder": "Enter YouTube video URL",
         "category": "Category",
+        "selectCategory": "Select category",
         "priority": "Priority",
         "reminderAt": "Reminder at",
         "reminderHint": "Optional — you'll see a bell when it's due"

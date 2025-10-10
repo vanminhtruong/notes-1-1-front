@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, X, FileText, Clock } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { notesService } from '@/services/notesService';
 import type { SearchSuggestion } from '@/services/notesService';
 import { useTranslation } from 'react-i18next';
@@ -223,15 +224,9 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
     );
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      work: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-      personal: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-      shopping: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-      health: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-      general: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-    };
-    return colors[category] || 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+  const getCategoryIcon = (iconName: string) => {
+    const Icon = (LucideIcons as any)[iconName];
+    return Icon || LucideIcons.Tag;
   };
 
   const getPriorityIcon = (priority: string) => {
@@ -360,9 +355,22 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
 
                       {/* Meta Info */}
                       <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 flex-wrap">
-                        <span className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium ${getCategoryColor(suggestion.category)}`}>
-                          {t(`categories.${suggestion.category}`, suggestion.category)}
-                        </span>
+                        {suggestion.category && (() => {
+                          const Icon = getCategoryIcon(suggestion.category.icon);
+                          return (
+                            <span 
+                              className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-white/50 dark:bg-gray-800/50 border"
+                              style={{ 
+                                borderColor: suggestion.category.color + '40',
+                                backgroundColor: suggestion.category.color + '10',
+                                color: suggestion.category.color
+                              }}
+                            >
+                              <Icon className="w-3 h-3" style={{ color: suggestion.category.color }} />
+                              {suggestion.category.name}
+                            </span>
+                          );
+                        })()}
                         <span className="hidden sm:flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                           <Clock className="w-3 h-3" />
                           {formatDate(suggestion.createdAt)}

@@ -119,18 +119,20 @@ export const useDashboard = () => {
     };
   }, []);
 
+  // Fetch categories function
+  const loadCategories = useCallback(async () => {
+    try {
+      const response = await notesService.getCategories();
+      setCategories(response.categories);
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  }, []);
+
   // Fetch categories on mount
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const response = await notesService.getCategories();
-        setCategories(response.categories);
-      } catch (error) {
-        console.error('Failed to load categories:', error);
-      }
-    };
     loadCategories();
-  }, []);
+  }, [loadCategories]);
 
   // Socket listeners for category real-time updates
   useEffect(() => {
@@ -152,36 +154,23 @@ export const useDashboard = () => {
       setCategories(prev => prev.filter(c => c.id !== data.id));
     };
 
-    const handleCategorySelectionUpdated = (data: { categoryId: number; selectionCount: number }) => {
-      setCategories(prev => {
-        // Cập nhật selectionCount
-        const updated = prev.map(c => 
-          c.id === data.categoryId 
-            ? { ...c, selectionCount: data.selectionCount } as NoteCategory
-            : c
-        );
-        
-        // Sắp xếp lại: selectionCount DESC
-        return updated.sort((a, b) => {
-          const countA = (a as any).selectionCount || 0;
-          const countB = (b as any).selectionCount || 0;
-          return countB - countA;
-        });
-      });
+    const handleCategoriesReorderNeeded = async () => {
+      // Fetch lại danh sách categories từ backend (đã được sắp xếp)
+      await loadCategories();
     };
 
     socket.on('category_created', handleCategoryCreated);
     socket.on('category_updated', handleCategoryUpdated);
     socket.on('category_deleted', handleCategoryDeleted);
-    socket.on('category_selection_updated', handleCategorySelectionUpdated);
+    socket.on('categories_reorder_needed', handleCategoriesReorderNeeded);
 
     return () => {
       socket.off('category_created', handleCategoryCreated);
       socket.off('category_updated', handleCategoryUpdated);
       socket.off('category_deleted', handleCategoryDeleted);
-      socket.off('category_selection_updated', handleCategorySelectionUpdated);
+      socket.off('categories_reorder_needed', handleCategoriesReorderNeeded);
     };
-  }, []);
+  }, [loadCategories]);
 
   // Removed: load create permissions for dashboard buttons
 

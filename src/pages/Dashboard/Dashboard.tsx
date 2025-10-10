@@ -90,6 +90,7 @@ const Dashboard = () => {
     handleOpenEditModal: handleOpenEditNoteInFolder,
     handleCloseEditModal: handleCloseEditNoteInFolder,
     handleUpdateNote: handleUpdateNoteInFolder,
+    categories: folderCategories,
   } = useFolderNotes(selectedFolder?.id || null, () => {
     if (selectedFolder) {
       fetchFolderNotes(selectedFolder.id);
@@ -333,6 +334,7 @@ const Dashboard = () => {
           setNewNote={setNewFolderNote}
           onSubmit={handleCreateNoteInFolder}
           folderName={selectedFolder.name}
+          categories={folderCategories}
         />
       )}
 
@@ -345,6 +347,7 @@ const Dashboard = () => {
           setEditNote={setEditFolderNote}
           onSubmit={handleUpdateNoteInFolder}
           folderName={selectedFolder.name}
+          categories={folderCategories}
         />
       )}
 

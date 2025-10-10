@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { notesService } from '@/services/notesService';
+import { useState, useCallback, useEffect } from 'react';
+import { notesService, type NoteCategory } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -11,7 +11,7 @@ interface NewNote {
   imageUrl: string;
   videoUrl: string;
   youtubeUrl: string;
-  category: string;
+  categoryId: number | undefined;
   priority: Priority;
   reminderAtLocal: string;
   folderId: number;
@@ -24,7 +24,7 @@ interface EditNote {
   imageUrl?: string | null;
   videoUrl?: string | null;
   youtubeUrl?: string | null;
-  category: string;
+  categoryId: number | undefined;
   priority: Priority;
   reminderAtLocal: string;
 }
@@ -34,6 +34,7 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [categories, setCategories] = useState<NoteCategory[]>([]);
 
   const [newNote, setNewNote] = useState<NewNote>({
     title: '',
@@ -41,13 +42,26 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
     imageUrl: '',
     videoUrl: '',
     youtubeUrl: '',
-    category: 'general',
+    categoryId: undefined,
     priority: 'medium' as Priority,
     reminderAtLocal: '',
     folderId: folderId || 0,
   });
 
   const [editNote, setEditNote] = useState<EditNote | null>(null);
+
+  // Fetch categories
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await notesService.getCategories();
+        setCategories(response.categories);
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    };
+    loadCategories();
+  }, []);
 
   // Open create modal
   const handleOpenCreateModal = useCallback(() => {
@@ -58,7 +72,7 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
       imageUrl: '',
       videoUrl: '',
       youtubeUrl: '',
-      category: 'general',
+      categoryId: undefined,
       priority: 'medium' as Priority,
       reminderAtLocal: '',
       folderId: folderId,
@@ -89,7 +103,7 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
         imageUrl: newNote.imageUrl || null,
         videoUrl: newNote.videoUrl || null,
         youtubeUrl: newNote.youtubeUrl || null,
-        category: newNote.category,
+        categoryId: newNote.categoryId,
         priority: newNote.priority,
         reminderAt: reminderAt,
         folderId: newNote.folderId,
@@ -121,7 +135,7 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
       imageUrl: note.imageUrl || '',
       videoUrl: note.videoUrl || '',
       youtubeUrl: note.youtubeUrl || '',
-      category: note.category || 'general',
+      categoryId: note.categoryId || undefined,
       priority: note.priority || 'medium',
       reminderAtLocal: reminderAtLocal,
     });
@@ -152,7 +166,7 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
         imageUrl: editNote.imageUrl || null,
         videoUrl: editNote.videoUrl || null,
         youtubeUrl: editNote.youtubeUrl || null,
-        category: editNote.category,
+        categoryId: editNote.categoryId,
         priority: editNote.priority,
         reminderAt: reminderAt,
       };
@@ -187,5 +201,8 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
     handleOpenEditModal,
     handleCloseEditModal,
     handleUpdateNote,
+
+    // Categories
+    categories,
   };
 };

@@ -101,37 +101,24 @@ export const useCategories = () => {
       setCategories(prev => prev.filter(c => c.id !== data.id));
     };
 
-    const handleCategorySelectionUpdated = (data: { categoryId: number; selectionCount: number }) => {
-      console.log('Category selection updated event received:', data);
-      setCategories(prev => {
-        // Cập nhật selectionCount
-        const updated = prev.map(c => 
-          c.id === data.categoryId 
-            ? { ...c, selectionCount: data.selectionCount } as NoteCategory
-            : c
-        );
-        
-        // Sắp xếp lại: selectionCount DESC
-        return updated.sort((a, b) => {
-          const countA = (a as any).selectionCount || 0;
-          const countB = (b as any).selectionCount || 0;
-          return countB - countA;
-        });
-      });
+    const handleCategoriesReorderNeeded = async () => {
+      console.log('Categories reorder needed event received');
+      // Fetch lại danh sách categories từ backend (đã được sắp xếp)
+      await fetchCategories();
     };
 
     socket.on('category_created', handleCategoryCreated);
     socket.on('category_updated', handleCategoryUpdated);
     socket.on('category_deleted', handleCategoryDeleted);
-    socket.on('category_selection_updated', handleCategorySelectionUpdated);
+    socket.on('categories_reorder_needed', handleCategoriesReorderNeeded);
 
     return () => {
       socket.off('category_created', handleCategoryCreated);
       socket.off('category_updated', handleCategoryUpdated);
       socket.off('category_deleted', handleCategoryDeleted);
-      socket.off('category_selection_updated', handleCategorySelectionUpdated);
+      socket.off('categories_reorder_needed', handleCategoriesReorderNeeded);
     };
-  }, []);
+  }, [fetchCategories]);
 
   // Initial fetch
   useEffect(() => {
