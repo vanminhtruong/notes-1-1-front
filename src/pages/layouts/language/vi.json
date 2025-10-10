@@ -2,12 +2,14 @@
   "appName": "Ứng dụng Ghi chú",
   "nav": {
     "dashboard": "Bảng điều khiển",
+    "categories": "Danh mục",
     "about": "Giới thiệu",
     "contact": "Liên hệ"
   },
   "user": {
     "account": "Tài khoản",
     "accountDetails": "Chi tiết tài khoản",
+    "categories": "Quản lý danh mục",
     "chat": "Chat",
     "changePassword": "Đổi mật khẩu",
     "devices": "Thiết bị đã đăng nhập",

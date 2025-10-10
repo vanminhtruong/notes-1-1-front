@@ -9,6 +9,7 @@ import Contact from '../pages/Contact/Contact'
 import ProtectedRoute from '@components/ProtectedRoute'
 import Account from '@/pages/Account/Account'
 import ChangePassword from '@/pages/ChangePassword/ChangePassword'
+import Categories from '@/pages/Categories/Categories'
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <ChangePassword />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'categories',
+        element: (
+          <ProtectedRoute>
+            <Categories />
           </ProtectedRoute>
         ),
       },

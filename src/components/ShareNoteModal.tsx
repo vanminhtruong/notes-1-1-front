@@ -1,6 +1,7 @@
 import { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, UserCheck, Users as UsersIcon, Search, Send } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { notesService } from '../services/notesService';
 import { userService } from '../services/userService';
 import { chatService } from '../services/chatService';
@@ -273,9 +274,21 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
               }`}>
                 {t(`notes.priority.${note.priority}`) || note.priority}
               </span>
-              <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">
-                {t(`notes.category.${note.category}`) || note.category}
-              </span>
+              {note.category && typeof note.category === 'object' && note.category.name && (
+                <span 
+                  className="px-2 py-1 text-xs font-medium rounded-full flex items-center gap-1.5"
+                  style={{ 
+                    backgroundColor: `${note.category.color}20`,
+                    color: note.category.color
+                  }}
+                >
+                  {(() => {
+                    const Icon = (LucideIcons as any)[note.category.icon] || LucideIcons.Tag;
+                    return <Icon className="w-3 h-3" style={{ color: note.category.color }} />;
+                  })()}
+                  {note.category.name}
+                </span>
+              )}
             </div>
           </div>
 

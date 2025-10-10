@@ -14,7 +14,7 @@ interface SharedNoteData {
   imageUrl?: string | null;
   videoUrl?: string | null;
   youtubeUrl?: string | null;
-  category: string;
+  category?: string | { id: number; name: string; color: string; icon: string } | null;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
 }
@@ -64,7 +64,7 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
         imageUrl: note.imageUrl || '',
         videoUrl: note.videoUrl || '',
         youtubeUrl: note.youtubeUrl || '',
-        category: note.category || 'personal',
+        category: typeof note.category === 'object' && note.category?.name ? note.category.name : (typeof note.category === 'string' ? note.category : 'personal'),
         priority: note.priority || 'medium'
       });
     }

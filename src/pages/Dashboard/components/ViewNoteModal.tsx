@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
 import { type Note } from './NoteCard';
 import { getYouTubeEmbedUrl } from '@/utils/youtube';
+import * as LucideIcons from 'lucide-react';
 
 interface ViewNoteModalProps {
   isOpen: boolean;
@@ -69,7 +70,22 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
 
           <div className="flex flex-wrap items-center gap-2 text-sm xs-down:text-xs">
             <span className={`px-2 py-1 rounded-lg border ${getPriorityColor(note.priority)}`}>{getPriorityText(note.priority)}</span>
-            <span className="px-2 py-1 rounded-lg border bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600">{t(`category.${note.category}`)}</span>
+            {note.category && (
+              <span 
+                className="px-2 py-1 rounded-lg border flex items-center gap-1.5"
+                style={{ 
+                  backgroundColor: `${note.category.color}15`,
+                  borderColor: note.category.color,
+                  color: note.category.color
+                }}
+              >
+                {(() => {
+                  const Icon = (LucideIcons as any)[note.category.icon] || LucideIcons.Tag;
+                  return <Icon className="w-3.5 h-3.5" style={{ color: note.category.color }} />;
+                })()}
+                <span>{note.category.name}</span>
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
             <Clock className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" />

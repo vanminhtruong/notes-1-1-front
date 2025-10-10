@@ -7,7 +7,8 @@ export interface Note {
   imageUrl?: string | null;
   videoUrl?: string | null;
   youtubeUrl?: string | null;
-  category: string;
+  categoryId?: number | null;
+  category?: NoteCategory | null;
   priority: 'low' | 'medium' | 'high';
   isArchived: boolean;
   isPinned: boolean;
@@ -31,7 +32,7 @@ export interface CreateNoteData {
   imageUrl?: string | null;
   videoUrl?: string | null;
   youtubeUrl?: string | null;
-  category?: string;
+  categoryId?: number | null;
   priority?: 'low' | 'medium' | 'high';
   reminderAt?: string | null;
   sharedFromUserId?: number; // For canCreate permission
@@ -43,7 +44,7 @@ export interface UpdateNoteData {
   imageUrl?: string | null;
   videoUrl?: string | null;
   youtubeUrl?: string | null;
-  category?: string;
+  categoryId?: number | null;
   priority?: 'low' | 'medium' | 'high';
   isArchived?: boolean;
   reminderAt?: string | null;
@@ -174,6 +175,35 @@ export interface SearchFoldersResponse {
   notes: Note[];
   total: number;
   query: string;
+}
+
+export interface NoteCategory {
+  id: number;
+  name: string;
+  color: string;
+  icon: string;
+  isDefault: boolean;
+  userId: number;
+  notesCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCategoryData {
+  name: string;
+  color?: string;
+  icon?: string;
+}
+
+export interface UpdateCategoryData {
+  name?: string;
+  color?: string;
+  icon?: string;
+}
+
+export interface CategoriesResponse {
+  categories: NoteCategory[];
+  total: number;
 }
 
 export const notesService = {
@@ -335,6 +365,36 @@ export const notesService = {
 
   async unpinNote(id: number): Promise<{ message: string; note: Note }> {
     const response = await api.patch(`/notes/${id}/unpin`);
+    return response.data;
+  },
+
+  // Category APIs
+  async getCategories(params?: {
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<CategoriesResponse> {
+    const response = await api.get('/notes/categories', { params });
+    return response.data;
+  },
+
+  async getCategoryById(id: number): Promise<{ category: NoteCategory }> {
+    const response = await api.get(`/notes/categories/${id}`);
+    return response.data;
+  },
+
+  async createCategory(data: CreateCategoryData): Promise<{ message: string; category: NoteCategory }> {
+    const response = await api.post('/notes/categories', data);
+    return response.data;
+  },
+
+  async updateCategory(id: number, data: UpdateCategoryData): Promise<{ message: string; category: NoteCategory }> {
+    const response = await api.put(`/notes/categories/${id}`, data);
+    return response.data;
+  },
+
+  async deleteCategory(id: number): Promise<{ message: string }> {
+    const response = await api.delete(`/notes/categories/${id}`);
     return response.data;
   },
 };

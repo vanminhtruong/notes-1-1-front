@@ -5,6 +5,8 @@ import { formatDateMDYY } from '@/utils/utils';
 import { extractYouTubeId } from '@/utils/youtube';
 import PinButton from './PinButton';
 import type { Note as ServiceNote } from '@/services/notesService';
+import type { NoteCategory } from '@/services/notesService';
+import * as LucideIcons from 'lucide-react';
 
 export interface Note {
   id: number;
@@ -14,7 +16,8 @@ export interface Note {
   videoUrl?: string | null;
   youtubeUrl?: string | null;
   priority: 'low' | 'medium' | 'high';
-  category: string;
+  categoryId?: number | null;
+  category?: NoteCategory | null;
   createdAt: string;
   isPinned?: boolean;
 }
@@ -180,9 +183,22 @@ const NoteCard = memo(({
           <span className={`px-2 py-1 text-xs font-medium rounded-lg border ${getPriorityColor(note.priority)} xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px]`}>
             {getPriorityText(note.priority)}
           </span>
-          <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600 xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px]">
-            {t(`category.${note.category}`)}
-          </span>
+          {note.category && (
+            <span 
+              className="px-2 py-1 text-xs font-medium rounded-lg border xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px] flex items-center gap-1"
+              style={{ 
+                backgroundColor: `${note.category.color}15`,
+                borderColor: note.category.color,
+                color: note.category.color
+              }}
+            >
+              {(() => {
+                const Icon = (LucideIcons as any)[note.category.icon] || LucideIcons.Tag;
+                return <Icon className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" style={{ color: note.category.color }} />;
+              })()}
+              <span>{note.category.name}</span>
+            </span>
+          )}
           {onMoveToFolder && (
             <button
               onClick={(e) => {

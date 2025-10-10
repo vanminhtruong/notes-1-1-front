@@ -1,6 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock, Edit2, Trash2, Plus, Play } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { formatDateMDYY } from '@/utils/utils';
 import { notesService } from '@/services/notesService';
 import toast from 'react-hot-toast';
@@ -15,7 +16,7 @@ interface SharedNoteData {
   imageUrl?: string | null;
   videoUrl?: string | null;
   youtubeUrl?: string | null;
-  category: string;
+  category?: string | { id: number; name: string; color: string; icon: string } | null;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
 }
@@ -246,7 +247,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
           imageUrl: currentNote.imageUrl ? String(currentNote.imageUrl) : undefined,
           videoUrl: currentNote.videoUrl ? String(currentNote.videoUrl) : undefined,
           youtubeUrl: currentNote.youtubeUrl ? String(currentNote.youtubeUrl) : undefined,
-          category: currentNote.category,
+          categoryId: typeof currentNote.category === 'object' && currentNote.category?.id ? currentNote.category.id : undefined,
           priority: currentNote.priority,
           sharedFromUserId: ownerUserId,
         }),
@@ -387,9 +388,26 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
              currentNote.priority === 'medium' ? t('priority.medium') :
              t('priority.low')}
           </span>
-          <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600">
-            {t(`category.${currentNote.category}`)}
-          </span>
+          {currentNote.category && typeof currentNote.category === 'object' && currentNote.category.name ? (
+            <span 
+              className="px-2 py-1 text-xs font-medium rounded-lg border flex items-center gap-1.5"
+              style={{ 
+                backgroundColor: `${currentNote.category.color}15`,
+                borderColor: currentNote.category.color,
+                color: currentNote.category.color
+              }}
+            >
+              {(() => {
+                const Icon = (LucideIcons as any)[currentNote.category.icon] || LucideIcons.Tag;
+                return <Icon className="w-3 h-3" style={{ color: currentNote.category.color }} />;
+              })()}
+              {currentNote.category.name}
+            </span>
+          ) : (
+            <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600">
+              {typeof currentNote.category === 'string' ? t(`category.${currentNote.category}`) : t('category.general')}
+            </span>
+          )}
         </div>
         <div className={`flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 ${rightInfoMargin}`}>
           <Clock className="w-3 h-3" />

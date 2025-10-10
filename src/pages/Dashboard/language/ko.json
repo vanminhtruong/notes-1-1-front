@@ -87,6 +87,7 @@
     "createFirst": "첫 번째 노트를 생성해 시작하세요"
   },
   "category": {
+    "none": "없음",
     "general": "일반",
     "work": "업무",
     "personal": "개인"

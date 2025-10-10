@@ -91,6 +91,7 @@
     "createFirst": "Create your first note to get started"
   },
   "category": {
+    "none": "None",
     "general": "General",
     "work": "Work",
     "personal": "Personal"

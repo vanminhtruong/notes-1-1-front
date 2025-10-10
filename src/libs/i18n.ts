@@ -24,6 +24,9 @@ import authKo from '@/pages/auth/language/ko.json';
 import contactEn from '@/pages/Contact/language/en.json';
 import contactVi from '@/pages/Contact/language/vi.json';
 import contactKo from '@/pages/Contact/language/ko.json';
+import categoriesEn from '@/pages/Categories/language/en.json';
+import categoriesVi from '@/pages/Categories/language/vi.json';
+import categoriesKo from '@/pages/Categories/language/ko.json';
 
 const resources = {
   en: {
@@ -34,6 +37,7 @@ const resources = {
     contact: contactEn,
     account: accountEn,
     auth: authEn,
+    categories: categoriesEn,
   },
   vi: {
     layout: layoutVi,
@@ -43,6 +47,7 @@ const resources = {
     contact: contactVi,
     account: accountVi,
     auth: authVi,
+    categories: categoriesVi,
   },
   ko: {
     layout: layoutKo,
@@ -52,6 +57,7 @@ const resources = {
     contact: contactKo,
     account: accountKo,
     auth: authKo,
+    categories: categoriesKo,
   },
 };
 
@@ -63,7 +69,7 @@ i18n
     fallbackLng: 'en',
     lng: 'en',
     defaultNS: 'layout',
-    ns: ['layout', 'home', 'dashboard', 'about', 'contact', 'account', 'auth'],
+    ns: ['layout', 'home', 'dashboard', 'about', 'contact', 'account', 'auth', 'categories'],
     
     detection: {
       // Disable frontend-based detection; rely on default 'en' unless app changes via backend/user action.

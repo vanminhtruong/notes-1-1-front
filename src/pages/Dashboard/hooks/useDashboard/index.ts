@@ -5,6 +5,7 @@ import { fetchNotes, fetchNoteStats, createNote, deleteNote, archiveNote, setFil
 import { socketService } from '@/services/socketService';
 import { useTranslation } from 'react-i18next';
 import { startReminderRinging, stopReminderRinging } from '@/utils/notificationSound';
+import { notesService, type NoteCategory } from '@/services/notesService';
 
 export type Priority = 'low' | 'medium' | 'high';
 
@@ -19,13 +20,14 @@ export const useDashboard = () => {
   const [showArchived, setShowArchived] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 9;
+  const [categories, setCategories] = useState<NoteCategory[]>([]);
   const [newNote, setNewNote] = useState({
     title: '',
     content: '',
     imageUrl: '' as string,
     videoUrl: '' as string,
     youtubeUrl: '' as string,
-    category: 'general',
+    categoryId: undefined as number | undefined,
     priority: 'medium' as Priority,
     reminderAtLocal: '', // YYYY-MM-DDTHH:mm for input type="datetime-local"
     sharedFromUserId: undefined as number | undefined,
@@ -39,7 +41,7 @@ export const useDashboard = () => {
     imageUrl: '' as string,
     videoUrl: '' as string,
     youtubeUrl: '' as string,
-    category: 'general',
+    categoryId: undefined as number | undefined,
     priority: 'medium' as Priority,
     reminderAtLocal: '',
   });
@@ -117,6 +119,70 @@ export const useDashboard = () => {
     };
   }, []);
 
+  // Fetch categories on mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await notesService.getCategories();
+        setCategories(response.categories);
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  // Socket listeners for category real-time updates
+  useEffect(() => {
+    const socket = socketService.getSocket();
+    if (!socket) return;
+
+    const handleCategoryCreated = (category: NoteCategory) => {
+      setCategories(prev => {
+        if (prev.some(c => c.id === category.id)) return prev;
+        return [...prev, category];
+      });
+    };
+
+    const handleCategoryUpdated = (category: NoteCategory) => {
+      setCategories(prev => prev.map(c => c.id === category.id ? { ...c, ...category } : c));
+    };
+
+    const handleCategoryDeleted = (data: { id: number }) => {
+      setCategories(prev => prev.filter(c => c.id !== data.id));
+    };
+
+    const handleCategorySelectionUpdated = (data: { categoryId: number; selectionCount: number }) => {
+      setCategories(prev => {
+        // Cập nhật selectionCount
+        const updated = prev.map(c => 
+          c.id === data.categoryId 
+            ? { ...c, selectionCount: data.selectionCount } as NoteCategory
+            : c
+        );
+        
+        // Sắp xếp lại: selectionCount DESC
+        return updated.sort((a, b) => {
+          const countA = (a as any).selectionCount || 0;
+          const countB = (b as any).selectionCount || 0;
+          return countB - countA;
+        });
+      });
+    };
+
+    socket.on('category_created', handleCategoryCreated);
+    socket.on('category_updated', handleCategoryUpdated);
+    socket.on('category_deleted', handleCategoryDeleted);
+    socket.on('category_selection_updated', handleCategorySelectionUpdated);
+
+    return () => {
+      socket.off('category_created', handleCategoryCreated);
+      socket.off('category_updated', handleCategoryUpdated);
+      socket.off('category_deleted', handleCategoryDeleted);
+      socket.off('category_selection_updated', handleCategorySelectionUpdated);
+    };
+  }, []);
+
   // Removed: load create permissions for dashboard buttons
 
   // Date helpers
@@ -147,12 +213,12 @@ export const useDashboard = () => {
       imageUrl: newNote.imageUrl ? newNote.imageUrl : undefined,
       videoUrl: newNote.videoUrl ? newNote.videoUrl : undefined,
       youtubeUrl: newNote.youtubeUrl ? newNote.youtubeUrl : undefined,
-      category: newNote.category,
+      categoryId: newNote.categoryId,
       priority: newNote.priority,
       reminderAt: localInputToIso(newNote.reminderAtLocal),
       sharedFromUserId: newNote.sharedFromUserId,
     }));
-    setNewNote({ title: '', content: '', imageUrl: '', videoUrl: '', youtubeUrl: '', category: 'general', priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
+    setNewNote({ title: '', content: '', imageUrl: '', videoUrl: '', youtubeUrl: '', categoryId: undefined, priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
     setShowCreateModal(false);
     dispatch(fetchNotes({
       page: currentPage,
@@ -292,7 +358,7 @@ export const useDashboard = () => {
       imageUrl: note.imageUrl || '',
       videoUrl: note.videoUrl || '',
       youtubeUrl: note.youtubeUrl || '',
-      category: note.category || 'general',
+      categoryId: note.categoryId || undefined,
       priority: (note.priority as Priority) || 'medium',
       reminderAtLocal: isoToLocalInput(note.reminderAt),
     });
@@ -313,7 +379,7 @@ export const useDashboard = () => {
       imageUrl: editNote.imageUrl?.trim() || null,
       videoUrl: editNote.videoUrl?.trim() || null,
       youtubeUrl: editNote.youtubeUrl?.trim() || null,
-      category: editNote.category,
+      categoryId: editNote.categoryId,
       priority: editNote.priority,
       reminderAt: editNote.reminderAtLocal ? localInputToIso(editNote.reminderAtLocal) ?? null : null,
     };
@@ -483,6 +549,9 @@ export const useDashboard = () => {
     // helpers
     getPriorityColor,
     getPriorityText,
+
+    // categories
+    categories,
 
     // create permissions removed from dashboard scope
   };

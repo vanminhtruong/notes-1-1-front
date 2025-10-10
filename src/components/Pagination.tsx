@@ -13,7 +13,7 @@ const Pagination = memo(({ currentPage, totalPages, onPageChange, className = ''
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
-    const showPages = 5; // Số trang hiển thị tối đa
+    const showPages = 3; // Số trang hiển thị tối đa
 
     if (totalPages <= showPages) {
       // Nếu tổng số trang ít, hiển thị tất cả
@@ -21,30 +21,22 @@ const Pagination = memo(({ currentPage, totalPages, onPageChange, className = ''
         pages.push(i);
       }
     } else {
-      // Logic phức tạp hơn cho nhiều trang
-      if (currentPage <= 3) {
-        // Gần đầu
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        // Gần cuối
+      // Logic cho nhiều trang với tối đa 3 ô số
+      if (currentPage === 1) {
+        // Ở trang đầu: hiển thị 1, 2, 3
         pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i);
-        }
+        pages.push(2);
+        pages.push(3);
+      } else if (currentPage === totalPages) {
+        // Ở trang cuối: hiển thị totalPages-2, totalPages-1, totalPages
+        pages.push(totalPages - 2);
+        pages.push(totalPages - 1);
+        pages.push(totalPages);
       } else {
-        // Ở giữa
-        pages.push(1);
-        pages.push('...');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
+        // Ở giữa: hiển thị currentPage-1, currentPage, currentPage+1
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
       }
     }
 
@@ -57,6 +49,7 @@ const Pagination = memo(({ currentPage, totalPages, onPageChange, className = ''
     <div className={`flex items-center justify-center gap-2 mt-8 lg-down:mt-6 md-down:mt-5 sm-down:mt-4 xs-down:mt-3 ${className}`}>
       {/* First Page Button */}
       <button
+        type="button"
         onClick={() => onPageChange(1)}
         disabled={currentPage === 1}
         className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md md-down:p-1.5 sm-down:p-1"
@@ -67,6 +60,7 @@ const Pagination = memo(({ currentPage, totalPages, onPageChange, className = ''
 
       {/* Previous Page Button */}
       <button
+        type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md md-down:p-1.5 sm-down:p-1"
@@ -94,6 +88,7 @@ const Pagination = memo(({ currentPage, totalPages, onPageChange, className = ''
 
           return (
             <button
+              type="button"
               key={pageNum}
               onClick={() => onPageChange(pageNum)}
               className={`min-w-[40px] px-3 py-2 rounded-lg border font-medium transition-all duration-200 md-down:min-w-[36px] md-down:px-2.5 md-down:py-1.5 md-down:text-sm sm-down:min-w-[32px] sm-down:px-2 sm-down:text-xs ${
@@ -110,6 +105,7 @@ const Pagination = memo(({ currentPage, totalPages, onPageChange, className = ''
 
       {/* Next Page Button */}
       <button
+        type="button"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md md-down:p-1.5 sm-down:p-1"
@@ -120,6 +116,7 @@ const Pagination = memo(({ currentPage, totalPages, onPageChange, className = ''
 
       {/* Last Page Button */}
       <button
+        type="button"
         onClick={() => onPageChange(totalPages)}
         disabled={currentPage === totalPages}
         className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md md-down:p-1.5 sm-down:p-1"

@@ -2,6 +2,7 @@ import { useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X, FileText, Tag, AlertCircle } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { getYouTubeEmbedUrl } from '@/utils/youtube';
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
 
@@ -12,7 +13,7 @@ interface SharedNoteData {
   imageUrl?: string | null;
   videoUrl?: string | null;
   youtubeUrl?: string | null;
-  category: string;
+  category?: string | { id: number; name: string; color: string; icon: string } | null;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
 }
@@ -107,10 +108,26 @@ const ViewSharedNoteModal = memo<ViewSharedNoteModalProps>(({ isOpen, onClose, n
 
             {/* Tags */}
             <div className="flex flex-wrap items-center gap-2">
-              <div className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 ${getCategoryColor(note.category)}`}>
-                <Tag className="w-4 h-4" />
-                {t(`filters.category.${note.category}`) || note.category}
-              </div>
+              {note.category && typeof note.category === 'object' && note.category.name ? (
+                <div 
+                  className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2"
+                  style={{ 
+                    backgroundColor: `${note.category.color}20`,
+                    color: note.category.color
+                  }}
+                >
+                  {(() => {
+                    const Icon = (LucideIcons as any)[note.category.icon] || LucideIcons.Tag;
+                    return <Icon className="w-4 h-4" style={{ color: note.category.color }} />;
+                  })()}
+                  {note.category.name}
+                </div>
+              ) : (
+                <div className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 ${getCategoryColor(typeof note.category === 'string' ? note.category : 'general')}`}>
+                  <Tag className="w-4 h-4" />
+                  {typeof note.category === 'string' ? (t(`filters.category.${note.category}`) || note.category) : t('filters.category.general')}
+                </div>
+              )}
               <div className={`px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 ${getPriorityColor(note.priority)}`}>
                 <AlertCircle className="w-4 h-4" />
                 {t(`filters.priority.${note.priority}`) || note.priority}

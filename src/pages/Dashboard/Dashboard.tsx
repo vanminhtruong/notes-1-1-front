@@ -30,6 +30,8 @@ const Dashboard = () => {
     acknowledgeReminderNote,
     // view
     showViewModal, setShowViewModal, viewNote, openView,
+    // categories
+    categories,
   } = useDashboard();
 
   // Folders hook
@@ -231,6 +233,7 @@ const Dashboard = () => {
                 setSelectedPriority={setSelectedPriority}
                 onCreateNote={handleOpenCreateModal}
                 showArchived={viewMode === 'archived'}
+                categories={categories}
               />
             </LazyLoad>
 
@@ -276,6 +279,7 @@ const Dashboard = () => {
         newNote={newNote}
         setNewNote={setNewNote}
         onSubmit={handleCreateNote}
+        categories={categories}
       />
 
       {/* View Note Modal */}
@@ -294,6 +298,7 @@ const Dashboard = () => {
         editNote={editNote}
         setEditNote={setEditNote}
         onSubmit={handleUpdateNote}
+        categories={categories}
       />
 
       {/* Share Note Modal */}

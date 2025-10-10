@@ -1,5 +1,6 @@
 import { FileText, User, Calendar, Edit2, Eye, Trash2, AlertCircle, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import * as LucideIcons from 'lucide-react';
 import type { SharedNoteItemProps } from '../interface/SharedNotes.interface';
 import { useEffect, useState, memo } from 'react';
 import toast from 'react-hot-toast';
@@ -52,14 +53,6 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
     }
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'work': return 'text-blue-600 bg-blue-50 dark:bg-blue-900/20';
-      case 'personal': return 'text-purple-600 bg-purple-50 dark:bg-purple-900/20';
-      case 'general': return 'text-gray-600 bg-gray-50 dark:bg-gray-900/20';
-      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-900/20';
-    }
-  };
 
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -213,9 +206,25 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(sharedNote.note.priority)}`}>
             {t(`filters.priority.${sharedNote.note.priority}`)}
           </span>
-          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(sharedNote.note.category)}`}>
-            {t(`filters.category.${sharedNote.note.category}`)}
-          </span>
+          {sharedNote.note.category && typeof sharedNote.note.category === 'object' && sharedNote.note.category.name ? (
+            <span 
+              className="px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1"
+              style={{ 
+                backgroundColor: `${sharedNote.note.category.color}20`,
+                color: sharedNote.note.category.color
+              }}
+            >
+              {(() => {
+                const Icon = (LucideIcons as any)[sharedNote.note.category.icon] || LucideIcons.Tag;
+                return <Icon className="w-3 h-3" style={{ color: sharedNote.note.category.color }} />;
+              })()}
+              {sharedNote.note.category.name}
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+              {typeof sharedNote.note.category === 'string' ? (t(`filters.category.${sharedNote.note.category}`, 'General') || 'General') : 'General'}
+            </span>
+          )}
         </div>
 
         {/* Permissions */}

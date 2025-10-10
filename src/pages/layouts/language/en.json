@@ -2,12 +2,14 @@
   "appName": "NotesApp",
   "nav": {
     "dashboard": "Dashboard",
+    "categories": "Categories",
     "about": "About",
     "contact": "Contact"
   },
   "user": {
     "account": "Account",
     "accountDetails": "Account Details",
+    "categories": "Manage Categories",
     "chat": "Chat",
     "changePassword": "Change Password",
     "devices": "Logged in devices",

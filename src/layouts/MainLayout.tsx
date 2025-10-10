@@ -2,7 +2,7 @@ import { Link, Outlet } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
-import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone } from 'lucide-react'
+import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone, Tag } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
@@ -169,6 +169,7 @@ export default function MainLayout() {
 
             <nav className="hidden lg:flex items-center gap-6 xl-down:gap-5 lg-down:gap-4">
               <Link to="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.dashboard')}</Link>
+              <Link to="/categories" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.categories')}</Link>
               <Link to="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.about')}</Link>
               <Link to="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.contact')}</Link>
             </nav>
@@ -230,6 +231,15 @@ export default function MainLayout() {
                       >
                         <User className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                         <span>{t('user.accountDetails')}</span>
+                      </Link>
+
+                      <Link
+                        to="/categories"
+                        onClick={() => setMenuOpen(false)}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
+                      >
+                        <Tag className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                        <span>{t('user.categories')}</span>
                       </Link>
 
                       <button
@@ -333,6 +343,13 @@ export default function MainLayout() {
                 className="block px-4 py-3 rounded-xl text-base font-medium text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 border border-white/30 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all"
               >
                 {t('nav.dashboard')}
+              </Link>
+              <Link
+                to="/categories"
+                onClick={() => setMobileNavOpen(false)}
+                className="block px-4 py-3 rounded-xl text-base font-medium text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 border border-white/30 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all"
+              >
+                {t('nav.categories')}
               </Link>
               <Link
                 to="/about"

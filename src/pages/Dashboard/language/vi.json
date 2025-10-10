@@ -86,6 +86,7 @@
     "createFirst": "Tạo ghi chú đầu tiên của bạn để bắt đầu"
   },
   "category": {
+    "none": "Không có",
     "general": "Chung",
     "work": "Công việc",
     "personal": "Cá nhân"

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, memo } from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronDown } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 // MediaTabs Component
 const MediaTabs = memo(({ editNote, setEditNote, t }: { editNote: any; setEditNote: (note: any) => void; t: any }) => {
@@ -116,6 +117,85 @@ const MediaTabs = memo(({ editNote, setEditNote, t }: { editNote: any; setEditNo
 
 MediaTabs.displayName = 'MediaTabs';
 
+// CategoryDropdown Component
+interface CategoryDropdownProps {
+  value: number | undefined;
+  onChange: (categoryId: number | undefined) => void;
+  categories: Array<{ id: number; name: string; color: string; icon: string; selectionCount?: number }>;
+  placeholder: string;
+}
+
+const CategoryDropdown = memo(({ value, onChange, categories, placeholder }: CategoryDropdownProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedCategory = categories.find(cat => cat.id === value);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white md-down:px-2.5 md-down:py-1.5 md-down:text-sm sm-down:px-2 sm-down:py-1.5 sm-down:text-sm xs-down:px-2 xs-down:py-1 xs-down:text-xs flex items-center justify-between gap-2"
+      >
+        {selectedCategory ? (
+          <span className="flex items-center gap-2 flex-1 min-w-0">
+            {(() => {
+              const Icon = (LucideIcons as any)[selectedCategory.icon] || LucideIcons.Tag;
+              return <Icon className="w-4 h-4 flex-shrink-0" style={{ color: selectedCategory.color }} />;
+            })()}
+            <span className="truncate" style={{ color: selectedCategory.color }}>{selectedCategory.name}</span>
+          </span>
+        ) : (
+          <span className="text-gray-500 dark:text-gray-400">{placeholder}</span>
+        )}
+        <ChevronDown className="w-4 h-4 flex-shrink-0" />
+      </button>
+      
+      {isOpen && (
+        <>
+          <div 
+            className="fixed inset-0 z-10" 
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            <button
+              type="button"
+              onClick={() => {
+                onChange(undefined);
+                setIsOpen(false);
+              }}
+              className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm text-gray-700 dark:text-gray-300"
+            >
+              {placeholder}
+            </button>
+            {categories.map((cat) => {
+              const Icon = (LucideIcons as any)[cat.icon] || LucideIcons.Tag;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(cat.id);
+                    setIsOpen(false);
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm flex items-center gap-2"
+                  style={{ 
+                    backgroundColor: value === cat.id ? `${cat.color}15` : undefined 
+                  }}
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.color }} />
+                  <span style={{ color: cat.color }}>{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+});
+
+CategoryDropdown.displayName = 'CategoryDropdown';
+
 export interface EditNote {
   id: number;
   title: string;
@@ -123,7 +203,7 @@ export interface EditNote {
   imageUrl: string;
   videoUrl: string;
   youtubeUrl: string;
-  category: string;
+  categoryId: number | undefined;
   priority: 'low' | 'medium' | 'high';
   reminderAtLocal: string;
 }
@@ -134,9 +214,10 @@ interface EditNoteModalProps {
   editNote: EditNote;
   setEditNote: (note: EditNote) => void;
   onSubmit: () => void;
+  categories: Array<{ id: number; name: string; color: string; icon: string }>;
 }
 
-const EditNoteModal = memo(({ isOpen, onClose, editNote, setEditNote, onSubmit }: EditNoteModalProps) => {
+const EditNoteModal = memo(({ isOpen, onClose, editNote, setEditNote, onSubmit, categories }: EditNoteModalProps) => {
   const { t } = useTranslation('dashboard');
 
   if (!isOpen) return null;
@@ -195,15 +276,12 @@ const EditNoteModal = memo(({ isOpen, onClose, editNote, setEditNote, onSubmit }
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
                 {t('modals.create.fields.category')}
               </label>
-              <select
-                value={editNote.category}
-                onChange={(e) => setEditNote({ ...editNote, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white md-down:px-2.5 md-down:py-1.5 md-down:text-sm sm-down:px-2 sm-down:py-1.5 sm-down:text-sm xs-down:px-2 xs-down:py-1 xs-down:text-xs"
-              >
-                <option value="general">{t('category.general')}</option>
-                <option value="work">{t('category.work')}</option>
-                <option value="personal">{t('category.personal')}</option>
-              </select>
+              <CategoryDropdown
+                value={editNote.categoryId}
+                onChange={(categoryId) => setEditNote({ ...editNote, categoryId })}
+                categories={categories}
+                placeholder={t('category.none')}
+              />
             </div>
 
             <div>

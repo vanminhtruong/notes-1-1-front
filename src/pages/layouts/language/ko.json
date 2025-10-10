@@ -2,12 +2,14 @@
   "appName": "노트 앱",
   "nav": {
     "dashboard": "대시보드",
+    "categories": "카테고리",
     "about": "소개",
     "contact": "연락처"
   },
   "user": {
     "account": "계정",
     "accountDetails": "계정 상세",
+    "categories": "카테고리 관리",
     "chat": "채팅",
     "changePassword": "비밀번호 변경",
     "devices": "로그인된 기기",
