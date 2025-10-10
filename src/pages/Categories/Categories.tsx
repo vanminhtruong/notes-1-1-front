@@ -8,6 +8,7 @@ import CategoriesGrid from '@/pages/Categories/components/CategoriesGrid';
 import CreateCategoryModal from '@/pages/Categories/components/CreateCategoryModal';
 import EditCategoryModal from '@/pages/Categories/components/EditCategoryModal';
 import DeleteCategoryModal from '@/pages/Categories/components/DeleteCategoryModal';
+import CategoryNotesModal from '@/pages/Categories/components/CategoryNotesModal';
 import type { NoteCategory } from '@/services/notesService';
 
 export default function Categories() {
@@ -24,6 +25,7 @@ export default function Categories() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [viewNotesModalOpen, setViewNotesModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<NoteCategory | null>(null);
 
   const handleCreateCategory = () => {
@@ -40,10 +42,16 @@ export default function Categories() {
     setDeleteModalOpen(true);
   };
 
+  const handleViewNotes = (category: NoteCategory) => {
+    setSelectedCategory(category);
+    setViewNotesModalOpen(true);
+  };
+
   const handleCloseModals = () => {
     setCreateModalOpen(false);
     setEditModalOpen(false);
     setDeleteModalOpen(false);
+    setViewNotesModalOpen(false);
     setSelectedCategory(null);
   };
 
@@ -89,6 +97,7 @@ export default function Categories() {
                 isLoading={isLoading}
                 onEdit={handleEditCategory}
                 onDelete={handleDeleteCategory}
+                onView={handleViewNotes}
               />
             </LazyLoad>
           </div>
@@ -114,6 +123,11 @@ export default function Categories() {
             isOpen={deleteModalOpen}
             onClose={handleCloseModals}
             onConfirm={deleteCategory}
+            category={selectedCategory}
+          />
+          <CategoryNotesModal
+            isOpen={viewNotesModalOpen}
+            onClose={handleCloseModals}
             category={selectedCategory}
           />
         </>

@@ -32,5 +32,21 @@
   "updateError": "카테고리 업데이트에 실패했습니다",
   "deleteSuccess": "카테고리가 성공적으로 삭제되었습니다",
   "deleteError": "카테고리 삭제에 실패했습니다",
-  "loadError": "카테고리를 불러오는데 실패했습니다"
+  "loadError": "카테고리를 불러오는데 실패했습니다",
+  "viewNotes": "노트 보기",
+  "notesInCategory": "카테고리에 {{count}}개의 노트",
+  "noNotesInCategory": "노트가 없습니다",
+  "noNotesInCategoryDesc": "이 카테고리에는 아직 노트가 없습니다",
+  "close": "닫기",
+  "hasReminder": "알림 있음",
+  "hasImage": "이미지 있음",
+  "hasVideo": "비디오 있음",
+  "hasYoutube": "유튜브 비디오 있음",
+  "updated": "업데이트됨",
+  "archived": "보관됨",
+  "priority": {
+    "low": "낮음",
+    "medium": "중간",
+    "high": "높음"
+  }
 }

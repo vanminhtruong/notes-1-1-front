@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Tag, Edit2, Trash2 } from 'lucide-react';
+import { Tag, Edit2, Trash2, Eye } from 'lucide-react';
 import Pagination from '@/components/Pagination';
 import { type NoteCategory } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
@@ -10,6 +10,7 @@ interface CategoriesGridProps {
   isLoading: boolean;
   onEdit: (category: NoteCategory) => void;
   onDelete: (category: NoteCategory) => void;
+  onView: (category: NoteCategory) => void;
 }
 
 const CategoriesGrid = ({
@@ -17,6 +18,7 @@ const CategoriesGrid = ({
   isLoading,
   onEdit,
   onDelete,
+  onView,
 }: CategoriesGridProps) => {
   const { t } = useTranslation('categories');
   const PAGE_SIZE = 8;
@@ -131,6 +133,13 @@ const CategoriesGrid = ({
 
                   {/* Actions */}
                   <div className="flex gap-2 sm-down:gap-2 xs-down:gap-1.5">
+                    <button
+                      onClick={() => onView(category)}
+                      className="flex items-center justify-center px-3 py-2 md-down:px-2.5 md-down:py-1.5 sm-down:px-2 sm-down:py-1.5 xs-down:px-2 xs-down:py-1.5 border border-blue-300 dark:border-blue-600 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                      title={t('viewNotes')}
+                    >
+                      <Eye className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                    </button>
                     <button
                       onClick={() => onEdit(category)}
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2 md-down:px-2.5 md-down:py-1.5 sm-down:px-2 sm-down:py-1.5 xs-down:px-2 xs-down:py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm md-down:text-xs"

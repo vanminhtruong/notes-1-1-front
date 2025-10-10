@@ -32,5 +32,21 @@
   "updateError": "Failed to update category",
   "deleteSuccess": "Category deleted successfully",
   "deleteError": "Failed to delete category",
-  "loadError": "Failed to load categories"
+  "loadError": "Failed to load categories",
+  "viewNotes": "View Notes",
+  "notesInCategory": "{{count}} notes in category",
+  "noNotesInCategory": "No notes yet",
+  "noNotesInCategoryDesc": "There are no notes in this category yet",
+  "close": "Close",
+  "hasReminder": "Has Reminder",
+  "hasImage": "Has Image",
+  "hasVideo": "Has Video",
+  "hasYoutube": "Has YouTube Video",
+  "updated": "Updated",
+  "archived": "Archived",
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  }
 }

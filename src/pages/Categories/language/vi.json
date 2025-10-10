@@ -32,5 +32,21 @@
   "updateError": "Cập nhật danh mục thất bại",
   "deleteSuccess": "Xóa danh mục thành công",
   "deleteError": "Xóa danh mục thất bại",
-  "loadError": "Tải danh mục thất bại"
+  "loadError": "Tải danh mục thất bại",
+  "viewNotes": "Xem ghi chú",
+  "notesInCategory": "{{count}} ghi chú trong danh mục",
+  "noNotesInCategory": "Không có ghi chú nào",
+  "noNotesInCategoryDesc": "Chưa có ghi chú nào trong danh mục này",
+  "close": "Đóng",
+  "hasReminder": "Có nhắc nhở",
+  "hasImage": "Có hình ảnh",
+  "hasVideo": "Có video",
+  "hasYoutube": "Có video YouTube",
+  "updated": "Cập nhật",
+  "archived": "Đã lưu trữ",
+  "priority": {
+    "low": "Thấp",
+    "medium": "Trung bình",
+    "high": "Cao"
+  }
 }
