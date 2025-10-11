@@ -39,7 +39,7 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
     imageUrl: '',
     videoUrl: '',
     youtubeUrl: '',
-    category: 'personal',
+    categoryId: null as number | null,
     priority: 'medium' as 'low' | 'medium' | 'high'
   });
   const [activeMediaTab, setActiveMediaTab] = useState<'image' | 'video' | 'youtube'>('image');
@@ -64,7 +64,7 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
         imageUrl: note.imageUrl || '',
         videoUrl: note.videoUrl || '',
         youtubeUrl: note.youtubeUrl || '',
-        category: typeof note.category === 'object' && note.category?.name ? note.category.name : (typeof note.category === 'string' ? note.category : 'personal'),
+        categoryId: typeof note.category === 'object' && note.category?.id ? note.category.id : null,
         priority: note.priority || 'medium'
       });
     }
@@ -92,7 +92,7 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
         imageUrl: formData.imageUrl.trim() || null,
         videoUrl: formData.videoUrl.trim() || null,
         youtubeUrl: formData.youtubeUrl.trim() || null,
-        category: formData.category,
+        categoryId: formData.categoryId,
         priority: formData.priority
       };
 
@@ -317,21 +317,8 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
 
             {/* Category and Priority */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Category */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('notes.modal.categoryLabel') || 'Danh mục'}
-                </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
-                  disabled={isLoading}
-                >
-                  <option value="personal">{t('notes.modal.category.personal') || 'Cá nhân'}</option>
-                  <option value="work">{t('notes.modal.category.work') || 'Công việc'}</option>
-                </select>
-              </div>
+              {/* Category - Hidden for now, using categoryId from parent note */}
+              {/* Note: Category is inherited from the original shared note */}
 
               {/* Priority */}
               <div>

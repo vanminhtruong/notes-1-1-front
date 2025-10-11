@@ -115,6 +115,42 @@ export interface SharedNotesResponse {
   };
 }
 
+export interface GroupSharedNote {
+  id: number;
+  noteId: number;
+  groupId: number;
+  sharedByUserId: number;
+  canEdit: boolean;
+  canDelete: boolean;
+  canCreate: boolean;
+  message?: string;
+  groupMessageId?: number;
+  sharedAt: string;
+  isActive: boolean;
+  note: Note;
+  group: {
+    id: number;
+    name: string;
+    avatar?: string | null;
+  };
+  sharedByUser: {
+    id: number;
+    name: string;
+    email: string;
+    avatar?: string | null;
+  };
+}
+
+export interface GroupSharedNotesResponse {
+  groupSharedNotes: GroupSharedNote[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 export interface SearchSuggestion {
   id: number;
   title: string;
@@ -296,6 +332,17 @@ export const notesService = {
     return response.data;
   },
 
+  async getGroupSharedNotes(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<GroupSharedNotesResponse> {
+    const response = await api.get('/notes/shared/groups', { params });
+    return response.data;
+  },
+
   async removeSharedNote(sharedNoteId: number): Promise<{ message: string }> {
     const response = await api.delete(`/notes/shared/${sharedNoteId}`);
     return response.data;
@@ -311,8 +358,23 @@ export const notesService = {
     return response.data;
   },
 
-  async shareNoteToGroup(noteId: number, data: { groupId: number; message?: string; groupMessageId?: number }): Promise<{ message: string; groupSharedNote: any }> {
+  async shareNoteToGroup(noteId: number, data: { groupId: number; canEdit?: boolean; canDelete?: boolean; canCreate?: boolean; message?: string; groupMessageId?: number }): Promise<{ message: string; groupSharedNote: any }> {
     const response = await api.post(`/notes/${noteId}/share-group`, data);
+    return response.data;
+  },
+
+  async updateSharedNotePermissions(sharedNoteId: number, data: { canEdit?: boolean; canDelete?: boolean; canCreate?: boolean }): Promise<{ message: string; sharedNote: SharedNote }> {
+    const response = await api.put(`/notes/shared/${sharedNoteId}/permissions`, data);
+    return response.data;
+  },
+
+  async updateGroupSharedNotePermissions(groupSharedNoteId: number, data: { canEdit?: boolean; canDelete?: boolean; canCreate?: boolean }): Promise<{ message: string; groupSharedNote: GroupSharedNote }> {
+    const response = await api.put(`/notes/shared/groups/${groupSharedNoteId}/permissions`, data);
+    return response.data;
+  },
+
+  async removeGroupSharedNote(groupSharedNoteId: number): Promise<{ message: string }> {
+    const response = await api.delete(`/notes/shared/groups/${groupSharedNoteId}`);
     return response.data;
   },
 

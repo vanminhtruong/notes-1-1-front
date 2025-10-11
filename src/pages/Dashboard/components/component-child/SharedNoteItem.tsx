@@ -1,28 +1,25 @@
-import { FileText, User, Calendar, Edit2, Eye, Trash2, AlertCircle, Plus } from 'lucide-react';
+import { FileText, User, Calendar, Edit2, Eye, Trash2, AlertCircle, Plus, CheckSquare, Square } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import * as LucideIcons from 'lucide-react';
 import type { SharedNoteItemProps } from '../interface/SharedNotes.interface';
 import { useEffect, useState, memo } from 'react';
 import toast from 'react-hot-toast';
 import { userService } from '@/services/userService';
-
-const getTimeAgo = (date: string): string => {
-  const now = new Date();
-  const past = new Date(date);
-  const seconds = Math.floor((now.getTime() - past.getTime()) / 1000);
-  
-  if (seconds < 60) return 'vừa xong';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} phút trước`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)} giờ trước`;
-  if (seconds < 2592000) return `${Math.floor(seconds / 86400)} ngày trước`;
-  if (seconds < 31536000) return `${Math.floor(seconds / 2592000)} tháng trước`;
-  return `${Math.floor(seconds / 31536000)} năm trước`;
-};
+import { notesService } from '@/services/notesService';
+import { getTimeAgo } from '../../utils/timeUtils';
 
 export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, onEditNote, onCreateFromNote }: SharedNoteItemProps) => {
-  const { t } = useTranslation('dashboard');
+  const { t, i18n } = useTranslation('dashboard');
   const [isRemoving, setIsRemoving] = useState(false);
+  const [isEditingPermissions, setIsEditingPermissions] = useState(false);
+  const [localPermissions, setLocalPermissions] = useState({
+    canEdit: sharedNote.canEdit,
+    canDelete: sharedNote.canDelete,
+    canCreate: sharedNote.canCreate,
+  });
+  const [isSaving, setIsSaving] = useState(false);
   const isReceived = type === 'received';
+  const isSent = type === 'sent';
   const otherUser = isReceived ? sharedNote.sharedByUser : sharedNote.sharedWithUser;
   const [avatarUrl, setAvatarUrl] = useState<string | null | undefined>(otherUser?.avatar ?? null);
 
@@ -118,10 +115,31 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
     }
   };
 
+  const handleSavePermissions = async () => {
+    try {
+      setIsSaving(true);
+      await notesService.updateSharedNotePermissions(sharedNote.id, localPermissions);
+      toast.success(t('notes.share.permissionsUpdated'));
+      setIsEditingPermissions(false);
+      // Real-time update will be handled by socket event
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || t('notes.share.permissionsUpdateFailed'));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div 
       className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 cursor-pointer group"
-      onClick={handleView}
+      onClick={(e) => {
+        // Don't open modal when editing permissions
+        if (isEditingPermissions) {
+          e.stopPropagation();
+          return;
+        }
+        handleView();
+      }}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-3">
@@ -174,15 +192,32 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
               <Plus className="w-4 h-4" />
             </button>
           )}
+
+          {/* Edit permissions button - only for sent notes */}
+          {isSent && !isEditingPermissions && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditingPermissions(true);
+              }}
+              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-0 group-hover:opacity-100"
+              title={t('sharedNotes.editPermissions') || 'Chỉnh sửa quyền'}
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
+          )}
           
-          <button
-            onClick={handleRemove}
-            disabled={isRemoving}
-            className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
-            title={t('sharedNotes.remove')}
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          {/* Remove button - always show for sent notes, only show for received notes if they have any permission */}
+          {(isSent || (isReceived && (sharedNote.canEdit || sharedNote.canDelete || sharedNote.canCreate))) && (
+            <button
+              onClick={handleRemove}
+              disabled={isRemoving}
+              className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+              title={t('sharedNotes.remove')}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -227,29 +262,125 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
           )}
         </div>
 
-        {/* Permissions */}
-        {isReceived && (
-          <div className="flex items-center gap-2 pl-6 text-xs text-gray-500 dark:text-gray-400">
-            {sharedNote.canEdit && (
-              <span className="flex items-center gap-1">
-                <Edit2 className="w-3 h-3" />
-                {t('sharedNotes.canEdit')}
-              </span>
-            )}
-            {!sharedNote.canEdit && (
-              <span className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
-                {t('sharedNotes.viewOnly')}
-              </span>
-            )}
-          </div>
-        )}
+        {/* Permissions Display / Edit */}
+        <div className="pl-6 space-y-2">
+          {isSent && isEditingPermissions ? (
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-2">
+              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {t('notes.share.permissions') || 'Quyền hạn'}:
+              </p>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div onClick={() => setLocalPermissions(prev => ({ ...prev, canEdit: !prev.canEdit }))} className="cursor-pointer">
+                  {localPermissions.canEdit ? <CheckSquare className="w-4 h-4 text-green-600" /> : <Square className="w-4 h-4 text-gray-400" />}
+                </div>
+                <span className="text-xs text-gray-700 dark:text-gray-300">{t('notes.share.canEdit')}</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div onClick={() => setLocalPermissions(prev => ({ ...prev, canDelete: !prev.canDelete }))} className="cursor-pointer">
+                  {localPermissions.canDelete ? <CheckSquare className="w-4 h-4 text-green-600" /> : <Square className="w-4 h-4 text-gray-400" />}
+                </div>
+                <span className="text-xs text-gray-700 dark:text-gray-300">{t('notes.share.canDelete')}</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div onClick={() => setLocalPermissions(prev => ({ ...prev, canCreate: !prev.canCreate }))} className="cursor-pointer">
+                  {localPermissions.canCreate ? <CheckSquare className="w-4 h-4 text-green-600" /> : <Square className="w-4 h-4 text-gray-400" />}
+                </div>
+                <span className="text-xs text-gray-700 dark:text-gray-300">{t('notes.share.canCreate')}</span>
+              </label>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSavePermissions();
+                  }}
+                  disabled={isSaving}
+                  className="px-3 py-1 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg disabled:opacity-50"
+                >
+                  {isSaving ? t('actions.saving') || 'Đang lưu...' : t('actions.save') || 'Lưu'}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditingPermissions(false);
+                    setLocalPermissions({
+                      canEdit: sharedNote.canEdit,
+                      canDelete: sharedNote.canDelete,
+                      canCreate: sharedNote.canCreate,
+                    });
+                  }}
+                  className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                >
+                  {t('actions.cancel') || 'Hủy'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {isReceived && (
+                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                  {sharedNote.canEdit && (
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Edit2 className="w-3 h-3 flex-shrink-0" />
+                      {t('sharedNotes.canEdit')}
+                    </span>
+                  )}
+                  {sharedNote.canDelete && (
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Trash2 className="w-3 h-3 flex-shrink-0" />
+                      {t('notes.share.canDelete')}
+                    </span>
+                  )}
+                  {sharedNote.canCreate && (
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Plus className="w-3 h-3 flex-shrink-0" />
+                      {t('notes.share.canCreate')}
+                    </span>
+                  )}
+                  {!sharedNote.canEdit && !sharedNote.canDelete && !sharedNote.canCreate && (
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Eye className="w-3 h-3 flex-shrink-0" />
+                      {t('sharedNotes.viewOnly')}
+                    </span>
+                  )}
+                </div>
+              )}
+              {isSent && (
+                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                  {sharedNote.canEdit && (
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Edit2 className="w-3 h-3 flex-shrink-0" />
+                      {t('notes.share.canEdit')}
+                    </span>
+                  )}
+                  {sharedNote.canDelete && (
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Trash2 className="w-3 h-3 flex-shrink-0" />
+                      {t('notes.share.canDelete')}
+                    </span>
+                  )}
+                  {sharedNote.canCreate && (
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Plus className="w-3 h-3 flex-shrink-0" />
+                      {t('notes.share.canCreate')}
+                    </span>
+                  )}
+                  {!sharedNote.canEdit && !sharedNote.canDelete && !sharedNote.canCreate && (
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <Eye className="w-3 h-3 flex-shrink-0" />
+                      {t('sharedNotes.viewOnly')}
+                    </span>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         {/* Shared Time */}
         <div className="flex items-center gap-1 pl-6 text-xs text-gray-500 dark:text-gray-400">
           <Calendar className="w-3 h-3" />
           <span>
-            {getTimeAgo(sharedNote.sharedAt)}
+            {getTimeAgo(sharedNote.sharedAt, i18n.language)}
           </span>
         </div>
 

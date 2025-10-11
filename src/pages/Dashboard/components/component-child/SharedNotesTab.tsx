@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Inbox, RefreshCw } from 'lucide-react';
 import { SharedNoteItem } from './SharedNoteItem';
+import { GroupSharedNoteItem } from './GroupSharedNoteItem';
 import { useSharedNotes } from '../../hooks/useDashboard/useSharedNotes';
 import type { SharedNotesTabProps } from '../interface/SharedNotes.interface';
 import toast from 'react-hot-toast';
@@ -13,7 +14,7 @@ import LazyLoad from '@/components/LazyLoad';
 
 export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTabProps) => {
   const { t } = useTranslation('dashboard');
-  const [subTab, setSubTab] = useState<'received' | 'sent'>('received');
+  const [subTab, setSubTab] = useState<'received' | 'sent' | 'groups'>('received');
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [viewingNote, setViewingNote] = useState<any>(null);
@@ -22,6 +23,7 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
   const {
     sharedWithMe,
     sharedByMe,
+    groupSharedNotes,
     isLoading,
     error,
     refreshSharedNotes,
@@ -88,9 +90,15 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
       const resp = await notesService.getNoteById(noteId);
       const note = resp.note;
       
-      // Find owner user id from sharedWithMe list
+      // Find owner user id from sharedWithMe list OR groupSharedNotes list
+      let ownerUserId: number | undefined;
       const sharedNote = sharedWithMe.find(sn => sn.note.id === noteId);
-      const ownerUserId = sharedNote?.sharedByUserId;
+      if (sharedNote) {
+        ownerUserId = sharedNote.sharedByUserId;
+      } else {
+        const groupSharedNote = groupSharedNotes.find(gsn => gsn.noteId === noteId);
+        ownerUserId = groupSharedNote?.sharedByUserId;
+      }
       
       if (!ownerUserId) {
         toast.error(t('notes.createError') || 'Không tìm thấy người gửi');
@@ -104,7 +112,7 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
           imageUrl: note.imageUrl ? String(note.imageUrl) : undefined,
           videoUrl: note.videoUrl ? String(note.videoUrl) : undefined,
           youtubeUrl: note.youtubeUrl ? String(note.youtubeUrl) : undefined,
-          category: note.category,
+          categoryId: note.category && typeof note.category === 'object' ? note.category.id : note.categoryId || undefined,
           priority: note.priority,
           sharedFromUserId: ownerUserId,
         }),
@@ -175,18 +183,30 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
     );
   }, [sharedByMe, searchTerm]);
 
-  const currentNotes = subTab === 'received' ? filteredReceivedNotes : filteredSentNotes;
-  const currentPagination = subTab === 'received' ? pagination.withMe : pagination.byMe;
-  const currentChangePage = subTab === 'received' ? changePage.withMe : changePage.byMe;
+  const filteredGroupNotes = useMemo(() => {
+    if (!searchTerm.trim()) return groupSharedNotes;
+    
+    const lowerSearch = searchTerm.toLowerCase();
+    return groupSharedNotes.filter(gsn => 
+      gsn.note.title.toLowerCase().includes(lowerSearch) ||
+      gsn.note.content?.toLowerCase().includes(lowerSearch) ||
+      gsn.group.name.toLowerCase().includes(lowerSearch) ||
+      gsn.sharedByUser.name.toLowerCase().includes(lowerSearch)
+    );
+  }, [groupSharedNotes, searchTerm]);
+
+  const currentNotes = subTab === 'received' ? filteredReceivedNotes : subTab === 'sent' ? filteredSentNotes : filteredGroupNotes;
+  const currentPagination = subTab === 'received' ? pagination.withMe : subTab === 'sent' ? pagination.byMe : pagination.groups;
+  const currentChangePage = subTab === 'received' ? changePage.withMe : subTab === 'sent' ? changePage.byMe : changePage.groups;
 
   return (
     <div className="flex flex-col h-full">
       {/* Sub-tabs */}
       <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto">
           <button
             onClick={() => setSubTab('received')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
               subTab === 'received'
                 ? 'bg-blue-600 text-white shadow-sm'
                 : 'bg-white/70 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -202,7 +222,7 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
           
           <button
             onClick={() => setSubTab('sent')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
               subTab === 'sent'
                 ? 'bg-blue-600 text-white shadow-sm'
                 : 'bg-white/70 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -212,6 +232,22 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
             {sharedByMe.length > 0 && (
               <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-white/20">
                 {sharedByMe.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setSubTab('groups')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+              subTab === 'groups'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'bg-white/70 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+            }`}
+          >
+            {t('sharedNotes.groups') || 'Groups'}
+            {groupSharedNotes.length > 0 && (
+              <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-white/20">
+                {groupSharedNotes.length}
               </span>
             )}
           </button>
@@ -245,38 +281,71 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
             <p className="text-sm font-medium mb-1">
               {subTab === 'received' 
                 ? t('sharedNotes.noReceivedNotes')
-                : t('sharedNotes.noSentNotes')
+                : subTab === 'sent'
+                ? t('sharedNotes.noSentNotes')
+                : (t('sharedNotes.noGroupNotes') || 'No group shared notes')
               }
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500">
               {subTab === 'received'
                 ? t('sharedNotes.noReceivedNotesDesc')
-                : t('sharedNotes.noSentNotesDesc')
+                : subTab === 'sent'
+                ? t('sharedNotes.noSentNotesDesc')
+                : (t('sharedNotes.noGroupNotesDesc') || 'Notes shared in groups will appear here')
               }
             </p>
           </div>
         ) : (
           <>
-            {currentNotes.map((sharedNote, index) => (
-              <LazyLoad
-                key={sharedNote.id}
-                threshold={0.1}
-                rootMargin="100px"
-                animationDuration={500}
-                delay={index * 50}
-                reAnimate={true}
-              >
-                <SharedNoteItem
-                  sharedNote={sharedNote}
-                  type={subTab === 'received' ? 'received' : 'sent'}
-                  onRemove={removeSharedNote}
-                  onViewNote={handleViewNote}
-                  onEditNote={handleEditNote}
-                  onCreateFromNote={handleCreateFromNote}
-                  currentUserId={currentUserId}
-                />
-              </LazyLoad>
-            ))}
+            {subTab === 'groups' ? (
+              // Render group shared notes with permissions UI
+              (currentNotes as any[]).map((groupSharedNote, index) => (
+                <LazyLoad
+                  key={groupSharedNote.id}
+                  threshold={0.1}
+                  rootMargin="100px"
+                  animationDuration={500}
+                  delay={index * 50}
+                  reAnimate={true}
+                >
+                  <GroupSharedNoteItem
+                    groupSharedNote={groupSharedNote}
+                    currentUserId={currentUserId}
+                    onViewNote={handleViewNote}
+                    onEditNote={handleEditNote}
+                    onCreateFromNote={handleCreateFromNote}
+                    onDeleteNote={async (noteId) => {
+                      await notesService.deleteNote(noteId);
+                    }}
+                    onRemove={async (id) => {
+                      await notesService.removeGroupSharedNote(id);
+                    }}
+                  />
+                </LazyLoad>
+              ))
+            ) : (
+              // Render individual shared notes
+              (currentNotes as any[]).map((sharedNote, index) => (
+                <LazyLoad
+                  key={sharedNote.id}
+                  threshold={0.1}
+                  rootMargin="100px"
+                  animationDuration={500}
+                  delay={index * 50}
+                  reAnimate={true}
+                >
+                  <SharedNoteItem
+                    sharedNote={sharedNote as any}
+                    type={subTab === 'received' ? 'received' : 'sent'}
+                    onRemove={removeSharedNote}
+                    onViewNote={handleViewNote}
+                    onEditNote={handleEditNote}
+                    onCreateFromNote={handleCreateFromNote}
+                    currentUserId={currentUserId}
+                  />
+                </LazyLoad>
+              ))
+            )}
           </>
         )}
         </div>

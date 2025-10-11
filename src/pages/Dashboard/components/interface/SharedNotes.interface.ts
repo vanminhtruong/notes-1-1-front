@@ -1,4 +1,4 @@
-import type { SharedNote } from '@/services/notesService';
+import type { SharedNote, GroupSharedNote } from '@/services/notesService';
 
 export interface SharedNotesTabProps {
   searchTerm: string;
@@ -18,6 +18,7 @@ export interface SharedNoteItemProps {
 export interface UseSharedNotesReturn {
   sharedWithMe: SharedNote[];
   sharedByMe: SharedNote[];
+  groupSharedNotes: GroupSharedNote[];
   isLoading: boolean;
   error: string | null;
   refreshSharedNotes: () => Promise<void>;
@@ -33,9 +34,15 @@ export interface UseSharedNotesReturn {
       totalPages: number;
       total: number;
     };
+    groups: {
+      currentPage: number;
+      totalPages: number;
+      total: number;
+    };
   };
   changePage: {
     withMe: (page: number) => Promise<void>;
     byMe: (page: number) => Promise<void>;
+    groups: (page: number) => Promise<void>;
   };
 }

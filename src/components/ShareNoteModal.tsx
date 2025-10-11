@@ -202,9 +202,12 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
             console.error('⚠️ Failed to send group chat message:', chatError);
           }
 
-          // 2. Create GroupSharedNote record for admin tracking with groupMessageId
+          // 2. Create GroupSharedNote record for admin tracking with groupMessageId and permissions
           await notesService.shareNoteToGroup(note.id, {
             groupId: selectedTarget.id,
+            canEdit: canEdit,
+            canDelete: canDelete,
+            canCreate: canCreate,
             message: message.trim() || undefined,
             groupMessageId: groupMessageId || undefined
           });
@@ -445,11 +448,16 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
             </div>
           )}
 
-          {/* Permissions - Only for users */}
-          {selectedTarget && selectedTarget.type === 'user' && (
+          {/* Permissions - For both users and groups */}
+          {selectedTarget && (
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                 {t('notes.share.permissions') || 'Quyền hạn'}
+                {selectedTarget.type === 'group' && (
+                  <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                    ({t('notes.share.groupPermissionsHint') || 'Áp dụng cho tất cả thành viên'})
+                  </span>
+                )}
               </label>
               <div className="space-y-2">
                 <label className="flex items-center">

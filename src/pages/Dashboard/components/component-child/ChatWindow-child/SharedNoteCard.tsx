@@ -75,6 +75,26 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
     const onCreatePermChanged = (e: Event) => refreshIfMatch((e as CustomEvent).detail);
     const onGroupSharedUpdatedByAdmin = (e: Event) => refreshIfMatch((e as CustomEvent).detail);
     const onGroupSharedUpdated = (e: Event) => refreshIfMatch((e as CustomEvent).detail);
+    
+    // Listen for note content updates
+    const onNoteUpdated = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.id === note.id) {
+        // Update current note content
+        setCurrentNote(prev => ({
+          ...prev,
+          title: detail.title || prev.title,
+          content: detail.content || prev.content,
+          imageUrl: detail.imageUrl || prev.imageUrl,
+          videoUrl: detail.videoUrl || prev.videoUrl,
+          youtubeUrl: detail.youtubeUrl || prev.youtubeUrl,
+          priority: detail.priority || prev.priority,
+        }));
+      }
+    };
+
+    // Note: When note is deleted, useChatSocket will automatically remove the message from chat
+    // No need to update SharedNoteCard state - the component will be unmounted
 
     try {
       window.addEventListener('shared_permissions_updated', onSharedPerm as any);
@@ -83,6 +103,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
       window.addEventListener('create_permissions_changed', onCreatePermChanged as any);
       window.addEventListener('group_shared_note_updated_by_admin', onGroupSharedUpdatedByAdmin as any);
       window.addEventListener('group_shared_note_updated', onGroupSharedUpdated as any);
+      window.addEventListener('note_updated', onNoteUpdated as any);
     } catch {}
 
     return () => {
@@ -92,6 +113,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
       try { window.removeEventListener('create_permissions_changed', onCreatePermChanged as any); } catch {}
       try { window.removeEventListener('group_shared_note_updated_by_admin', onGroupSharedUpdatedByAdmin as any); } catch {}
       try { window.removeEventListener('group_shared_note_updated', onGroupSharedUpdated as any); } catch {}
+      try { window.removeEventListener('note_updated', onNoteUpdated as any); } catch {}
     };
   }, [note.id]);
 
@@ -194,15 +216,9 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
 
       const eff = latest ?? permissions ?? { canEdit: false, canDelete: false };
 
-      if (eff.isOwner) {
-        // Owner can delete the note itself
+      // If user has canDelete permission (owner or shared with canDelete), delete the note
+      if (eff.canDelete) {
         await notesService.deleteNote(note.id);
-        toast.success(t('notes.deleteSuccess') || 'Đã xóa ghi chú thành công');
-        return;
-      }
-
-      if (eff.isShared && eff.canDelete && (eff as any).sharedNoteId) {
-        await notesService.removeSharedNote((eff as any).sharedNoteId as number);
         toast.success(t('notes.deleteSuccess') || 'Đã xóa ghi chú thành công');
         return;
       }

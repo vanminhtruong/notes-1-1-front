@@ -146,6 +146,13 @@ export function useChatSocket(params: UseChatSocketParams) {
         const nid = extractSharedNoteId(lm.content);
         return (nid && nid === noteId) ? { ...it, lastMessage: null } : it;
       }));
+      
+      // Dispatch window event for SharedNoteCard to listen
+      try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('note_deleted', { detail: { id: noteId } }));
+        }
+      } catch {}
     };
 
     // Realtime: note updated, sync NOTE_SHARE messages with new content
@@ -159,6 +166,8 @@ export function useChatSocket(params: UseChatSocketParams) {
         title: updatedNote.title || '',
         content: updatedNote.content || '',
         imageUrl: updatedNote.imageUrl || null,
+        videoUrl: updatedNote.videoUrl || null,
+        youtubeUrl: updatedNote.youtubeUrl || null,
         category: updatedNote.category || 'personal',
         priority: updatedNote.priority || 'medium',
         createdAt: updatedNote.createdAt || new Date().toISOString(),
@@ -187,6 +196,13 @@ export function useChatSocket(params: UseChatSocketParams) {
         }
         return it;
       }));
+      
+      // Dispatch window event for SharedNoteCard to listen
+      try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('note_updated', { detail: updatedNote }));
+        }
+      } catch {}
     };
 
     // Owner deleted all messages in a group
