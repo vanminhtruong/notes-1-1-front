@@ -36,8 +36,15 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
 
         <div className="space-y-4 xl-down:space-y-3.5 lg-down:space-y-3 md-down:space-y-3 sm-down:space-y-2.5 flex-1 overflow-y-auto pr-1">
           <div>
-            <h3 className="text-lg xl-down:text-base md-down:text-base sm-down:text-sm font-semibold text-gray-900 dark:text-white">{note.title}</h3>
-            <div className="mt-2 md-down:mt-1.5 sm-down:mt-1 text-gray-700 dark:text-gray-200 whitespace-pre-wrap text-sm md-down:text-sm sm-down:text-xs">{note.content || t('messages.noContent')}</div>
+            <h3 className="text-lg xl-down:text-base md-down:text-base sm-down:text-sm font-semibold text-gray-900 dark:text-white mb-3">{note.title}</h3>
+            <div className="bg-gray-50 dark:bg-gray-900/40 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div 
+                className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-200"
+                dangerouslySetInnerHTML={{ 
+                  __html: note.content || `<p class="text-gray-500 dark:text-gray-400 italic">${t('messages.noContent')}</p>` 
+                }}
+              />
+            </div>
           </div>
 
           {note.imageUrl && (

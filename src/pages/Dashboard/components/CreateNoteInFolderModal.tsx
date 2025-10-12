@@ -3,6 +3,7 @@ import { useState, memo, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import type { NoteCategory } from '@/services/notesService';
+import { RichTextEditor, useRichTextEditor } from '@/components/RichTextEditor';
 
 // MediaTabs Component
 const MediaTabs = memo(({ newNote, setNewNote, t }: { newNote: any; setNewNote: (note: any) => void; t: any }) => {
@@ -217,6 +218,32 @@ interface CreateNoteInFolderModalProps {
 const CreateNoteInFolderModal = memo(({ isOpen, onClose, newNote, setNewNote, onSubmit, folderName, categories }: CreateNoteInFolderModalProps) => {
   const { t } = useTranslation('dashboard');
 
+  const editor = useRichTextEditor({
+    content: newNote.content,
+    placeholder: t('modals.create.fields.contentPlaceholder'),
+    onUpdate: (html) => {
+      setNewNote({ ...newNote, content: html });
+    },
+  });
+
+  // Reset editor when modal opens/closes
+  useEffect(() => {
+    if (editor && isOpen) {
+      editor.commands.setContent(newNote.content || '');
+      // Ensure formatting state doesn't persist between openings
+      requestAnimationFrame(() => {
+        try {
+          editor.chain().focus('end').unsetAllMarks().clearNodes().setParagraph().setTextAlign('left').run();
+          const view: any = editor.view;
+          const { state, dispatch } = view || {};
+          if (state && dispatch) {
+            dispatch(state.tr.setStoredMarks([]));
+          }
+        } catch {}
+      });
+    }
+  }, [isOpen, editor]);
+
   // Khóa scroll của body khi modal mở
   useEffect(() => {
     if (isOpen) {
@@ -275,11 +302,8 @@ const CreateNoteInFolderModal = memo(({ isOpen, onClose, newNote, setNewNote, on
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
               {t('modals.create.fields.content')}
             </label>
-            <textarea
-              value={newNote.content}
-              onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 md-down:px-2.5 md-down:py-1.5 md-down:text-sm sm-down:px-2 sm-down:py-1.5 sm-down:text-sm sm-down:rows-2 xs-down:px-2 xs-down:py-1 xs-down:text-xs"
+            <RichTextEditor
+              editor={editor}
               placeholder={t('modals.create.fields.contentPlaceholder')}
             />
           </div>

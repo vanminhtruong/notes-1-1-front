@@ -114,6 +114,37 @@
     "noteCreateFailed": "노트를 생성할 수 없습니다",
     "noteUpdateFailed": "노트를 업데이트할 수 없습니다"
   },
+  "editor": {
+    "loading": "에디터 로딩 중...",
+    "link": {
+      "placeholder": "https://...",
+      "add": "추가",
+      "cancel": "취소",
+      "invalidUrl": "유효하지 않은 URL",
+      "inserted": "링크가 삽입되었습니다",
+      "addTitle": "링크 추가"
+    },
+    "toolbar": {
+      "bold": "굵게 (Ctrl+B)",
+      "italic": "기울임 (Ctrl+I)",
+      "underline": "밑줄 (Ctrl+U)",
+      "strike": "취소선",
+      "code": "코드",
+      "h1": "제목 1",
+      "h2": "제목 2",
+      "h3": "제목 3",
+      "bulletList": "글머리 기호 목록",
+      "orderedList": "번호 매기기 목록",
+      "alignLeft": "왼쪽 정렬",
+      "alignCenter": "가운데 정렬",
+      "alignRight": "오른쪽 정렬",
+      "alignJustify": "양쪽 맞춤",
+      "blockquote": "인용구",
+      "horizontalRule": "수평선",
+      "undo": "실행 취소 (Ctrl+Z)",
+      "redo": "다시 실행 (Ctrl+Y)"
+    }
+  },
   "modals": {
     "confirm": {
       "deleteTitle": "노트를 삭제하시겠습니까?",

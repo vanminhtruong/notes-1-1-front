@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { userService } from '@/services/userService';
 import { notesService } from '@/services/notesService';
 import { getTimeAgo } from '../../utils/timeUtils';
+import { sanitizeInlineHtml, getHtmlPreview } from '@/utils/htmlUtils';
 
 export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, onEditNote, onCreateFromNote }: SharedNoteItemProps) => {
   const { t, i18n } = useTranslation('dashboard');
@@ -231,9 +232,19 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
         </div>
 
         {sharedNote.note.content && (
-          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 pl-6">
-            {sharedNote.note.content}
-          </p>
+          <div
+            className="text-xs text-gray-600 dark:text-gray-300 pl-6"
+            style={{
+              display: 'block',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              width: '100%',
+              minWidth: 0
+            }}
+            title={getHtmlPreview(sharedNote.note.content, 500)}
+            dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(sharedNote.note.content || '') }}
+          />
         )}
 
         {/* Tags */}

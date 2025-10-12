@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import EditSharedNoteModal from '@/components/EditSharedNoteModal';
 import ViewSharedNoteModal from '@/pages/Dashboard/components/component-child/ViewSharedNoteModal';
 import { extractYouTubeId } from '@/utils/youtube';
+import { getHtmlPreview, sanitizeInlineHtml } from '@/utils/htmlUtils';
 
 interface SharedNoteData {
   id: number;
@@ -332,9 +333,19 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
         )}
       </div>
       
-      <p className={`text-gray-600 dark:text-gray-300 text-sm ${descMb} line-clamp-2`}>
-        {currentNote.content || t('messages.noContent')}
-      </p>
+      <div
+        className={`text-gray-600 dark:text-gray-300 text-sm ${descMb}`}
+        style={{
+          display: 'block',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          width: '100%',
+          minWidth: 0
+        }}
+        title={getHtmlPreview(currentNote.content || '', 500)}
+        dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(currentNote.content || '') }}
+      />
       
       {currentNote.videoUrl && (
         <div

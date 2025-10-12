@@ -5,6 +5,7 @@ import type { GroupSharedNote } from '@/services/notesService';
 import { notesService } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import { getTimeAgo } from '../../utils/timeUtils';
+import { getHtmlPreview, sanitizeInlineHtml } from '@/utils/htmlUtils';
 
 interface GroupSharedNoteItemProps {
   groupSharedNote: GroupSharedNote;
@@ -174,9 +175,19 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
           </div>
 
           {/* Note Content */}
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 pl-6 truncate">
-            {groupSharedNote.note.content || (t('notes.noContent') || 'No content')}
-          </p>
+          <div
+            className="text-sm text-gray-600 dark:text-gray-300 mb-2 pl-6"
+            style={{
+              display: 'block',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              width: '100%',
+              minWidth: 0
+            }}
+            title={getHtmlPreview(groupSharedNote.note.content, 500)}
+            dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(groupSharedNote.note.content || '') }}
+          />
 
           {/* Tags */}
           <div className="flex gap-2 items-center mb-2 pl-6">

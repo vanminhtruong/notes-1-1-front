@@ -3,6 +3,7 @@ import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play,
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
 import { extractYouTubeId } from '@/utils/youtube';
+import { getHtmlPreview, sanitizeInlineHtml } from '@/utils/htmlUtils';
 import PinButton from './PinButton';
 import type { Note as ServiceNote } from '@/services/notesService';
 import type { NoteCategory } from '@/services/notesService';
@@ -140,9 +141,21 @@ const NoteCard = memo(({
         </div>
       </div>
 
-      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 truncate md-down:text-xs sm-down:mb-3 xs-down:mb-2.5">
-        {note.content || t('messages.noContent')}
-      </p>
+      <div
+        className="text-gray-600 dark:text-gray-300 text-sm mb-4 md-down:text-xs sm-down:mb-3 xs-down:mb-2.5"
+        style={{
+          display: 'block',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          width: '100%',
+          minWidth: 0,
+          wordBreak: 'normal',
+          overflowWrap: 'normal'
+        }}
+        title={getHtmlPreview(note.content, 500)}
+        dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(note.content || '') }}
+      />
 
       {note.videoUrl && (
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 relative group">

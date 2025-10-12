@@ -18,7 +18,17 @@ export default {
         'sm-down': { max: '639px' },   // ≤ 639px
         'xs-down': { max: '479px' },   // ≤ 479px
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+          },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/line-clamp'),
+  ],
 }

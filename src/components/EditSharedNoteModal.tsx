@@ -6,6 +6,7 @@ import { notesService } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import { uploadService } from '@/services/uploadService';
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
+import { RichTextEditor, useRichTextEditor } from '@/components/RichTextEditor';
 
 interface SharedNoteData {
   id: number;
@@ -44,6 +45,14 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
   });
   const [activeMediaTab, setActiveMediaTab] = useState<'image' | 'video' | 'youtube'>('image');
 
+  const editor = useRichTextEditor({
+    content: formData.content,
+    placeholder: t('notes.modal.contentPlaceholder') || 'Nhập nội dung ghi chú...',
+    onUpdate: (html) => {
+      setFormData(prev => ({ ...prev, content: html }));
+    },
+  });
+
   // Disable body scroll when modal is open (reference-counted)
   useEffect(() => {
     if (isOpen) {
@@ -69,6 +78,24 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
       });
     }
   }, [note]);
+
+  // Update editor when note changes
+  useEffect(() => {
+    if (editor && note && isOpen) {
+      editor.commands.setContent(note.content || '');
+      // Reset formatting state so active marks/align don't persist across modal sessions
+      requestAnimationFrame(() => {
+        try {
+          editor.chain().focus('end').unsetAllMarks().clearNodes().setParagraph().setTextAlign('left').run();
+          const view: any = editor.view;
+          const { state, dispatch } = view || {};
+          if (state && dispatch) {
+            dispatch(state.tr.setStoredMarks([]));
+          }
+        } catch {}
+      });
+    }
+  }, [editor, note, isOpen]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -176,13 +203,9 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {t('notes.modal.contentLabel') || 'Nội dung'}
               </label>
-              <textarea
-                value={formData.content}
-                onChange={(e) => handleInputChange('content', e.target.value)}
-                rows={6}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none transition-colors"
+              <RichTextEditor
+                editor={editor}
                 placeholder={t('notes.modal.contentPlaceholder') || 'Nhập nội dung ghi chú...'}
-                disabled={isLoading}
               />
             </div>
 
