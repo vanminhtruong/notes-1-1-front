@@ -158,9 +158,10 @@ const CategoryNotesModal = ({ isOpen, onClose, category }: CategoryNotesModalPro
                   {/* Content */}
                   {note.content && (
                     <div className="mb-4 md-down:mb-3">
-                      <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-wrap lg-down:text-xs">
-                        {note.content}
-                      </p>
+                      <div 
+                        className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed lg-down:text-xs prose prose-sm dark:prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{ __html: note.content }}
+                      />
                     </div>
                   )}
 

@@ -1,15 +1,15 @@
 import { useState, useEffect, memo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { X, UserCheck, Users as UsersIcon, Search, Send } from 'lucide-react';
+import { X, Users, UserCheck, Send, Search } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
-import { notesService } from '../services/notesService';
-import { userService } from '../services/userService';
-import { chatService } from '../services/chatService';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-hot-toast';
+import { chatService } from '@/services/chatService';
+import { userService } from '@/services/userService';
 import { groupService, type GroupSummary } from '../services/groupService';
+import { notesService } from '@/services/notesService';
 import type { Note } from '../services/notesService';
-import toast from 'react-hot-toast';
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
-
+import { getHtmlPreview } from '@/utils/htmlUtils';
 interface User {
   id: number;
   name: string;
@@ -267,7 +267,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
               {note.title}
             </h4>
             <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-              {note.content || t('notes.noContent') || 'Không có nội dung'}
+              {note.content ? getHtmlPreview(note.content, 150) : (t('notes.noContent') || 'Không có nội dung')}
             </p>
             <div className="flex gap-2 mt-3">
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -320,7 +320,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <UsersIcon className="w-4 h-4" />
+                  <Users className="w-4 h-4" />
                   {t('notes.share.groups') || 'Nhóm'}
                 </div>
               </button>
@@ -374,7 +374,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
                   onClick={() => setSelectedTarget(null)}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-2"
                 >
-                  <UsersIcon className="w-4 h-4" />
+                  <Users className="w-4 h-4" />
                   <span className="text-sm">
                     {t('actions.cancel') || 'Hủy'}
                   </span>
@@ -421,7 +421,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
                       </div>
                       {target.type === 'group' && (
                         <div className="ml-auto">
-                          <UsersIcon className="w-4 h-4 text-gray-400" />
+                          <Users className="w-4 h-4 text-gray-400" />
                         </div>
                       )}
                     </button>
@@ -429,7 +429,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <UsersIcon className="w-8 h-8 mx-auto mb-2" />
+                  <Users className="w-8 h-8 mx-auto mb-2" />
                   <p className="text-sm">
                     {searchTerm 
                       ? (shareType === 'users' 

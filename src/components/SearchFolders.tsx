@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, X, FileText, Folder } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Search, X, Folder, FileText } from 'lucide-react';
 import { notesService, type NoteFolder, type Note } from '@/services/notesService';
+import { useTranslation } from 'react-i18next';
+import { sanitizeInlineHtml } from '@/utils/htmlUtils';
 import { getFolderIcon, getFolderColorClass } from '@/pages/Dashboard/utils/folderIcons';
 
 // Simple debounce implementation
@@ -206,9 +207,10 @@ const SearchFolders = ({ onSearch, onSelectFolder, onSelectNote, placeholder }: 
                       </div>
                     )}
                     {note.content && (
-                      <div className="text-sm xl-down:text-xs lg-down:text-xs md-down:text-[11px] sm-down:text-[10px] xs-down:text-[10px] text-gray-600 dark:text-gray-400 line-clamp-1 mt-1 xl-down:mt-0.5 lg-down:mt-0.5 md-down:mt-0.5 sm-down:mt-0.5 xs-down:mt-0.5">
-                        {note.content.replace(/<[^>]*>/g, '').substring(0, 100)}
-                      </div>
+                      <div 
+                        className="text-sm xl-down:text-xs lg-down:text-xs md-down:text-[11px] sm-down:text-[10px] xs-down:text-[10px] text-gray-600 dark:text-gray-400 line-clamp-1 mt-1 xl-down:mt-0.5 lg-down:mt-0.5 md-down:mt-0.5 sm-down:mt-0.5 xs-down:mt-0.5"
+                        dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(note.content) }}
+                      />
                     )}
                   </div>
                 </button>

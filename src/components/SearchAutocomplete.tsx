@@ -6,6 +6,7 @@ import { notesService } from '@/services/notesService';
 import type { SearchSuggestion } from '@/services/notesService';
 import { useTranslation } from 'react-i18next';
 import LazyLoad from './LazyLoad';
+import { sanitizeInlineHtml } from '@/utils/htmlUtils';
 
 interface SearchAutocompleteProps {
   onSearch?: (query: string) => void;
@@ -224,6 +225,15 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
     );
   };
 
+  // Highlight matched text in HTML
+  const highlightHtml = (html: string, searchQuery: string): string => {
+    if (!searchQuery.trim()) return sanitizeInlineHtml(html);
+    
+    const sanitized = sanitizeInlineHtml(html);
+    const regex = new RegExp(`(${searchQuery})`, 'gi');
+    return sanitized.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-600 text-gray-900 dark:text-white font-medium rounded px-0.5">$1</mark>');
+  };
+
   const getCategoryIcon = (iconName: string) => {
     const Icon = (LucideIcons as any)[iconName];
     return Icon || LucideIcons.Tag;
@@ -348,9 +358,10 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
 
                       {/* Snippet */}
                       {suggestion.snippet && (
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-1 sm:line-clamp-2 mb-1 sm:mb-1.5 md:mb-2">
-                          {highlightText(suggestion.snippet, query)}
-                        </p>
+                        <div 
+                          className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-1 sm:line-clamp-2 mb-1 sm:mb-1.5 md:mb-2"
+                          dangerouslySetInnerHTML={{ __html: highlightHtml(suggestion.snippet, query) }}
+                        />
                       )}
 
                       {/* Meta Info */}
