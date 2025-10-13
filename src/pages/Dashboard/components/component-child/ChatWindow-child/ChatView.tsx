@@ -1277,7 +1277,7 @@ const ChatView = memo(({
           <>
         {/* Pinned banner */}
         {!maskMessages && pinnedMessages.length > 0 && (
-          <div className="sticky top-0 z-30 pt-2 pb-2 mb-2 py-0 w-full backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-gray-900/70 border-b border-yellow-200/60 dark:border-yellow-700/40">
+          <div className="sticky top-0 z-30 pt-2 pb-2 mb-2 py-0 w-full backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-black/70 border-b border-yellow-200/60 dark:border-yellow-700/40">
             <div className="px-4 flex items-center gap-2 flex-wrap">
               <span className="inline-flex items-center gap-2 text-xs font-semibold text-yellow-800 dark:text-yellow-300">
                 <span className="inline-block w-2.5 h-2.5 bg-yellow-500 rounded-full" />
