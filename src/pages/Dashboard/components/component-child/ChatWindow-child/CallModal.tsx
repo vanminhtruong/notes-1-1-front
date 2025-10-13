@@ -32,11 +32,10 @@ interface CallModalProps {
 const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0, mediaType = 'audio', localStream = null, remoteStream = null, cameraOn = false, micOn = true, onAccept, onReject, onEnd, onToggleCamera, onToggleMic }: CallModalProps) => {
   const { t } = useTranslation('dashboard');
   const me = useAppSelector((s) => s.auth.user);
-  // Keep hooks order stable across renders: define refs/effects before any early return
+  
+  // ALL HOOKS MUST BE DEFINED BEFORE ANY EARLY RETURN
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
-
-  if (!open || mode === 'hidden') return null;
 
   const bindRemoteVideoRef = useCallback((node: HTMLVideoElement | null) => {
     remoteVideoRef.current = node;
@@ -65,6 +64,7 @@ const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0
       } catch {}
     }
   }, [localStream]);
+
   useEffect(() => {
     if (remoteVideoRef.current && remoteStream) {
       try {
@@ -77,6 +77,7 @@ const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0
       } catch {}
     }
   }, [remoteStream]);
+
   useEffect(() => {
     if (localVideoRef.current && localStream) {
       try {
@@ -89,7 +90,9 @@ const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0
       } catch {}
     }
   }, [localStream]);
-  if (!open) return null;
+
+  // EARLY RETURN AFTER ALL HOOKS
+  if (!open || mode === 'hidden') return null;
   const pad = (n: number) => String(n).padStart(2, '0');
   const mins = Math.floor(elapsedSeconds / 60);
   const secs = elapsedSeconds % 60;

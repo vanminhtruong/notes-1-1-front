@@ -54,6 +54,12 @@
     "deleteCurrentWarning": "You will be logged out from the current device.",
     "deleteDevice": "Delete this device"
   },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "darkBlack": "Dark Black",
+    "selectTheme": "Select theme"
+  },
   "footer": {
     "copyright": "All rights reserved",
     "privacy": "Privacy",

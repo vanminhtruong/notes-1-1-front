@@ -20,12 +20,16 @@
             }
           } catch(_) {}
           var saved = lsTheme || cookieTheme;
-          if (saved === 'dark' || (!saved && (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches))) {
+          if (saved === 'dark-black') {
+            d.classList.add('dark', 'dark-black');
+            d.style.colorScheme = 'dark';
+            document.body && (document.body.style.backgroundColor = '#000000');
+          } else if (saved === 'dark' || (!saved && (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches))) {
             d.classList.add('dark');
             d.style.colorScheme = 'dark';
             document.body && (document.body.style.backgroundColor = '#0a0a0a');
           } else {
-            d.classList.remove('dark');
+            d.classList.remove('dark', 'dark-black');
             d.style.colorScheme = 'light';
             document.body && (document.body.style.backgroundColor = '#ffffff');
           }

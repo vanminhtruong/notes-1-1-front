@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { settingsService } from '@/services/settingsService';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'dark-black';
 
 interface ThemeContextType {
   theme: Theme;
+  setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
 }
 
@@ -20,7 +21,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         const cookieTheme = document.cookie.split(';').find(c => c.trim().startsWith('theme='));
         savedTheme = cookieTheme ? cookieTheme.split('=')[1].trim() : null;
       }
-      if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme as Theme;
+      if (savedTheme === 'dark' || savedTheme === 'light' || savedTheme === 'dark-black') return savedTheme as Theme;
       // Fallback to system preference
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       return prefersDark ? 'dark' : 'light';
@@ -44,7 +45,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         // Check if cookie already exists - if so, skip backend call to prevent flash
         const cookieTheme = document.cookie.split(';').find(c => c.trim().startsWith('theme='));
         const savedTheme = cookieTheme ? cookieTheme.split('=')[1].trim() : null;
-        if (savedTheme === 'dark' || savedTheme === 'light') {
+        if (savedTheme === 'dark' || savedTheme === 'light' || savedTheme === 'dark-black') {
           return; // Cookie exists, don't override
         }
 
@@ -61,8 +62,13 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   // Apply theme class to document and persist to localStorage
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
+    root.classList.remove('light', 'dark', 'dark-black');
+    // For dark-black, add both 'dark' and 'dark-black' classes
+    if (theme === 'dark-black') {
+      root.classList.add('dark', 'dark-black');
+    } else {
+      root.classList.add(theme);
+    }
     try { localStorage.setItem('theme', theme); } catch {}
     try {
       const expires = new Date();
@@ -70,6 +76,20 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       document.cookie = `theme=${theme}; expires=${expires.toUTCString()}; path=/; samesite=lax`;
     } catch {}
   }, [theme]);
+
+  const changeTheme = (newTheme: Theme) => {
+    setTheme(newTheme);
+    // Persist to backend only if authenticated
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (token) {
+        // fire-and-forget
+        settingsService.setTheme(newTheme).catch(() => {
+          // Optionally revert on error; keep current UX simple and optimistic
+        });
+      }
+    } catch {}
+  };
 
   const toggleTheme = () => {
     setTheme(prev => {
@@ -89,7 +109,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme: changeTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -99,18 +119,20 @@ export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
     // Safe fallback to avoid crashes if used outside provider during fast reloads
-    const isDark = (() => {
+    const currentTheme: Theme = (() => {
       try {
         const ls = localStorage.getItem('theme');
-        if (ls === 'dark' || ls === 'light') return ls === 'dark';
+        if (ls === 'dark' || ls === 'light' || ls === 'dark-black') return ls as Theme;
       } catch {}
-      return document.documentElement.classList.contains('dark');
+      if (document.documentElement.classList.contains('dark-black')) return 'dark-black';
+      if (document.documentElement.classList.contains('dark')) return 'dark';
+      return 'light';
     })();
     const toggleTheme = () => {
       try {
-        const next = isDark ? 'light' : 'dark';
+        const next = currentTheme === 'light' ? 'dark' : 'light';
         const root = document.documentElement;
-        root.classList.remove('light', 'dark');
+        root.classList.remove('light', 'dark', 'dark-black');
         root.classList.add(next);
         try { localStorage.setItem('theme', next); } catch {}
         const expires = new Date();
@@ -118,7 +140,22 @@ export const useTheme = () => {
         document.cookie = `theme=${next}; expires=${expires.toUTCString()}; path=/; samesite=lax`;
       } catch {}
     };
-    return { theme: isDark ? 'dark' as const : 'light' as const, toggleTheme };
+    const setTheme = (theme: Theme) => {
+      try {
+        const root = document.documentElement;
+        root.classList.remove('light', 'dark', 'dark-black');
+        if (theme === 'dark-black') {
+          root.classList.add('dark', 'dark-black');
+        } else {
+          root.classList.add(theme);
+        }
+        try { localStorage.setItem('theme', theme); } catch {}
+        const expires = new Date();
+        expires.setFullYear(expires.getFullYear() + 1);
+        document.cookie = `theme=${theme}; expires=${expires.toUTCString()}; path=/; samesite=lax`;
+      } catch {}
+    };
+    return { theme: currentTheme, setTheme, toggleTheme };
   }
   return context;
 };

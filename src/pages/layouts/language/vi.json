@@ -53,6 +53,12 @@
     "deleteCurrentWarning": "Bạn sẽ bị đăng xuất khỏi thiết bị hiện tại.",
     "deleteDevice": "Xóa thiết bị này"
   },
+  "theme": {
+    "light": "Sáng",
+    "dark": "Tối",
+    "darkBlack": "Tối Đen",
+    "selectTheme": "Chọn chế độ hiển thị"
+  },
   "footer": {
     "copyright": "Tất cả quyền được bảo lưu",
     "privacy": "Bảo mật",

@@ -1,7 +1,7 @@
 import '@/polyfills/global'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import '@/styles/global.css'
+import '@/styles/global.scss'
 import { RouterProvider } from 'react-router-dom'
 import router from '@routes/index'
 import { Provider } from 'react-redux'

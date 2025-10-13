@@ -124,3 +124,58 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px #374151 inset !important;
   -webkit-text-fill-color: white !important;
 }
+
+// Import theme variants generator
+@import './theme-variants';
+
+.dark-black input:-webkit-autofill,
+.dark-black input:-webkit-autofill:hover,
+.dark-black input:-webkit-autofill:focus,
+.dark-black input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #000000 inset !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* ========================================
+ * Dark Black Theme
+ * ========================================
+ * Generated using theme variants mixin
+ * To create a new dark theme variant, use:
+ * 
+ * @include generate-dark-theme(
+ *   $theme-class: 'your-theme-name',
+ *   $bg-base: #your-base-color,
+ *   $bg-elevated: #your-elevated-color,
+ *   $bg-card: #your-card-color,
+ *   $bg-hover: #your-hover-color,
+ *   $border-color: #your-border-color,
+ *   $border-hover: #your-border-hover-color,
+ *   $text-muted: #your-text-color
+ * );
+ */
+
+.dark-black {
+  color-scheme: dark;
+  background-color: #000000;
+  color: #e5e7eb;
+}
+
+.dark-black body,
+.dark-black #root {
+  background-color: #000000;
+  color: #e5e7eb;
+}
+
+// Generate dark-black theme overrides
+@include generate-dark-theme(
+  $theme-class: 'dark-black',
+  $bg-base: #000000,
+  $bg-elevated: #0a0a0a,
+  $bg-card: #1a1a1a,
+  $bg-hover: #2a2a2a,
+  $border-color: #1a1a1a,
+  $border-hover: #4a4a4a,
+  $text-muted: #9ca3af
+);
+
+

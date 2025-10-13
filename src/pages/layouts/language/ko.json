@@ -52,6 +52,12 @@
     "deleteCurrentWarning": "현재 기기에서 로그아웃됩니다.",
     "deleteDevice": "이 기기 삭제"
   },
+  "theme": {
+    "light": "밝게",
+    "dark": "어둡게",
+    "darkBlack": "다크 블랙",
+    "selectTheme": "테마 선택"
+  },
   "footer": {
     "copyright": "모든 권리 보유",
     "privacy": "개인정보처리방침",

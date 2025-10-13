@@ -1,0 +1,530 @@
+/**
+ * Theme Variants Generator
+ * Generates dark theme overrides for custom color schemes
+ * 
+ * Usage:
+ * @include generate-dark-theme(
+ *   $theme-class: 'dark-black',
+ *   $bg-base: #000000,
+ *   $bg-elevated: #0a0a0a,
+ *   $bg-card: #1a1a1a,
+ *   $bg-hover: #2a2a2a,
+ *   $border-color: #1a1a1a,
+ *   $text-muted: #9ca3af
+ * );
+ */
+
+@mixin generate-dark-theme(
+  $theme-class,
+  $bg-base: #000000,
+  $bg-elevated: #0a0a0a,
+  $bg-card: #1a1a1a,
+  $bg-hover: #2a2a2a,
+  $border-color: #1a1a1a,
+  $border-hover: #4a4a4a,
+  $text-muted: #9ca3af
+) {
+  // Base page structure
+  .#{$theme-class} html,
+  .#{$theme-class} body,
+  .#{$theme-class} #root {
+    background-color: $bg-base !important;
+  }
+
+  // ========================================
+  // Gray Family Backgrounds
+  // ========================================
+  
+  // Solid backgrounds
+  .#{$theme-class} .dark\:bg-gray-950,
+  .#{$theme-class} [class*="dark:bg-gray-95"] {
+    background-color: $bg-base !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-900,
+  .#{$theme-class} [class*="dark:bg-gray-9"] {
+    background-color: $bg-elevated !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-800,
+  .#{$theme-class} [class*="dark:bg-gray-8"] {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-700,
+  .#{$theme-class} .dark\:bg-gray-600,
+  .#{$theme-class} [class*="dark:bg-gray-7"],
+  .#{$theme-class} [class*="dark:bg-gray-6"] {
+    background-color: $bg-hover !important;
+  }
+
+  // Backgrounds with opacity
+  .#{$theme-class} .dark\:bg-gray-900\/90,
+  .#{$theme-class} .dark\:bg-gray-900\/80,
+  .#{$theme-class} .dark\:bg-gray-900\/70,
+  .#{$theme-class} .dark\:bg-gray-900\/60,
+  .#{$theme-class} .dark\:bg-gray-900\/50 {
+    background-color: rgba($bg-base, 0.95) !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-800\/90,
+  .#{$theme-class} .dark\:bg-gray-800\/80,
+  .#{$theme-class} .dark\:bg-gray-800\/70,
+  .#{$theme-class} .dark\:bg-gray-800\/60,
+  .#{$theme-class} .dark\:bg-gray-800\/50 {
+    background-color: transparent !important;
+  }
+  
+  // Mobile-specific backgrounds should be transparent or very dark  
+  // Note: Tailwind responsive utilities don't need escaping for the breakpoint prefix
+  .#{$theme-class} [class*="md-down:dark:bg-gray-800"],
+  .#{$theme-class} [class*="md-down:dark:bg-gray-900"] {
+    background-color: transparent !important;
+  }
+  
+  // Active tab/button backgrounds with blue - make them visible but dark
+  .#{$theme-class} .dark\:bg-blue-900\/30,
+  .#{$theme-class} .dark\:bg-blue-900\/20,
+  .#{$theme-class} .dark\:bg-blue-100 {
+    background-color: rgba($bg-card, 0.5) !important;
+  }
+  
+  // Input fields need visible border in dark-black
+  .#{$theme-class} input[class*="bg-gray"],
+  .#{$theme-class} textarea[class*="bg-gray"],
+  .#{$theme-class} input[class*="dark:bg-gray"],
+  .#{$theme-class} textarea[class*="dark:bg-gray"] {
+    background-color: rgba($bg-card, 0.3) !important;
+  }
+  
+  // Force border for inputs that have border-0
+  .#{$theme-class} input.border-0,
+  .#{$theme-class} textarea.border-0 {
+    border: 1px solid rgba($border-color, 0.5) !important;
+  }
+  
+  // Focus state for all inputs
+  .#{$theme-class} input:focus,
+  .#{$theme-class} textarea:focus {
+    border-color: rgba($border-hover, 0.8) !important;
+    outline: none !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-700\/90,
+  .#{$theme-class} .dark\:bg-gray-700\/80,
+  .#{$theme-class} .dark\:bg-gray-700\/70,
+  .#{$theme-class} .dark\:bg-gray-700\/60,
+  .#{$theme-class} .dark\:bg-gray-700\/50 {
+    background-color: rgba($bg-card, 0.85) !important;
+  }
+
+  // ========================================
+  // Neutral/Slate/Zinc/Stone Families
+  // ========================================
+  
+  .#{$theme-class} .dark\:bg-neutral-950,
+  .#{$theme-class} .dark\:bg-neutral-900 {
+    background-color: $bg-base !important;
+  }
+
+  .#{$theme-class} .dark\:bg-neutral-800,
+  .#{$theme-class} .dark\:bg-slate-900,
+  .#{$theme-class} .dark\:bg-slate-800,
+  .#{$theme-class} .dark\:bg-zinc-900,
+  .#{$theme-class} .dark\:bg-zinc-800,
+  .#{$theme-class} .dark\:bg-stone-900,
+  .#{$theme-class} .dark\:bg-stone-800 {
+    background-color: $bg-elevated !important;
+  }
+
+  // ========================================
+  // Light Mode Backgrounds in Dark Theme
+  // ========================================
+  
+  .#{$theme-class} .bg-white,
+  .#{$theme-class} .bg-gray-50,
+  .#{$theme-class} .bg-gray-100 {
+    background-color: $bg-elevated !important;
+  }
+
+  .#{$theme-class} .bg-white\/90,
+  .#{$theme-class} .bg-white\/80,
+  .#{$theme-class} .bg-white\/70,
+  .#{$theme-class} .bg-white\/50 {
+    background-color: rgba($bg-elevated, 0.9) !important;
+  }
+
+  .#{$theme-class} .bg-gray-50\/70,
+  .#{$theme-class} .bg-gray-50\/80,
+  .#{$theme-class} .from-gray-50\/70,
+  .#{$theme-class} .to-white\/50 {
+    background-color: $bg-elevated !important;
+    --tw-gradient-from: $bg-elevated !important;
+    --tw-gradient-to: $bg-elevated !important;
+  }
+
+  // ========================================
+  // Borders
+  // ========================================
+  
+  .#{$theme-class} .dark\:border-gray-900,
+  .#{$theme-class} .dark\:border-gray-800,
+  .#{$theme-class} .dark\:border-gray-700,
+  .#{$theme-class} .dark\:border-gray-600 {
+    border-color: $border-color !important;
+  }
+
+  .#{$theme-class} .dark\:border-neutral-700,
+  .#{$theme-class} .dark\:border-neutral-600,
+  .#{$theme-class} .dark\:border-slate-700,
+  .#{$theme-class} .dark\:border-slate-600,
+  .#{$theme-class} .dark\:border-zinc-700,
+  .#{$theme-class} .dark\:border-zinc-600,
+  .#{$theme-class} .dark\:border-stone-700,
+  .#{$theme-class} .dark\:border-stone-600 {
+    border-color: $border-color !important;
+  }
+
+  // ========================================
+  // Gradients
+  // ========================================
+  
+  .#{$theme-class} .dark\:from-gray-950,
+  .#{$theme-class} [class*="dark:from-gray-9"] {
+    --tw-gradient-from: $bg-base !important;
+    --tw-gradient-to: rgb(0 0 0 / 0) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  .#{$theme-class} .dark\:to-gray-950,
+  .#{$theme-class} [class*="dark:to-gray-9"] {
+    --tw-gradient-to: $bg-base !important;
+  }
+
+  .#{$theme-class} .dark\:from-gray-900\/60,
+  .#{$theme-class} .dark\:from-gray-900\/70,
+  .#{$theme-class} .dark\:via-gray-900\/60,
+  .#{$theme-class} .dark\:via-gray-900\/70,
+  .#{$theme-class} .dark\:to-gray-800 {
+    --tw-gradient-from: $bg-base !important;
+    --tw-gradient-to: $bg-base !important;
+  }
+
+  .#{$theme-class} .dark\:from-gray-800\/60,
+  .#{$theme-class} .dark\:from-gray-800\/70,
+  .#{$theme-class} .dark\:to-gray-800\/40,
+  .#{$theme-class} .dark\:to-gray-800\/50 {
+    --tw-gradient-from: $bg-elevated !important;
+    --tw-gradient-to: $bg-elevated !important;
+  }
+
+  // Light mode gradients override
+  .#{$theme-class} .from-slate-50,
+  .#{$theme-class} .via-blue-50,
+  .#{$theme-class} .to-indigo-100,
+  .#{$theme-class} .from-gray-50,
+  .#{$theme-class} .to-white,
+  .#{$theme-class} .from-white,
+  .#{$theme-class} .to-gray-50,
+  .#{$theme-class} .from-blue-50,
+  .#{$theme-class} .to-purple-50 {
+    --tw-gradient-from: $bg-base !important;
+    --tw-gradient-to: $bg-base !important;
+    --tw-gradient-via: $bg-base !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  // ========================================
+  // Blue/Colorful Elements Override
+  // ========================================
+  
+  // Blue backgrounds
+  .#{$theme-class} .bg-blue-600,
+  .#{$theme-class} .bg-blue-500,
+  .#{$theme-class} .bg-blue-700,
+  .#{$theme-class} .bg-blue-800 {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} .bg-blue-50,
+  .#{$theme-class} .bg-blue-100 {
+    background-color: rgba($bg-card, 0.6) !important;
+  }
+
+  // Blue hover states
+  .#{$theme-class} .hover\:bg-blue-700:hover,
+  .#{$theme-class} .hover\:bg-blue-600:hover,
+  .#{$theme-class} .hover\:bg-blue-500:hover {
+    background-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} .hover\:bg-blue-50:hover,
+  .#{$theme-class} .hover\:bg-blue-100:hover {
+    background-color: $bg-card !important;
+  }
+
+  // Blue borders
+  .#{$theme-class} .border-blue-500,
+  .#{$theme-class} .border-blue-600,
+  .#{$theme-class} .border-blue-700,
+  .#{$theme-class} .border-blue-300,
+  .#{$theme-class} .border-blue-400 {
+    border-color: $bg-hover !important;
+  }
+
+  // Blue text
+  .#{$theme-class} .text-blue-600,
+  .#{$theme-class} .text-blue-500,
+  .#{$theme-class} .text-blue-400 {
+    color: $text-muted !important;
+  }
+
+  // Dark mode blue overrides
+  .#{$theme-class} .dark\:bg-blue-900\/20,
+  .#{$theme-class} .dark\:bg-blue-800,
+  .#{$theme-class} .dark\:bg-blue-900 {
+    background-color: rgba($bg-card, 0.6) !important;
+  }
+
+  .#{$theme-class} .dark\:hover\:bg-blue-900\/20:hover,
+  .#{$theme-class} .dark\:hover\:bg-blue-800:hover {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} .dark\:border-blue-700,
+  .#{$theme-class} .dark\:border-blue-600,
+  .#{$theme-class} .dark\:border-blue-500 {
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} .dark\:text-blue-400,
+  .#{$theme-class} .dark\:text-blue-300 {
+    color: $text-muted !important;
+  }
+
+  // Comprehensive blue catches
+  .#{$theme-class} [class*="bg-blue-"] {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} [class*="hover:bg-blue-"]:hover {
+    background-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} [class*="border-blue-"] {
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} [class*="text-blue-"] {
+    color: $text-muted !important;
+  }
+
+  .#{$theme-class} [class*="dark:bg-blue-"] {
+    background-color: rgba($bg-card, 0.6) !important;
+  }
+
+  .#{$theme-class} [class*="dark:hover:bg-blue-"]:hover {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} [class*="dark:border-blue-"] {
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} [class*="dark:text-blue-"] {
+    color: $text-muted !important;
+  }
+
+  // ========================================
+  // Colorful Gradients (RotatingCube, etc.)
+  // ========================================
+  
+  .#{$theme-class} .from-blue-500,
+  .#{$theme-class} .from-blue-600,
+  .#{$theme-class} .from-blue-700,
+  .#{$theme-class} .via-blue-600,
+  .#{$theme-class} .via-blue-700,
+  .#{$theme-class} .to-purple-600,
+  .#{$theme-class} .to-purple-700,
+  .#{$theme-class} .from-purple-500,
+  .#{$theme-class} .from-purple-600,
+  .#{$theme-class} .to-pink-600,
+  .#{$theme-class} .from-green-500,
+  .#{$theme-class} .via-emerald-600,
+  .#{$theme-class} .to-teal-600,
+  .#{$theme-class} .from-orange-500,
+  .#{$theme-class} .via-red-500,
+  .#{$theme-class} .to-rose-600,
+  .#{$theme-class} .from-yellow-400,
+  .#{$theme-class} .via-amber-500,
+  .#{$theme-class} .to-orange-600,
+  .#{$theme-class} .from-indigo-600,
+  .#{$theme-class} .via-blue-700 {
+    --tw-gradient-from: $bg-card !important;
+    --tw-gradient-to: $bg-card !important;
+    --tw-gradient-via: $bg-card !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  .#{$theme-class} .hover\:from-blue-700:hover,
+  .#{$theme-class} .hover\:to-purple-700:hover {
+    --tw-gradient-from: $bg-hover !important;
+    --tw-gradient-to: $bg-hover !important;
+  }
+
+  // Override all gradient directions
+  .#{$theme-class} [class*="bg-gradient-to-"] {
+    background: $bg-card !important;
+    background-image: none !important;
+  }
+
+  .#{$theme-class} button.bg-gradient-to-r,
+  .#{$theme-class} button[class*="bg-gradient-"] {
+    background: $bg-card !important;
+    background-image: none !important;
+  }
+
+  .#{$theme-class} button.bg-gradient-to-r:hover,
+  .#{$theme-class} button[class*="bg-gradient-"]:hover {
+    background: $bg-hover !important;
+    background-image: none !important;
+  }
+
+  // Colorful borders
+  .#{$theme-class} .border-blue-300\/30,
+  .#{$theme-class} .border-purple-300\/30,
+  .#{$theme-class} .border-green-300\/30,
+  .#{$theme-class} .border-orange-300\/30,
+  .#{$theme-class} .border-yellow-300\/30,
+  .#{$theme-class} .border-indigo-300\/30 {
+    border-color: rgba($bg-hover, 0.3) !important;
+  }
+
+  // Particle effects
+  .#{$theme-class} .bg-blue-400\/60,
+  .#{$theme-class} .bg-blue-400\/20,
+  .#{$theme-class} .from-blue-400\/20,
+  .#{$theme-class} .via-purple-400\/10 {
+    background-color: rgba($bg-card, 0.6) !important;
+    --tw-gradient-from: rgba($bg-card, 0.2) !important;
+    --tw-gradient-via: rgba($bg-elevated, 0.1) !important;
+  }
+
+  // ========================================
+  // Hover States
+  // ========================================
+  
+  .#{$theme-class} .hover\:bg-gray-100:hover,
+  .#{$theme-class} .hover\:bg-gray-200:hover,
+  .#{$theme-class} .hover\:bg-gray-50:hover,
+  .#{$theme-class} .dark\:hover\:bg-gray-700:hover,
+  .#{$theme-class} .dark\:hover\:bg-gray-800:hover,
+  .#{$theme-class} .dark\:hover\:bg-gray-900:hover {
+    background-color: $bg-card !important;
+  }
+
+  // ========================================
+  // Special Overrides
+  // ========================================
+  
+  // Radial gradients
+  .#{$theme-class} .bg-gradient-radial {
+    background: radial-gradient(circle at center, rgba($bg-card, 0.6), transparent) !important;
+  }
+
+  // Gradient combinations
+  .#{$theme-class} .bg-gradient-to-br[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-bl[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-tr[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-tl[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-t[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-b[class*="from-"] {
+    background-image: linear-gradient(to bottom, $bg-base, $bg-elevated) !important;
+  }
+
+  // Inline styled backgrounds
+  .#{$theme-class} [style*="backgroundColor"] {
+    background-color: rgba($bg-card, 0.95) !important;
+    background-image: none !important;
+  }
+
+  .#{$theme-class} [style*="color"]:not([style*="backgroundColor"]) {
+    opacity: 0.85 !important;
+    filter: saturate(0.7) brightness(0.85) !important;
+  }
+
+  // Buttons with blue
+  .#{$theme-class} button[class*="bg-blue"],
+  .#{$theme-class} a[class*="bg-blue"] {
+    background-color: $bg-card !important;
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} button[class*="bg-blue"]:hover,
+  .#{$theme-class} a[class*="bg-blue"]:hover {
+    background-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} .fixed[class*="bg-blue"],
+  .#{$theme-class} .absolute[class*="bg-blue"] {
+    background-color: $bg-card !important;
+  }
+
+  // Shadows
+  .#{$theme-class} [class*="shadow-"] {
+    --tw-shadow-color: rgba(0, 0, 0, 0.8) !important;
+  }
+
+  // Text visibility
+  .#{$theme-class} .text-white,
+  .#{$theme-class} button.text-white,
+  .#{$theme-class} a.text-white {
+    color: #e5e7eb !important;
+  }
+
+  // Ring/Focus states
+  .#{$theme-class} .focus\:ring-blue-500,
+  .#{$theme-class} .focus\:ring-2,
+  .#{$theme-class} .focus\:border-blue-500 {
+    --tw-ring-color: rgba($bg-hover, 0.5) !important;
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} .ring-blue-500 {
+    --tw-ring-color: rgba($bg-hover, 0.5) !important;
+  }
+
+  .#{$theme-class} [class*="ring-blue-"],
+  .#{$theme-class} [class*="focus:ring-blue-"] {
+    --tw-ring-color: rgba($bg-hover, 0.5) !important;
+  }
+
+  // Tab borders
+  .#{$theme-class} [class*="border-b-2"][class*="border-blue"],
+  .#{$theme-class} [class*="border-b-4"][class*="border-blue"] {
+    border-bottom-color: $border-hover !important;
+  }
+
+  // White text on blue backgrounds
+  .#{$theme-class} .bg-blue-600.text-white,
+  .#{$theme-class} .bg-blue-500.text-white,
+  .#{$theme-class} .bg-blue-700.text-white {
+    background-color: $bg-card !important;
+    color: #e5e7eb !important;
+  }
+
+  // Active/selected states
+  .#{$theme-class} [class*="bg-blue"][class*="text-white"],
+  .#{$theme-class} button[class*="bg-blue"],
+  .#{$theme-class} a[class*="bg-blue"] {
+    background-color: $bg-card !important;
+    color: #e5e7eb !important;
+  }
+
+  // Blue icon/SVG fills
+  .#{$theme-class} .text-blue-600 svg,
+  .#{$theme-class} .text-blue-500 svg,
+  .#{$theme-class} .text-blue-400 svg {
+    color: $text-muted !important;
+  }
+}
