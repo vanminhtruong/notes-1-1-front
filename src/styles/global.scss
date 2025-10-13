@@ -136,23 +136,6 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: white !important;
 }
 
-/* ========================================
- * Dark Black Theme
- * ========================================
- * Generated using theme variants mixin
- * To create a new dark theme variant, use:
- * 
- * @include generate-dark-theme(
- *   $theme-class: 'your-theme-name',
- *   $bg-base: #your-base-color,
- *   $bg-elevated: #your-elevated-color,
- *   $bg-card: #your-card-color,
- *   $bg-hover: #your-hover-color,
- *   $border-color: #your-border-color,
- *   $border-hover: #your-border-hover-color,
- *   $text-muted: #your-text-color
- * );
- */
 
 .dark-black {
   color-scheme: dark;

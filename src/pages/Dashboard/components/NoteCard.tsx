@@ -157,7 +157,7 @@ const NoteCard = memo(({
         dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(note.content || '') }}
       />
 
-      {note.videoUrl && (
+      {note.videoUrl ? (
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 relative group">
           <video
             src={note.videoUrl}
@@ -170,15 +170,11 @@ const NoteCard = memo(({
             <Play className="w-12 h-12 text-white" />
           </div>
         </div>
-      )}
-
-      {note.imageUrl && !note.videoUrl && (
+      ) : note.imageUrl ? (
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5">
           <img src={note.imageUrl} alt={note.title} className="w-full h-40 object-cover rounded-xl border lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
         </div>
-      )}
-      
-      {note.youtubeUrl && extractYouTubeId(note.youtubeUrl) && (
+      ) : note.youtubeUrl && extractYouTubeId(note.youtubeUrl) ? (
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 relative group">
           <img 
             src={`https://img.youtube.com/vi/${extractYouTubeId(note.youtubeUrl)}/hqdefault.jpg`} 
@@ -189,6 +185,8 @@ const NoteCard = memo(({
             <Play className="w-12 h-12 text-white" />
           </div>
         </div>
+      ) : (
+        <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 h-40 lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
       )}
 
       <div className="flex items-center justify-between sm-down:flex-col sm-down:gap-2 sm-down:items-start">

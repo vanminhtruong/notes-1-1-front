@@ -347,7 +347,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
         dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(currentNote.content || '') }}
       />
       
-      {currentNote.videoUrl && (
+      {currentNote.videoUrl ? (
         <div
           className={`${imgMb} relative z-10`}
           onClick={(e) => e.stopPropagation()}
@@ -389,9 +389,11 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
             style={{ pointerEvents: 'auto' }}
           />
         </div>
-      )}
-      
-      {currentNote.youtubeUrl && extractYouTubeId(currentNote.youtubeUrl) && (
+      ) : currentNote.imageUrl ? (
+        <div className={`${imgMb}`}>
+          <img src={currentNote.imageUrl} alt={currentNote.title} className={`w-full ${imgH} object-cover rounded-xl border`} />
+        </div>
+      ) : currentNote.youtubeUrl && extractYouTubeId(currentNote.youtubeUrl) ? (
         <button
           type="button"
           className={`${imgMb} relative group w-full text-left`}
@@ -406,6 +408,8 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
             <Play className="w-8 h-8 text-white" />
           </div>
         </button>
+      ) : (
+        <div className={`${imgMb} ${imgH}`} />
       )}
       
       <div className="flex items-center justify-between">

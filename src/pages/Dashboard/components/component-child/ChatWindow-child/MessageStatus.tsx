@@ -204,11 +204,9 @@ const MessageStatus = memo(({ message, isOwnMessage, currentUserId, allMessages 
   };
 
   return (
-    <div className="flex items-center justify-end mt-1 px-1">
-      <div className="flex items-center gap-1">
-        {renderStatusIcon()}
-        {renderReadByAvatars()}
-      </div>
+    <div className="flex items-center gap-1">
+      {renderStatusIcon()}
+      {renderReadByAvatars()}
     </div>
   );
 });

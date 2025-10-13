@@ -557,11 +557,25 @@ const MessageBubble = memo(({
 
   return (
     <Tooltip.Provider delayDuration={150} skipDelayDuration={250}>
-    <div id={`message-${message.id}`} className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'}`}
+    <div id={`message-${message.id}`} className={`relative group flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
          onMouseLeave={() => setShowReactions(false)}>
-      <div className="relative">
+      <div className="inline-flex flex-col">
         <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
-          {renderContent()}
+          <div className={`relative`}>
+            {renderContent()}
+            {/* Reply button - positioned to the left of message content */}
+            {!isRecalled && !isCallLogMessage && onReplyMessage && (
+              <button
+                type="button"
+                className={`absolute ${isOwnMessage ? '-left-8' : '-right-8'} top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-600 dark:text-gray-300 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity hover:bg-gray-50 dark:hover:bg-gray-700`}
+                onClick={() => onReplyMessage(message)}
+                title={t('chat.reply.button', 'Trả lời tin nhắn')}
+                aria-label={t('chat.reply.button', 'Trả lời tin nhắn')}
+              >
+                <Reply className="w-4 h-4" />
+              </button>
+            )}
+          </div>
           {isPinned && (
             <div className={`mt-1 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full ${isOwnMessage ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
               <Pin className="w-3 h-3" />
@@ -610,51 +624,62 @@ const MessageBubble = memo(({
             })()}
           </div>
         )}
-          <MessageStatus 
-            message={message} 
-            isOwnMessage={isOwnMessage} 
-            currentUserId={currentUserId}
-            allMessages={allMessages}
-          />
+        </div>
+        
+        {/* Status and Reaction row */}
+        <div className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+            {/* Reaction trigger - show before status for own messages */}
+            {!isRecalled && !disableReactions && isOwnMessage && (
+              <button
+                type="button"
+                className="w-4 h-4 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
+                onMouseEnter={() => setShowReactions(true)}
+                onFocus={() => setShowReactions(true)}
+                onClick={() => {
+                  const already = myTypes.includes('love');
+                  handleReact('love', already);
+                  enqueueBurst('❤️', 1);
+                }}
+                title={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
+                aria-label={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
+              >
+                <span className="text-[10px] leading-none">❤️</span>
+              </button>
+            )}
+            
+            <MessageStatus 
+              message={message} 
+              isOwnMessage={isOwnMessage} 
+              currentUserId={currentUserId}
+              allMessages={allMessages}
+            />
+            
+            {/* Reaction trigger - show after status for received messages */}
+            {!isRecalled && !disableReactions && !isOwnMessage && (
+              <button
+                type="button"
+                className="w-4 h-4 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
+                onMouseEnter={() => setShowReactions(true)}
+                onFocus={() => setShowReactions(true)}
+                onClick={() => {
+                  const already = myTypes.includes('love');
+                  handleReact('love', already);
+                  enqueueBurst('❤️', 1);
+                }}
+                title={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
+                aria-label={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
+              >
+                <span className="text-[10px] leading-none">❤️</span>
+              </button>
+            )}
         </div>
       </div>
-      {/* Reply button - positioned to the left of message */}
-      {!isRecalled && !isCallLogMessage && onReplyMessage && (
-        <button
-          type="button"
-          className={`absolute ${isOwnMessage ? '-left-8' : '-left-8'} top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-600 dark:text-gray-300 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity hover:bg-gray-50 dark:hover:bg-gray-700`}
-          onClick={() => onReplyMessage(message)}
-          title={t('chat.reply.button', 'Trả lời tin nhắn')}
-          aria-label={t('chat.reply.button', 'Trả lời tin nhắn')}
-        >
-          <Reply className="w-4 h-4" />
-        </button>
-      )}
 
-      {/* Reaction trigger */}
-      {!isRecalled && !disableReactions && (
-        <div className={`absolute ${isOwnMessage ? 'right-0' : 'left-0'} -bottom-3 flex ${isOwnMessage ? 'flex-row-reverse' : ''} items-center gap-2`}>
-          {/* Quick heart */}
-          <button
-            type="button"
-            className="p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-sm opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
-            onMouseEnter={() => setShowReactions(true)}
-            onFocus={() => setShowReactions(true)}
-            onClick={() => {
-              const already = myTypes.includes('love');
-              handleReact('love', already);
-              enqueueBurst('❤️', 1);
-            }}
-            title={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
-            aria-label={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
-          >
-            <span className="inline-block text-xs">❤️</span>
-          </button>
-
-          {/* Emoji picker on hover */}
-          {showReactions && !disableReactions && (
-            <div className={`relative z-50 px-2 py-1 rounded-2xl shadow-lg border ${isDarkMode() ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'}`}
-                 onMouseEnter={() => setShowReactions(true)} onMouseLeave={() => setShowReactions(false)}>
+      {/* Emoji picker on hover - positioned absolutely */}
+      {showReactions && !disableReactions && !isRecalled && (
+        <div className={`absolute ${isOwnMessage ? 'right-0' : 'left-0'} bottom-8 z-50`}>
+          <div className={`px-2 py-1 rounded-2xl shadow-lg border ${isDarkMode() ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-gray-200'}`}
+               onMouseEnter={() => setShowReactions(true)} onMouseLeave={() => setShowReactions(false)}>
               <div className="flex items-center gap-2">
                 {(['like','love','haha','wow','sad','angry'] as const).map((k) => {
                   const label = String(t(`chat.reactions.types.${k}`, { defaultValue: k } as any));
@@ -700,43 +725,43 @@ const MessageBubble = memo(({
                 })}
               </div>
             </div>
-          )}
-
-          {/* Floating emojis container */}
-          <div className="pointer-events-none absolute -bottom-1 left-0 right-0">
-            {floatItems.map((it) => {
-              const style = (isOwnMessage
-                ? ({ right: 0, marginLeft: `${it.dx}px` } as React.CSSProperties)
-                : ({ left: 0, marginLeft: `${it.dx}px` } as React.CSSProperties)
-              );
-              return (
-                <span key={it.id} className="emoji-float select-none" style={style}>
-                  {it.emoji}
-                </span>
-              );
-            })}
-          </div>
-
-          {/* Local styles for float animation */}
-          <style>{`
-            @keyframes emoji-float-up {
-              0%   { transform: translateY(0) scale(0.9);   opacity: 0.9; }
-              70%  { transform: translateY(-40px) scale(1.05); opacity: 1; }
-              100% { transform: translateY(-68px) scale(1.15); opacity: 0; }
-            }
-            .emoji-float {
-              position: absolute;
-              bottom: 0;
-              color: #e0245e;
-              font-size: 14px;
-              animation: emoji-float-up 900ms ease-out forwards;
-              text-shadow: 0 1px 1px rgba(0,0,0,0.12);
-            }
-          `}</style>
         </div>
       )}
-        {/* Menu button */}
-        {showMenu && (
+
+      {/* Floating emojis container */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0">
+        {floatItems.map((it) => {
+          const style = (isOwnMessage
+            ? ({ right: 0, marginLeft: `${it.dx}px` } as React.CSSProperties)
+            : ({ left: 0, marginLeft: `${it.dx}px` } as React.CSSProperties)
+          );
+          return (
+            <span key={it.id} className="emoji-float select-none" style={style}>
+              {it.emoji}
+            </span>
+          );
+        })}
+      </div>
+
+      {/* Local styles for float animation */}
+      <style>{`
+        @keyframes emoji-float-up {
+          0%   { transform: translateY(0) scale(0.9);   opacity: 0.9; }
+          70%  { transform: translateY(-40px) scale(1.05); opacity: 1; }
+          100% { transform: translateY(-68px) scale(1.15); opacity: 0; }
+        }
+        .emoji-float {
+          position: absolute;
+          bottom: 0;
+          color: #e0245e;
+          font-size: 14px;
+          animation: emoji-float-up 900ms ease-out forwards;
+          text-shadow: 0 1px 1px rgba(0,0,0,0.12);
+        }
+      `}</style>
+
+      {/* Menu button */}
+      {showMenu && (
           <>
             <button
               onClick={() => onMenuToggle(menuOpenKey === messageKey ? null : messageKey)}
