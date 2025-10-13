@@ -2,6 +2,7 @@ import { useRef, useEffect, useState, memo } from 'react';
 import { MoreVertical, ChevronDown, Pencil, Users, Video, Key } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import NicknameModal from './NicknameModal';
+import PinnedMessagesPanel from './PinnedMessagesPanel';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY, formatDateTimeMDYY_HHmm } from '../../../../../utils/utils';
 import { blockService } from '@/services/blockService';
@@ -1276,54 +1277,12 @@ const ChatView = memo(({
         ) : (
           <>
         {/* Pinned banner */}
-        {!maskMessages && pinnedMessages.length > 0 && (
-          <div className="sticky top-0 z-30 pt-2 pb-2 mb-2 py-0 w-full backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-black/70 border-b border-yellow-200/60 dark:border-yellow-700/40">
-            <div className="px-4 flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-2 text-xs font-semibold text-yellow-800 dark:text-yellow-300">
-                <span className="inline-block w-2.5 h-2.5 bg-yellow-500 rounded-full" />
-                {t('chat.menu.pinnedMessages', 'Tin nhắn đã ghim')}
-              </span>
-              {pinnedMessages.map((pm) => {
-                // Check if pinned message is a shared note
-                const prefix = 'NOTE_SHARE::';
-                const isSharedNote = typeof pm.content === 'string' && pm.content.startsWith(prefix);
-                let displayText = pm.content || '';
-                
-                if (isSharedNote && pm.content) {
-                  try {
-                    const raw = pm.content.slice(prefix.length);
-                    const obj = JSON.parse(decodeURIComponent(raw));
-                    if (obj && obj.title) {
-                      displayText = `📝 ${obj.title}`;
-                    }
-                  } catch {
-                    displayText = '📝 Ghi chú';
-                  }
-                } else if (pm.messageType === 'image') {
-                  displayText = t('chat.preview.image');
-                } else if (pm.messageType === 'file') {
-                  displayText = t('chat.preview.file');
-                } else {
-                  try {
-                    displayText = decodeURIComponent(pm.content || '');
-                  } catch {
-                    displayText = pm.content || '';
-                  }
-                }
-                
-                return (
-                  <button
-                    key={`pin-${pm.id}`}
-                    onClick={() => scrollToMessage(pm.id)}
-                    className="inline-flex items-center gap-1 max-w-[220px] px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800/60 border border-yellow-300/60 dark:border-yellow-700/40"
-                    title={displayText}
-                  >
-                    <span className="truncate">{displayText}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+        {!maskMessages && (
+          <PinnedMessagesPanel
+            pinnedMessages={pinnedMessages}
+            onScrollToMessage={scrollToMessage}
+            onUnpin={(messageId) => handleTogglePinMessage(messageId, false)}
+          />
         )}
         {/* Top loading spinner for lazy load (placed after pinned banner) */}
         {isLoadingPrev && showTopSpinner ? (

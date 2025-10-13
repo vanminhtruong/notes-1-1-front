@@ -1,4 +1,6 @@
 /***** Tailwind CSS v3.3.3 config *****/
+import plugin from 'tailwindcss/plugin';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: 'class',
@@ -30,5 +32,8 @@ export default {
   plugins: [
     require('@tailwindcss/typography'),
     require('@tailwindcss/line-clamp'),
+    plugin(function({ addVariant }) {
+      addVariant('dark-black', '.dark-black &');
+    }),
   ],
 }
