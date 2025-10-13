@@ -1,0 +1,98 @@
+/**
+ * Buttons Module
+ * Handles button styles, hover states, and interactions
+ */
+
+@mixin apply-buttons($theme-class, $bg-card, $bg-hover, $border-hover) {
+  // ========================================
+  // Button Backgrounds
+  // ========================================
+  
+  // Buttons with blue
+  .#{$theme-class} button[class*="bg-blue"],
+  .#{$theme-class} a[class*="bg-blue"] {
+    background-color: $bg-card !important;
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} button[class*="bg-blue"]:hover,
+  .#{$theme-class} a[class*="bg-blue"]:hover {
+    background-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} .fixed[class*="bg-blue"],
+  .#{$theme-class} .absolute[class*="bg-blue"] {
+    background-color: $bg-card !important;
+  }
+
+  // Gradient buttons
+  .#{$theme-class} button.bg-gradient-to-r,
+  .#{$theme-class} button[class*="bg-gradient-"] {
+    background: $bg-card !important;
+    background-image: none !important;
+  }
+
+  .#{$theme-class} button.bg-gradient-to-r:hover,
+  .#{$theme-class} button[class*="bg-gradient-"]:hover {
+    background: $bg-hover !important;
+    background-image: none !important;
+  }
+
+  // Active/selected states
+  .#{$theme-class} [class*="bg-blue"][class*="text-white"],
+  .#{$theme-class} button[class*="bg-blue"],
+  .#{$theme-class} a[class*="bg-blue"] {
+    background-color: $bg-card !important;
+    color: #e5e7eb !important;
+  }
+
+  // White text on blue backgrounds
+  .#{$theme-class} .bg-blue-600.text-white,
+  .#{$theme-class} .bg-blue-500.text-white,
+  .#{$theme-class} .bg-blue-700.text-white {
+    background-color: $bg-card !important;
+    color: #e5e7eb !important;
+  }
+
+  // ========================================
+  // Hover States
+  // ========================================
+  
+  .#{$theme-class} .hover\:bg-gray-100:hover,
+  .#{$theme-class} .hover\:bg-gray-200:hover,
+  .#{$theme-class} .hover\:bg-gray-50:hover,
+  .#{$theme-class} .dark\:hover\:bg-gray-700:hover,
+  .#{$theme-class} .dark\:hover\:bg-gray-800:hover,
+  .#{$theme-class} .dark\:hover\:bg-gray-900:hover {
+    background-color: $bg-card !important;
+  }
+
+  // Blue hover states
+  .#{$theme-class} .hover\:bg-blue-700:hover,
+  .#{$theme-class} .hover\:bg-blue-600:hover,
+  .#{$theme-class} .hover\:bg-blue-500:hover {
+    background-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} .hover\:bg-blue-50:hover,
+  .#{$theme-class} .hover\:bg-blue-100:hover {
+    background-color: $bg-card !important;
+  }
+
+  // Focus states
+  .#{$theme-class} .focus\:ring-blue-500,
+  .#{$theme-class} .focus\:ring-2,
+  .#{$theme-class} .focus\:border-blue-500 {
+    --tw-ring-color: rgba($bg-hover, 0.5) !important;
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} .ring-blue-500 {
+    --tw-ring-color: rgba($bg-hover, 0.5) !important;
+  }
+
+  .#{$theme-class} [class*="ring-blue-"],
+  .#{$theme-class} [class*="focus:ring-blue-"] {
+    --tw-ring-color: rgba($bg-hover, 0.5) !important;
+  }
+}

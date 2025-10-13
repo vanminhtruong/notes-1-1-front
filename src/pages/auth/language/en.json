@@ -77,12 +77,25 @@
   "toastResetFailed": "Unable to reset password",
   "newPasswordPlaceholder": "Enter new password",
   "success": {
-    "loginSuccess": "Login successful"
+    "loginSuccess": "Login successful",
+    "registerSuccess": "Registration successful",
+    "logoutSuccess": "Logout successful"
   },
   "errors": {
     "deactivated": "Account has been deactivated",
     "loginFailed": "Login failed",
     "googleFailed": "Google login failed",
-    "facebookFailed": "Facebook login failed"
+    "facebookFailed": "Facebook login failed",
+    "registerFailed": "Registration failed",
+    "logoutFailed": "Logout failed",
+    "googleClientIdMissing": "Missing Google Client ID configuration",
+    "googleNotReady": "Google Sign-In is not ready yet, please try again.",
+    "facebookAppIdMissing": "Missing VITE_FACEBOOK_APP_ID configuration",
+    "facebookNotReady": "Facebook SDK is not ready yet, please try again.",
+    "facebookHttpsRequired": "Facebook login requires HTTPS. Please use HTTPS or localhost.",
+    "facebookCancelled": "Facebook login was cancelled or failed"
+  },
+  "loading": {
+    "facebookRedirect": "Redirecting to Facebook login page..."
   }
 }

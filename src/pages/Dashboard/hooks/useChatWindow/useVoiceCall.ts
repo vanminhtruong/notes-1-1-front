@@ -283,13 +283,13 @@ export function useVoiceCall(currentUserId: number | null) {
       if (connectTimeoutRef.current) { try { clearTimeout(connectTimeoutRef.current); } catch {} }
       connectTimeoutRef.current = setTimeout(() => {
         if (pcRef.current && pcRef.current.connectionState !== 'connected') {
-          toast.error('Không thể kết nối cuộc gọi. Vui lòng thử lại.');
+          toast.error(i18n.t('dashboard:chat.call.toast.cannotConnect'));
           endCall();
         }
       }, CONNECT_TIMEOUT_MS);
     } catch (e) {
       console.error('[call] call setup error', e);
-      const msg = (e as any)?.name === 'NotAllowedError' ? 'Bạn đã từ chối truy cập micro' : 'Không truy cập được micro';
+      const msg = (e as any)?.name === 'NotAllowedError' ? i18n.t('dashboard:chat.call.toast.micDenied') : i18n.t('dashboard:chat.call.toast.micUnavailable');
       toast.error(msg);
       endCall(false);
     }
@@ -298,9 +298,9 @@ export function useVoiceCall(currentUserId: number | null) {
   const _startCall = useCallback(async (target: CallUserInfo, media: 'audio' | 'video') => {
     if (!currentUserId) return;
     const socket = getSocket();
-    if (!socket) { toast.error('Mất kết nối máy chủ'); return; }
+    if (!socket) { toast.error(i18n.t('dashboard:chat.call.toast.serverDisconnected')); return; }
     if (inCall || connecting || incomingCall) {
-      toast('Bạn đang có cuộc gọi khác');
+      toast(i18n.t('dashboard:chat.call.toast.alreadyInCall'));
       return;
     }
     const callId = (globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(36).slice(2)}`);
@@ -329,7 +329,7 @@ export function useVoiceCall(currentUserId: number | null) {
     if (dialCancelTimeoutRef.current) { try { clearTimeout(dialCancelTimeoutRef.current); } catch {} }
     dialCancelTimeoutRef.current = setTimeout(() => {
       if (!inCall && connecting) {
-        toast.error('Người nhận không bắt máy');
+        toast.error(i18n.t('dashboard:chat.call.toast.calleeNoAnswer'));
         cancelOutgoing('timeout');
       }
     }, CONNECT_TIMEOUT_MS);
@@ -568,7 +568,7 @@ export function useVoiceCall(currentUserId: number | null) {
         setCameraOn(true);
       } catch (e) {
         console.error('[voicecall] toggleCamera error', e);
-        toast.error('Không thể bật/tắt camera');
+        toast.error(i18n.t('dashboard:chat.call.toast.toggleCameraError'));
       }
     }
     ,
@@ -603,7 +603,7 @@ export function useVoiceCall(currentUserId: number | null) {
         setMicOn(true);
       } catch (e) {
         console.error('[voicecall] toggleMic error', e);
-        toast.error('Không thể bật/tắt micro');
+        toast.error(i18n.t('dashboard:chat.call.toast.toggleMicError'));
       }
     }
   };

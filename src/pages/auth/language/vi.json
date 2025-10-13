@@ -79,12 +79,25 @@
   ,
   "newPasswordPlaceholder": "Nhập mật khẩu mới",
   "success": {
-    "loginSuccess": "Đăng nhập thành công"
+    "loginSuccess": "Đăng nhập thành công",
+    "registerSuccess": "Đăng ký thành công",
+    "logoutSuccess": "Đăng xuất thành công"
   },
   "errors": {
     "deactivated": "Tài khoản đã bị vô hiệu hóa",
     "loginFailed": "Đăng nhập thất bại",
     "googleFailed": "Đăng nhập Google thất bại",
-    "facebookFailed": "Đăng nhập Facebook thất bại"
+    "facebookFailed": "Đăng nhập Facebook thất bại",
+    "registerFailed": "Đăng ký thất bại",
+    "logoutFailed": "Đăng xuất thất bại",
+    "googleClientIdMissing": "Thiếu cấu hình Google Client ID",
+    "googleNotReady": "Google Sign-In chưa sẵn sàng, vui lòng thử lại.",
+    "facebookAppIdMissing": "Thiếu cấu hình VITE_FACEBOOK_APP_ID",
+    "facebookNotReady": "Facebook SDK chưa sẵn sàng, vui lòng thử lại.",
+    "facebookHttpsRequired": "Facebook login yêu cầu HTTPS. Vui lòng sử dụng HTTPS hoặc localhost.",
+    "facebookCancelled": "Đăng nhập Facebook bị hủy hoặc thất bại"
+  },
+  "loading": {
+    "facebookRedirect": "Chuyển hướng đến trang đăng nhập Facebook..."
   }
 }

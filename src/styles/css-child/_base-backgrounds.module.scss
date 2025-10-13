@@ -1,0 +1,116 @@
+/**
+ * Base Backgrounds Module
+ * Handles base page structure and gray family backgrounds
+ */
+
+@mixin apply-base-backgrounds($theme-class, $bg-base, $bg-elevated, $bg-card, $bg-hover, $border-color) {
+  // Base page structure
+  .#{$theme-class} html,
+  .#{$theme-class} body,
+  .#{$theme-class} #root {
+    background-color: $bg-base !important;
+  }
+
+  // ========================================
+  // Gray Family Backgrounds
+  // ========================================
+  
+  // Solid backgrounds
+  .#{$theme-class} .dark\:bg-gray-950,
+  .#{$theme-class} [class*="dark:bg-gray-95"] {
+    background-color: $bg-base !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-900,
+  .#{$theme-class} [class*="dark:bg-gray-9"] {
+    background-color: $bg-elevated !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-800,
+  .#{$theme-class} [class*="dark:bg-gray-8"] {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-700,
+  .#{$theme-class} .dark\:bg-gray-600,
+  .#{$theme-class} [class*="dark:bg-gray-7"],
+  .#{$theme-class} [class*="dark:bg-gray-6"] {
+    background-color: $bg-hover !important;
+  }
+
+  // Backgrounds with opacity
+  .#{$theme-class} .dark\:bg-gray-900\/90,
+  .#{$theme-class} .dark\:bg-gray-900\/80,
+  .#{$theme-class} .dark\:bg-gray-900\/70,
+  .#{$theme-class} .dark\:bg-gray-900\/60,
+  .#{$theme-class} .dark\:bg-gray-900\/50 {
+    background-color: rgba($bg-base, 0.95) !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-800\/90,
+  .#{$theme-class} .dark\:bg-gray-800\/80,
+  .#{$theme-class} .dark\:bg-gray-800\/70,
+  .#{$theme-class} .dark\:bg-gray-800\/60,
+  .#{$theme-class} .dark\:bg-gray-800\/50 {
+    background-color: transparent !important;
+  }
+  
+  // Mobile-specific backgrounds
+  .#{$theme-class} [class*="md-down:dark:bg-gray-800"],
+  .#{$theme-class} [class*="md-down:dark:bg-gray-900"] {
+    background-color: transparent !important;
+  }
+
+  .#{$theme-class} .dark\:bg-gray-700\/90,
+  .#{$theme-class} .dark\:bg-gray-700\/80,
+  .#{$theme-class} .dark\:bg-gray-700\/70,
+  .#{$theme-class} .dark\:bg-gray-700\/60,
+  .#{$theme-class} .dark\:bg-gray-700\/50 {
+    background-color: rgba($bg-card, 0.85) !important;
+  }
+
+  // ========================================
+  // Neutral/Slate/Zinc/Stone Families
+  // ========================================
+  
+  .#{$theme-class} .dark\:bg-neutral-950,
+  .#{$theme-class} .dark\:bg-neutral-900 {
+    background-color: $bg-base !important;
+  }
+
+  .#{$theme-class} .dark\:bg-neutral-800,
+  .#{$theme-class} .dark\:bg-slate-900,
+  .#{$theme-class} .dark\:bg-slate-800,
+  .#{$theme-class} .dark\:bg-zinc-900,
+  .#{$theme-class} .dark\:bg-zinc-800,
+  .#{$theme-class} .dark\:bg-stone-900,
+  .#{$theme-class} .dark\:bg-stone-800 {
+    background-color: $bg-elevated !important;
+  }
+
+  // ========================================
+  // Light Mode Backgrounds in Dark Theme
+  // ========================================
+  
+  .#{$theme-class} .bg-white,
+  .#{$theme-class} .bg-gray-50,
+  .#{$theme-class} .bg-gray-100 {
+    background-color: $bg-elevated !important;
+  }
+
+  .#{$theme-class} .bg-white\/90,
+  .#{$theme-class} .bg-white\/80,
+  .#{$theme-class} .bg-white\/70,
+  .#{$theme-class} .bg-white\/50 {
+    background-color: rgba($bg-elevated, 0.9) !important;
+  }
+
+  .#{$theme-class} .bg-gray-50\/70,
+  .#{$theme-class} .bg-gray-50\/80,
+  .#{$theme-class} .from-gray-50\/70,
+  .#{$theme-class} .to-white\/50 {
+    background-color: $bg-elevated !important;
+    --tw-gradient-from: $bg-elevated !important;
+    --tw-gradient-to: $bg-elevated !important;
+  }
+}

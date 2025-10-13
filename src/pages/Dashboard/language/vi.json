@@ -109,8 +109,11 @@
     "archiveSuccess": "Đã lưu trữ ghi chú thành công",
     "noteCreated": "Tạo ghi chú thành công",
     "noteUpdated": "Cập nhật ghi chú thành công",
+    "noteDeleted": "Xóa ghi chú thành công",
     "noteCreateFailed": "Không thể tạo ghi chú",
-    "noteUpdateFailed": "Không thể cập nhật ghi chú"
+    "noteUpdateFailed": "Không thể cập nhật ghi chú",
+    "noteDeleteFailed": "Xóa ghi chú thất bại",
+    "noteActionFailed": "Thao tác thất bại"
   },
   "editor": {
     "loading": "Đang tải editor...",
@@ -572,7 +575,9 @@
       "unpinMessage": "Bỏ ghim tin nhắn",
       "pinned": "Đã ghim",
       "unpinned": "Đã bỏ ghim",
-      "pinnedMessages": "Tin nhắn đã ghim"
+      "pinnedMessages": "Tin nhắn đã ghim",
+      "viewMessage": "Xem tin nhắn",
+      "unknownUser": "Người dùng"
     },
     "search": {
       "placeholder": "Tìm kiếm tin nhắn…",
@@ -651,7 +656,9 @@
         "offline": "Người kia đang ngoại tuyến",
         "blocked": "Không thể gọi do hai bên đã chặn nhau",
         "ended": "Cuộc gọi đã kết thúc",
-        "cancelled": "Cuộc gọi đã bị hủy"
+        "cancelled": "Cuộc gọi đã bị hủy",
+        "toggleCameraError": "Không thể bật/tắt camera",
+        "toggleMicError": "Không thể bật/tắt micro"
       }
     },
     "message": {

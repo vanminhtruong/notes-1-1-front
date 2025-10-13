@@ -1,0 +1,123 @@
+/**
+ * Gradients Module
+ * Handles gradient backgrounds and colors
+ */
+
+@mixin apply-gradients($theme-class, $bg-base, $bg-elevated, $bg-card, $bg-hover) {
+  // ========================================
+  // Gradients
+  // ========================================
+  
+  .#{$theme-class} .dark\:from-gray-950,
+  .#{$theme-class} [class*="dark:from-gray-9"] {
+    --tw-gradient-from: $bg-base !important;
+    --tw-gradient-to: rgb(0 0 0 / 0) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  .#{$theme-class} .dark\:to-gray-950,
+  .#{$theme-class} [class*="dark:to-gray-9"] {
+    --tw-gradient-to: $bg-base !important;
+  }
+
+  .#{$theme-class} .dark\:from-gray-900\/60,
+  .#{$theme-class} .dark\:from-gray-900\/70,
+  .#{$theme-class} .dark\:via-gray-900\/60,
+  .#{$theme-class} .dark\:via-gray-900\/70,
+  .#{$theme-class} .dark\:to-gray-800 {
+    --tw-gradient-from: $bg-base !important;
+    --tw-gradient-to: $bg-base !important;
+  }
+
+  .#{$theme-class} .dark\:from-gray-800\/60,
+  .#{$theme-class} .dark\:from-gray-800\/70,
+  .#{$theme-class} .dark\:to-gray-800\/40,
+  .#{$theme-class} .dark\:to-gray-800\/50 {
+    --tw-gradient-from: $bg-elevated !important;
+    --tw-gradient-to: $bg-elevated !important;
+  }
+
+  // Light mode gradients override
+  .#{$theme-class} .from-slate-50,
+  .#{$theme-class} .via-blue-50,
+  .#{$theme-class} .to-indigo-100,
+  .#{$theme-class} .from-gray-50,
+  .#{$theme-class} .to-white,
+  .#{$theme-class} .from-white,
+  .#{$theme-class} .to-gray-50,
+  .#{$theme-class} .from-blue-50,
+  .#{$theme-class} .to-purple-50 {
+    --tw-gradient-from: $bg-base !important;
+    --tw-gradient-to: $bg-base !important;
+    --tw-gradient-via: $bg-base !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  // ========================================
+  // Colorful Gradients
+  // ========================================
+  
+  .#{$theme-class} .from-blue-500,
+  .#{$theme-class} .from-blue-600,
+  .#{$theme-class} .from-blue-700,
+  .#{$theme-class} .via-blue-600,
+  .#{$theme-class} .via-blue-700,
+  .#{$theme-class} .to-purple-600,
+  .#{$theme-class} .to-purple-700,
+  .#{$theme-class} .from-purple-500,
+  .#{$theme-class} .from-purple-600,
+  .#{$theme-class} .to-pink-600,
+  .#{$theme-class} .from-green-500,
+  .#{$theme-class} .via-emerald-600,
+  .#{$theme-class} .to-teal-600,
+  .#{$theme-class} .from-orange-500,
+  .#{$theme-class} .via-red-500,
+  .#{$theme-class} .to-rose-600,
+  .#{$theme-class} .from-yellow-400,
+  .#{$theme-class} .via-amber-500,
+  .#{$theme-class} .to-orange-600,
+  .#{$theme-class} .from-indigo-600,
+  .#{$theme-class} .via-blue-700 {
+    --tw-gradient-from: $bg-card !important;
+    --tw-gradient-to: $bg-card !important;
+    --tw-gradient-via: $bg-card !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+
+  .#{$theme-class} .hover\:from-blue-700:hover,
+  .#{$theme-class} .hover\:to-purple-700:hover {
+    --tw-gradient-from: $bg-hover !important;
+    --tw-gradient-to: $bg-hover !important;
+  }
+
+  // Override all gradient directions
+  .#{$theme-class} [class*="bg-gradient-to-"] {
+    background: $bg-card !important;
+    background-image: none !important;
+  }
+
+  // Radial gradients
+  .#{$theme-class} .bg-gradient-radial {
+    background: radial-gradient(circle at center, rgba($bg-card, 0.6), transparent) !important;
+  }
+
+  // Gradient combinations
+  .#{$theme-class} .bg-gradient-to-br[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-bl[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-tr[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-tl[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-t[class*="from-"],
+  .#{$theme-class} .bg-gradient-to-b[class*="from-"] {
+    background-image: linear-gradient(to bottom, $bg-base, $bg-elevated) !important;
+  }
+
+  // Particle effects
+  .#{$theme-class} .bg-blue-400\/60,
+  .#{$theme-class} .bg-blue-400\/20,
+  .#{$theme-class} .from-blue-400\/20,
+  .#{$theme-class} .via-purple-400\/10 {
+    background-color: rgba($bg-card, 0.6) !important;
+    --tw-gradient-from: rgba($bg-card, 0.2) !important;
+    --tw-gradient-via: rgba($bg-elevated, 0.1) !important;
+  }
+}

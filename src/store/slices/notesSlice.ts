@@ -114,10 +114,10 @@ export const createNote = createAsyncThunk(
   async (data: CreateNoteData, { rejectWithValue }) => {
     try {
       const response = await notesService.createNote(data);
-      toast.success(response.message);
+      toast.success(i18n.t('dashboard:toasts.noteCreated'));
       return response.note;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Tạo ghi chú thất bại';
+      const message = error.response?.data?.message || i18n.t('dashboard:toasts.noteCreateFailed');
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -129,10 +129,10 @@ export const updateNote = createAsyncThunk(
   async ({ id, data }: { id: number; data: UpdateNoteData }, { rejectWithValue }) => {
     try {
       const response = await notesService.updateNote(id, data);
-      toast.success(response.message);
+      toast.success(i18n.t('dashboard:toasts.noteUpdated'));
       return response.note;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Cập nhật ghi chú thất bại';
+      const message = error.response?.data?.message || i18n.t('dashboard:toasts.noteUpdateFailed');
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -143,11 +143,11 @@ export const deleteNote = createAsyncThunk(
   'notes/deleteNote',
   async (id: number, { rejectWithValue }) => {
     try {
-      const response = await notesService.deleteNote(id);
-      toast.success(response.message);
+      await notesService.deleteNote(id);
+      toast.success(i18n.t('dashboard:toasts.noteDeleted'));
       return id;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Xóa ghi chú thất bại';
+      const message = error.response?.data?.message || i18n.t('dashboard:toasts.noteDeleteFailed');
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -162,7 +162,7 @@ export const archiveNote = createAsyncThunk(
       // Toast handled in useDashboard hook
       return response.note;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Thao tác thất bại';
+      const message = error.response?.data?.message || i18n.t('dashboard:toasts.noteActionFailed');
       toast.error(message);
       return rejectWithValue(message);
     }

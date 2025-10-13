@@ -160,11 +160,11 @@ const Login = () => {
 
   const handleGoogleClick = () => {
     if (!GOOGLE_CLIENT_ID) {
-      toast.error('Thiếu cấu hình Google Client ID');
+      toast.error(t('errors.googleClientIdMissing'));
       return;
     }
     if (!window.google?.accounts?.id) {
-      toast.error('Google Sign-In chưa sẵn sàng, vui lòng thử lại.');
+      toast.error(t('errors.googleNotReady'));
       return;
     }
     setShowGoogleModal(true);
@@ -177,12 +177,12 @@ const Login = () => {
 
   const handleFacebookClick = () => {
     if (!FACEBOOK_APP_ID) {
-      toast.error('Thiếu cấu hình VITE_FACEBOOK_APP_ID');
+      toast.error(t('errors.facebookAppIdMissing'));
       return;
     }
     
     if (!window.FB) {
-      toast.error('Facebook SDK chưa sẵn sàng, vui lòng thử lại.');
+      toast.error(t('errors.facebookNotReady'));
       return;
     }
 
@@ -191,7 +191,7 @@ const Login = () => {
     const isHttp = window.location.protocol === 'http:';
     
     if (isHttp && !isLocalhost) {
-      toast.error('Facebook login yêu cầu HTTPS. Vui lòng sử dụng HTTPS hoặc localhost.');
+      toast.error(t('errors.facebookHttpsRequired'));
       return;
     }
 
@@ -206,7 +206,7 @@ const Login = () => {
           const redirectUrl = encodeURIComponent(window.location.origin + '/auth/facebook/callback');
           const facebookLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${FACEBOOK_APP_ID}&redirect_uri=${redirectUrl}&scope=email&response_type=code`;
           
-          toast.loading('Chuyển hướng đến trang đăng nhập Facebook...');
+          toast.loading(t('loading.facebookRedirect'));
           window.location.href = facebookLoginUrl;
         }
       });
@@ -238,7 +238,7 @@ const Login = () => {
         }
       }
     } else {
-      toast.error('Đăng nhập Facebook bị hủy hoặc thất bại');
+      toast.error(t('errors.facebookCancelled'));
     }
   };
 

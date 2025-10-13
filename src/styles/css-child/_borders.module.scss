@@ -1,0 +1,67 @@
+/**
+ * Borders Module
+ * Handles border colors and styles
+ */
+
+@mixin apply-borders($theme-class, $border-color, $border-hover, $bg-hover) {
+  // ========================================
+  // Borders
+  // ========================================
+  
+  .#{$theme-class} .dark\:border-gray-900,
+  .#{$theme-class} .dark\:border-gray-800,
+  .#{$theme-class} .dark\:border-gray-700,
+  .#{$theme-class} .dark\:border-gray-600 {
+    border-color: $border-color !important;
+  }
+
+  .#{$theme-class} .dark\:border-neutral-700,
+  .#{$theme-class} .dark\:border-neutral-600,
+  .#{$theme-class} .dark\:border-slate-700,
+  .#{$theme-class} .dark\:border-slate-600,
+  .#{$theme-class} .dark\:border-zinc-700,
+  .#{$theme-class} .dark\:border-zinc-600,
+  .#{$theme-class} .dark\:border-stone-700,
+  .#{$theme-class} .dark\:border-stone-600 {
+    border-color: $border-color !important;
+  }
+
+  // Blue borders
+  .#{$theme-class} .border-blue-500,
+  .#{$theme-class} .border-blue-600,
+  .#{$theme-class} .border-blue-700,
+  .#{$theme-class} .border-blue-300,
+  .#{$theme-class} .border-blue-400 {
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} .dark\:border-blue-700,
+  .#{$theme-class} .dark\:border-blue-600,
+  .#{$theme-class} .dark\:border-blue-500 {
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} [class*="border-blue-"] {
+    border-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} [class*="dark:border-blue-"] {
+    border-color: $bg-hover !important;
+  }
+
+  // Colorful borders
+  .#{$theme-class} .border-blue-300\/30,
+  .#{$theme-class} .border-purple-300\/30,
+  .#{$theme-class} .border-green-300\/30,
+  .#{$theme-class} .border-orange-300\/30,
+  .#{$theme-class} .border-yellow-300\/30,
+  .#{$theme-class} .border-indigo-300\/30 {
+    border-color: rgba($bg-hover, 0.3) !important;
+  }
+
+  // Tab borders
+  .#{$theme-class} [class*="border-b-2"][class*="border-blue"],
+  .#{$theme-class} [class*="border-b-4"][class*="border-blue"] {
+    border-bottom-color: $border-hover !important;
+  }
+}

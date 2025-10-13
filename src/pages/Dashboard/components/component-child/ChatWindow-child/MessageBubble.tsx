@@ -557,7 +557,7 @@ const MessageBubble = memo(({
 
   return (
     <Tooltip.Provider delayDuration={150} skipDelayDuration={250}>
-    <div id={`message-${message.id}`} className={`relative group flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+    <div id={`message-${message.id}`} className={`message-bubble relative group flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
          onMouseLeave={() => setShowReactions(false)}>
       <div className="inline-flex flex-col">
         <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
@@ -772,7 +772,7 @@ const MessageBubble = memo(({
               <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
             </button>
             {menuOpenKey === messageKey && (
-              <div className={`absolute z-50 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
+              <div className={`absolute z-[60] ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
                 onMouseLeave={() => onMenuToggle(null)}
               >
                 {typeof onTogglePinMessage === 'function' && !isRecalled && !isCallLogMessage && (

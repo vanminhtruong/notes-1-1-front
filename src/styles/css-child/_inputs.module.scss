@@ -1,0 +1,38 @@
+/**
+ * Inputs Module
+ * Handles form inputs, textareas, and focus states
+ */
+
+@mixin apply-inputs($theme-class, $bg-card, $border-color, $border-hover) {
+  // ========================================
+  // Input Fields
+  // ========================================
+  
+  // Active tab/button backgrounds with blue
+  .#{$theme-class} .dark\:bg-blue-900\/30,
+  .#{$theme-class} .dark\:bg-blue-900\/20,
+  .#{$theme-class} .dark\:bg-blue-100 {
+    background-color: rgba($bg-card, 0.5) !important;
+  }
+  
+  // Input fields need visible border in dark-black
+  .#{$theme-class} input[class*="bg-gray"],
+  .#{$theme-class} textarea[class*="bg-gray"],
+  .#{$theme-class} input[class*="dark:bg-gray"],
+  .#{$theme-class} textarea[class*="dark:bg-gray"] {
+    background-color: rgba($bg-card, 0.3) !important;
+  }
+  
+  // Force border for inputs that have border-0
+  .#{$theme-class} input.border-0,
+  .#{$theme-class} textarea.border-0 {
+    border: 1px solid rgba($border-color, 0.5) !important;
+  }
+  
+  // Focus state for all inputs
+  .#{$theme-class} input:focus,
+  .#{$theme-class} textarea:focus {
+    border-color: rgba($border-hover, 0.8) !important;
+    outline: none !important;
+  }
+}

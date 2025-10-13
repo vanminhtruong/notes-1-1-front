@@ -1,0 +1,34 @@
+/**
+ * Chat Messages Module
+ * Handles styles specific to chat message bubbles
+ * SCOPED with .message-bubble class to avoid conflicts
+ */
+
+@mixin apply-chat-messages($theme-class, $bg-card) {
+  // ========================================
+  // Chat Messages - Receiver's message background
+  // SCOPE: .message-bubble class
+  // ========================================
+  
+  // Text, image, and file messages from others - scoped to .message-bubble
+  .#{$theme-class} .message-bubble .dark\:bg-gray-700.rounded-2xl,
+  .#{$theme-class} .message-bubble .dark\:bg-gray-700.rounded-bl-md {
+    background-color: $bg-card !important;
+  }
+
+  // Call log messages - scoped to .message-bubble
+  .#{$theme-class} .message-bubble .dark\:bg-gray-800\/90.backdrop-blur {
+    background-color: rgba($bg-card, 0.9) !important;
+  }
+
+  // Recalled messages - scoped to .message-bubble
+  .#{$theme-class} .message-bubble .dark\:bg-gray-700.italic {
+    background-color: rgba($bg-card, 0.7) !important;
+  }
+
+  // General fallback for any message bubbles - scoped to .message-bubble
+  .#{$theme-class} .message-bubble .rounded-2xl.dark\:bg-gray-700,
+  .#{$theme-class} .message-bubble .rounded-xl.dark\:bg-gray-700 {
+    background-color: $bg-card !important;
+  }
+}

@@ -115,8 +115,11 @@
     "archiveSuccess": "Note archived successfully",
     "noteCreated": "Note created successfully",
     "noteUpdated": "Note updated successfully",
+    "noteDeleted": "Note deleted successfully",
     "noteCreateFailed": "Failed to create note",
-    "noteUpdateFailed": "Failed to update note"
+    "noteUpdateFailed": "Failed to update note",
+    "noteDeleteFailed": "Failed to delete note",
+    "noteActionFailed": "Operation failed"
   },
   "editor": {
     "loading": "Loading editor...",
@@ -648,7 +651,9 @@
         "offline": "The other party is offline",
         "blocked": "Cannot call because both parties are blocked",
         "ended": "Call ended",
-        "cancelled": "Call was cancelled"
+        "cancelled": "Call was cancelled",
+        "toggleCameraError": "Unable to toggle camera",
+        "toggleMicError": "Unable to toggle microphone"
       }
     },
     "message": {

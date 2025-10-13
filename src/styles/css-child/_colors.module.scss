@@ -1,0 +1,110 @@
+/**
+ * Colors Module
+ * Handles text colors, accent colors, and color overrides
+ */
+
+@mixin apply-colors($theme-class, $bg-card, $bg-hover, $text-muted) {
+  // ========================================
+  // Blue/Colorful Elements Override
+  // ========================================
+  
+  // Blue backgrounds
+  .#{$theme-class} .bg-blue-600,
+  .#{$theme-class} .bg-blue-500,
+  .#{$theme-class} .bg-blue-700,
+  .#{$theme-class} .bg-blue-800 {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} .bg-blue-50,
+  .#{$theme-class} .bg-blue-100 {
+    background-color: rgba($bg-card, 0.6) !important;
+  }
+
+  // Dark mode blue overrides
+  .#{$theme-class} .dark\:bg-blue-900\/20,
+  .#{$theme-class} .dark\:bg-blue-800,
+  .#{$theme-class} .dark\:bg-blue-900 {
+    background-color: rgba($bg-card, 0.6) !important;
+  }
+
+  .#{$theme-class} .dark\:hover\:bg-blue-900\/20:hover,
+  .#{$theme-class} .dark\:hover\:bg-blue-800:hover {
+    background-color: $bg-card !important;
+  }
+
+  // Comprehensive blue catches
+  .#{$theme-class} [class*="bg-blue-"] {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} [class*="hover:bg-blue-"]:hover {
+    background-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} [class*="dark:bg-blue-"] {
+    background-color: rgba($bg-card, 0.6) !important;
+  }
+
+  .#{$theme-class} [class*="dark:hover:bg-blue-"]:hover {
+    background-color: $bg-card !important;
+  }
+
+  // ========================================
+  // Text Colors
+  // ========================================
+  
+  // Blue text
+  .#{$theme-class} .text-blue-600,
+  .#{$theme-class} .text-blue-500,
+  .#{$theme-class} .text-blue-400 {
+    color: $text-muted !important;
+  }
+
+  .#{$theme-class} .dark\:text-blue-400,
+  .#{$theme-class} .dark\:text-blue-300 {
+    color: $text-muted !important;
+  }
+
+  .#{$theme-class} [class*="text-blue-"] {
+    color: $text-muted !important;
+  }
+
+  .#{$theme-class} [class*="dark:text-blue-"] {
+    color: $text-muted !important;
+  }
+
+  // Blue icon/SVG fills
+  .#{$theme-class} .text-blue-600 svg,
+  .#{$theme-class} .text-blue-500 svg,
+  .#{$theme-class} .text-blue-400 svg {
+    color: $text-muted !important;
+  }
+
+  // Text visibility
+  .#{$theme-class} .text-white,
+  .#{$theme-class} button.text-white,
+  .#{$theme-class} a.text-white {
+    color: #e5e7eb !important;
+  }
+
+  // ========================================
+  // Special Effects
+  // ========================================
+  
+  // Shadows
+  .#{$theme-class} [class*="shadow-"] {
+    --tw-shadow-color: rgba(0, 0, 0, 0.8) !important;
+  }
+
+  // Inline styled backgrounds
+  .#{$theme-class} [style*="backgroundColor"] {
+    background-color: rgba($bg-card, 0.95) !important;
+    background-image: none !important;
+  }
+
+  .#{$theme-class} [style*="color"]:not([style*="backgroundColor"]) {
+    opacity: 0.85 !important;
+    filter: saturate(0.7) brightness(0.85) !important;
+  }
+}

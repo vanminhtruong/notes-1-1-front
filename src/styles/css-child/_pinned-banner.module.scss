@@ -1,0 +1,157 @@
+/**
+ * Pinned Message Banner Module
+ * Handles styles specific to the pinned message banner component
+ * SCOPED with .pinner class to avoid conflicts
+ */
+
+@mixin apply-pinned-banner($theme-class, $bg-base, $bg-card, $bg-hover, $border-color, $text-muted) {
+  // ========================================
+  // Pinned Message Banner (Chat) - Dark Black Theme
+  // Banner: Pure black (#000000)
+  // Message Box: Gray (#1a1a1a)
+  // SCOPE: .pinner class
+  // ========================================
+  
+  // Banner background - override all gradient classes to pure black
+  // Works for both collapsed and expanded state
+  .#{$theme-class} .pinner.sticky.z-50 {
+    background: $bg-base !important;
+    background-image: none !important;
+  }
+
+  // More specific: target elements with gradient classes inside .pinner
+  .#{$theme-class} .pinner.sticky.z-50.bg-gradient-to-r,
+  .#{$theme-class} .pinner .from-blue-50\/95,
+  .#{$theme-class} .pinner .to-indigo-50\/95,
+  .#{$theme-class} .pinner .dark\:from-gray-900\/95,
+  .#{$theme-class} .pinner .dark\:to-gray-800\/95 {
+    --tw-gradient-from: $bg-base !important;
+    --tw-gradient-to: $bg-base !important;
+    background-color: $bg-base !important;
+    background-image: none !important;
+  }
+
+  // Button inside collapsed banner - ensure black background when NOT hovering
+  .#{$theme-class} .pinner button {
+    background-color: transparent !important;
+  }
+
+  // Button hover state - gray background when hovering
+  .#{$theme-class} .pinner button:hover,
+  .#{$theme-class} .pinner button.hover\:bg-blue-100\/50:hover,
+  .#{$theme-class} .pinner .dark\:hover\:bg-gray-800\/50:hover {
+    background-color: rgba($bg-hover, 0.5) !important;
+  }
+
+  // Banner borders - scoped to .pinner
+  .#{$theme-class} .pinner .border-blue-200\/60,
+  .#{$theme-class} .pinner .dark\:border-blue-900\/40 {
+    border-color: rgba($border-color, 0.6) !important;
+  }
+
+  // Banner text colors - scoped to .pinner
+  .#{$theme-class} .pinner .text-blue-900,
+  .#{$theme-class} .pinner .text-blue-700 {
+    color: rgba($text-muted, 0.9) !important;
+  }
+
+  .#{$theme-class} .pinner .text-gray-600 {
+    color: rgba($text-muted, 0.7) !important;
+  }
+
+  .#{$theme-class} .pinner .text-gray-500 {
+    color: rgba($text-muted, 0.6) !important;
+  }
+
+  // Bullet point for timestamp - scoped to .pinner
+  .#{$theme-class} .pinner .bg-gray-400,
+  .#{$theme-class} .pinner .bg-gray-500 {
+    background-color: rgba($text-muted, 0.5) !important;
+  }
+
+  // Blue accent colors for icons and badges - scoped to .pinner
+  .#{$theme-class} .pinner .bg-blue-600,
+  .#{$theme-class} .pinner .bg-blue-500 {
+    background-color: rgba($bg-hover, 0.8) !important;
+  }
+
+  // Badge backgrounds - scoped to .pinner
+  .#{$theme-class} .pinner .bg-blue-200\/60,
+  .#{$theme-class} .pinner .bg-blue-100\/70 {
+    background-color: rgba($bg-card, 0.7) !important;
+  }
+
+  // Hover states for banner - scoped to .pinner
+  .#{$theme-class} .pinner .hover\:bg-blue-100\/50:hover {
+    background-color: rgba($bg-card, 0.5) !important;
+  }
+
+  .#{$theme-class} .pinner .hover\:bg-blue-100:hover {
+    background-color: rgba($bg-card, 0.6) !important;
+  }
+
+  // Navigation button hover states - scoped to .pinner
+  .#{$theme-class} .pinner .hover\:text-blue-800:hover,
+  .#{$theme-class} .pinner .hover\:text-blue-200:hover {
+    color: rgba($text-muted, 1) !important;
+  }
+
+  // Message content box - gray color - scoped to .pinner
+  .#{$theme-class} .pinner .border-blue-200\/40,
+  .#{$theme-class} .pinner .dark\:border-blue-900\/30 {
+    border-color: rgba(#3a3a3a, 0.5) !important;
+  }
+
+  // Message box background - gray (#1a1a1a) - scoped to .pinner
+  .#{$theme-class} .pinner div.relative.rounded-xl.overflow-hidden,
+  .#{$theme-class} .pinner div.relative.rounded-xl,
+  .#{$theme-class} .pinner button > div.relative.rounded-xl {
+    background-color: $bg-card !important;
+  }
+
+  // Text colors for message box content - scoped to .pinner
+  .#{$theme-class} .pinner .text-gray-900 {
+    color: #e5e7eb !important;
+  }
+
+  // Gradient decorative bar - scoped to .pinner
+  .#{$theme-class} .pinner .from-blue-500,
+  .#{$theme-class} .pinner .to-indigo-500,
+  .#{$theme-class} .pinner .dark\:from-blue-400,
+  .#{$theme-class} .pinner .dark\:to-indigo-400 {
+    --tw-gradient-from: rgba($bg-hover, 0.6) !important;
+    --tw-gradient-to: rgba($bg-hover, 0.6) !important;
+  }
+
+  // Banner dark mode specific colors - scoped to .pinner
+  .#{$theme-class} .pinner .dark\:text-blue-400 {
+    color: rgba($text-muted, 0.8) !important;
+  }
+
+  .#{$theme-class} .pinner .dark\:text-gray-400 {
+    color: rgba($text-muted, 0.65) !important;
+  }
+
+  .#{$theme-class} .pinner .dark\:text-gray-100 {
+    color: rgba($text-muted, 0.95) !important;
+  }
+
+  // Banner navigation and menu hover states - scoped to .pinner
+  .#{$theme-class} .pinner .dark\:hover\:bg-blue-900\/40:hover {
+    background-color: rgba($bg-card, 0.6) !important;
+  }
+
+  // Dropdown menu for pinned message - scoped to .pinner
+  .#{$theme-class} .pinner .dark\:text-gray-300 {
+    color: rgba($text-muted, 0.85) !important;
+  }
+
+  .#{$theme-class} .pinner .text-red-600,
+  .#{$theme-class} .pinner .dark\:text-red-400 {
+    color: #ef4444 !important;
+  }
+
+  .#{$theme-class} .pinner .dark\:hover\:bg-gray-700:hover {
+    background-color: rgba($bg-card, 0.8) !important;
+  }
+}

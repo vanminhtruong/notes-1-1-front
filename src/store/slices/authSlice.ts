@@ -35,8 +35,7 @@ export const loginUser = createAsyncThunk(
     try {
       const response = await authService.login(data);
       localStorage.setItem('token', response.token);
-      const msg = response.message || i18n.t('auth:success.loginSuccess');
-      toast.success(msg);
+      toast.success(i18n.t('auth:success.loginSuccess'));
       return response;
     } catch (error: any) {
       let message: string = error.response?.data?.message || i18n.t('auth:errors.loginFailed');
@@ -60,8 +59,7 @@ export const loginWithGoogle = createAsyncThunk(
     try {
       const response = await authService.loginWithGoogle(idToken);
       localStorage.setItem('token', response.token);
-      const msg = response.message || i18n.t('auth:success.loginSuccess');
-      toast.success(msg);
+      toast.success(i18n.t('auth:success.loginSuccess'));
       return response;
     } catch (error: any) {
       let message: string = error.response?.data?.message || i18n.t('auth:errors.googleFailed');
@@ -83,8 +81,7 @@ export const loginWithFacebook = createAsyncThunk(
     try {
       const response = await authService.loginWithFacebook(accessToken);
       localStorage.setItem('token', response.token);
-      const msg = response.message || i18n.t('auth:success.loginSuccess');
-      toast.success(msg);
+      toast.success(i18n.t('auth:success.loginSuccess'));
       return response;
     } catch (error: any) {
       let message: string = error.response?.data?.message || i18n.t('auth:errors.facebookFailed');
@@ -123,10 +120,10 @@ export const registerUser = createAsyncThunk(
   async (data: RegisterData, { rejectWithValue }) => {
     try {
       const response = await authService.register(data);
-      toast.success(response.message);
+      toast.success(i18n.t('auth:success.registerSuccess'));
       return response;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Đăng ký thất bại';
+      const message = error.response?.data?.message || i18n.t('auth:errors.registerFailed');
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -146,10 +143,10 @@ export const logoutUser = createAsyncThunk(
       sessionStorage.removeItem('e2ee_pin_prompt_shown');
       // Clear lock timestamp for next session to set anew on login
       sessionStorage.removeItem('e2ee_lock_started_at');
-      toast.success('Đăng xuất thành công');
+      toast.success(i18n.t('auth:success.logoutSuccess'));
       return null;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Đăng xuất thất bại';
+      const message = error.response?.data?.message || i18n.t('auth:errors.logoutFailed');
       toast.error(message);
       return rejectWithValue(message);
     }

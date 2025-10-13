@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, memo } from 'react';
 import { MoreVertical, ChevronDown, Pencil, Users, Video, Key } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import NicknameModal from './NicknameModal';
-import PinnedMessagesPanel from './PinnedMessagesPanel';
+import PinnedMessageBanner from './PinnedMessageBanner';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY, formatDateTimeMDYY_HHmm } from '../../../../../utils/utils';
 import { blockService } from '@/services/blockService';
@@ -1031,7 +1031,7 @@ const ChatView = memo(({
                 </button>
                 {dmMenuOpen && (
                   <div
-                    className="absolute right-0 top-10 z-50 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
+                    className="absolute right-0 top-10 z-[60] w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
                     onMouseLeave={() => setDmMenuOpen(false)}
                   >
                     <button
@@ -1076,7 +1076,7 @@ const ChatView = memo(({
                   <MoreVertical className="w-5 h-5 text-gray-700 dark:text-gray-200" />
                 </button>
                 {headerMenuOpen && (
-                  <div className="absolute right-0 top-10 z-50 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
+                  <div className="absolute right-0 top-10 z-[60] w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
                        onMouseLeave={() => setHeaderMenuOpen(false)}
                   >
                     <button
@@ -1277,11 +1277,25 @@ const ChatView = memo(({
         ) : (
           <>
         {/* Pinned banner */}
-        {!maskMessages && (
-          <PinnedMessagesPanel
+        {!maskMessages && pinnedMessages.length > 0 && (
+          <PinnedMessageBanner
             pinnedMessages={pinnedMessages}
+            messages={messages}
+            isGroup={!!isGroup}
             onScrollToMessage={scrollToMessage}
-            onUnpin={(messageId) => handleTogglePinMessage(messageId, false)}
+            onUnpinMessage={async (messageId) => {
+              try {
+                if (isGroup) {
+                  await pinService.togglePinGroupMessage(Number((selectedChat as any)?.id), messageId, false);
+                } else {
+                  await pinService.togglePinMessage(messageId, false);
+                }
+                await loadPinnedMessages();
+                toast.success(t('chat.menu.unpinned', 'Đã bỏ ghim'));
+              } catch (e: any) {
+                toast.error(e?.response?.data?.message || t('chat.errors.generic'));
+              }
+            }}
           />
         )}
         {/* Top loading spinner for lazy load (placed after pinned banner) */}
@@ -1476,7 +1490,7 @@ const ChatView = memo(({
                               <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                             </button>
                             {menuOpenKey === groupKey && (
-                              <div className={`absolute z-40 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
+                              <div className={`absolute z-[60] ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
                                 onMouseLeave={() => onMenuToggle(null)}
                               >
                                 <button
@@ -1626,7 +1640,7 @@ const ChatView = memo(({
                                           </button>
                                           {menuOpenKey === `combo-${current.id}` && (
                                             <div
-                                              className={`absolute z-40 ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
+                                              className={`absolute z-[60] ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
                                               onMouseLeave={() => onMenuToggle(null)}
                                             >
                                               <button
