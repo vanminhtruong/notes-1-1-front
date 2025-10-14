@@ -591,26 +591,38 @@ export function useChatSocket(params: UseChatSocketParams) {
     };
 
     const onMessageRead = (data: any) => {
-      // Update message status to read và bổ sung readBy với thông tin user đầy đủ
+      // Update read receipts across ALL my messages up to this message
       setMessages((prev: any[]) => {
+        const payloadUserId = Number(data.userId);
+        const selectedMatch = (selectedChat && Number((selectedChat as any).id) === payloadUserId) ? selectedChat : undefined;
+        const listMatch = friends.find((f: any) => Number(f.id) === payloadUserId) || users.find((u: any) => Number(u.id) === payloadUserId);
+        const resolvedUser = (
+          data.user
+          || selectedMatch
+          || (listMatch as any)
+          || resolveUser(payloadUserId)
+        );
+
+        const targetId = Number(data.messageId);
+        const readAtMs = data.readAt ? new Date(data.readAt).getTime() : null;
+
         return prev.map((m: any) => {
-          if (m.id !== data.messageId) return m;
+          // Only apply to my messages (sender is current user)
+          const isMine = currentUser && Number(m.senderId) === Number(currentUser.id);
+          if (!isMine) return m;
+
+          // Determine ordering by id and createdAt
+          const mId = Number(m.id);
+          const mTs = typeof m.createdAt === 'string' ? new Date(m.createdAt).getTime() : Number(m.createdAt || 0);
+          const withinId = Number.isFinite(targetId) ? (mId <= targetId) : false;
+          const withinTime = Number.isFinite(readAtMs as any) && Number.isFinite(mTs) ? (mTs <= (readAtMs as number)) : false;
+          if (!(withinId || withinTime)) return m;
 
           const readBy = Array.isArray(m.readBy) ? m.readBy : [];
-          const payloadUserId = Number(data.userId);
-          const selectedMatch = (selectedChat && Number((selectedChat as any).id) === payloadUserId) ? selectedChat : undefined;
-          const listMatch = friends.find((f: any) => Number(f.id) === payloadUserId) || users.find((u: any) => Number(u.id) === payloadUserId);
-          const resolvedUser = (
-            data.user
-            || selectedMatch
-            || (listMatch as any)
-            || resolveUser(payloadUserId)
-          );
-
           const withoutUser = readBy.filter((rb: any) => Number(rb.userId) !== payloadUserId);
           const updatedReadBy = [
             ...withoutUser,
-            { userId: payloadUserId, readAt: data.readAt, user: resolvedUser },
+            { userId: payloadUserId, readAt: data.readAt || new Date().toISOString(), user: resolvedUser },
           ];
 
           return { ...m, status: 'read', readBy: updatedReadBy };

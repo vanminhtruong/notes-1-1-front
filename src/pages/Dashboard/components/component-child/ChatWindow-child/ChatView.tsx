@@ -1352,7 +1352,7 @@ const ChatView = memo(({
             </div>
           ) : null
         ) : (
-          <div className="space-y-1.5 relative z-10 mt-1 px-4">
+          <div className="space-y-px relative z-10 mt-0.5 px-4">
             {(() => {
               let lastDateKey: string | null = null;
               return visibleGroups.map((group) => {
@@ -1416,6 +1416,33 @@ const ChatView = memo(({
                         </>
                       );
                     }
+                    // Determine if the last message in this group shows read-by avatars (for own messages)
+                    const lastItemSorted = group.items
+                      .slice()
+                      .sort((a, b) => {
+                        const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                        const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                        return timeA - timeB;
+                      })
+                      .pop();
+                    const hasReadAvatars = !!(isOwnMessage && lastItemSorted && (lastItemSorted as any).status === 'read' && Array.isArray((lastItemSorted as any).readBy) && (lastItemSorted as any).readBy.some((rb: any) => rb.userId !== currentUserId));
+                    // detect if last item is also the latest message sent by me and will show a status icon (sent/delivered)
+                    const latestMyMessageId = (() => {
+                      try {
+                        const myMsgs = (messages || []).filter((m: any) => Number(m.senderId) === Number(currentUserId) && !m.isDeletedForAll);
+                        if (myMsgs.length === 0) return null;
+                        myMsgs.sort((a: any, b: any) => {
+                          const ta = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                          const tb = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                          if (Number.isFinite(ta) && Number.isFinite(tb)) return ta - tb;
+                          return (a.id || 0) - (b.id || 0);
+                        });
+                        return myMsgs[myMsgs.length - 1]?.id ?? null;
+                      } catch { return null; }
+                    })();
+                    const hasStatusIcon = !!(isOwnMessage && lastItemSorted && latestMyMessageId != null && Number((lastItemSorted as any).id) === Number(latestMyMessageId) && (((lastItemSorted as any).status === 'sent') || ((lastItemSorted as any).status === 'delivered')));
+                    const tsMtClass = (hasReadAvatars || hasStatusIcon) ? 'mt-3' : 'mt-0';
+
                     return (
                       <>
                         {showSep && (
@@ -1478,7 +1505,7 @@ const ChatView = memo(({
                               );
                             })()
                           )}
-                      <div className={`relative max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col gap-2`}>
+                      <div className={`relative max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col gap-0`}>
                         {showGroupMenu && (
                           <>
                             <button
@@ -1514,7 +1541,7 @@ const ChatView = memo(({
                         {/* Content */}
                         {allRecalled ? (
                           <>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-0">
                               {(() => {
                                 // When every item in this sender-time group was recalled,
                                 // compress sequences of image/file (+ optional following text)
@@ -1600,7 +1627,7 @@ const ChatView = memo(({
                           </>
                         ) : (
                           <>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-0">
                               {(() => {
                                 const sortedItems = group.items.sort((a, b) => {
                                   const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
@@ -1627,7 +1654,7 @@ const ChatView = memo(({
                                     const imgs = attachments.filter((a) => a.messageType === 'image' && !a.isDeletedForAll);
                                     const files = attachments.filter((a) => a.messageType === 'file' && !a.isDeletedForAll);
                                     result.push(
-                                      <div key={`combo-${current.id}`} className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'}`}>
+                                      <div key={`combo-${current.id}`} className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'} mb-1.5`}>
                                         <div className="relative">
                                           {/* Menu ba chấm cho combo bubble */}
                                           <button
@@ -1742,7 +1769,7 @@ const ChatView = memo(({
                             </div>
                           </>
                         )}
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-1">
+                        <p className={`text-[11px] leading-none text-gray-500 dark:text-gray-400 ${tsMtClass} mb-2 px-0 ${isOwnMessage ? 'self-end' : 'self-start'}`}>
                           {new Date(group.end).toLocaleTimeString(i18n.language || undefined, { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>

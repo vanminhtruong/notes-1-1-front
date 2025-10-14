@@ -93,6 +93,9 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
     }
 
     try {
+      // Close modal immediately for better UX
+      setShowCreateModal(false);
+      
       const reminderAt = newNote.reminderAtLocal
         ? new Date(newNote.reminderAtLocal).toISOString()
         : null;
@@ -112,9 +115,9 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
       await notesService.createNote(payload);
       
       toast.success(t('toasts.noteCreated'));
-      setShowCreateModal(false);
       
-      // Refresh folder notes
+      // Socket event 'note_created' will auto-add the note to folder
+      // Only refresh if needed for pagination/sorting
       onRefreshFolder();
     } catch (error: any) {
       console.error('Create note error:', error);
@@ -156,6 +159,10 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
     }
 
     try {
+      // Close modal immediately for better UX
+      setShowEditModal(false);
+      setEditNote(null);
+      
       const reminderAt = editNote.reminderAtLocal
         ? new Date(editNote.reminderAtLocal).toISOString()
         : null;
@@ -174,10 +181,9 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
       await notesService.updateNote(editNote.id, payload);
       
       toast.success(t('toasts.noteUpdated'));
-      setShowEditModal(false);
-      setEditNote(null);
       
-      // Refresh folder notes
+      // Socket event 'note_updated' will auto-update the note in folder
+      // Only refresh if needed for re-sorting
       onRefreshFolder();
     } catch (error: any) {
       console.error('Update note error:', error);

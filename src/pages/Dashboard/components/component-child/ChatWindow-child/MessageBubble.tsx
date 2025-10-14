@@ -209,6 +209,50 @@ const MessageBubble = memo(({
     if (Array.isArray(pinnedIdSet)) return pinnedIdSet.includes(message.id as any);
     return (pinnedIdSet as Set<number>).has(message.id as any);
   })();
+
+  // Determine if we really need to render the status/reaction row to avoid extra blank space
+  // 1) Status icon: only on latest message I sent, and only for 'sent'/'delivered'
+  const latestMyMessageIdForIcon = (() => {
+    try {
+      const myMessages = (allMessages || []).filter((m: any) => Number(m?.senderId) === Number(currentUserId) && !m?.isDeletedForAll);
+      if (myMessages.length === 0) return null;
+      myMessages.sort((a: any, b: any) => {
+        const ta = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : Number(a.createdAt || 0);
+        const tb = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : Number(b.createdAt || 0);
+        if (Number.isFinite(ta) && Number.isFinite(tb)) return ta - tb;
+        return (a.id || 0) - (b.id || 0);
+      });
+      return myMessages[myMessages.length - 1]?.id ?? null;
+    } catch { return null; }
+  })();
+  const hasStatusIcon = Boolean(
+    isOwnMessage && latestMyMessageIdForIcon != null && Number((message as any)?.id) === Number(latestMyMessageIdForIcon)
+    && ((message as any)?.status === 'sent' || (message as any)?.status === 'delivered')
+  );
+  // 2) Read avatars: only if some reader's last-read message equals this message
+  const hasReadAvatarsOnThis = (() => {
+    try {
+      if (!isOwnMessage) return false;
+      const list = Array.isArray((message as any)?.readBy) ? (message as any).readBy : [];
+      if (list.length === 0) return false;
+      const others = list.filter((rb: any) => Number(rb.userId) !== Number(currentUserId));
+      if (others.length === 0) return false;
+      const myMessages = (allMessages || [])
+        .filter((m: any) => Number(m?.senderId) === Number(currentUserId))
+        .sort((a: any, b: any) => (a.id || 0) - (b.id || 0));
+      if (myMessages.length === 0) return false;
+      const thisId = Number((message as any)?.id);
+      return others.some((rb: any) => {
+        const readByThis = myMessages.filter((m: any) => Array.isArray(m.readBy) && m.readBy.some((x: any) => Number(x.userId) === Number(rb.userId)));
+        if (readByThis.length === 0) return false;
+        const lastMsg = readByThis[readByThis.length - 1];
+        return Number(lastMsg?.id) === thisId;
+      });
+    } catch { return false; }
+  })();
+  // Only show the row when there is real visible content
+  const showStatusRow = hasStatusIcon || hasReadAvatarsOnThis;
+  const isLatestMineRow = Boolean(isOwnMessage && latestMyMessageIdForIcon != null && Number((message as any)?.id) === Number(latestMyMessageIdForIcon));
   
   // Check if this is a shared message (shared note)
   const isSharedMessage = typeof message.content === 'string' && message.content.startsWith('NOTE_SHARE::');
@@ -557,7 +601,7 @@ const MessageBubble = memo(({
 
   return (
     <Tooltip.Provider delayDuration={150} skipDelayDuration={250}>
-    <div id={`message-${message.id}`} className={`message-bubble relative group flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+    <div id={`message-${message.id}`} className={`message-bubble relative group flex ${isOwnMessage ? 'justify-end' : 'justify-start'} ${((message.messageType === 'image' || message.messageType === 'file') ? 'mb-1.5' : 'mb-1')} ${isLatestMineRow ? '' : 'hover:mb-2'}`}
          onMouseLeave={() => setShowReactions(false)}>
       <div className="inline-flex flex-col">
         <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
@@ -577,7 +621,7 @@ const MessageBubble = memo(({
             )}
           </div>
           {isPinned && (
-            <div className={`mt-1 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full ${isOwnMessage ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
+            <div className={`mt-0.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full ${isOwnMessage ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
               <Pin className="w-3 h-3" />
               {t('chat.menu.pinned', 'Đã ghim')}
             </div>
@@ -585,7 +629,7 @@ const MessageBubble = memo(({
           {/* Aggregated reactions display */}
           {Array.isArray(reactions) && reactions.length > 0 && (
             <div
-              className={`mt-1 inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 border ${isOwnMessage ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200'} cursor-pointer select-none`}
+              className={`mt-0.5 inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 border ${isOwnMessage ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200'} cursor-pointer select-none`}
               onClick={() => setShowReactionModal(true)}
               role="button"
               aria-label={String(t('chat.reactions.modal.title', { defaultValue: 'Reactions' } as any))}
@@ -626,16 +670,20 @@ const MessageBubble = memo(({
         )}
         </div>
         
-        {/* Status and Reaction row */}
-        <div className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-            {/* Reaction trigger - show before status for own messages */}
-            {!isRecalled && !disableReactions && isOwnMessage && (
+        {/* Status and Reaction row (latest own message: always visible; others: expand on hover) */}
+        <div
+          className={`flex items-center gap-1 ${isOwnMessage ? 'justify-end' : 'justify-start'} ${isLatestMineRow ? 'mt-0' : 'overflow-hidden transition-all duration-150 h-0 max-h-0 group-hover:h-6 group-hover:max-h-6 mt-0 group-hover:mt-1'}`}
+        >
+            {/* Reaction trigger - show before status for own messages (always visible on hover; disabled if not allowed) */}
+            {!isRecalled && isOwnMessage && (
               <button
                 type="button"
-                className="w-4 h-4 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
+                disabled={!!disableReactions}
+                className={`w-4 h-4 flex items-center justify-center rounded-full border shadow opacity-0 group-hover:opacity-100 transition-opacity ${disableReactions ? 'bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed pointer-events-none' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}
                 onMouseEnter={() => setShowReactions(true)}
                 onFocus={() => setShowReactions(true)}
                 onClick={() => {
+                  if (disableReactions) return;
                   const already = myTypes.includes('love');
                   handleReact('love', already);
                   enqueueBurst('❤️', 1);
@@ -643,25 +691,30 @@ const MessageBubble = memo(({
                 title={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
                 aria-label={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
               >
-                <span className="text-[10px] leading-none">❤️</span>
+                <span className={`text-[10px] leading-none ${disableReactions ? 'opacity-60' : ''}`}>❤️</span>
               </button>
             )}
             
-            <MessageStatus 
-              message={message} 
-              isOwnMessage={isOwnMessage} 
-              currentUserId={currentUserId}
-              allMessages={allMessages}
-            />
+            {/* Status + read avatars (still conditional per logic) */}
+            {(isLatestMineRow || showStatusRow) && (
+              <MessageStatus 
+                message={message} 
+                isOwnMessage={isOwnMessage} 
+                currentUserId={currentUserId}
+                allMessages={allMessages}
+              />
+            )}
             
-            {/* Reaction trigger - show after status for received messages */}
-            {!isRecalled && !disableReactions && !isOwnMessage && (
+            {/* Reaction trigger - show after status for received messages (always visible on hover) */}
+            {!isRecalled && !isOwnMessage && (
               <button
                 type="button"
-                className="w-4 h-4 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
+                disabled={!!disableReactions}
+                className={`w-4 h-4 flex items-center justify-center rounded-full border shadow opacity-0 group-hover:opacity-100 transition-opacity ${disableReactions ? 'bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 cursor-not-allowed pointer-events-none' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}
                 onMouseEnter={() => setShowReactions(true)}
                 onFocus={() => setShowReactions(true)}
                 onClick={() => {
+                  if (disableReactions) return;
                   const already = myTypes.includes('love');
                   handleReact('love', already);
                   enqueueBurst('❤️', 1);
@@ -669,7 +722,7 @@ const MessageBubble = memo(({
                 title={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
                 aria-label={String(t('chat.reactions.types.love', { defaultValue: 'Love' } as any))}
               >
-                <span className="text-[10px] leading-none">❤️</span>
+                <span className={`text-[10px] leading-none ${disableReactions ? 'opacity-60' : ''}`}>❤️</span>
               </button>
             )}
         </div>

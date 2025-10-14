@@ -196,7 +196,13 @@ export const useDashboard = () => {
 
   const handleCreateNote = useCallback(async () => {
     if (!newNote.title.trim()) return;
-    await dispatch(createNote({
+    
+    // Close modal immediately for better UX
+    setShowCreateModal(false);
+    setNewNote({ title: '', content: '', imageUrl: '', videoUrl: '', youtubeUrl: '', categoryId: undefined, priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
+    
+    // Create note in background
+    dispatch(createNote({
       title: newNote.title,
       content: newNote.content || undefined,
       imageUrl: newNote.imageUrl ? newNote.imageUrl : undefined,
@@ -207,29 +213,16 @@ export const useDashboard = () => {
       reminderAt: localInputToIso(newNote.reminderAtLocal),
       sharedFromUserId: newNote.sharedFromUserId,
     }));
-    setNewNote({ title: '', content: '', imageUrl: '', videoUrl: '', youtubeUrl: '', categoryId: undefined, priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
-    setShowCreateModal(false);
-    dispatch(fetchNotes({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  }, [newNote, dispatch, localInputToIso, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived]);
+    
+    // No need to fetchNotes - socket event 'note_created' will auto-add the note to the list
+  }, [newNote, dispatch, localInputToIso]);
 
   const handleDeleteNote = useCallback(async (id: number) => {
-    await dispatch(deleteNote(id));
-    dispatch(fetchNotes({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  }, [dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived]);
+    // Delete note in background
+    dispatch(deleteNote(id));
+    
+    // No need to fetchNotes - socket event 'note_deleted' will auto-remove the note from list
+  }, [dispatch]);
 
   const confirmDeleteNote = useCallback((id: number) => {
     const tId = toast.custom((toastData) => {
@@ -362,6 +355,9 @@ export const useDashboard = () => {
   const handleUpdateNote = useCallback(async () => {
     if (!editNote.title.trim()) return;
     
+    // Close modal immediately for better UX
+    setShowEditModal(false);
+    
     const updateData = {
       title: editNote.title,
       content: editNote.content,
@@ -373,21 +369,14 @@ export const useDashboard = () => {
       reminderAt: editNote.reminderAtLocal ? localInputToIso(editNote.reminderAtLocal) ?? null : null,
     };
     
-    await dispatch(updateNote({
+    // Update note in background
+    dispatch(updateNote({
       id: editNote.id,
       data: updateData,
     }));
     
-    setShowEditModal(false);
-    dispatch(fetchNotes({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  }, [editNote, localInputToIso, dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived]);
+    // No need to fetchNotes - socket event 'note_updated' will auto-update the note in the list
+  }, [editNote, localInputToIso, dispatch]);
 
   const toggleSelect = useCallback((id: number) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));

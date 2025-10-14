@@ -117,6 +117,27 @@ const MessageStatus = memo(({ message, isOwnMessage, currentUserId, allMessages 
     return readInfo.user || { id: readInfo.userId, name: String(t('chat.fallback.user', { id: readInfo.userId })) };
   };
 
+  // Find latest message sent by current user to limit where we show status icons
+  const latestMyMessageId = (() => {
+    try {
+      const myMessages = (allMessages || [])
+        .filter((m: any) => m && Number(m.senderId) === Number(currentUserId) && !m.isDeletedForAll);
+      if (myMessages.length === 0) return null;
+      // Prefer createdAt when present, fallback to id
+      myMessages.sort((a: any, b: any) => {
+        const ta = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+        const tb = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+        if (Number.isFinite(ta) && Number.isFinite(tb)) return ta - tb;
+        return (a.id || 0) - (b.id || 0);
+      });
+      return myMessages[myMessages.length - 1]?.id ?? null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const isLatestMine = isOwnMessage && latestMyMessageId != null && Number(latestMyMessageId) === Number((message as any)?.id);
+
   const renderReadByAvatars = () => {
     if (message.status !== 'read' || !message.readBy || message.readBy.length === 0) {
       return null;
@@ -205,7 +226,8 @@ const MessageStatus = memo(({ message, isOwnMessage, currentUserId, allMessages 
 
   return (
     <div className="flex items-center gap-1">
-      {renderStatusIcon()}
+      {/* Only show status icon on the latest message sent by me */}
+      {isLatestMine ? renderStatusIcon() : null}
       {renderReadByAvatars()}
     </div>
   );

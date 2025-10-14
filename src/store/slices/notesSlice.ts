@@ -200,15 +200,21 @@ const notesSlice = createSlice({
     },
     // Real-time updates from WebSocket
     addNoteRealtime: (state, action: PayloadAction<Note>) => {
-      state.notes.unshift(action.payload);
-      state.stats.total += 1;
-      state.stats.active += 1;
+      // Check for duplicate to avoid adding same note twice
+      const exists = state.notes.some(note => note.id === action.payload.id);
+      if (!exists) {
+        state.notes.unshift(action.payload);
+        state.stats.total += 1;
+        state.stats.active += 1;
+      }
     },
     updateNoteRealtime: (state, action: PayloadAction<Note>) => {
+      // Update note in list
       const index = state.notes.findIndex(note => note.id === action.payload.id);
       if (index !== -1) {
         state.notes[index] = action.payload;
       }
+      // Update current note if viewing
       if (state.currentNote?.id === action.payload.id) {
         state.currentNote = action.payload;
       }
@@ -288,29 +294,25 @@ const notesSlice = createSlice({
         state.currentNote = action.payload;
       })
       // Create Note
-      .addCase(createNote.fulfilled, (state, action) => {
-        state.notes.unshift(action.payload);
-        state.stats.total += 1;
-        state.stats.active += 1;
+      .addCase(createNote.fulfilled, (state) => {
+        // Note will be added by socket event 'note_created' for real-time sync
+        // No need to add here to avoid duplicate
+        // Just update loading state
+        state.isLoading = false;
       })
       // Update Note
-      .addCase(updateNote.fulfilled, (state, action) => {
-        const index = state.notes.findIndex(note => note.id === action.payload.id);
-        if (index !== -1) {
-          state.notes[index] = action.payload;
-        }
-        if (state.currentNote?.id === action.payload.id) {
-          state.currentNote = action.payload;
-        }
+      .addCase(updateNote.fulfilled, (state) => {
+        // Note will be updated by socket event 'note_updated' for real-time sync
+        // No need to update here to avoid duplicate
+        // Just update loading state
+        state.isLoading = false;
       })
       // Delete Note
-      .addCase(deleteNote.fulfilled, (state, action) => {
-        state.notes = state.notes.filter(note => note.id !== action.payload);
-        if (state.currentNote?.id === action.payload) {
-          state.currentNote = null;
-        }
-        state.stats.total -= 1;
-        state.stats.active -= 1;
+      .addCase(deleteNote.fulfilled, (state) => {
+        // Note will be removed by socket event 'note_deleted' for real-time sync
+        // No need to remove here to avoid duplicate
+        // Just update loading state
+        state.isLoading = false;
       })
       // Archive Note
       .addCase(archiveNote.fulfilled, (state, action) => {

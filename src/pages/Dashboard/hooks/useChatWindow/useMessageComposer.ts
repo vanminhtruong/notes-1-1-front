@@ -148,19 +148,21 @@ export function useMessageComposer({
 
       // If there is text, send it too
       if (newMessage.trim()) {
-        const response = await chatService.sendMessage(selectedChat.id, newMessage.trim(), 'text', replyId);
-        if (response.success) {
-          const apiMsg = response.data;
-          setMessages((prev) => {
-            const exists = prev.some((m: any) => m.id === apiMsg.id);
-            const messageWithStatus = { ...apiMsg, status: 'sent' };
-            return exists ? prev : [...prev, messageWithStatus];
-          });
-          setNewMessage('');
-          sentSomething = true;
-          // Update chat list preview
-          upsertChatListWithMessage(selectedChat.id, apiMsg as Message);
-        }
+        const textToSend = newMessage.trim();
+        
+        // Clear input immediately for better UX
+        setNewMessage('');
+        sentSomething = true;
+        
+        // Send message in background, socket will auto-add it to list
+        chatService.sendMessage(selectedChat.id, textToSend, 'text', replyId).catch((error: any) => {
+          const status = error?.response?.status;
+          if (status === 403) {
+            toast.error(error?.response?.data?.message || t('chat.errors.messageBlockedCurrent', 'Message not sent. Messaging between you and this user is blocked.'));
+          } else {
+            toast.error(error?.response?.data?.message || t('chat.errors.sendMessage'));
+          }
+        });
       }
 
       if (sentSomething) {
@@ -247,17 +249,21 @@ export function useMessageComposer({
 
       // If there is text, send it too
       if (newMessage.trim()) {
-        const response = await groupService.sendGroupMessage(selectedGroup.id, newMessage.trim(), 'text', replyId);
-        if (response.success) {
-          const apiMsg = response.data;
-          setMessages((prev: any[]) => {
-            const exists = prev.some((m: any) => m.id === apiMsg.id);
-            const messageWithStatus = { ...apiMsg, status: 'sent' };
-            return exists ? prev : [...prev, messageWithStatus];
-          });
-          setNewMessage('');
-          sentSomething = true;
-        }
+        const textToSend = newMessage.trim();
+        
+        // Clear input immediately for better UX
+        setNewMessage('');
+        sentSomething = true;
+        
+        // Send message in background, socket will auto-add it to list
+        groupService.sendGroupMessage(selectedGroup.id, textToSend, 'text', replyId).catch((error: any) => {
+          const status = error?.response?.status;
+          if (status === 403) {
+            toast.error(error?.response?.data?.message || t('chat.groups.adminsOnly.inputHidden', 'Chỉ quản trị viên mới được gửi tin nhắn vào nhóm.'));
+          } else {
+            toast.error(error?.response?.data?.message || t('chat.errors.sendMessage'));
+          }
+        });
       }
 
       if (sentSomething) {
