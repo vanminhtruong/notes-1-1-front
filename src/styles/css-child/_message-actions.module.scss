@@ -1,0 +1,145 @@
+/**
+ * Message Actions Module
+ * Handles styles for message hover actions (reply, reactions, menu)
+ * SCOPED with .message-bubble class to avoid conflicts
+ */
+
+@mixin apply-message-actions($theme-class, $bg-card, $bg-hover, $border-color, $border-hover) {
+  // ========================================
+  // Message Actions - Reply Button
+  // SCOPE: .message-bubble class
+  // ========================================
+  
+  // Reply button background and hover
+  .#{$theme-class} .message-bubble button.dark\:bg-gray-800.rounded-full {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} .message-bubble button.dark\:bg-gray-800.rounded-full:hover,
+  .#{$theme-class} .message-bubble button.dark\:hover\:bg-gray-700.rounded-full:hover {
+    background-color: $bg-hover !important;
+  }
+
+  // Reply button border
+  .#{$theme-class} .message-bubble button.dark\:border-gray-700.rounded-full {
+    border-color: $border-color !important;
+  }
+
+  // ========================================
+  // Message Actions - Reaction Buttons
+  // ========================================
+  
+  // Reaction heart button background
+  .#{$theme-class} .message-bubble button.dark\:bg-gray-800.rounded-full.w-4 {
+    background-color: $bg-card !important;
+  }
+
+  // Reaction heart button border
+  .#{$theme-class} .message-bubble button.dark\:border-gray-700.rounded-full.w-4 {
+    border-color: $border-color !important;
+  }
+
+  // Disabled reaction button
+  .#{$theme-class} .message-bubble button.dark\:bg-gray-700.rounded-full[disabled] {
+    background-color: rgba($bg-card, 0.5) !important;
+  }
+
+  .#{$theme-class} .message-bubble button.dark\:border-gray-600.rounded-full[disabled] {
+    border-color: rgba($border-color, 0.7) !important;
+  }
+
+  // ========================================
+  // Message Actions - Emoji Picker
+  // ========================================
+  
+  // Emoji picker container
+  .#{$theme-class} .message-bubble div.rounded-2xl.shadow-lg.border,
+  .#{$theme-class} .message-bubble div[class*="bg-gray-900"].rounded-2xl,
+  .#{$theme-class} .message-bubble div[class*="bg-white"].rounded-2xl {
+    background-color: rgba($bg-card, 0.95) !important;
+    border-color: $border-color !important;
+  }
+
+  // Remove reaction X button in emoji picker
+  .#{$theme-class} .message-bubble .rounded-2xl button.dark\:bg-gray-800.rounded-full {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} .message-bubble .rounded-2xl button.dark\:bg-gray-800.rounded-full:hover,
+  .#{$theme-class} .message-bubble .rounded-2xl button.dark\:hover\:bg-gray-700.rounded-full:hover {
+    background-color: $bg-hover !important;
+  }
+
+  .#{$theme-class} .message-bubble .rounded-2xl button.dark\:border-gray-600.rounded-full {
+    border-color: $border-color !important;
+  }
+
+  // ========================================
+  // Message Actions - Menu Button
+  // ========================================
+  
+  // Menu toggle button (3 dots)
+  .#{$theme-class} .message-bubble > button.dark\:bg-gray-800.rounded-full {
+    background-color: $bg-card !important;
+  }
+
+  // Menu toggle button border
+  .#{$theme-class} .message-bubble > button.dark\:border-gray-700.rounded-full {
+    border-color: $border-color !important;
+  }
+
+  // ========================================
+  // Message Actions - Menu Dropdown
+  // ========================================
+  
+  // Menu dropdown container
+  .#{$theme-class} .message-bubble div.dark\:bg-gray-800.rounded-md {
+    background-color: $bg-card !important;
+  }
+
+  // Menu dropdown border
+  .#{$theme-class} .message-bubble div.dark\:border-gray-700.rounded-md {
+    border-color: $border-color !important;
+  }
+
+  // Menu items hover
+  .#{$theme-class} .message-bubble div.dark\:bg-gray-800.rounded-md button.dark\:hover\:bg-gray-700:hover {
+    background-color: $bg-hover !important;
+  }
+
+  // Menu item text hover colors
+  .#{$theme-class} .message-bubble button.dark\:hover\:bg-gray-700:hover {
+    background-color: $bg-hover !important;
+  }
+
+  // Red menu item (delete) hover
+  .#{$theme-class} .message-bubble button.dark\:hover\:bg-red-900\/20:hover {
+    background-color: rgba(#7f1d1d, 0.2) !important;
+  }
+
+  // ========================================
+  // Message Actions - Reaction Display Badge
+  // ========================================
+  
+  // Aggregated reactions badge
+  .#{$theme-class} .message-bubble div.dark\:bg-gray-800.rounded-full {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} .message-bubble div.dark\:border-gray-600.rounded-full {
+    border-color: $border-color !important;
+  }
+
+  // ========================================
+  // Message Actions - Edit Mode Cancel Button
+  // ========================================
+  
+  // Cancel button in edit mode
+  .#{$theme-class} .message-bubble button.dark\:bg-gray-700.rounded-md {
+    background-color: $bg-card !important;
+  }
+
+  .#{$theme-class} .message-bubble button.dark\:hover\:bg-gray-600.rounded-md:hover {
+    background-color: $bg-hover !important;
+  }
+}

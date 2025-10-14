@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { useAppSelector } from '../../../../../store';
 import GroupEditorModal from './GroupEditorModal';
 import { pinService } from '../../../../../services/pinService';
-import { MoreVertical, Pin, PinOff } from 'lucide-react';
+import { MoreVertical, Pin, PinOff, Search, X } from 'lucide-react';
 import type { GroupsTabProps, GroupItem, PendingInvite } from '../../interface/ChatUI.interface';
 import LazyLoad from '@/components/LazyLoad';
 
@@ -27,15 +27,16 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [pinStatusMap, setPinStatusMap] = useState<Record<number, boolean>>({});
   const [loadingPinFor, setLoadingPinFor] = useState<number | null>(null);
+  const [groupSearchTerm, setGroupSearchTerm] = useState('');
   const currentUserId = useAppSelector((state) => state.auth.user?.id);
   // Override map to force unreadCount display (e.g., set to 0 immediately after read)
   const [unreadOverride, setUnreadOverride] = useState<Record<number, number | undefined>>({});
 
-  const loadGroups = async () => {
+  const loadGroups = async (search?: string) => {
     setLoading(true);
     try {
-      console.log('[GroupsTab] Loading groups...');
-      const res = await groupService.listMyGroups();
+      console.log('[GroupsTab] Loading groups...', { search });
+      const res = await groupService.listMyGroups(search);
       if (res.success) {
         console.log('[GroupsTab] Groups loaded:', res.data);
         const data = (res.data || []).map((g: any) => {
@@ -67,15 +68,15 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
   };
 
   useEffect(() => {
-    loadGroups();
+    loadGroups(groupSearchTerm);
     loadPendingInvites();
-  }, []);
+  }, [groupSearchTerm]);
 
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
 
-    const onGroupCreated = () => loadGroups();
+    const onGroupCreated = () => loadGroups(groupSearchTerm);
     const onGroupInvited = () => {
       // Refresh pending invites when new invitation received
       loadPendingInvites();
@@ -83,11 +84,11 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
     };
     const onMembersAdded = (payload: any) => {
       console.log('[Socket] group_members_added received:', payload);
-      loadGroups();
+      loadGroups(groupSearchTerm);
     };
-    const onMemberLeft = () => loadGroups();
-    const onGroupLeft = () => loadGroups();
-    const onGroupUpdated = () => loadGroups();
+    const onMemberLeft = () => loadGroups(groupSearchTerm);
+    const onGroupLeft = () => loadGroups(groupSearchTerm);
+    const onGroupUpdated = () => loadGroups(groupSearchTerm);
     // When any group message is marked read, refresh if it's me (to drop badge)
     const onGroupMessageRead = (payload: { groupId: number; userId: number; messageId: number; readAt: string }) => {
       try {
@@ -144,7 +145,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
       socket.off('group_message_read', onGroupMessageRead);
       socket.off('group_message', onGroupMessage);
     };
-  }, []);
+  }, [groupSearchTerm]);
 
   // Listen for cross-component event when a group is opened/read to refresh unread badges
   useEffect(() => {
@@ -157,16 +158,16 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
           setUnreadOverride((prev) => ({ ...prev, [gid]: 0 }));
         }
         // Then fetch authoritative data from backend
-        loadGroups();
+        loadGroups(groupSearchTerm);
       } catch {
-        loadGroups();
+        loadGroups(groupSearchTerm);
       }
     };
     if (typeof window !== 'undefined') {
       window.addEventListener('group_marked_read', onMarkedRead as any);
       return () => window.removeEventListener('group_marked_read', onMarkedRead as any);
     }
-  }, [loadGroups]);
+  }, [groupSearchTerm]);
 
   // Load available users for inviting (filters out current group members)
   const loadAvailableUsers = async (search = '') => {
@@ -286,7 +287,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
         }
         
         closeInviteModal();
-        loadGroups(); // Refresh groups to show updated member count
+        loadGroups(groupSearchTerm); // Refresh groups to show updated member count
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || t('chat.groups.errors.inviteFailed'));
@@ -310,7 +311,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
     try {
       await groupService.acceptGroupInvite(invite.group.id, invite.id);
       toast.success(t('chat.groups.success.inviteAccepted', 'Joined group'));
-      loadGroups();
+      loadGroups(groupSearchTerm);
       loadPendingInvites();
     } catch (e: any) {
       toast.error(e?.response?.data?.message || t('chat.groups.errors.inviteFailed'));
@@ -349,7 +350,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
       setOpenMenuId(null);
       
       // Refresh groups to show new pin order
-      loadGroups();
+      loadGroups(groupSearchTerm);
     } catch (e: any) {
       toast.error(e?.response?.data?.message || t('chat.groups.errors.pin', 'Failed to update pin status'));
     } finally {
@@ -371,11 +372,35 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('chat.groups.title')}</h2>
-        <button onClick={onCreateGroup} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-full">
-          {t('chat.groups.create')}
-        </button>
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('chat.groups.title')}</h2>
+          <button onClick={onCreateGroup} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-full transition-colors">
+            {t('chat.groups.create')}
+          </button>
+        </div>
+        
+        {/* Search Bar */}
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            value={groupSearchTerm}
+            onChange={(e) => setGroupSearchTerm(e.target.value)}
+            placeholder={t('chat.groups.searchPlaceholder', 'Tìm kiếm nhóm...')}
+            className="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm transition-all"
+          />
+          {groupSearchTerm && (
+            <button
+              onClick={() => setGroupSearchTerm('')}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
+              <X className="h-4 w-4 text-gray-400" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Pending Group Invitations */}
@@ -438,9 +463,19 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
           <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">Loading…</div>
         ) : groups.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
-            <div className="text-5xl mb-3">👥</div>
-            <p className="font-medium">{t('chat.groups.empty.noGroups')}</p>
-            <p className="text-sm mt-1">{t('chat.groups.empty.createFirst')}</p>
+            <div className="text-5xl mb-3">{groupSearchTerm ? '🔍' : '👥'}</div>
+            <p className="font-medium">
+              {groupSearchTerm 
+                ? t('chat.groups.empty.noResults', 'Không tìm thấy nhóm nào')
+                : t('chat.groups.empty.noGroups')
+              }
+            </p>
+            <p className="text-sm mt-1">
+              {groupSearchTerm 
+                ? t('chat.groups.empty.tryDifferent', 'Thử tìm kiếm với từ khóa khác')
+                : t('chat.groups.empty.createFirst')
+              }
+            </p>
           </div>
         ) : (
           <ul className="space-y-2">
@@ -461,7 +496,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                   // Persist override so subsequent loadGroups() keeps 0 until a new message arrives
                   setUnreadOverride((prev) => ({ ...prev, [g.id]: 0 }));
                   // Notify backend to mark as read right away; then refresh list
-                  try { void groupService.markGroupMessagesRead(g.id).then(() => loadGroups()).catch(() => loadGroups()); } catch {}
+                  try { void groupService.markGroupMessagesRead(g.id).then(() => loadGroups(groupSearchTerm)).catch(() => loadGroups(groupSearchTerm)); } catch {}
                   onSelectGroup?.(g);
                 }}
               >
@@ -567,7 +602,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
         onSuccess={() => {
           // Success toast is shown inside GroupEditorModal; avoid duplicate toast here
           setShowCreateModal(false);
-          loadGroups();
+          loadGroups(groupSearchTerm);
         }}
       />
 

@@ -396,6 +396,7 @@
     "groups": {
       "title": "Nhóm",
       "create": "Tạo nhóm",
+      "searchPlaceholder": "Tìm kiếm nhóm...",
       "createModal": {
         "title": "Tạo nhóm mới",
         "nameLabel": "Tên nhóm",
@@ -449,7 +450,9 @@
       },
       "empty": {
         "noGroups": "Chưa có nhóm nào",
-        "createFirst": "Tạo nhóm đầu tiên để bắt đầu trò chuyện"
+        "createFirst": "Tạo nhóm đầu tiên để bắt đầu trò chuyện",
+        "noResults": "Không tìm thấy nhóm nào",
+        "tryDifferent": "Thử tìm kiếm với từ khóa khác"
       },
       "pendingInvites": {
         "title": "Lời mời nhóm"

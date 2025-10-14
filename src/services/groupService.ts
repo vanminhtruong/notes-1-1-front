@@ -40,8 +40,9 @@ export interface GroupMessage {
 }
 
 export const groupService = {
-  async listMyGroups() {
-    const res = await api.get('/groups');
+  async listMyGroups(search?: string) {
+    const params = search ? { search } : {};
+    const res = await api.get('/groups', { params });
     return res.data as { success: boolean; data: GroupSummary[] };
   },
   async getUserGroups(userId: number) {

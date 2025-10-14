@@ -98,6 +98,9 @@ const ChatView = memo(({
   // Throttle scroll handler to avoid rapid retriggers near the top
   const scrollThrottleRef = useRef<number>(0);
   // Chỉ tải khi người dùng đã thực sự cuộn lên (tránh auto-load khi mount hoặc sentinel sẵn trong viewport)
+  // Track message growth to decide when to auto-scroll
+  const prevMsgsLenRef = useRef<number>(-1);
+  const prevLastMsgIdRef = useRef<any>(null);
   const userInteractedRef = useRef<boolean>(false);
   const prevScrollTopRef = useRef<number>(0);
   // Chỉ bật cơ chế load ngược khi phiên cuộn bắt đầu từ đáy (tin nhắn mới nhất)
@@ -326,10 +329,23 @@ const ChatView = memo(({
   useEffect(() => {
     // Avoid jumping to bottom when we are prepending older messages
     if (prependingRef.current) return;
-    // For normal updates (new incoming/outgoing), keep behavior
-    scrollToBottom();
-    // Đánh dấu phiên cuộn khởi đầu từ đáy để cho phép lazy-load khi cuộn lên
-    startedFromBottomRef.current = true;
+
+    // Determine if a new message was appended to the end
+    const newLen = Array.isArray(messages) ? messages.length : 0;
+    const newLastId = newLen > 0 ? (messages as any[])[newLen - 1]?.id : null;
+    const prevLen = prevMsgsLenRef.current;
+    const prevLastId = prevLastMsgIdRef.current;
+
+    const appendedNewMessage = newLen > prevLen && newLastId !== prevLastId;
+    if (appendedNewMessage) {
+      scrollToBottom();
+      // Đánh dấu phiên cuộn khởi đầu từ đáy để cho phép lazy-load khi cuộn lên
+      startedFromBottomRef.current = true;
+    }
+
+    // Update trackers
+    prevMsgsLenRef.current = newLen;
+    prevLastMsgIdRef.current = newLastId;
   }, [messages]);
 
   // Reset pagination when switching chat/group
@@ -1311,7 +1327,7 @@ const ChatView = memo(({
         {/* Overlay to hide older messages area during loading (spinner remains visible) */}
         {isLoadingPrev && showTopSpinner && (
           <div
-            className="absolute top-0 left-0 right-0 z-30 h-24 md:h-28 bg-white dark:bg-gray-900"
+            className="absolute top-0 left-0 right-0 z-30 h-24 md:h-28 bg-transparent"
             aria-hidden="true"
           />
         )}

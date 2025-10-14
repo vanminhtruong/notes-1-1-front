@@ -394,6 +394,7 @@
     "groups": {
       "title": "Groups",
       "create": "Create group",
+      "searchPlaceholder": "Search groups...",
       "createModal": {
         "title": "Create new group",
         "nameLabel": "Group name",
@@ -447,7 +448,9 @@
       },
       "empty": {
         "noGroups": "No groups yet",
-        "createFirst": "Create your first group to start chatting"
+        "createFirst": "Create your first group to start chatting",
+        "noResults": "No groups found",
+        "tryDifferent": "Try searching with different keywords"
       },
       "pendingInvites": {
         "title": "Group Invitations"
