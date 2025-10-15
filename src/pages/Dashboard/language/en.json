@@ -406,8 +406,16 @@
       },
       "invite": {
         "title": "Invite members",
+        "subtitle": "Invite members to {{groupName}}",
+        "searchLabel": "Search users",
         "placeholder": "Search users by name or email",
-        "addButton": "Add"
+        "addButton": "Add",
+        "selected": "Selected",
+        "availableUsers": "Available users",
+        "loading": "Loading users...",
+        "noUsers": "No users found",
+        "tryDifferent": "Try searching with different keywords",
+        "inviting": "Inviting..."
       },
       "actions": {
         "edit": "Edit group",
@@ -751,10 +759,15 @@
       },
       "blocked": {
         "title": "Blocked users",
+        "subtitle": "{{count}} people blocked",
         "description": "Manage the people you have blocked. You can unblock anyone at any time.",
+        "searchLabel": "Search blocked users",
+        "listTitle": "List ({{count}})",
         "unblock": "Unblock",
+        "unblocking": "Unblocking...",
         "empty": "You haven't blocked anyone yet",
-        "viewList": "View list"
+        "viewList": "View list",
+        "notice": "When you unblock, you and this person can message each other again"
       },
       "pin": {
         "title": "PIN",

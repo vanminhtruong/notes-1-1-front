@@ -408,8 +408,16 @@
       },
       "invite": {
         "title": "Mời thành viên",
+        "subtitle": "Mời thành viên vào {{groupName}}",
+        "searchLabel": "Tìm kiếm người dùng",
         "placeholder": "Tìm người dùng theo tên hoặc email",
-        "addButton": "Thêm"
+        "addButton": "Thêm",
+        "selected": "Đã chọn",
+        "availableUsers": "Người dùng khả dụng",
+        "loading": "Đang tải người dùng...",
+        "noUsers": "Không tìm thấy người dùng",
+        "tryDifferent": "Thử tìm kiếm với từ khóa khác",
+        "inviting": "Đang mời..."
       },
       "actions": {
         "edit": "Chỉnh sửa nhóm",
@@ -756,10 +764,15 @@
       },
       "blocked": {
         "title": "Người bị chặn",
+        "subtitle": "{{count}} người đã bị chặn",
         "description": "Quản lý danh sách những người bạn đã chặn. Bạn có thể bỏ chặn bất kỳ lúc nào.",
+        "searchLabel": "Tìm kiếm người bị chặn",
+        "listTitle": "Danh sách ({{count}})",
         "unblock": "Bỏ chặn",
+        "unblocking": "Đang bỏ chặn...",
         "empty": "Bạn chưa chặn ai",
-        "viewList": "Xem danh sách"
+        "viewList": "Xem danh sách",
+        "notice": "Khi bỏ chặn, bạn và người này có thể nhắn tin cho nhau trở lại"
       },
       "pin": {
         "title": "PIN",
