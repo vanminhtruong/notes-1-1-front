@@ -76,13 +76,17 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
     e.preventDefault();
     if (!name.trim()) return;
 
+    // Tối ưu: Đóng modal ngay, không chờ API
+    const categoryData = { name: name.trim(), color, icon: icon || 'Tag' };
+    setName('');
+    setColor('#3B82F6');
+    setIcon('Tag');
+    onClose();
+
+    // Gọi API trong background
     setIsSubmitting(true);
     try {
-      await onSubmit({ name: name.trim(), color, icon: icon || 'Tag' });
-      setName('');
-      setColor('#3B82F6');
-      setIcon('Tag');
-      onClose();
+      await onSubmit(categoryData);
     } catch (error) {
       console.error('Create category error:', error);
     } finally {
@@ -93,7 +97,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm-down:p-3 xs-down:p-2.5 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm-down:p-3 xs-down:p-2.5 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white dark:bg-gray-800 rounded-2xl md-down:rounded-xl shadow-2xl w-full max-w-md md-down:max-w-sm xs-down:max-w-[92%] max-h-[90vh] flex flex-col overflow-hidden transform transition-all">
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-b border-gray-200 dark:border-gray-700">
@@ -167,13 +171,16 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
                       className={`w-12 h-12 md-down:w-11 md-down:h-11 sm-down:w-10 sm-down:h-10 rounded-lg border-2 flex items-center justify-center transition-all ${
                         icon === iconOption.name
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-110'
-                          : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 hover:scale-105'
+                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 hover:scale-105'
                       }`}
-                      style={{ 
-                        color: icon === iconOption.name ? color : undefined 
-                      }}
                     >
-                      <IconComponent className="w-6 h-6 md-down:w-5 md-down:h-5 sm-down:w-4.5 sm-down:h-4.5" strokeWidth={2} />
+                      <IconComponent 
+                        className="w-6 h-6 md-down:w-5 md-down:h-5 sm-down:w-4.5 sm-down:h-4.5" 
+                        strokeWidth={2}
+                        style={{ 
+                          color: icon === iconOption.name ? color : undefined 
+                        }}
+                      />
                     </button>
                   );
                 })}

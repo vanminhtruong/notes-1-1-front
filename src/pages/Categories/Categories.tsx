@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Tag, Plus } from 'lucide-react';
@@ -28,32 +28,33 @@ export default function Categories() {
   const [viewNotesModalOpen, setViewNotesModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<NoteCategory | null>(null);
 
-  const handleCreateCategory = () => {
+  // Tối ưu: Sử dụng useCallback để tránh re-create functions
+  const handleCreateCategory = useCallback(() => {
     setCreateModalOpen(true);
-  };
+  }, []);
 
-  const handleEditCategory = (category: NoteCategory) => {
+  const handleEditCategory = useCallback((category: NoteCategory) => {
     setSelectedCategory(category);
     setEditModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteCategory = (category: NoteCategory) => {
+  const handleDeleteCategory = useCallback((category: NoteCategory) => {
     setSelectedCategory(category);
     setDeleteModalOpen(true);
-  };
+  }, []);
 
-  const handleViewNotes = (category: NoteCategory) => {
+  const handleViewNotes = useCallback((category: NoteCategory) => {
     setSelectedCategory(category);
     setViewNotesModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseModals = () => {
+  const handleCloseModals = useCallback(() => {
     setCreateModalOpen(false);
     setEditModalOpen(false);
     setDeleteModalOpen(false);
     setViewNotesModalOpen(false);
     setSelectedCategory(null);
-  };
+  }, []);
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-900/60 dark:to-gray-800 min-h-screen">

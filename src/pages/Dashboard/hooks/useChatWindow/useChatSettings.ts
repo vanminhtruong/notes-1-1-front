@@ -204,12 +204,55 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
     const onUserBlocked = () => { refreshBlockedUsers(); };
     const onUserUnblocked = () => { refreshBlockedUsers(); };
 
+    // Admin changed settings - Real-time sync
+    const onAdminSettingsUpdate = (payload: any) => {
+      let changed = false;
+      
+      if (typeof payload.e2eeEnabled === 'boolean' && payload.e2eeEnabled !== e2eeEnabled) {
+        setE2EEEnabled(payload.e2eeEnabled);
+        localStorage.setItem('e2ee_enabled', payload.e2eeEnabled ? '1' : '0');
+        if (!payload.e2eeEnabled) {
+          setE2EEUnlocked(false);
+          sessionStorage.removeItem('e2ee_unlocked');
+        }
+        changed = true;
+      }
+      
+      if (typeof payload.readStatusEnabled === 'boolean' && payload.readStatusEnabled !== readStatusEnabled) {
+        setReadStatusEnabled(payload.readStatusEnabled);
+        changed = true;
+      }
+      
+      if (typeof payload.allowMessagesFromNonFriends === 'boolean' && payload.allowMessagesFromNonFriends !== allowMessagesFromNonFriends) {
+        setAllowMessagesFromNonFriends(payload.allowMessagesFromNonFriends);
+        changed = true;
+      }
+      
+      if (typeof payload.hidePhone === 'boolean' && payload.hidePhone !== hidePhone) {
+        setHidePhone(payload.hidePhone);
+        changed = true;
+      }
+      
+      if (typeof payload.hideBirthDate === 'boolean' && payload.hideBirthDate !== hideBirthDate) {
+        setHideBirthDate(payload.hideBirthDate);
+        changed = true;
+      }
+      
+      if (changed && payload.message) {
+        toast(payload.message, {
+          icon: '⚙️',
+          duration: 5000,
+        });
+      }
+    };
+
     if (socket) socket.on('e2ee_status', onStatus);
     if (socket) socket.on('e2ee_pin_updated', onPinUpdated);
     if (socket) socket.on('read_status_updated', onReadStatusUpdated);
     if (socket) socket.on('privacy_updated', onPrivacyUpdated);
     if (socket) socket.on('user_blocked', onUserBlocked as any);
     if (socket) socket.on('user_unblocked', onUserUnblocked as any);
+    if (socket) socket.on('user_settings_updated', onAdminSettingsUpdate);
 
     return () => {
       window.removeEventListener('storage', onStorage);
@@ -220,9 +263,10 @@ export function useChatSettings(t: TFunction<'dashboard'>): UseChatSettings {
         socket.off('privacy_updated', onPrivacyUpdated);
         socket.off('user_blocked', onUserBlocked as any);
         socket.off('user_unblocked', onUserUnblocked as any);
+        socket.off('user_settings_updated', onAdminSettingsUpdate);
       }
     };
-  }, []);
+  }, [e2eeEnabled, readStatusEnabled, allowMessagesFromNonFriends, hidePhone, hideBirthDate]);
 
   // Initial load
   useEffect(() => {

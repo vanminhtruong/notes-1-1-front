@@ -30,10 +30,14 @@ const DeleteCategoryModal = ({ isOpen, category, onClose, onConfirm }: DeleteCat
   const handleConfirm = async () => {
     if (!category) return;
 
+    // Tối ưu: Đóng modal ngay, không chờ API
+    const categoryId = category.id;
+    onClose();
+
+    // Gọi API trong background
     setIsDeleting(true);
     try {
-      await onConfirm(category.id);
-      onClose();
+      await onConfirm(categoryId);
     } catch (error) {
       console.error('Delete category error:', error);
     } finally {

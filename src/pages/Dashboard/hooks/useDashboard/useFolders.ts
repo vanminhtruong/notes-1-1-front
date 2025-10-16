@@ -50,41 +50,91 @@ export const useFolders = () => {
     }
   }, [t]);
 
-  // Create folder
+  // Create folder - Tối ưu: Optimistic update
   const createFolder = useCallback(async (data: { name: string; color: string; icon: string }) => {
+    // Tạo temp folder với negative ID
+    const tempId = -Date.now();
+    const tempFolder: NoteFolder = {
+      id: tempId,
+      name: data.name,
+      color: data.color,
+      icon: data.icon,
+      userId: 0,
+      notesCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Optimistic update: Thêm vào đầu danh sách ngay
+    setFolders(prev => [tempFolder, ...prev]);
+
     try {
-      await notesService.createFolder(data);
-      // Don't add here - socket listener will handle it to avoid duplicates
-      
+      const response = await notesService.createFolder(data);
+      // Replace temp folder với real folder
+      setFolders(prev => 
+        prev.map(f => f.id === tempId ? response.folder : f)
+      );
       toast.success(t('folders.createSuccess'));
     } catch (error: any) {
       console.error('Create folder error:', error);
+      // Rollback optimistic update
+      setFolders(prev => prev.filter(f => f.id !== tempId));
       toast.error(error.response?.data?.message || t('folders.createError'));
       throw error;
     }
   }, [t]);
 
-  // Update folder
+  // Update folder - Tối ưu: Optimistic update
   const updateFolder = useCallback(async (id: number, data: { name: string; color: string; icon: string }) => {
+    // Lưu old data để rollback nếu lỗi
+    let oldFolder: NoteFolder | undefined;
+    
+    // Optimistic update: Cập nhật UI ngay
+    setFolders(prev => {
+      oldFolder = prev.find(f => f.id === id);
+      return prev.map(f => f.id === id ? { ...f, ...data } : f);
+    });
+
     try {
-      await notesService.updateFolder(id, data);
-      // Socket listener will handle it to avoid duplicates
-      
+      const response = await notesService.updateFolder(id, data);
+      // Sync với server data
+      if (response.folder) {
+        setFolders(prev => prev.map(f => 
+          f.id === id ? { ...f, ...response.folder } : f
+        ));
+      }
       toast.success(t('folders.updateSuccess'));
     } catch (error: any) {
       console.error('Update folder error:', error);
+      // Rollback
+      if (oldFolder) {
+        setFolders(prev => prev.map(f => f.id === id ? oldFolder! : f));
+      }
       toast.error(error.response?.data?.message || t('folders.updateError'));
       throw error;
     }
   }, [t]);
 
-  // Delete folder
+  // Delete folder - Tối ưu: Optimistic update
   const deleteFolder = useCallback(async (id: number) => {
+    // Lưu folder để rollback
+    let deletedFolder: NoteFolder | undefined;
+    
+    // Optimistic update: Xóa ngay
+    setFolders(prev => {
+      deletedFolder = prev.find(f => f.id === id);
+      return prev.filter(f => f.id !== id);
+    });
+
     try {
       await notesService.deleteFolder(id);    
       toast.success(t('folders.deleteSuccess'));
     } catch (error: any) {
       console.error('Delete folder error:', error);
+      // Rollback
+      if (deletedFolder) {
+        setFolders(prev => [...prev, deletedFolder!]);
+      }
       toast.error(error.response?.data?.message || t('folders.deleteError'));
       throw error;
     }
@@ -111,9 +161,27 @@ export const useFolders = () => {
 
     const handleFolderCreated = (folder: NoteFolder) => {
       setFolders(prev => {
-        // Avoid duplicates
-        if (prev.some(f => f.id === folder.id)) return prev;
-        return [...prev, folder];
+        // Kiểm tra duplicate
+        const existingIndex = prev.findIndex(f => f.id === folder.id);
+        if (existingIndex !== -1) {
+          return prev;
+        }
+        
+        // Kiểm tra temp folder (từ optimistic update)
+        const tempIndex = prev.findIndex(f => 
+          f.id < 0 && // Temp ID là negative
+          f.name.toLowerCase() === folder.name.toLowerCase() &&
+          f.color === folder.color &&
+          f.icon === folder.icon
+        );
+        
+        if (tempIndex !== -1) {
+          // Replace temp với real folder (giữ vị trí ở đầu)
+          return prev.map((f, idx) => idx === tempIndex ? folder : f);
+        }
+        
+        // Thêm mới vào đầu danh sách
+        return [folder, ...prev];
       });
     };
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tag, Edit2, Trash2, Eye } from 'lucide-react';
 import Pagination from '@/components/Pagination';
@@ -13,7 +13,8 @@ interface CategoriesGridProps {
   onView: (category: NoteCategory) => void;
 }
 
-const CategoriesGrid = ({
+// Tối ưu: Sử dụng memo để tránh re-render không cần thiết
+const CategoriesGrid = memo(({
   categories,
   isLoading,
   onEdit,
@@ -49,10 +50,16 @@ const CategoriesGrid = ({
     return filteredCategories.slice(start, start + PAGE_SIZE);
   }, [filteredCategories, currentPage]);
 
-  const getCategoryIcon = (iconName: string) => {
-    const Icon = (LucideIcons as any)[iconName] || Tag;
-    return Icon;
-  };
+  // Tối ưu: Memoize icon lookup để tránh lookup mỗi render
+  const getCategoryIcon = useMemo(() => {
+    const iconCache = new Map<string, any>();
+    return (iconName: string) => {
+      if (!iconCache.has(iconName)) {
+        iconCache.set(iconName, (LucideIcons as any)[iconName] || Tag);
+      }
+      return iconCache.get(iconName);
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -181,6 +188,8 @@ const CategoriesGrid = ({
       )}
     </div>
   );
-};
+});
+
+CategoriesGrid.displayName = 'CategoriesGrid';
 
 export default CategoriesGrid;
