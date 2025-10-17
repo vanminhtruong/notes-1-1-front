@@ -56,7 +56,7 @@ const BlockedUsersModal = memo(({ isOpen, users, onUnblock, onClose }: BlockedUs
                 {t('chat.settings.blocked.title', 'Người bị chặn')}
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 md-down:text-[11px] xs-down:text-[10px]">
-                {t('chat.settings.blocked.subtitle', `${users?.length || 0} người đã bị chặn`)}
+                {t('chat.settings.blocked.subtitle', { count: users?.length || 0 })}
               </p>
             </div>
           </div>
@@ -95,7 +95,7 @@ const BlockedUsersModal = memo(({ isOpen, users, onUnblock, onClose }: BlockedUs
           <div className="border-2 border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden md-down:rounded-lg xs-down:rounded-md">
             <div className="bg-gray-50 dark:bg-gray-900/50 px-4 py-2 border-b border-gray-200 dark:border-gray-700 md-down:px-3 md-down:py-1.5 xs-down:px-2.5 xs-down:py-1">
               <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide md-down:text-[11px] xs-down:text-[10px]">
-                {t('chat.settings.blocked.listTitle', `Danh sách (${filtered.length})`)}
+                {t('chat.settings.blocked.listTitle', { count: filtered.length })}
               </p>
             </div>
             <div className="max-h-[400px] overflow-y-auto md-down:max-h-[350px] sm-down:max-h-[300px] xs-down:max-h-[250px]">

@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
@@ -24,6 +24,7 @@ export default function MainLayout() {
   const [devicesOpen, setDevicesOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
 
   // Auto-fetch user profile if token exists but user data is missing
   useEffect(() => {
@@ -142,6 +143,12 @@ export default function MainLayout() {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  // Close chat and mobile nav when route changes
+  useEffect(() => {
+    setChatOpen(false);
+    setMobileNavOpen(false);
+  }, [location.pathname]);
 
   // Hide desktop scroll when chat or mobile nav is open (reference-counted)
   useEffect(() => {

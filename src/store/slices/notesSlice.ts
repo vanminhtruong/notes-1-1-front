@@ -203,7 +203,21 @@ const notesSlice = createSlice({
       // Check for duplicate to avoid adding same note twice
       const exists = state.notes.some(note => note.id === action.payload.id);
       if (!exists) {
-        state.notes.unshift(action.payload);
+        // Nếu note mới được ghim, thêm vào đầu mảng
+        if (action.payload.isPinned) {
+          state.notes.unshift(action.payload);
+        } else {
+          // Nếu note mới không ghim, tìm vị trí đầu tiên của note không ghim và chèn vào đó
+          // Đảm bảo notes ghim luôn ở trên cùng
+          const firstUnpinnedIndex = state.notes.findIndex(note => !note.isPinned);
+          if (firstUnpinnedIndex === -1) {
+            // Tất cả notes đều ghim hoặc mảng rỗng, thêm vào cuối
+            state.notes.push(action.payload);
+          } else {
+            // Chèn vào vị trí đầu tiên của notes không ghim
+            state.notes.splice(firstUnpinnedIndex, 0, action.payload);
+          }
+        }
         state.stats.total += 1;
         state.stats.active += 1;
       }

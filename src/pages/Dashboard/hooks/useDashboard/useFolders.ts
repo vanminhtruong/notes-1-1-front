@@ -59,6 +59,7 @@ export const useFolders = () => {
       name: data.name,
       color: data.color,
       icon: data.icon,
+      isPinned: false,
       userId: 0,
       notesCount: 0,
       createdAt: new Date().toISOString(),
@@ -154,6 +155,72 @@ export const useFolders = () => {
     }
   }, [t]);
 
+  // Pin folder - Tối ưu: Optimistic update
+  const pinFolder = useCallback(async (id: number) => {
+    // Lưu old data để rollback nếu lỗi
+    let oldFolder: NoteFolder | undefined;
+    
+    // Optimistic update: Cập nhật UI ngay
+    setFolders(prev => {
+      oldFolder = prev.find(f => f.id === id);
+      return prev.map(f => f.id === id ? { ...f, isPinned: true } : f);
+    });
+
+    try {
+      const response = await notesService.pinFolder(id);
+      // Sync với server data
+      if (response.folder) {
+        setFolders(prev => prev.map(f => 
+          f.id === id ? { ...f, ...response.folder } : f
+        ));
+      }
+      // Refresh folders để lấy đúng thứ tự sắp xếp từ server
+      fetchFolders();
+      toast.success(t('folders.pinSuccess'));
+    } catch (error: any) {
+      console.error('Pin folder error:', error);
+      // Rollback
+      if (oldFolder) {
+        setFolders(prev => prev.map(f => f.id === id ? oldFolder! : f));
+      }
+      toast.error(error.response?.data?.message || t('folders.pinError'));
+      throw error;
+    }
+  }, [t, fetchFolders]);
+
+  // Unpin folder - Tối ưu: Optimistic update
+  const unpinFolder = useCallback(async (id: number) => {
+    // Lưu old data để rollback nếu lỗi
+    let oldFolder: NoteFolder | undefined;
+    
+    // Optimistic update: Cập nhật UI ngay
+    setFolders(prev => {
+      oldFolder = prev.find(f => f.id === id);
+      return prev.map(f => f.id === id ? { ...f, isPinned: false } : f);
+    });
+
+    try {
+      const response = await notesService.unpinFolder(id);
+      // Sync với server data
+      if (response.folder) {
+        setFolders(prev => prev.map(f => 
+          f.id === id ? { ...f, ...response.folder } : f
+        ));
+      }
+      // Refresh folders để lấy đúng thứ tự sắp xếp từ server
+      fetchFolders();
+      toast.success(t('folders.unpinSuccess'));
+    } catch (error: any) {
+      console.error('Unpin folder error:', error);
+      // Rollback
+      if (oldFolder) {
+        setFolders(prev => prev.map(f => f.id === id ? oldFolder! : f));
+      }
+      toast.error(error.response?.data?.message || t('folders.unpinError'));
+      throw error;
+    }
+  }, [t, fetchFolders]);
+
   // Socket listeners for real-time updates
   useEffect(() => {
     const socket = socketService.getSocket();
@@ -220,7 +287,24 @@ export const useFolders = () => {
         setFolderNotes(prev => {
           // Avoid duplicates
           if (prev.some(n => n.id === note.id)) return prev;
-          return [...prev, note];
+          
+          // Chèn note vào đúng vị trí dựa trên isPinned
+          if (note.isPinned) {
+            // Note ghim -> thêm vào đầu
+            return [note, ...prev];
+          } else {
+            // Note không ghim -> chèn sau tất cả notes ghim
+            const firstUnpinnedIndex = prev.findIndex(n => !n.isPinned);
+            if (firstUnpinnedIndex === -1) {
+              // Tất cả notes đều ghim hoặc mảng rỗng -> thêm vào cuối
+              return [...prev, note];
+            } else {
+              // Chèn vào vị trí đầu tiên của notes không ghim
+              const newNotes = [...prev];
+              newNotes.splice(firstUnpinnedIndex, 0, note);
+              return newNotes;
+            }
+          }
         });
       }
       // Refresh folders list to update count
@@ -235,7 +319,24 @@ export const useFolders = () => {
         if (selectedFolder && note.folderId === selectedFolder.id) {
           setFolderNotes(prev => {
             if (prev.some(n => n.id === note.id)) return prev;
-            return [...prev, note];
+            
+            // Chèn note vào đúng vị trí dựa trên isPinned
+            if (note.isPinned) {
+              // Note ghim -> thêm vào đầu
+              return [note, ...prev];
+            } else {
+              // Note không ghim -> chèn sau tất cả notes ghim
+              const firstUnpinnedIndex = prev.findIndex(n => !n.isPinned);
+              if (firstUnpinnedIndex === -1) {
+                // Tất cả notes đều ghim hoặc mảng rỗng -> thêm vào cuối
+                return [...prev, note];
+              } else {
+                // Chèn vào vị trí đầu tiên của notes không ghim
+                const newNotes = [...prev];
+                newNotes.splice(firstUnpinnedIndex, 0, note);
+                return newNotes;
+              }
+            }
           });
         }
       }
@@ -281,9 +382,23 @@ export const useFolders = () => {
       }
     };
 
+    const handleFolderPinned = (folder: NoteFolder) => {
+      setFolders(prev => prev.map(f => f.id === folder.id ? { ...f, isPinned: true } : f));
+      // Refresh folders để lấy đúng thứ tự sắp xếp từ server
+      fetchFolders();
+    };
+
+    const handleFolderUnpinned = (folder: NoteFolder) => {
+      setFolders(prev => prev.map(f => f.id === folder.id ? { ...f, isPinned: false } : f));
+      // Refresh folders để lấy đúng thứ tự sắp xếp từ server
+      fetchFolders();
+    };
+
     socket.on('folder_created', handleFolderCreated);
     socket.on('folder_updated', handleFolderUpdated);
     socket.on('folder_deleted', handleFolderDeleted);
+    socket.on('folder_pinned', handleFolderPinned);
+    socket.on('folder_unpinned', handleFolderUnpinned);
     socket.on('note_moved_to_folder', handleNoteMovedToFolder);
     socket.on('note_created', handleNoteCreated);
     socket.on('note_deleted', handleNoteDeleted);
@@ -296,6 +411,8 @@ export const useFolders = () => {
       socket.off('folder_created', handleFolderCreated);
       socket.off('folder_updated', handleFolderUpdated);
       socket.off('folder_deleted', handleFolderDeleted);
+      socket.off('folder_pinned', handleFolderPinned);
+      socket.off('folder_unpinned', handleFolderUnpinned);
       socket.off('note_moved_to_folder', handleNoteMovedToFolder);
       socket.off('note_created', handleNoteCreated);
       socket.off('note_deleted', handleNoteDeleted);
@@ -325,6 +442,8 @@ export const useFolders = () => {
     updateFolder,
     deleteFolder,
     moveNoteToFolder,
+    pinFolder,
+    unpinFolder,
     setSelectedFolder,
     setCurrentPage,
   };

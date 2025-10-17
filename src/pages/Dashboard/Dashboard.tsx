@@ -9,6 +9,7 @@ import {
   ShareNoteModal, LazyLoad,
   useAppDispatch
 } from '@/pages/Dashboard/import';
+import type { NoteFolder } from '@/services/notesService';
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
@@ -48,6 +49,8 @@ const Dashboard = () => {
     updateFolder,
     deleteFolder,
     moveNoteToFolder,
+    pinFolder,
+    unpinFolder,
     setSelectedFolder,
   } = useFolders();
 
@@ -140,6 +143,16 @@ const Dashboard = () => {
     console.log('Note pinned/unpinned:', updatedNote);
   }, []);
 
+  // Pin folder handler
+  const handlePinFolder = useCallback((folder: NoteFolder) => {
+    pinFolder(folder.id);
+  }, [pinFolder]);
+
+  // Unpin folder handler
+  const handleUnpinFolder = useCallback((folder: NoteFolder) => {
+    unpinFolder(folder.id);
+  }, [unpinFolder]);
+
   // Socket listeners hook
   useSocketListeners({
     dispatch,
@@ -217,6 +230,8 @@ const Dashboard = () => {
                 onEditFolder={handleOpenEditFolderModal}
                 onDeleteFolder={handleDeleteFolder}
                 onViewFolder={handleViewFolder}
+                onPinFolder={handlePinFolder}
+                onUnpinFolder={handleUnpinFolder}
               />
             </LazyLoad>
           )

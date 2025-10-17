@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Folder, Edit2, Trash2, Plus } from 'lucide-react';
+import { Folder, Edit2, Trash2, Plus, Pin } from 'lucide-react';
 import Pagination from '@/components/Pagination';
 import SearchFolders from '@/components/SearchFolders';
 import { type NoteFolder, notesService } from '@/services/notesService';
@@ -13,6 +13,8 @@ interface FoldersViewProps {
   onEditFolder: (folder: NoteFolder) => void;
   onDeleteFolder: (folder: NoteFolder) => void;
   onViewFolder: (folder: NoteFolder) => void;
+  onPinFolder: (folder: NoteFolder) => void;
+  onUnpinFolder: (folder: NoteFolder) => void;
 }
 
 
@@ -23,6 +25,8 @@ const FoldersView = ({
   onEditFolder,
   onDeleteFolder,
   onViewFolder,
+  onPinFolder,
+  onUnpinFolder,
 }: FoldersViewProps) => {
   const { t } = useTranslation('dashboard');
   const PAGE_SIZE = 8;
@@ -183,6 +187,22 @@ const FoldersView = ({
 
               {/* Actions */}
               <div className="flex gap-2 sm-down:gap-2 xs-down:gap-1.5">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    folder.isPinned ? onUnpinFolder(folder) : onPinFolder(folder);
+                  }}
+                  className={`flex items-center justify-center px-3 py-2 md-down:px-2.5 md-down:py-1.5 sm-down:px-2 sm-down:py-1.5 xs-down:px-2 xs-down:py-1.5 border rounded-lg transition-colors ${
+                    folder.isPinned
+                      ? 'border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'
+                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                  title={folder.isPinned ? t('actions.unpin') : t('actions.pin')}
+                >
+                  <Pin className={`w-4 h-4 md-down:w-3.5 md-down:h-3.5 ${
+                    folder.isPinned ? 'fill-current' : ''
+                  }`} />
+                </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

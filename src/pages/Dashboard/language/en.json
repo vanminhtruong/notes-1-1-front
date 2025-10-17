@@ -72,7 +72,9 @@
     "viewDetails": "View details",
     "share": "Share",
     "sharing": "Sharing...",
-    "back": "Back"
+    "back": "Back",
+    "pin": "Pin",
+    "unpin": "Unpin"
   },
   "confirm": {
     "removeFriend": "Remove {{name}} as friend?",
@@ -859,9 +861,13 @@
     "createSuccess": "Folder created successfully",
     "updateSuccess": "Folder updated successfully",
     "deleteSuccess": "Folder deleted successfully",
+    "pinSuccess": "Folder pinned successfully",
+    "unpinSuccess": "Folder unpinned successfully",
     "createError": "Failed to create folder",
     "updateError": "Failed to update folder",
     "deleteError": "Failed to delete folder",
+    "pinError": "Failed to pin folder",
+    "unpinError": "Failed to unpin folder",
     "loadError": "Failed to load folders list",
     "viewFolder": "View folder",
     "moveToFolder": "Move to folder",

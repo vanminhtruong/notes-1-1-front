@@ -177,6 +177,7 @@ export interface NoteFolder {
   name: string;
   color: string;
   icon: string;
+  isPinned: boolean;
   userId: number;
   notesCount?: number;
   createdAt: string;
@@ -432,6 +433,16 @@ export const notesService = {
 
   async unpinNote(id: number): Promise<{ message: string; note: Note }> {
     const response = await api.patch(`/notes/${id}/unpin`);
+    return response.data;
+  },
+
+  async pinFolder(id: number): Promise<{ message: string; folder: NoteFolder }> {
+    const response = await api.patch(`/notes/folders/${id}/pin`);
+    return response.data;
+  },
+
+  async unpinFolder(id: number): Promise<{ message: string; folder: NoteFolder }> {
+    const response = await api.patch(`/notes/folders/${id}/unpin`);
     return response.data;
   },
 
