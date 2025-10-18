@@ -1,11 +1,13 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play, FolderInput, FolderOutput } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
 import { extractYouTubeId } from '@/utils/youtube';
 import { getHtmlPreview, sanitizeInlineHtml } from '@/utils/htmlUtils';
 import PinButton from './PinButton';
-import type { Note as ServiceNote } from '@/services/notesService';
+import TagBadge from './TagBadge';
+import TagSelector from './TagSelector';
+import type { Note as ServiceNote, NoteTag } from '@/services/notesService';
 import type { NoteCategory } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
 
@@ -19,6 +21,7 @@ export interface Note {
   priority: 'low' | 'medium' | 'high';
   categoryId?: number | null;
   category?: NoteCategory | null;
+  tags?: NoteTag[];
   createdAt: string;
   isPinned?: boolean;
 }
@@ -59,9 +62,15 @@ const NoteCard = memo(({
   getPriorityText
 }: NoteCardProps) => {
   const { t } = useTranslation('dashboard');
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
 
   return (
-    <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3">
+    <div 
+      className="relative overflow-visible z-[200] hover:z-[300] bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className="flex items-start justify-between gap-2 mb-4">
         <div className="flex items-start gap-2 sm-down:gap-1.5 flex-1 min-w-0">
           {!showArchived && (
@@ -189,61 +198,92 @@ const NoteCard = memo(({
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 h-40 lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
       )}
 
-      <div className="flex items-center justify-between sm-down:flex-col sm-down:gap-2 sm-down:items-start">
-        <div className="flex items-center gap-2 sm-down:gap-1.5 xs-down:gap-1">
-          <span className={`px-2 py-1 text-xs font-medium rounded-lg border ${getPriorityColor(note.priority)} xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px]`}>
-            {getPriorityText(note.priority)}
-          </span>
-          {note.category && (
-            <span 
-              className="px-2 py-1 text-xs font-medium rounded-lg border xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px] flex items-center gap-1"
-              style={{ 
-                backgroundColor: `${note.category.color}15`,
-                borderColor: note.category.color,
-                color: note.category.color
-              }}
-            >
-              {(() => {
-                const Icon = (LucideIcons as any)[note.category.icon] || LucideIcons.Tag;
-                return <Icon className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" style={{ color: note.category.color }} />;
-              })()}
-              <span>{note.category.name}</span>
+      <div className="space-y-2">
+        {/* Row 1: Priority, Category, Actions */}
+        <div className="flex items-center justify-between sm-down:flex-col sm-down:gap-2 sm-down:items-start">
+          <div className="flex items-center gap-2 sm-down:gap-1.5 xs-down:gap-1">
+            <span className={`px-2 py-1 text-xs font-medium rounded-lg border ${getPriorityColor(note.priority)} xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px]`}>
+              {getPriorityText(note.priority)}
             </span>
-          )}
-          {onMoveToFolder && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onMoveToFolder();
-              }}
-              className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 xs-down:p-0.5"
-              title={t('folders.moveToFolder')}
-            >
-              <FolderInput className="w-4 h-4 xs-down:w-3.5 xs-down:h-3.5" />
-            </button>
-          )}
-          <PinButton
-            note={note as ServiceNote}
-            onPinUpdate={onPinUpdate}
-            size="sm"
-            variant="ghost"
-          />
-          {onMoveOutOfFolder && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onMoveOutOfFolder();
-              }}
-              className="p-1 text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 rounded-md hover:bg-orange-50 dark:hover:bg-orange-900/20 xs-down:p-0.5"
-              title={t('folders.moveOutOfFolder')}
-            >
-              <FolderOutput className="w-4 h-4 xs-down:w-3.5 xs-down:h-3.5" />
-            </button>
-          )}
+            {note.category && (
+              <span 
+                className="px-2 py-1 text-xs font-medium rounded-lg border xs-down:px-1.5 xs-down:py-0.5 xs-down:text-[10px] flex items-center gap-1"
+                style={{ 
+                  backgroundColor: `${note.category.color}15`,
+                  borderColor: note.category.color,
+                  color: note.category.color
+                }}
+              >
+                {(() => {
+                  const Icon = (LucideIcons as any)[note.category.icon] || LucideIcons.Tag;
+                  return <Icon className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" style={{ color: note.category.color }} />;
+                })()}
+                <span>{note.category.name}</span>
+              </span>
+            )}
+            {onMoveToFolder && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMoveToFolder();
+                }}
+                className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 xs-down:p-0.5"
+                title={t('folders.moveToFolder')}
+              >
+                <FolderInput className="w-4 h-4 xs-down:w-3.5 xs-down:h-3.5" />
+              </button>
+            )}
+            <PinButton
+              note={note as ServiceNote}
+              onPinUpdate={onPinUpdate}
+              size="sm"
+              variant="ghost"
+            />
+            {onMoveOutOfFolder && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMoveOutOfFolder();
+                }}
+                className="p-1 text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 rounded-md hover:bg-orange-50 dark:hover:bg-orange-900/20 xs-down:p-0.5"
+                title={t('folders.moveOutOfFolder')}
+              >
+                <FolderOutput className="w-4 h-4 xs-down:w-3.5 xs-down:h-3.5" />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 xs-down:text-[10px]">
+            <Clock className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" />
+            {formatDateMDYY(note.createdAt)}
+          </div>
         </div>
-        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 xs-down:text-[10px]">
-          <Clock className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" />
-          {formatDateMDYY(note.createdAt)}
+
+        {/* Row 2: Tags - Always render container for consistent height */}
+        <div className="flex flex-wrap gap-1 pt-1 min-h-[24px] relative">
+          {note.tags && note.tags.length > 0 ? (
+            <>
+              {note.tags.slice(0, 5).map((tag) => (
+                <TagBadge key={tag.id} tag={tag} size="sm" />
+              ))}
+              {note.tags.length > 5 && (
+                <span className="px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full">
+                  +{note.tags.length - 5}
+                </span>
+              )}
+            </>
+          ) : (
+            (isHovered || isTagSelectorOpen) && (
+              <div className="absolute top-0 left-0 z-10">
+                <div className="scale-75 origin-top-left">
+                  <TagSelector
+                    noteId={note.id}
+                    selectedTags={[]}
+                    onOpenChange={setIsTagSelectorOpen}
+                  />
+                </div>
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>

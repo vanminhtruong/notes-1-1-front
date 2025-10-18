@@ -123,18 +123,16 @@ export const useCategories = () => {
     }
   }, [t]);
 
-  // Socket connection and listeners for real-time updates
+  // Socket listeners for real-time updates (socket already connected in MainLayout)
   useEffect(() => {
     console.log('🔌 Setting up category socket listeners...');
-    // Ensure socket is connected
-    socketService.connect();
     
     const socket = socketService.getSocket();
     if (!socket) {
       console.warn('⚠️ Socket not available for categories real-time updates');
       return;
     }
-    console.log('✅ Socket connected, registering category listeners');
+    console.log('✅ Socket available, registering category listeners');
 
     const handleCategoryCreated = (category: NoteCategory) => {
       console.log('Category created event received:', category);

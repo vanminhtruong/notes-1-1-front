@@ -3,15 +3,18 @@ import {
   useDashboard, useFolders, useBodyScrollLock, useFolderNotes,
   useViewMode, useModals, useFolderHandlers, useMoveToFolder, useMoveOutOfFolder, useSocketListeners,
   StatsCards, ViewToggle, SearchAndFilters, BulkActionsBar, NotesGrid,
-  FoldersView, FolderNotesView,
+  FoldersView, FolderNotesView, TagsView,
   CreateNoteModal, ViewNoteModal, EditNoteModal, CreateNoteInFolderModal, EditNoteInFolderModal,
   CreateFolderModal, EditFolderModal, MoveToFolderModal, MoveOutOfFolderModal,
+  TagManagementModal,
   ShareNoteModal, LazyLoad,
   useAppDispatch
 } from '@/pages/Dashboard/import';
 import type { NoteFolder } from '@/services/notesService';
+import { useTranslation } from 'react-i18next';
 
 const Dashboard = () => {
+  const { t } = useTranslation('dashboard');
   const dispatch = useAppDispatch();
   const {
     notes, isLoading, stats, pagination,
@@ -33,6 +36,8 @@ const Dashboard = () => {
     showViewModal, setShowViewModal, viewNote, openView,
     // categories
     categories,
+    // tag management
+    showTagManagementModal, setShowTagManagementModal,
   } = useDashboard();
 
   // Folders hook
@@ -187,11 +192,38 @@ const Dashboard = () => {
 
         {/* View Toggle */}
         <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={100}>
-          <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+          <div className="flex items-center justify-between gap-4 flex-wrap xl-down:gap-3 md-down:gap-2.5 mb-6 xl-down:mb-5 lg-down:mb-4 md-down:mb-4 sm-down:mb-3 xs-down:mb-3">
+            <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+            <button
+              onClick={() => setShowTagManagementModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg xl-down:px-3.5 xl-down:py-1.5 lg-down:px-3 lg-down:py-1.5 md-down:px-2.5 md-down:py-1 sm-down:text-sm sm-down:px-2 sm-down:py-1 xs-down:text-xs xs-down:px-1.5 xs-down:py-0.5 xs-down:gap-1 mt-0 xl-down:mt-2 md-down:mt-1"
+            >
+              <svg className="w-5 h-5 xl-down:w-4.5 xl-down:h-4.5 md-down:w-4 md-down:h-4 sm-down:w-3.5 sm-down:h-3.5 xs-down:w-3 xs-down:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <span>{t('tags.manage')}</span>
+            </button>
+          </div>
         </LazyLoad>
 
         {/* Conditional rendering based on viewMode */}
-        {viewMode === 'folders' ? (
+        {viewMode === 'tags' ? (
+          // Tags View
+          <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={300}>
+            <TagsView
+              onView={openView}
+              onEdit={openEdit}
+              onArchive={confirmArchiveNote}
+              onDelete={confirmDeleteNote}
+              toggleSelect={toggleSelect}
+              selectedIds={selectedIds}
+              onPinUpdate={handlePinUpdate}
+              acknowledgeReminderNote={acknowledgeReminderNote}
+              getPriorityColor={getPriorityColor}
+              getPriorityText={getPriorityText}
+            />
+          </LazyLoad>
+        ) : viewMode === 'folders' ? (
           // Folders View
           selectedFolder ? (
             <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={300}>
@@ -382,6 +414,12 @@ const Dashboard = () => {
         onMoveToActive={handleMoveToActive}
         onMoveToArchived={handleMoveToArchived}
         noteTitle={noteToMoveOut?.title || ''}
+      />
+
+      {/* Tag Management Modal */}
+      <TagManagementModal
+        isOpen={showTagManagementModal}
+        onClose={() => setShowTagManagementModal(false)}
       />
   </div>
 );

@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import type { TypedUseSelectorHook } from 'react-redux'
 import authReducer from './slices/authSlice'
 import notesReducer from './slices/notesSlice'
+import noteTagsReducer from './slices/noteTagsSlice'
 import themeReducer from './slices/themeSlice'
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     notes: notesReducer,
+    noteTags: noteTagsReducer,
     theme: themeReducer,
   },
 })

@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { socketService } from '@/services/socketService';
 import type { AppDispatch } from '@/store';
 import { fetchNotes, fetchNoteStats } from '@/store/slices/notesSlice';
+import { addTagRealtime, updateTagRealtime, deleteTagRealtime } from '@/store/slices/noteTagsSlice';
 import type { ViewMode } from '../../components/ViewToggle';
 
 interface UseSocketListenersProps {
@@ -21,33 +22,43 @@ export const useSocketListeners = ({
   selectedPriority,
   viewMode,
 }: UseSocketListenersProps) => {
+  // Use refs to store latest values without re-subscribing
+  const filtersRef = useRef({ currentPage, searchTerm, selectedCategory, selectedPriority, viewMode });
+  
+  // Update refs when filters change
+  useEffect(() => {
+    filtersRef.current = { currentPage, searchTerm, selectedCategory, selectedPriority, viewMode };
+  }, [currentPage, searchTerm, selectedCategory, selectedPriority, viewMode]);
+
   // Listen to note_moved_to_folder event to refresh Active/Archived tabs
   useEffect(() => {
     const socket = socketService.getSocket();
     if (!socket) return;
 
     const handleNoteMoved = () => {
+      const filters = filtersRef.current;
       // Refresh notes list and stats
       dispatch(fetchNotes({
-        page: currentPage,
+        page: filters.currentPage,
         limit: 9, // Match ITEMS_PER_PAGE from useDashboard
-        search: searchTerm,
-        category: selectedCategory || undefined,
-        priority: selectedPriority || undefined,
-        isArchived: viewMode === 'archived',
+        search: filters.searchTerm,
+        category: filters.selectedCategory || undefined,
+        priority: filters.selectedPriority || undefined,
+        isArchived: filters.viewMode === 'archived',
       }));
       dispatch(fetchNoteStats());
     };
 
     const handleNotePinned = () => {
+      const filters = filtersRef.current;
       // Refresh notes list to show updated order (pinned notes on top)
       dispatch(fetchNotes({
-        page: currentPage,
+        page: filters.currentPage,
         limit: 9, // Match ITEMS_PER_PAGE from useDashboard
-        search: searchTerm,
-        category: selectedCategory || undefined,
-        priority: selectedPriority || undefined,
-        isArchived: viewMode === 'archived',
+        search: filters.searchTerm,
+        category: filters.selectedCategory || undefined,
+        priority: filters.selectedPriority || undefined,
+        isArchived: filters.viewMode === 'archived',
       }));
     };
 
@@ -60,7 +71,8 @@ export const useSocketListeners = ({
       socket.off('note:pinned', handleNotePinned);
       socket.off('note:unpinned', handleNotePinned);
     };
-  }, [dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, viewMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
   // Listen to folder and note events to refresh stats
   useEffect(() => {
@@ -101,5 +113,64 @@ export const useSocketListeners = ({
       socket.off('admin_note_deleted', handleStatsUpdate);
       socket.off('admin_note_updated', handleStatsUpdate);
     };
+  }, [dispatch]);
+
+  // Listen to tag events for real-time updates
+  useEffect(() => {
+    const socket = socketService.getSocket();
+    if (!socket) return;
+
+    const handleTagCreated = (data: any) => {
+      dispatch(addTagRealtime(data.tag));
+    };
+
+    const handleTagUpdated = (data: any) => {
+      dispatch(updateTagRealtime(data.tag));
+    };
+
+    const handleTagDeleted = (data: any) => {
+      dispatch(deleteTagRealtime({ id: data.id }));
+    };
+
+    const handleNoteTagAdded = () => {
+      const filters = filtersRef.current;
+      // Refresh notes to show updated tags
+      dispatch(fetchNotes({
+        page: filters.currentPage,
+        limit: 9,
+        search: filters.searchTerm,
+        category: filters.selectedCategory || undefined,
+        priority: filters.selectedPriority || undefined,
+        isArchived: filters.viewMode === 'archived',
+      }));
+    };
+
+    const handleNoteTagRemoved = () => {
+      const filters = filtersRef.current;
+      // Refresh notes to show updated tags
+      dispatch(fetchNotes({
+        page: filters.currentPage,
+        limit: 9,
+        search: filters.searchTerm,
+        category: filters.selectedCategory || undefined,
+        priority: filters.selectedPriority || undefined,
+        isArchived: filters.viewMode === 'archived',
+      }));
+    };
+
+    socket.on('tag_created', handleTagCreated);
+    socket.on('tag_updated', handleTagUpdated);
+    socket.on('tag_deleted', handleTagDeleted);
+    socket.on('note_tag_added', handleNoteTagAdded);
+    socket.on('note_tag_removed', handleNoteTagRemoved);
+
+    return () => {
+      socket.off('tag_created', handleTagCreated);
+      socket.off('tag_updated', handleTagUpdated);
+      socket.off('tag_deleted', handleTagDeleted);
+      socket.off('note_tag_added', handleNoteTagAdded);
+      socket.off('note_tag_removed', handleNoteTagRemoved);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 };

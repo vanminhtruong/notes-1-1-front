@@ -2,6 +2,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
+import { fetchTags } from '@/store/slices/noteTagsSlice'
 import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone, Tag } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
@@ -14,6 +15,7 @@ import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { authService } from '@/services/authService'
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock'
+import { socketService } from '@/services/socketService'
 
 export default function MainLayout() {
   const { t } = useTranslation('layout');
@@ -25,6 +27,7 @@ export default function MainLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const socketConnectedRef = useRef(false);
 
   // Auto-fetch user profile if token exists but user data is missing
   useEffect(() => {
@@ -33,7 +36,37 @@ export default function MainLayout() {
     }
   }, [dispatch, isAuthenticated, token, user]);
 
+  // Global socket connection - only once for authenticated users
+  useEffect(() => {
+    if (isAuthenticated && token && !socketConnectedRef.current) {
+      console.log('Initializing socket connection from MainLayout...');
+      socketService.connect();
+      socketConnectedRef.current = true;
+    }
+
+    // Cleanup only on unmount or logout
+    return () => {
+      if (!isAuthenticated && socketConnectedRef.current) {
+        console.log('Disconnecting socket from MainLayout...');
+        socketService.disconnect();
+        socketConnectedRef.current = false;
+      }
+    };
+  }, [isAuthenticated, token]);
+
+  // Load tags globally once when authenticated
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      dispatch(fetchTags({}));
+    }
+  }, [isAuthenticated, token, dispatch]);
+
   const handleLogout = () => {
+    // Disconnect socket before logout
+    if (socketConnectedRef.current) {
+      socketService.disconnect();
+      socketConnectedRef.current = false;
+    }
     dispatch(logoutUser());
   };
 

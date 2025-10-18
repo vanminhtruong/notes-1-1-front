@@ -14,6 +14,7 @@ export { useFolderHandlers } from '~/pages/Dashboard/hooks/useDashboard/useFolde
 export { useMoveToFolder } from '~/pages/Dashboard/hooks/useDashboard/useMoveToFolder';
 export { useMoveOutOfFolder } from '~/pages/Dashboard/hooks/useDashboard/useMoveOutOfFolder';
 export { useSocketListeners } from '~/pages/Dashboard/hooks/useDashboard/useSocketListeners';
+export { useTagsView } from '~/pages/Dashboard/hooks/useTagsView';
 
 // Components - Dashboard specific
 export { default as StatsCards } from '@/pages/Dashboard/components/StatsCards';
@@ -23,6 +24,7 @@ export { default as BulkActionsBar } from '@/pages/Dashboard/components/BulkActi
 export { default as NotesGrid } from '@/pages/Dashboard/components/NotesGrid';
 export { default as FoldersView } from '@/pages/Dashboard/components/FoldersView';
 export { default as FolderNotesView } from '@/pages/Dashboard/components/FolderNotesView';
+export { default as TagsView } from '@/pages/Dashboard/components/TagsView';
 
 // Modal components - Notes
 export { default as CreateNoteModal } from '@/pages/Dashboard/components/CreateNoteModal';
@@ -36,6 +38,9 @@ export { default as CreateFolderModal } from '@/pages/Dashboard/components/Creat
 export { default as EditFolderModal } from '@/pages/Dashboard/components/EditFolderModal';
 export { default as MoveToFolderModal } from '@/pages/Dashboard/components/MoveToFolderModal';
 export { default as MoveOutOfFolderModal } from '@/pages/Dashboard/components/MoveOutOfFolderModal';
+
+// Modal components - Tags
+export { default as TagManagementModal } from '@/pages/Dashboard/components/TagManagementModal';
 
 // Shared components
 export { default as ShareNoteModal } from '@/components/ShareNoteModal';

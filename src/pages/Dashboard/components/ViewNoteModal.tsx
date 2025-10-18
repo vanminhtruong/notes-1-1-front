@@ -1,9 +1,14 @@
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Clock, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
 import { type Note } from './NoteCard';
 import { getYouTubeEmbedUrl } from '@/utils/youtube';
+import TagSelector from './TagSelector';
+import TagManagementModal from './TagManagementModal';
+import { socketService } from '@/services/socketService';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import type { NoteTag } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
 
 interface ViewNoteModalProps {
@@ -17,6 +22,50 @@ interface ViewNoteModalProps {
 
 const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityColor, getPriorityText }: ViewNoteModalProps) => {
   const { t } = useTranslation('dashboard');
+  const [showTagManagement, setShowTagManagement] = useState(false);
+  const [currentTags, setCurrentTags] = useState<NoteTag[]>([]);
+
+  // Disable body scroll when modal is open
+  useBodyScrollLock(isOpen);
+
+  // Sync local tags state with note prop
+  useEffect(() => {
+    if (note) {
+      setCurrentTags(note.tags || []);
+    }
+  }, [note]);
+
+  // Listen to socket events for real-time tag updates
+  useEffect(() => {
+    if (!isOpen || !note) return;
+
+    const socket = socketService.getSocket();
+    if (!socket) return;
+
+    const handleTagAdded = (data: { noteId: number; tag: NoteTag }) => {
+      if (data.noteId === note.id) {
+        setCurrentTags((prev) => {
+          // Check if tag already exists
+          if (prev.some((t) => t.id === data.tag.id)) return prev;
+          return [...prev, data.tag];
+        });
+      }
+    };
+
+    const handleTagRemoved = (data: { noteId: number; tagId: number }) => {
+      if (data.noteId === note.id) {
+        setCurrentTags((prev) => prev.filter((t) => t.id !== data.tagId));
+      }
+    };
+
+    socket.on('note_tag_added', handleTagAdded);
+    socket.on('note_tag_removed', handleTagRemoved);
+
+    return () => {
+      socket.off('note_tag_added', handleTagAdded);
+      socket.off('note_tag_removed', handleTagRemoved);
+    };
+  }, [isOpen, note]);
 
   if (!isOpen || !note) return null;
 
@@ -94,6 +143,17 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
               </span>
             )}
           </div>
+          
+          {/* Tags */}
+          <div>
+            <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2">Tags</h4>
+            <TagSelector
+              noteId={note.id}
+              selectedTags={currentTags}
+              onOpenManagement={() => setShowTagManagement(true)}
+            />
+          </div>
+
           <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
             <Clock className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" />
             {formatDateMDYY(note.createdAt)}
@@ -127,6 +187,12 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
           </div>
         </div>
       </div>
+      
+      {/* Tag Management Modal */}
+      <TagManagementModal
+        isOpen={showTagManagement}
+        onClose={() => setShowTagManagement(false)}
+      />
     </div>
   );
 });

@@ -2,8 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { useState, memo, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
-import type { NoteCategory } from '@/services/notesService';
+import type { NoteCategory, NoteTag } from '@/services/notesService';
 import { RichTextEditor, useRichTextEditor } from '@/components/RichTextEditor';
+import TagSelector from './TagSelector';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 // MediaTabs Component
 const MediaTabs = memo(({ editNote, setEditNote, t }: { editNote: any; setEditNote: (note: any) => void; t: any }) => {
@@ -203,6 +205,7 @@ export interface EditNote {
   categoryId: number | undefined;
   priority: 'low' | 'medium' | 'high';
   reminderAtLocal: string;
+  tags?: NoteTag[];
 }
 
 interface EditNoteInFolderModalProps {
@@ -217,6 +220,9 @@ interface EditNoteInFolderModalProps {
 
 const EditNoteInFolderModal = memo(({ isOpen, onClose, editNote, setEditNote, onSubmit, folderName, categories }: EditNoteInFolderModalProps) => {
   const { t } = useTranslation('dashboard');
+
+  // Disable body scroll when modal is open
+  useBodyScrollLock(isOpen);
 
   const editor = useRichTextEditor({
     content: editNote?.content || '',
@@ -346,6 +352,19 @@ const EditNoteInFolderModal = memo(({ isOpen, onClose, editNote, setEditNote, on
               </select>
             </div>
           </div>
+
+          {/* Tags Section */}
+          {editNote && editNote.id && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
+                Tags
+              </label>
+              <TagSelector
+                noteId={editNote.id}
+                selectedTags={editNote.tags || []}
+              />
+            </div>
+          )}
 
           {/* Reminder datetime */}
           <div>

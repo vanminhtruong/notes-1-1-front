@@ -50,6 +50,9 @@ export const useDashboard = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewNote, setViewNote] = useState<any | null>(null);
 
+  // Tag management modal state
+  const [showTagManagementModal, setShowTagManagementModal] = useState(false);
+
   // Removed dashboard-level create permissions UI/state; this logic lives in SharedNoteCard only.
 
   const dispatch = useAppDispatch();
@@ -91,7 +94,13 @@ export const useDashboard = () => {
     setCurrentPage(1);
   }, [searchTerm, selectedCategory, selectedPriority, showArchived]);
 
-  // Sync filters + fetch notes and stats
+  // Fetch stats only once on mount
+  useEffect(() => {
+    dispatch(fetchNoteStats());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync filters + fetch notes (without stats)
   useEffect(() => {
     dispatch(setFilters({
       search: searchTerm,
@@ -108,16 +117,7 @@ export const useDashboard = () => {
       priority: selectedPriority || undefined,
       isArchived: showArchived,
     }));
-    dispatch(fetchNoteStats());
   }, [dispatch, searchTerm, selectedCategory, selectedPriority, showArchived, currentPage]);
-
-  // Socket lifecycle
-  useEffect(() => {
-    socketService.connect();
-    return () => {
-      socketService.disconnect();
-    };
-  }, []);
 
   // Fetch categories function
   const loadCategories = useCallback(async () => {
@@ -129,10 +129,11 @@ export const useDashboard = () => {
     }
   }, []);
 
-  // Fetch categories on mount
+  // Fetch categories only once on mount
   useEffect(() => {
     loadCategories();
-  }, [loadCategories]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Socket listeners for category real-time updates
   useEffect(() => {
@@ -170,7 +171,8 @@ export const useDashboard = () => {
       socket.off('category_deleted', handleCategoryDeleted);
       socket.off('categories_reorder_needed', handleCategoriesReorderNeeded);
     };
-  }, [loadCategories]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Removed: load create permissions for dashboard buttons
 
@@ -530,6 +532,10 @@ export const useDashboard = () => {
 
     // categories
     categories,
+
+    // tag management
+    showTagManagementModal,
+    setShowTagManagementModal,
 
     // create permissions removed from dashboard scope
   };

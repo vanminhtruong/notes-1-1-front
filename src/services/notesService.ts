@@ -1,5 +1,14 @@
 import api from './api';
 
+export interface NoteTag {
+  id: number;
+  name: string;
+  color: string;
+  notesCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Note {
   id: number;
   title: string;
@@ -9,6 +18,7 @@ export interface Note {
   youtubeUrl?: string | null;
   categoryId?: number | null;
   category?: NoteCategory | null;
+  tags?: NoteTag[];
   priority: 'low' | 'medium' | 'high';
   isArchived: boolean;
   isPinned: boolean;
@@ -248,6 +258,32 @@ export interface CategoriesResponse {
   total: number;
 }
 
+export interface CreateTagData {
+  name: string;
+  color?: string;
+}
+
+export interface UpdateTagData {
+  name?: string;
+  color?: string;
+}
+
+export interface TagsResponse {
+  tags: NoteTag[];
+  total: number;
+}
+
+export interface TagWithNotesResponse {
+  tag: NoteTag;
+  notes: Note[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 export const notesService = {
   async getNotes(params?: {
     page?: number;
@@ -473,6 +509,56 @@ export const notesService = {
 
   async deleteCategory(id: number): Promise<{ message: string }> {
     const response = await api.delete(`/notes/categories/${id}`);
+    return response.data;
+  },
+
+  // Tag APIs
+  async getTags(params?: {
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<TagsResponse> {
+    const response = await api.get('/notes/tags', { params });
+    return response.data;
+  },
+
+  async getTagById(id: number): Promise<{ tag: NoteTag }> {
+    const response = await api.get(`/notes/tags/${id}`);
+    return response.data;
+  },
+
+  async createTag(data: CreateTagData): Promise<{ message: string; tag: NoteTag }> {
+    const response = await api.post('/notes/tags', data);
+    return response.data;
+  },
+
+  async updateTag(id: number, data: UpdateTagData): Promise<{ message: string; tag: NoteTag }> {
+    const response = await api.put(`/notes/tags/${id}`, data);
+    return response.data;
+  },
+
+  async deleteTag(id: number): Promise<{ message: string }> {
+    const response = await api.delete(`/notes/tags/${id}`);
+    return response.data;
+  },
+
+  async addTagToNote(noteId: number, tagId: number): Promise<{ message: string; tag: NoteTag }> {
+    const response = await api.post(`/notes/${noteId}/tags`, { tagId });
+    return response.data;
+  },
+
+  async removeTagFromNote(noteId: number, tagId: number): Promise<{ message: string }> {
+    const response = await api.delete(`/notes/${noteId}/tags/${tagId}`);
+    return response.data;
+  },
+
+  async getNotesByTag(tagId: number, params?: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<TagWithNotesResponse> {
+    const response = await api.get(`/notes/tags/${tagId}/notes`, { params });
     return response.data;
   },
 };
