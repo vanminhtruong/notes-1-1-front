@@ -4,6 +4,7 @@ import { Plus, X, Tag as TagIcon, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNoteTags } from '../hooks/useNoteTags';
 import type { NoteTag } from '@/services/notesService';
+import toast from 'react-hot-toast';
 
 interface TagSelectorProps {
   noteId: number;
@@ -17,9 +18,11 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
   const { tags, loadTags, addTagToNote, removeTagFromNote } = useNoteTags();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [portalPos, setPortalPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 256 });
+  const MAX_TAGS = 3;
 
   // Load tags only if not already loaded (fallback)
   useEffect(() => {
@@ -83,6 +86,10 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
 
   const handleAddTag = async (tagId: number) => {
     try {
+      if (selectedTags.length >= MAX_TAGS) {
+        toast.error(t('tags.maxLimit', { max: MAX_TAGS }));
+        return;
+      }
       await addTagToNote(noteId, tagId);
       setSearchQuery('');
     } catch (error) {
@@ -99,7 +106,7 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative" ref={containerRef}>
       {/* Selected Tags Display */}
       <div className="flex flex-wrap items-center gap-2">
         {selectedTags.map((tag) => (
@@ -123,11 +130,15 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
         <button
           ref={triggerRef}
           onClick={() => {
+            if (selectedTags.length >= MAX_TAGS) {
+              toast.error(t('tags.maxLimit', { max: MAX_TAGS }));
+              return;
+            }
             const next = !isOpen;
             setIsOpen(next);
             onOpenChange && onOpenChange(next);
           }}
-          className="inline-flex items-center gap-1 px-2.5 py-1 md-down:px-2 md-down:py-0.5 rounded-full text-xs md-down:text-[10px] font-medium border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          className={`inline-flex items-center gap-1 px-2.5 py-1 md-down:px-2 md-down:py-0.5 rounded-full text-xs md-down:text-[10px] font-medium border-2 border-dashed transition-colors ${selectedTags.length >= MAX_TAGS ? 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60' : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400'}`}
         >
           <Plus className="w-3 h-3 md-down:w-2.5 md-down:h-2.5" />
           {t('tags.addTag')}
@@ -138,7 +149,7 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
       {isOpen && createPortal(
         <div
           ref={dropdownRef}
-          className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999]"
+          className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[999999]"
           style={{ top: portalPos.top, left: portalPos.left, width: portalPos.width }}
         >
           {/* Header */}
@@ -162,18 +173,28 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
                 </button>
               )}
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('tags.searchToAdd')}
-              className="w-full px-3 py-1.5 md-down:px-2 md-down:py-1 text-sm md-down:text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
+            {selectedTags.length >= MAX_TAGS ? (
+              <div className="text-xs md-down:text-[11px] text-red-600 dark:text-red-400">
+                {t('tags.maxLimit', { max: MAX_TAGS })}
+              </div>
+            ) : (
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('tags.searchToAdd')}
+                className="w-full px-3 py-1.5 md-down:px-2 md-down:py-1 text-sm md-down:text-xs border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            )}
           </div>
 
           {/* Tags List */}
           <div className="max-h-60 md-down:max-h-48 overflow-y-auto p-2 md-down:p-1.5">
-            {availableTags.length === 0 ? (
+            {selectedTags.length >= MAX_TAGS ? (
+              <div className="text-center py-4 text-sm md-down:text-xs text-gray-500 dark:text-gray-400">
+                {t('tags.maxLimit', { max: MAX_TAGS })}
+              </div>
+            ) : availableTags.length === 0 ? (
               <div className="text-center py-4 text-sm md-down:text-xs text-gray-500 dark:text-gray-400">
                 {searchQuery ? t('tags.noTagsFound') : t('tags.noTags')}
               </div>

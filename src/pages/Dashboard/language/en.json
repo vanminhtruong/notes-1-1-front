@@ -935,7 +935,8 @@
     "confirmDelete": "Are you sure you want to delete this tag?",
     "confirmDeleteDesc": "Tag will be removed from all notes.",
     "alreadyAdded": "Tag already added",
-    "searchToAdd": "Search to add tags..."
+    "searchToAdd": "Search to add tags...",
+    "maxLimit": "You can only add up to {{max}} tags per note"
   }
 }
 

@@ -931,6 +931,7 @@
     "confirmDelete": "Bạn có chắc muốn xóa tag này?",
     "confirmDeleteDesc": "Tag sẽ bị xóa khỏi tất cả ghi chú.",
     "alreadyAdded": "Tag đã được thêm",
-    "searchToAdd": "Tìm kiếm để thêm tag..."
+    "searchToAdd": "Tìm kiếm để thêm tag...",
+    "maxLimit": "Bạn chỉ được thêm tối đa {{max}} tag cho mỗi ghi chú"
   }
 }
