@@ -492,6 +492,13 @@ export const notesService = {
     return response.data;
   },
 
+  async searchCategories(query: string, limit?: number): Promise<CategoriesResponse> {
+    const response = await api.get('/notes/categories/search', { 
+      params: { q: query, limit: limit || 20 } 
+    });
+    return response.data;
+  },
+
   async getCategoryById(id: number): Promise<{ category: NoteCategory }> {
     const response = await api.get(`/notes/categories/${id}`);
     return response.data;

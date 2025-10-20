@@ -122,7 +122,7 @@ export const useDashboard = () => {
   // Fetch categories function
   const loadCategories = useCallback(async () => {
     try {
-      const response = await notesService.getCategories();
+      const response = await notesService.getCategories({ sortBy: 'maxSelectionCount', sortOrder: 'DESC' });
       setCategories(response.categories);
     } catch (error) {
       console.error('Failed to load categories:', error);
@@ -134,6 +134,28 @@ export const useDashboard = () => {
     loadCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // UX: đưa category vừa chọn lên đầu danh sách ngay lập tức
+  const moveToFront = useCallback((arr: NoteCategory[], id?: number) => {
+    if (!id) return arr;
+    const idx = arr.findIndex(c => c.id === id);
+    if (idx <= 0) return arr;
+    const copy = arr.slice();
+    const [item] = copy.splice(idx, 1);
+    return [item, ...copy];
+  }, []);
+
+  useEffect(() => {
+    if (newNote.categoryId) {
+      setCategories(prev => moveToFront(prev, newNote.categoryId as number));
+    }
+  }, [newNote.categoryId, moveToFront]);
+
+  useEffect(() => {
+    if (editNote.categoryId) {
+      setCategories(prev => moveToFront(prev, editNote.categoryId as number));
+    }
+  }, [editNote.categoryId, moveToFront]);
 
   // Socket listeners for category real-time updates
   useEffect(() => {
@@ -201,6 +223,10 @@ export const useDashboard = () => {
     
     // Close modal immediately for better UX
     setShowCreateModal(false);
+    // Optimistic: đưa category đã chọn lên đầu ngay
+    if (newNote.categoryId) {
+      setCategories(prev => moveToFront(prev, newNote.categoryId as number));
+    }
     setNewNote({ title: '', content: '', imageUrl: '', videoUrl: '', youtubeUrl: '', categoryId: undefined, priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
     
     // Create note in background
@@ -359,6 +385,10 @@ export const useDashboard = () => {
     
     // Close modal immediately for better UX
     setShowEditModal(false);
+    // Optimistic: đưa category đã chọn lên đầu ngay
+    if (editNote.categoryId) {
+      setCategories(prev => moveToFront(prev, editNote.categoryId as number));
+    }
     
     const updateData = {
       title: editNote.title,

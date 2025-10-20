@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { useState, memo, useEffect } from 'react';
-import { X, ChevronDown } from 'lucide-react';
+import { useState, memo, useEffect, useCallback, useRef } from 'react';
+import { X, ChevronDown, Search, Loader2 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { RichTextEditor, useRichTextEditor } from '@/components/RichTextEditor';
+import { notesService, type NoteCategory } from '@/services/notesService';
 
 // MediaTabs Component
 const MediaTabs = memo(({ newNote, setNewNote, t }: { newNote: any; setNewNote: (note: any) => void; t: any }) => {
@@ -121,9 +122,74 @@ interface CategoryDropdownProps {
   placeholder: string;
 }
 
-const CategoryDropdown = memo(({ value, onChange, categories, placeholder }: CategoryDropdownProps) => {
+const CategoryDropdown = memo(({ value, onChange, categories: initialCategories, placeholder }: CategoryDropdownProps) => {
+  const { t } = useTranslation('dashboard');
   const [isOpen, setIsOpen] = useState(false);
-  const selectedCategory = categories.find(cat => cat.id === value);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<NoteCategory[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Lấy category đã chọn
+  const selectedCategory = initialCategories.find(cat => cat.id === value) || 
+                          searchResults.find(cat => cat.id === value);
+
+  // Hiển thị categories: nếu có search thì hiển thị kết quả search, không thì hiển thị categories ban đầu
+  const displayCategories = searchTerm ? searchResults : initialCategories;
+
+  // Hàm tìm kiếm categories từ backend
+  const searchCategories = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await notesService.searchCategories(query, 20);
+      setSearchResults(response.categories);
+    } catch (error) {
+      console.error('Search categories error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  // Debounce search
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      searchCategories(searchTerm);
+    }, 300);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [searchTerm, searchCategories]);
+
+  // Focus vào search input khi mở dropdown
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen]);
+
+  // Reset search khi đóng dropdown
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    setSearchTerm('');
+    setSearchResults([]);
+  }, []);
 
   return (
     <div className="relative">
@@ -150,39 +216,70 @@ const CategoryDropdown = memo(({ value, onChange, categories, placeholder }: Cat
         <>
           <div 
             className="fixed inset-0 z-10" 
-            onClick={() => setIsOpen(false)}
+            onClick={handleClose}
           />
-          <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-            <button
-              type="button"
-              onClick={() => {
-                onChange(undefined);
-                setIsOpen(false);
-              }}
-              className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm text-gray-700 dark:text-gray-300"
-            >
-              {placeholder}
-            </button>
-            {categories.map((cat) => {
-              const Icon = (LucideIcons as any)[cat.icon] || LucideIcons.Tag;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => {
-                    onChange(cat.id);
-                    setIsOpen(false);
-                  }}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm flex items-center gap-2"
-                  style={{ 
-                    backgroundColor: value === cat.id ? `${cat.color}15` : undefined 
-                  }}
-                >
-                  <Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.color }} />
-                  <span style={{ color: cat.color }}>{cat.name}</span>
-                </button>
-              );
-            })}
+          <div className="absolute z-20 w-full bottom-full mb-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg overflow-hidden">
+            {/* Search Input */}
+            <div className="p-2 border-b border-gray-200 dark:border-gray-600">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={t('category.searchPlaceholder')}
+                  className="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                {isSearching && (
+                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 animate-spin" />
+                )}
+              </div>
+            </div>
+
+            {/* Categories List */}
+            <div className="max-h-60 overflow-y-auto">
+              {/* None option */}
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(undefined);
+                  handleClose();
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm text-gray-700 dark:text-gray-300 transition-colors"
+              >
+                {placeholder}
+              </button>
+
+              {/* Categories */}
+              {displayCategories.length > 0 ? (
+                displayCategories.map((cat) => {
+                  const Icon = (LucideIcons as any)[cat.icon] || LucideIcons.Tag;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => {
+                        onChange(cat.id);
+                        handleClose();
+                      }}
+                      className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm flex items-center gap-2 transition-colors"
+                      style={{ 
+                        backgroundColor: value === cat.id ? `${cat.color}15` : undefined 
+                      }}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.color }} />
+                      <span style={{ color: cat.color }}>{cat.name}</span>
+                    </button>
+                  );
+                })
+              ) : searchTerm && !isSearching ? (
+                <div className="px-3 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                  {t('category.noResults')}
+                </div>
+              ) : null}
+            </div>
           </div>
         </>
       )}

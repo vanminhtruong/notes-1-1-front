@@ -89,7 +89,9 @@
     "none": "Không có",
     "general": "Chung",
     "work": "Công việc",
-    "personal": "Cá nhân"
+    "personal": "Cá nhân",
+    "searchPlaceholder": "Tìm kiếm danh mục...",
+    "noResults": "Không tìm thấy danh mục"
   },
   "priority": {
     "low": "Thấp",
