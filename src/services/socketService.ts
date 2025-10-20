@@ -4,9 +4,6 @@ import { resetAuth } from '@/store/slices/authSlice';
 import toast from 'react-hot-toast';
 import i18n from '@/libs/i18n';
 import { 
-  addNoteRealtime, 
-  updateNoteRealtime, 
-  deleteNoteRealtime, 
   archiveNoteRealtime,
   fetchNoteStats,
   fetchNotes,
@@ -111,16 +108,49 @@ class SocketService {
     });
 
     // Listen to note events
-    this.socket.on('note_created', (note) => {
-      store.dispatch(addNoteRealtime(note));
+    this.socket.on('note_created', async () => {
+      // Fetch lại notes và stats để đảm bảo pagination và số liệu đúng
+      store.dispatch(fetchNoteStats());
+      const state = store.getState();
+      const { filters, pagination } = state.notes;
+      store.dispatch(fetchNotes({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: filters.search || undefined,
+        category: filters.category || undefined,
+        priority: filters.priority || undefined,
+        isArchived: filters.isArchived,
+      }));
     });
 
-    this.socket.on('note_updated', (note) => {
-      store.dispatch(updateNoteRealtime(note));
+    this.socket.on('note_updated', async () => {
+      // Fetch lại notes và stats để cập nhật dữ liệu mới nhất
+      store.dispatch(fetchNoteStats());
+      const state = store.getState();
+      const { filters, pagination } = state.notes;
+      store.dispatch(fetchNotes({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: filters.search || undefined,
+        category: filters.category || undefined,
+        priority: filters.priority || undefined,
+        isArchived: filters.isArchived,
+      }));
     });
 
-    this.socket.on('note_deleted', (data) => {
-      store.dispatch(deleteNoteRealtime(data));
+    this.socket.on('note_deleted', async () => {
+      // Fetch lại notes và stats sau khi xóa
+      store.dispatch(fetchNoteStats());
+      const state = store.getState();
+      const { filters, pagination } = state.notes;
+      store.dispatch(fetchNotes({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: filters.search || undefined,
+        category: filters.category || undefined,
+        priority: filters.priority || undefined,
+        isArchived: filters.isArchived,
+      }));
     });
 
     this.socket.on('note_archived', async (data) => {
@@ -141,8 +171,8 @@ class SocketService {
     });
 
     // Admin-side changes affecting user's notes
-    this.socket.on('admin_note_created', async (note) => {
-      store.dispatch(addNoteRealtime(note));
+    this.socket.on('admin_note_created', async () => {
+      // Fetch lại notes và stats khi admin tạo note
       store.dispatch(fetchNoteStats());
       const state = store.getState();
       const { filters, pagination } = state.notes;
@@ -156,8 +186,8 @@ class SocketService {
       }));
     });
 
-    this.socket.on('admin_note_updated', async (note) => {
-      store.dispatch(updateNoteRealtime(note));
+    this.socket.on('admin_note_updated', async () => {
+      // Fetch lại notes và stats khi admin cập nhật note
       store.dispatch(fetchNoteStats());
       const state = store.getState();
       const { filters, pagination } = state.notes;
@@ -171,9 +201,8 @@ class SocketService {
       }));
     });
 
-    this.socket.on('admin_note_deleted', async (payload) => {
-      // payload: { id }
-      store.dispatch(deleteNoteRealtime(payload));
+    this.socket.on('admin_note_deleted', async () => {
+      // Fetch lại notes và stats khi admin xóa note
       store.dispatch(fetchNoteStats());
       const state = store.getState();
       const { filters, pagination } = state.notes;
