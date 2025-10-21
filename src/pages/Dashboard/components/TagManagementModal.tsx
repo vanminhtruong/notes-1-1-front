@@ -3,6 +3,7 @@ import { X, Tag, Plus, Edit2, Trash2, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNoteTags } from '../hooks/useNoteTags';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import { useConfirmationToast } from '../hooks/useChatWindow/useConfirmationToast';
 import type { NoteTag, CreateTagData } from '@/services/notesService';
 
 interface TagManagementModalProps {
@@ -26,6 +27,9 @@ const TAG_COLORS = [
 const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
   const { t } = useTranslation('dashboard');
   const { tags, isLoading, loadTags, createTag, updateTag, deleteTag } = useNoteTags();
+  const { confirmWithToast } = useConfirmationToast({ 
+    t: (key: string, defaultValue?: string) => t(key, defaultValue || '') as string 
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [editingTag, setEditingTag] = useState<NoteTag | null>(null);
@@ -71,7 +75,8 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Bạn có chắc chắn muốn xóa tag này?')) {
+    const confirmed = await confirmWithToast(t('tags.confirmDelete'));
+    if (confirmed) {
       await deleteTag(id);
     }
   };
