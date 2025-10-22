@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Plus, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
+import PriorityDropdownFilter from './PriorityDropdownFilter';
 import * as LucideIcons from 'lucide-react';
 
 // Category Dropdown Component
@@ -181,16 +182,11 @@ const SearchAndFilters = memo(({
           t={t}
         />
 
-        <select
-          value={selectedPriority}
-          onChange={(e) => setSelectedPriority(e.target.value)}
-          className="px-4 py-3 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg border border-white/20 dark:border-gray-700/30 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white lg-down:px-3.5 lg-down:py-2.5 md-down:px-3 md-down:py-2 sm-down:text-sm xs-down:text-xs"
-        >
-          <option value="">{t('filters.allPriorities')}</option>
-          <option value="high">{t('filters.priority.high')}</option>
-          <option value="medium">{t('filters.priority.medium')}</option>
-          <option value="low">{t('filters.priority.low')}</option>
-        </select>
+        <PriorityDropdownFilter
+          selectedPriority={selectedPriority}
+          setSelectedPriority={setSelectedPriority}
+          t={t}
+        />
 
         {!showArchived && (
           <button

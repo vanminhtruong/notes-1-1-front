@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useRef, useEffect } from 'react';
 import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play, FolderInput, FolderOutput } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
@@ -64,6 +64,22 @@ const NoteCard = memo(({
   const { t } = useTranslation('dashboard');
   const [isHovered, setIsHovered] = useState(false);
   const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
+  const tagsContainerRef = useRef<HTMLDivElement>(null);
+  const [tagSelectorLeft, setTagSelectorLeft] = useState(0);
+
+  useEffect(() => {
+    if ((isHovered || isTagSelectorOpen) && note.tags && note.tags.length > 0 && tagsContainerRef.current) {
+      const container = tagsContainerRef.current;
+      const children = Array.from(container.children);
+      let totalWidth = 0;
+      children.forEach((child) => {
+        totalWidth += (child as HTMLElement).offsetWidth;
+      });
+      const gap = 4; // gap-1 = 4px
+      const totalGap = (children.length - 1) * gap;
+      setTagSelectorLeft(totalWidth + totalGap + gap);
+    }
+  }, [isHovered, isTagSelectorOpen, note.tags]);
 
   return (
     <div 
@@ -260,29 +276,33 @@ const NoteCard = memo(({
 
         {/* Row 2: Tags - Always render container for consistent height */}
         <div className="flex flex-wrap gap-1 pt-1 min-h-[24px] relative">
-          {note.tags && note.tags.length > 0 ? (
-            <>
-              {note.tags.slice(0, 5).map((tag) => (
-                <TagBadge key={tag.id} tag={tag} size="sm" />
-              ))}
-              {note.tags.length > 5 && (
-                <span className="px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full">
-                  +{note.tags.length - 5}
-                </span>
-              )}
-            </>
-          ) : (
-            (isHovered || isTagSelectorOpen) && (
-              <div className="absolute top-0 left-0 z-10">
-                <div className="scale-75 origin-top-left">
-                  <TagSelector
-                    noteId={note.id}
-                    selectedTags={[]}
-                    onOpenChange={setIsTagSelectorOpen}
-                  />
-                </div>
-              </div>
-            )
+          <div ref={tagsContainerRef} className="flex flex-wrap gap-1">
+            {note.tags && note.tags.length > 0 && (
+              <>
+                {note.tags.slice(0, 5).map((tag) => (
+                  <TagBadge key={tag.id} tag={tag} size="sm" />
+                ))}
+                {note.tags.length > 5 && (
+                  <span className="px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full">
+                    +{note.tags.length - 5}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+          {(isHovered || isTagSelectorOpen) && (!note.tags || note.tags.length < 3) && (
+            <div 
+              className="absolute top-1 z-10 scale-75 origin-top-left"
+              style={{ 
+                left: note.tags && note.tags.length > 0 ? `${tagSelectorLeft}px` : '0'
+              }}
+            >
+              <TagSelector
+                noteId={note.id}
+                selectedTags={[]}
+                onOpenChange={setIsTagSelectorOpen}
+              />
+            </div>
           )}
         </div>
       </div>

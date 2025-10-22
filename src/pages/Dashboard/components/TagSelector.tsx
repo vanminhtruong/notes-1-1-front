@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, X, Tag as TagIcon, Settings } from 'lucide-react';
+import { Plus, X, Tag as TagIcon, Settings, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNoteTags } from '../hooks/useNoteTags';
 import type { NoteTag } from '@/services/notesService';
@@ -21,8 +21,11 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [portalPos, setPortalPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 256 });
+  const [portalPos, setPortalPos] = useState<{ top: number; left: number; width: number; bottom?: number; showAbove: boolean }>({ top: 0, left: 0, width: 256, showAbove: false });
   const MAX_TAGS = 3;
+  const TAGS_PER_PAGE = 3;
+  const [displayedCount, setDisplayedCount] = useState(TAGS_PER_PAGE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Load tags only if not already loaded (fallback)
   useEffect(() => {
@@ -58,10 +61,30 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
     const rect = el.getBoundingClientRect();
     const width = Math.min(256, Math.max(208, rect.width + 128));
     let left = rect.left;
-    const top = rect.bottom + 8; // 8px below trigger
     const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    
+    // Calculate space below
+    const spaceBelow = vh - rect.bottom;
+    const dropdownHeight = 280; // Approximate max height of dropdown
+    
+    // Always show above if not enough space below
+    // This ensures consistent behavior
+    const showAbove = spaceBelow < dropdownHeight;
+    
+    let top = 0;
+    let bottom;
+    
+    if (showAbove) {
+      // Position above the trigger
+      bottom = vh - rect.top + 8; // 8px above trigger
+    } else {
+      // Position below the trigger
+      top = rect.bottom + 8; // 8px below trigger
+    }
+    
     if (left + width > vw - 8) left = Math.max(8, vw - width - 8);
-    setPortalPos({ top, left, width });
+    setPortalPos({ top, left, width, bottom, showAbove });
   };
 
   useEffect(() => {
@@ -83,6 +106,22 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
       !selectedTagIds.includes(tag.id) &&
       tag.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const displayedTags = availableTags.slice(0, displayedCount);
+  const hasMore = displayedCount < availableTags.length;
+
+  // Reset displayed count when search query changes
+  useEffect(() => {
+    setDisplayedCount(TAGS_PER_PAGE);
+  }, [searchQuery]);
+
+  const handleLoadMore = () => {
+    setIsLoadingMore(true);
+    // Simulate loading delay
+    setTimeout(() => {
+      setDisplayedCount(prev => Math.min(prev + TAGS_PER_PAGE, availableTags.length));
+      setIsLoadingMore(false);
+    }, 500);
+  };
 
   const handleAddTag = async (tagId: number) => {
     try {
@@ -150,7 +189,11 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
         <div
           ref={dropdownRef}
           className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[999999]"
-          style={{ top: portalPos.top, left: portalPos.left, width: portalPos.width }}
+          style={{ 
+            ...(portalPos.showAbove ? { bottom: portalPos.bottom } : { top: portalPos.top }),
+            left: portalPos.left, 
+            width: portalPos.width 
+          }}
         >
           {/* Header */}
           <div className="p-3 md-down:p-2.5 border-b border-gray-200 dark:border-gray-700">
@@ -199,23 +242,43 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
                 {searchQuery ? t('tags.noTagsFound') : t('tags.noTags')}
               </div>
             ) : (
-              <div className="space-y-1">
-                {availableTags.map((tag) => (
-                  <button
-                    key={tag.id}
-                    onClick={() => handleAddTag(tag.id)}
-                    className="w-full flex items-center gap-2 px-3 py-2 md-down:px-2 md-down:py-1.5 text-left rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <div
-                      className="w-3 h-3 md-down:w-2.5 md-down:h-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: tag.color }}
-                    />
-                    <span className="text-sm md-down:text-xs text-gray-900 dark:text-white flex-1 truncate">
-                      {tag.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="space-y-1">
+                  {displayedTags.map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => handleAddTag(tag.id)}
+                      className="w-full flex items-center gap-2 px-3 py-2 md-down:px-2 md-down:py-1.5 text-left rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <div
+                        className="w-3 h-3 md-down:w-2.5 md-down:h-2.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: tag.color }}
+                      />
+                      <span className="text-sm md-down:text-xs text-gray-900 dark:text-white flex-1 truncate">
+                        {tag.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                {hasMore && (
+                  <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={isLoadingMore}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm md-down:text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>{t('tags.loading')}</span>
+                        </>
+                      ) : (
+                        <span>{t('tags.loadMore')} ({availableTags.length - displayedCount})</span>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>,

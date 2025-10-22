@@ -312,7 +312,7 @@ const Dashboard = () => {
                 getPriorityColor={getPriorityColor}
                 getPriorityText={getPriorityText}
                 currentPage={currentPage}
-                totalPages={pagination.totalPages}
+                totalPages={notes.length < 9 ? currentPage : Math.max(1, Math.ceil(pagination.total / 9))}
                 onPageChange={setCurrentPage}
               />
             </LazyLoad>

@@ -4,6 +4,7 @@ import { X, ChevronDown, Search, Loader2 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { RichTextEditor, useRichTextEditor } from '@/components/RichTextEditor';
 import { notesService, type NoteCategory } from '@/services/notesService';
+import PriorityDropdown from './PriorityDropdown';
 
 // MediaTabs Component
 const MediaTabs = memo(({ newNote, setNewNote, t }: { newNote: any; setNewNote: (note: any) => void; t: any }) => {
@@ -399,15 +400,10 @@ const CreateNoteModal = memo(({ isOpen, onClose, newNote, setNewNote, onSubmit, 
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
                 {t('modals.create.fields.priority')}
               </label>
-              <select
+              <PriorityDropdown
                 value={newNote.priority}
-                onChange={(e) => setNewNote({ ...newNote, priority: e.target.value as 'low' | 'medium' | 'high' })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white md-down:px-2.5 md-down:py-1.5 md-down:text-sm sm-down:px-2 sm-down:py-1.5 sm-down:text-sm xs-down:px-2 xs-down:py-1 xs-down:text-xs"
-              >
-                <option value="low">{t('priority.low')}</option>
-                <option value="medium">{t('priority.medium')}</option>
-                <option value="high">{t('priority.high')}</option>
-              </select>
+                onChange={(priority) => setNewNote({ ...newNote, priority })}
+              />
             </div>
           </div>
 

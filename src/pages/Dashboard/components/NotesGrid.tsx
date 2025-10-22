@@ -51,6 +51,10 @@ const NotesGrid = memo(({
 }: NotesGridProps) => {
   const { t } = useTranslation('dashboard');
 
+  // Tính lại totalPages để tránh hiển thị trang kế tiếp khi trang hiện tại chưa đủ 9 phần tử
+  const PAGE_SIZE = 9;
+  const effectiveTotalPages = notes.length < PAGE_SIZE ? currentPage : totalPages;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12 lg-down:py-10 md-down:py-8 sm-down:py-6">
@@ -117,7 +121,7 @@ const NotesGrid = memo(({
       {/* Pagination Component */}
       <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
+        totalPages={effectiveTotalPages}
         onPageChange={onPageChange}
       />
     </>
