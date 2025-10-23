@@ -8,7 +8,6 @@ const ImagePreview = memo(({ previewImage, onClose }: ImagePreviewProps) => {
   return (
     <div
       className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4"
-      onClick={onClose}
     >
       <div className="relative max-w-[90vw] max-h-[90vh]">
         <button

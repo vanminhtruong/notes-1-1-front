@@ -100,7 +100,11 @@
     "high": "Cao"
   },
   "common": {
-    "notProvided": "Chưa cập nhật"
+    "notProvided": "Chưa cập nhật",
+    "selectAll": "Chọn tất cả",
+    "unselectAll": "Bỏ chọn tất cả",
+    "pleaseWait": "Đang xử lý...",
+    "cancel": "Hủy"
   },
   "gender": {
     "male": "Nam",
@@ -427,6 +431,7 @@
         "leave": "Rời nhóm",
         "delete": "Xóa nhóm",
         "removeMember": "Xóa thành viên",
+        "removeCount": "Xóa ({{count}})",
         "addMembers": "Thêm thành viên",
         "viewMembers": "Xem thành viên",
         "adminsOnlyEnable": "Chỉ quản trị được gửi tin nhắn",
@@ -434,6 +439,14 @@
         "deleteAllMessages": "Xóa toàn bộ tin nhắn",
         "promoteToAdmin": "Thăng làm quản trị",
         "demoteToMember": "Giáng làm thành viên"
+      },
+      "remove": {
+        "subtitle": "Chọn thành viên để xóa khỏi nhóm",
+        "searchLabel": "Tìm kiếm thành viên",
+        "searchPlaceholder": "Tìm kiếm thành viên...",
+        "selected": "Đã chọn",
+        "listTitle": "Danh sách ({{count}})",
+        "warning": "Thành viên bị xóa sẽ không thể truy cập nhóm này nữa"
       },
       "editor": {
         "titleEdit": "Chỉnh sửa nhóm",
@@ -494,7 +507,9 @@
         "removed": "Đã xóa thành viên",
         "updated": "Đã cập nhật nhóm",
         "roleUpdated": "Đã cập nhật quyền",
-        "messagesDeleted": "Đã xóa toàn bộ tin nhắn nhóm"
+        "messagesDeleted": "Đã xóa toàn bộ tin nhắn nhóm",
+        "membersAdded": "Đã thêm thành viên",
+        "inviteSent": "Đã gửi lời mời"
       },
       "members": {
         "title": "Thành viên nhóm",
@@ -557,7 +572,9 @@
         "gender": "Giới tính",
         "lastSeen": "Hoạt động",
         "privacy": "Một số thông tin có thể không hiển thị nếu người dùng không chia sẻ."
-      }
+      },
+      "loadingHistory": "Đang tải lịch sử...",
+      "loadingOlder": "Đang tải tin nhắn cũ..."
     },
     "commonGroups": {
       "title": "Nhóm chung",

@@ -58,7 +58,7 @@ const ReactionDetailsModal = memo(function ReactionDetailsModal({ open, onClose,
   return (
     <div className="fixed inset-0 z-[1000]">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" />
       {/* Modal */}
       <div className="absolute left-1/2 top-1/2 w-[560px] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white text-gray-900 shadow-xl dark:bg-gray-900 dark:text-gray-100">
         {/* Header */}

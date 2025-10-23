@@ -107,7 +107,11 @@
     "high": "High"
   },
   "common": {
-    "notProvided": "Not provided"
+    "notProvided": "Not provided",
+    "selectAll": "Select all",
+    "unselectAll": "Unselect all",
+    "pleaseWait": "Please wait...",
+    "cancel": "Cancel"
   },
   "gender": {
     "male": "Male",
@@ -426,6 +430,7 @@
         "leave": "Leave group",
         "delete": "Delete group",
         "removeMember": "Remove member",
+        "removeCount": "Remove ({{count}})",
         "addMembers": "Add members",
         "viewMembers": "View members",
         "adminsOnlyEnable": "Only admins can send messages",
@@ -433,6 +438,14 @@
         "deleteAllMessages": "Delete all messages",
         "promoteToAdmin": "Promote to admin",
         "demoteToMember": "Demote to member"
+      },
+      "remove": {
+        "subtitle": "Select members to remove from group",
+        "searchLabel": "Search members",
+        "searchPlaceholder": "Search members...",
+        "selected": "Selected",
+        "listTitle": "List ({{count}})",
+        "warning": "Removed members will no longer have access to this group"
       },
       "editor": {
         "titleEdit": "Edit group",
@@ -490,10 +503,12 @@
         "invited": "Invitation sent",
         "left": "Left the group",
         "deleted": "Group deleted",
-        "removed": "Member removed",
+        "removed": "Members removed",
         "updated": "Group updated",
         "roleUpdated": "Role updated",
-        "messagesDeleted": "Deleted all group messages"
+        "messagesDeleted": "Deleted all group messages",
+        "membersAdded": "Members added",
+        "inviteSent": "Invitations sent"
       },
       "members": {
         "title": "Group members",
@@ -557,6 +572,8 @@
         "privacy": "Some information may not be visible if the user doesn't share it."
       }
     },
+    "loadingHistory": "Loading history...",
+    "loadingOlder": "Loading older messages...",
     "commonGroups": {
       "title": "Common groups",
       "tabs": {

@@ -1134,6 +1134,14 @@ const ChatView = memo(({
                         {t('chat.groups.actions.edit')}
                       </button>
                     )}
+                    {isGroupOwner && onRemoveMembers && (
+                      <button
+                        onClick={() => { setHeaderMenuOpen(false); onRemoveMembers(); }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        {t('chat.groups.actions.removeMember', 'Xóa thành viên')}
+                      </button>
+                    )}
                     {isGroupOwner && (
                       <button
                         onClick={async () => {

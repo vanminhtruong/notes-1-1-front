@@ -123,8 +123,7 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
 
   return (
     <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" 
-      onClick={onClose}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn"
     >
       <div 
         className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[540px] max-w-[95vw] max-h-[90vh] overflow-hidden mx-3 animate-slideUp" 

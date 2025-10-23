@@ -24,6 +24,7 @@
 @import './css-child/pinned-banner.module';
 @import './css-child/chat-messages.module';
 @import './css-child/message-actions.module';
+@import './css-child/header-tabs.module';
 
 @mixin generate-dark-theme(
   $theme-class,
@@ -45,4 +46,5 @@
   @include apply-pinned-banner($theme-class, $bg-base, $bg-card, $bg-hover, $border-color, $text-muted);
   @include apply-chat-messages($theme-class, $bg-card);
   @include apply-message-actions($theme-class, $bg-card, $bg-hover, $border-color, $border-hover);
+  @include apply-header-tabs($theme-class, $bg-card, $border-hover);
 }

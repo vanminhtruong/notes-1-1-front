@@ -1,0 +1,12 @@
+/**
+ * Header Tabs Module
+ * Scope: only applied through generate-dark-theme for a specific $theme-class
+ */
+
+@mixin apply-header-tabs($theme-class, $bg-card, $border-hover) {
+  // Header tabs - active state (only in pure dark theme scope)
+  .#{$theme-class} .pure-dark-tab-active {
+    background-color: $bg-card !important;
+    border-color: $border-hover !important;
+  }
+}

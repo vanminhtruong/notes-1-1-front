@@ -15,7 +15,7 @@ interface TagSelectorProps {
 
 const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: TagSelectorProps) => {
   const { t } = useTranslation('dashboard');
-  const { tags, loadTags, addTagToNote, removeTagFromNote } = useNoteTags();
+  const { tags, isLoading, loadTags, addTagToNote, removeTagFromNote } = useNoteTags();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,10 +66,7 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
     
     // Calculate space below
     const spaceBelow = vh - rect.bottom;
-    const dropdownHeight = 280; // Approximate max height of dropdown
-    
-    // Always show above if not enough space below
-    // This ensures consistent behavior
+    const dropdownHeight = 280; 
     const showAbove = spaceBelow < dropdownHeight;
     
     let top = 0;
@@ -109,16 +106,15 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
   const displayedTags = availableTags.slice(0, displayedCount);
   const hasMore = displayedCount < availableTags.length;
 
-  // Reset displayed count when search query changes
+  // Reset lại số lượng hiển thị khi thay đổi tìm kiếm
   useEffect(() => {
     setDisplayedCount(TAGS_PER_PAGE);
   }, [searchQuery]);
 
   const handleLoadMore = () => {
     setIsLoadingMore(true);
-    // Simulate loading delay
     setTimeout(() => {
-      setDisplayedCount(prev => Math.min(prev + TAGS_PER_PAGE, availableTags.length));
+      setDisplayedCount((prev) => Math.min(prev + TAGS_PER_PAGE, availableTags.length));
       setIsLoadingMore(false);
     }, 500);
   };
@@ -232,8 +228,13 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
           </div>
 
           {/* Tags List */}
-          <div className="max-h-60 md-down:max-h-48 overflow-y-auto p-2 md-down:p-1.5">
-            {selectedTags.length >= MAX_TAGS ? (
+          <div className="max-h-32 md-down:max-h-28 overflow-y-auto p-2 md-down:p-1.5">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-4 text-sm md-down:text-xs text-gray-500 dark:text-gray-400">
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                {t('tags.loading')}
+              </div>
+            ) : selectedTags.length >= MAX_TAGS ? (
               <div className="text-center py-4 text-sm md-down:text-xs text-gray-500 dark:text-gray-400">
                 {t('tags.maxLimit', { max: MAX_TAGS })}
               </div>

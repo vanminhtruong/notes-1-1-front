@@ -511,7 +511,7 @@ export function useChatSocket(params: UseChatSocketParams) {
 
     const onGroupMessage = (data: any) => {
       if (selectedGroup && data.groupId === selectedGroup.id) {
-        const base = data.sender
+        let base = data.sender
           ? data
           : {
               ...data,
@@ -519,6 +519,35 @@ export function useChatSocket(params: UseChatSocketParams) {
                 ? { id: data.senderId, name: data.senderName, avatar: data.senderAvatar }
                 : resolveUser(data.senderId),
             };
+
+        // Normalize system messages so they immediately show real names instead of generic 'User'
+        try {
+          const isSystem = String(base?.messageType || base?.type || '').toLowerCase() === 'system';
+          const rawContent: string | undefined = typeof base?.content === 'string' ? base.content : undefined;
+          const m = rawContent ? rawContent.match(/^(.+?)\s+(joined|left)\s+the\s+group/i) : null;
+          if (isSystem && (m || /\b(joined|left)\b\s+the\s+group/i.test(rawContent || ''))) {
+            const existingName = (m && m[1]) || (base as any)?.sender?.name || (base as any)?.senderName;
+            // Resolve from friends/users/currentUser when missing or generic
+            const idNum = Number((base as any)?.senderId);
+            const listMatch = (
+              (friends && friends.find((f: any) => Number(f.id) === idNum))
+              || (users && users.find((u: any) => Number(u.id) === idNum))
+              || ((currentUser && Number(currentUser.id) === idNum) ? currentUser : undefined)
+            );
+            const resolvedName = (listMatch && listMatch.name) || existingName;
+            const action = (m && m[2]) ? m[2] : (/joined/i.test(rawContent || '') ? 'joined' : 'left');
+            // Rebuild content and ensure sender has name
+            if (resolvedName && (!existingName || /^User\b/i.test(String(existingName)))) {
+              base = {
+                ...base,
+                content: `${resolvedName} ${action} the group`,
+                sender: { ...(base as any).sender, id: idNum, name: resolvedName, avatar: (base as any).sender?.avatar || (base as any).senderAvatar },
+              } as any;
+            } else if (resolvedName && m && m[1] && resolvedName !== m[1]) {
+              base = { ...base, content: `${resolvedName} ${action} the group`, sender: { ...(base as any).sender, id: idNum, name: resolvedName } } as any;
+            }
+          }
+        } catch {}
 
         setMessages((prev: any[]) => {
           const exists = Array.isArray(prev) && prev.some((m: any) => m.id === base.id);
@@ -836,8 +865,16 @@ export function useChatSocket(params: UseChatSocketParams) {
       }
       const others = data.removed || [];
       if (others.length > 0) {
-        const names = others.map((uid) => (resolveUser(uid) as any)?.name).join(', ');
-        const content = others.length === 1 ? `${names} was removed from the group` : `${names} were removed from the group`;
+        const resolvedNames = others.map((uid) => {
+          const fromFriends = friends.find((f: any) => Number(f.id) === Number(uid));
+          const fromUsers = users.find((u: any) => Number(u.id) === Number(uid));
+          const me = currentUser && Number(currentUser.id) === Number(uid) ? currentUser : undefined;
+          const user = me || fromFriends || (fromUsers as any) || resolveUser(uid);
+          return (user && (user as any).name) ? (user as any).name : `User ${uid}`;
+        });
+        const names = resolvedNames.join(', ');
+        // Dùng 'left the group' để ChatView.tsx bắt regex ^(.+?)\s+(joined|left)\s+the\s+group và hiển thị tên ngay
+        const content = `${names} left the group`;
         const sysMsg = {
           id: Date.now(),
           senderId: 0,

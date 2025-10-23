@@ -150,7 +150,7 @@ const GroupMembersPanel = memo(function GroupMembersPanel({ open, groupId, onClo
   return (
     <div className="fixed inset-0 z-40" role="dialog" aria-modal="true">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/30" />
 
       {/* Panel */}
       <div className="absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 shadow-2xl flex flex-col">

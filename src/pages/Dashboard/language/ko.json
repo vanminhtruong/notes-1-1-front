@@ -101,7 +101,11 @@
     "high": "높음"
   },
   "common": {
-    "notProvided": "미제공"
+    "notProvided": "미제공",
+    "selectAll": "모두 선택",
+    "unselectAll": "선택 해제",
+    "pleaseWait": "처리 중...",
+    "cancel": "취소"
   },
   "gender": {
     "male": "남성",
@@ -391,14 +395,23 @@
         "edit": "그룹 편집",
         "leave": "그룹 나가기",
         "delete": "그룹 삭제",
-        "removeMember": "구성원 제거",
-        "addMembers": "구성원 추가",
-        "viewMembers": "구성원 보기",
+        "removeMember": "멤버 제거",
+        "removeCount": "제거 ({{count}})",
+        "addMembers": "멤버 추가",
+        "viewMembers": "멤버 보기",
         "adminsOnlyEnable": "관리자만 메시지 전송 허용",
-        "adminsOnlyDisable": "모든 구성원 메시지 전송 허용",
+        "adminsOnlyDisable": "모두 메시지 전송 허용",
         "deleteAllMessages": "모든 메시지 삭제",
         "promoteToAdmin": "관리자로 승격",
-        "demoteToMember": "구성원으로 강등"
+        "demoteToMember": "멤버로 강등"
+      },
+      "remove": {
+        "subtitle": "그룹에서 제거할 멤버 선택",
+        "searchLabel": "멤버 검색",
+        "searchPlaceholder": "멤버 검색...",
+        "selected": "선택됨",
+        "listTitle": "목록 ({{count}})",
+        "warning": "제거된 멤버는 더 이상 이 그룹에 액세스할 수 없습니다"
       },
       "editor": {
         "titleEdit": "그룹 편집",
@@ -453,13 +466,15 @@
       },
       "success": {
         "created": "그룹이 생성되었습니다",
-        "invited": "초대가 전송되었습니다",
+        "invited": "초대장이 전송되었습니다",
         "left": "그룹을 나갔습니다",
         "deleted": "그룹이 삭제되었습니다",
-        "removed": "구성원이 제거되었습니다",
+        "removed": "멤버가 제거되었습니다",
         "updated": "그룹이 업데이트되었습니다",
-        "roleUpdated": "권한이 업데이트되었습니다",
-        "messagesDeleted": "그룹의 모든 메시지가 삭제되었습니다"
+        "roleUpdated": "역할이 업데이트되었습니다",
+        "messagesDeleted": "모든 그룹 메시지가 삭제되었습니다",
+        "membersAdded": "멤버가 추가되었습니다",
+        "inviteSent": "초대장이 전송되었습니다"
       },
       "members": {
         "title": "그룹 구성원",
@@ -513,8 +528,8 @@
         "offline": "오프라인"
       },
       "empty": {
-        "youAreFriends": "{{name}}님과 메신저 친구입니다",
-        "inGroup": "그룹 {{name}}에 있습니다"
+        "youAreFriends": "{{name}}님과 친구입니다",
+        "inGroup": "{{name}} 그룹에 참여하고 있습니다"
       },
       "viewProfile": "프로필 보기",
       "actions": {
@@ -536,8 +551,10 @@
         "birthDateHiddenMask": "../..",
         "gender": "성별",
         "lastSeen": "최근 활동",
-        "privacy": "사용자가 공유하지 않은 정보는 표시되지 않을 수 있습니다."
-      }
+        "privacy": "사용자가 공유하지 않으면 일부 정보가 표시되지 않을 수 있습니다."
+      },
+      "loadingHistory": "기록 불러오는 중...",
+      "loadingOlder": "이전 메시지를 불러오는 중..."
     },
     "menu": {
       "options": "옵션",

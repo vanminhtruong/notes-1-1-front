@@ -29,6 +29,9 @@ export default function MainLayout() {
   const location = useLocation();
   const socketConnectedRef = useRef(false);
 
+  const isActiveRoute = (path: string) =>
+    location.pathname === path || location.pathname.startsWith(`${path}/`);
+
   // Auto-fetch user profile if token exists but user data is missing
   useEffect(() => {
     if (isAuthenticated && token && !user) {
@@ -208,10 +211,46 @@ export default function MainLayout() {
             </div>
 
             <nav className="hidden lg:flex items-center gap-6 xl-down:gap-5 lg-down:gap-4">
-              <Link to="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.dashboard')}</Link>
-              <Link to="/categories" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.categories')}</Link>
-              <Link to="/about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.about')}</Link>
-              <Link to="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 lg-down:text-sm">{t('nav.contact')}</Link>
+              <Link
+                to="/dashboard"
+                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${
+                  isActiveRoute('/dashboard')
+                    ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+                }`}
+              >
+                {t('nav.dashboard')}
+              </Link>
+              <Link
+                to="/categories"
+                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${
+                  isActiveRoute('/categories')
+                    ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+                }`}
+              >
+                {t('nav.categories')}
+              </Link>
+              <Link
+                to="/about"
+                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${
+                  isActiveRoute('/about')
+                    ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+                }`}
+              >
+                {t('nav.about')}
+              </Link>
+              <Link
+                to="/contact"
+                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${
+                  isActiveRoute('/contact')
+                    ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+                }`}
+              >
+                {t('nav.contact')}
+              </Link>
             </nav>
 
             <div className="flex items-center space-x-4 lg-down:space-x-3 md-down:space-x-2">
@@ -380,28 +419,44 @@ export default function MainLayout() {
               <Link
                 to="/dashboard"
                 onClick={() => setMobileNavOpen(false)}
-                className="block px-4 py-3 rounded-xl text-base font-medium text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 border border-white/30 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all"
+                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${
+                  isActiveRoute('/dashboard')
+                    ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
+                    : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
+                }`}
               >
                 {t('nav.dashboard')}
               </Link>
               <Link
                 to="/categories"
                 onClick={() => setMobileNavOpen(false)}
-                className="block px-4 py-3 rounded-xl text-base font-medium text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 border border-white/30 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all"
+                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${
+                  isActiveRoute('/categories')
+                    ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
+                    : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
+                }`}
               >
                 {t('nav.categories')}
               </Link>
               <Link
                 to="/about"
                 onClick={() => setMobileNavOpen(false)}
-                className="block px-4 py-3 rounded-xl text-base font-medium text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 border border-white/30 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all"
+                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${
+                  isActiveRoute('/about')
+                    ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
+                    : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
+                }`}
               >
                 {t('nav.about')}
               </Link>
               <Link
                 to="/contact"
                 onClick={() => setMobileNavOpen(false)}
-                className="block px-4 py-3 rounded-xl text-base font-medium text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 border border-white/30 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all"
+                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${
+                  isActiveRoute('/contact')
+                    ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
+                    : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
+                }`}
               >
                 {t('nav.contact')}
               </Link>
