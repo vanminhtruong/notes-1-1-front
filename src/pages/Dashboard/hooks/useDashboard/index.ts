@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import toast from 'react-hot-toast';
-import { fetchNotes, fetchNoteStats, createNote, deleteNote, archiveNote, setFilters, updateNote, ackReminder } from '@/store/slices/notesSlice';
+import { createNote, deleteNote, archiveNote, updateNote, ackReminder } from '@/store/slices/notesSlice';
 import { socketService } from '@/services/socketService';
 import { useTranslation } from 'react-i18next';
 import { startReminderRinging, stopReminderRinging } from '@/utils/notificationSound';
@@ -19,7 +19,6 @@ export const useDashboard = () => {
   const [selectedPriority, setSelectedPriority] = useState('');
   const [showArchived, setShowArchived] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 9;
   const [categories, setCategories] = useState<NoteCategory[]>([]);
   const [newNote, setNewNote] = useState({
     title: '',
@@ -94,30 +93,30 @@ export const useDashboard = () => {
     setCurrentPage(1);
   }, [searchTerm, selectedCategory, selectedPriority, showArchived]);
 
-  // Fetch stats only once on mount
-  useEffect(() => {
-    dispatch(fetchNoteStats());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Fetch stats only once on mount - REMOVED: will be fetched when entering active/archived view
+  // useEffect(() => {
+  //   dispatch(fetchNoteStats());
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
-  // Sync filters + fetch notes (without stats)
-  useEffect(() => {
-    dispatch(setFilters({
-      search: searchTerm,
-      category: selectedCategory,
-      priority: selectedPriority,
-      isArchived: showArchived,
-    }));
+  // Sync filters + fetch notes (without stats) - REMOVED: will be fetched when entering active/archived view
+  // useEffect(() => {
+  //   dispatch(setFilters({
+  //     search: searchTerm,
+  //     category: selectedCategory,
+  //     priority: selectedPriority,
+  //     isArchived: showArchived,
+  //   }));
 
-    dispatch(fetchNotes({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  }, [dispatch, searchTerm, selectedCategory, selectedPriority, showArchived, currentPage]);
+  //   dispatch(fetchNotes({
+  //     page: currentPage,
+  //     limit: ITEMS_PER_PAGE,
+  //     search: searchTerm,
+  //     category: selectedCategory || undefined,
+  //     priority: selectedPriority || undefined,
+  //     isArchived: showArchived,
+  //   }));
+  // }, [dispatch, searchTerm, selectedCategory, selectedPriority, showArchived, currentPage]);
 
   // Fetch categories function
   const loadCategories = useCallback(async () => {
@@ -129,11 +128,11 @@ export const useDashboard = () => {
     }
   }, []);
 
-  // Fetch categories only once on mount
-  useEffect(() => {
-    loadCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Fetch categories only once on mount - REMOVED: will be lazy loaded when opening create/edit modal
+  // useEffect(() => {
+  //   loadCategories();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   // UX: đưa category vừa chọn lên đầu danh sách ngay lập tức
   const moveToFront = useCallback((arr: NoteCategory[], id?: number) => {
@@ -298,14 +297,7 @@ export const useDashboard = () => {
 
   const handleArchiveNote = useCallback(async (id: number) => {
     const result = await dispatch(archiveNote(id));
-    dispatch(fetchNotes({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
+    // No need to fetchNotes - socket event 'note_archived' will auto-update the list
     
     // Show success toast
     if (result.meta.requestStatus === 'fulfilled') {
@@ -314,7 +306,7 @@ export const useDashboard = () => {
         className: 'dark:bg-gray-800 dark:text-white',
       });
     }
-  }, [dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived, t]);
+  }, [dispatch, t]);
 
   const confirmArchiveNote = useCallback((id: number) => {
     const tId = toast.custom((toastData) => {
@@ -420,15 +412,8 @@ export const useDashboard = () => {
     if (selectedIds.length === 0) return;
     await Promise.all(selectedIds.map((id) => dispatch(deleteNote(id))));
     setSelectedIds([]);
-    dispatch(fetchNotes({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      search: searchTerm,
-      category: selectedCategory || undefined,
-      priority: selectedPriority || undefined,
-      isArchived: showArchived,
-    }));
-  }, [selectedIds, dispatch, currentPage, searchTerm, selectedCategory, selectedPriority, showArchived]);
+    // No need to fetchNotes - socket events will auto-remove deleted notes from list
+  }, [selectedIds, dispatch]);
 
   const confirmBulkDelete = useCallback(() => {
     const tId = toast.custom((toastData) => {

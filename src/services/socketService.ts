@@ -13,10 +13,11 @@ import {
 class SocketService {
   private socket: Socket | null = null;
   private isConnected = false;
+  private isConnecting = false;
 
   connect() {
     // Prevent multiple connections
-    if (this.socket && this.isConnected) {
+    if (this.isConnected || this.isConnecting) {
       console.log('Socket already connected, skipping...');
       return;
     }
@@ -30,6 +31,7 @@ class SocketService {
       this.socket = null;
     }
 
+    this.isConnecting = true;
     this.socket = io('http://localhost:3000', {
       auth: {
         token: token
@@ -45,6 +47,7 @@ class SocketService {
     this.socket.on('connect', () => {
       console.log('WebSocket connected');
       this.isConnected = true;
+      this.isConnecting = false;
     });
 
     this.socket.on('connected', (data) => {
@@ -54,6 +57,7 @@ class SocketService {
     this.socket.on('disconnect', (reason) => {
       console.log('WebSocket disconnected:', reason);
       this.isConnected = false;
+      this.isConnecting = false;
     });
 
     this.socket.on('reconnect_attempt', (attempt) => {
@@ -62,10 +66,12 @@ class SocketService {
 
     this.socket.on('reconnect_failed', () => {
       console.error('Failed to reconnect after maximum attempts');
+      this.isConnecting = false;
     });
 
     this.socket.on('connect_error', (error) => {
       console.error('WebSocket connection error:', error.message);
+      this.isConnecting = false;
     });
 
     // Global account deletion => logout across tabs
@@ -251,6 +257,7 @@ class SocketService {
       console.log('Disconnecting socket...');
       // Set flag immediately to prevent new connections
       this.isConnected = false;
+      this.isConnecting = false;
       this.socket.disconnect();
       this.socket = null;
     }
@@ -309,3 +316,4 @@ class SocketService {
 }
 
 export const socketService = new SocketService();
+

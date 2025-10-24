@@ -60,10 +60,10 @@ export const useFolderNotes = (folderId: number | null, onRefreshFolder: () => v
 
   const [editNote, setEditNote] = useState<EditNote | null>(null);
 
-  // Fetch categories
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
+  // Fetch categories - REMOVED: will be lazy loaded when opening create/edit modal
+  // useEffect(() => {
+  //   loadCategories();
+  // }, [loadCategories]);
 
   // Realtime: refresh categories when backend signals reorder/changes
   useEffect(() => {

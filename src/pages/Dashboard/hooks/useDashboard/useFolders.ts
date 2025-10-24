@@ -423,10 +423,10 @@ export const useFolders = () => {
     };
   }, [selectedFolder, fetchFolders, fetchFolderNotes, currentPage]);
 
-  // Initial fetch
-  useEffect(() => {
-    fetchFolders();
-  }, [fetchFolders]);
+  // Initial fetch - REMOVED: will be lazy loaded when entering folders view
+  // useEffect(() => {
+  //   fetchFolders();
+  // }, [fetchFolders]);
 
   return {
     folders,

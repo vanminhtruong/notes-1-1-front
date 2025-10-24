@@ -10,6 +10,8 @@ import {
   ShareNoteModal, LazyLoad,
   useAppDispatch
 } from '@/pages/Dashboard/import';
+import { useLazyLoadData } from './hooks/useDashboard/useLazyLoadData';
+import { useLazyLoadCategories } from './hooks/useDashboard/useLazyLoadCategories';
 import type { NoteFolder } from '@/services/notesService';
 import { useTranslation } from 'react-i18next';
 
@@ -49,6 +51,7 @@ const Dashboard = () => {
     isFolderNotesLoading,
     folderNotesPagination,
     currentPage: folderCurrentPage,
+    fetchFolders,
     fetchFolderNotes,
     createFolder,
     updateFolder,
@@ -166,6 +169,24 @@ const Dashboard = () => {
     selectedCategory,
     selectedPriority,
     viewMode,
+  });
+
+  // Lazy load data based on viewMode
+  useLazyLoadData({
+    viewMode,
+    currentPage,
+    searchTerm,
+    selectedCategory,
+    selectedPriority,
+    folders,
+    fetchFolders,
+  });
+
+  // Lazy load categories when opening create/edit modals
+  useLazyLoadCategories({
+    showCreateModal,
+    showEditModal,
+    categories,
   });
 
   // Disable body scroll when modals are open
