@@ -282,6 +282,14 @@
       "imagePreviewAlt": "이미지",
       "imageUploadError": "이미지 업로드 실패",
       "close": "닫기"
+    },
+    "background": {
+      "title": "배경 옵션",
+      "change": "배경 변경",
+      "colors": "색상",
+      "images": "이미지",
+      "updateSuccess": "배경이 성공적으로 업데이트되었습니다",
+      "updateError": "배경을 업데이트할 수 없습니다"
     }
   },
   "chat": {

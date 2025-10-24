@@ -151,3 +151,98 @@ export const getCachedUser = () => {
   }
   return null;
 };
+
+/**
+ * Tính độ sáng (luminance) của màu hex theo chuẩn WCAG
+ * @param hex - Mã màu hex (ví dụ: #f28b82)
+ * @returns Giá trị luminance từ 0 (tối) đến 1 (sáng)
+ */
+export const getLuminance = (hex: string): number => {
+  // Xử lý hex có hoặc không có #
+  const cleanHex = hex.replace('#', '');
+  
+  // Chuyển hex sang RGB
+  const r = parseInt(cleanHex.substring(0, 2), 16) / 255;
+  const g = parseInt(cleanHex.substring(2, 4), 16) / 255;
+  const b = parseInt(cleanHex.substring(4, 6), 16) / 255;
+  
+  // Áp dụng công thức gamma correction
+  const rsRGB = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+  const gsRGB = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+  const bsRGB = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+  
+  // Tính luminance theo chuẩn WCAG
+  return 0.2126 * rsRGB + 0.7152 * gsRGB + 0.0722 * bsRGB;
+};
+
+/**
+ * Quyết định màu chữ (sáng/tối) phù hợp dựa trên màu nền
+ * @param backgroundColor - Mã màu hex của nền (ví dụ: #f28b82)
+ * @returns Object chứa các class màu cho text, border, icon phù hợp
+ */
+export const getTextColorForBackground = (backgroundColor: string | null): {
+  text: string;
+  textSecondary: string;
+  border: string;
+  icon: string;
+} => {
+  if (!backgroundColor) {
+    // Không có nền màu, trả về màu mặc định (không thay đổi UI)
+    return {
+      text: 'text-gray-900 dark:text-white',
+      textSecondary: 'text-gray-500 dark:text-gray-400',
+      border: 'border-gray-300 dark:border-gray-600',
+      icon: 'text-gray-400',
+    };
+  }
+  
+  try {
+    const luminance = getLuminance(backgroundColor);
+    
+    // Giảm ngưỡng xuống 0.35 để nhạy hơn, dùng màu đen/trắng thuần để tương phản tối đa
+    // Nếu nền sáng (luminance > 0.35), dùng chữ đen thuần
+    // Nếu nền tối (luminance <= 0.35), dùng chữ trắng thuần
+    if (luminance > 0.35) {
+      return {
+        text: 'text-black',
+        textSecondary: 'text-black',
+        border: 'border-black',
+        icon: 'text-black',
+      };
+    } else {
+      return {
+        text: 'text-white',
+        textSecondary: 'text-white',
+        border: 'border-white',
+        icon: 'text-white',
+      };
+    }
+  } catch {
+    // Nếu có lỗi parse màu, trả về màu mặc định
+    return {
+      text: 'text-gray-900 dark:text-white',
+      textSecondary: 'text-gray-500 dark:text-gray-400',
+      border: 'border-gray-300 dark:border-gray-600',
+      icon: 'text-gray-400',
+    };
+  }
+};
+
+/**
+ * Quyết định màu chữ cho nền có ảnh (giả định nền tối để dễ đọc)
+ * @returns Object chứa các class màu cho text phù hợp với nền ảnh
+ */
+export const getTextColorForImageBackground = (): {
+  text: string;
+  textSecondary: string;
+  border: string;
+  icon: string;
+} => {
+  // Với nền ảnh, dùng chữ trắng thuần để đảm bảo dễ đọc trên mọi ảnh
+  return {
+    text: 'text-white',
+    textSecondary: 'text-white',
+    border: 'border-white',
+    icon: 'text-white',
+  };
+};

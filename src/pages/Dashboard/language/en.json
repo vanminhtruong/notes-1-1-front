@@ -301,6 +301,14 @@
       "imagePreviewAlt": "Image",
       "imageUploadError": "Failed to upload image",
       "close": "Close"
+    },
+    "background": {
+      "title": "Background options",
+      "change": "Change background",
+      "colors": "Colors",
+      "images": "Images",
+      "updateSuccess": "Background updated successfully",
+      "updateError": "Failed to update background"
     }
   },
   "errors": {

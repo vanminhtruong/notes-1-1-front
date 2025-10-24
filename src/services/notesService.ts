@@ -28,6 +28,8 @@ export interface Note {
   userId: number;
   createdAt: string;
   updatedAt: string;
+  backgroundColor?: string | null;
+  backgroundImage?: string | null;
   user: {
     id: number;
     name: string;
@@ -58,6 +60,8 @@ export interface UpdateNoteData {
   priority?: 'low' | 'medium' | 'high';
   isArchived?: boolean;
   reminderAt?: string | null;
+  backgroundColor?: string | null;
+  backgroundImage?: string | null;
 }
 
 export interface NotesResponse {

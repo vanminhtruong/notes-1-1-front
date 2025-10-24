@@ -1,12 +1,14 @@
 import { memo, useState, useRef, useEffect } from 'react';
-import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play, FolderInput, FolderOutput } from 'lucide-react';
+import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play, FolderInput, FolderOutput, Palette } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { formatDateMDYY } from '@/utils/utils';
+import { formatDateMDYY, getTextColorForBackground, getTextColorForImageBackground } from '@/utils/utils';
 import { extractYouTubeId } from '@/utils/youtube';
 import { getHtmlPreview, sanitizeInlineHtml } from '@/utils/htmlUtils';
 import PinButton from './PinButton';
 import TagBadge from './TagBadge';
 import TagSelector from './TagSelector';
+import BackgroundPicker from './BackgroundPicker';
+import { useNoteBackground } from '../hooks/useNoteBackground';
 import type { Note as ServiceNote, NoteTag } from '@/services/notesService';
 import type { NoteCategory } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
@@ -24,6 +26,8 @@ export interface Note {
   tags?: NoteTag[];
   createdAt: string;
   isPinned?: boolean;
+  backgroundColor?: string | null;
+  backgroundImage?: string | null;
 }
 
 interface NoteCardProps {
@@ -64,8 +68,26 @@ const NoteCard = memo(({
   const { t } = useTranslation('dashboard');
   const [isHovered, setIsHovered] = useState(false);
   const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
+  const [isBackgroundPickerOpen, setIsBackgroundPickerOpen] = useState(false);
   const tagsContainerRef = useRef<HTMLDivElement>(null);
   const [tagSelectorLeft, setTagSelectorLeft] = useState(0);
+  const paletteBtnRef = useRef<HTMLButtonElement | null>(null);
+  const { updateBackground } = useNoteBackground();
+  // UI state để phản ánh ngay thay đổi nền (tránh phải đợi socket/refetch)
+  const [bgColor, setBgColor] = useState<string | null>(note.backgroundColor ?? null);
+  const [bgImage, setBgImage] = useState<string | null>(note.backgroundImage ?? null);
+  const hasBg = !!(bgColor || bgImage);
+  
+  // Tính màu chữ phù hợp dựa trên nền
+  const textColors = bgImage 
+    ? getTextColorForImageBackground() 
+    : getTextColorForBackground(bgColor);
+
+  // Đồng bộ khi note props thay đổi
+  useEffect(() => {
+    setBgColor(note.backgroundColor ?? null);
+    setBgImage(note.backgroundImage ?? null);
+  }, [note.id, note.backgroundColor, note.backgroundImage]);
 
   useEffect(() => {
     if ((isHovered || isTagSelectorOpen) && note.tags && note.tags.length > 0 && tagsContainerRef.current) {
@@ -81,9 +103,25 @@ const NoteCard = memo(({
     }
   }, [isHovered, isTagSelectorOpen, note.tags]);
 
+  const handleBackgroundChange = async (backgroundColor: string | null, backgroundImage: string | null) => {
+    const ok = await updateBackground(note.id, backgroundColor, backgroundImage);
+    if (ok) {
+      // Nếu chọn màu thì xóa ảnh; nếu chọn ảnh thì xóa màu
+      setBgColor(backgroundColor ?? null);
+      setBgImage(backgroundImage ?? null);
+    }
+  };
+
   return (
     <div 
-      className="relative overflow-visible z-[200] hover:z-[300] bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3"
+      className={`relative overflow-visible z-[5000] hover:z-[10000] ${hasBg ? 'bg-transparent dark:bg-transparent' : 'bg-white/70 dark:bg-gray-800/90'} backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3`}
+      style={{
+        backgroundColor: bgColor || undefined,
+        backgroundImage: bgImage ? `url(${bgImage})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -112,7 +150,13 @@ const NoteCard = memo(({
               </span>
             </label>
           )}
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate lg-down:text-base md-down:text-sm sm-down:text-sm flex-1 min-w-0">
+          <h3 
+            className={`text-lg font-semibold ${textColors.text} truncate lg-down:text-base md-down:text-sm sm-down:text-sm flex-1 min-w-0`}
+            style={hasBg ? { 
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 1px 4px rgba(0, 0, 0, 0.6), 0 0 2px rgba(0, 0, 0, 0.4)',
+              fontWeight: '700'
+            } : undefined}
+          >
             {note.title}
           </h3>
         </div>
@@ -167,7 +211,7 @@ const NoteCard = memo(({
       </div>
 
       <div
-        className="text-gray-600 dark:text-gray-300 text-sm mb-4 md-down:text-xs sm-down:mb-3 xs-down:mb-2.5"
+        className={`${textColors.textSecondary} text-sm mb-4 md-down:text-xs sm-down:mb-3 xs-down:mb-2.5`}
         style={{
           display: 'block',
           overflow: 'hidden',
@@ -176,7 +220,11 @@ const NoteCard = memo(({
           width: '100%',
           minWidth: 0,
           wordBreak: 'normal',
-          overflowWrap: 'normal'
+          overflowWrap: 'normal',
+          ...(hasBg ? { 
+            textShadow: '0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.6)',
+            fontWeight: '600'
+          } : {})
         }}
         title={getHtmlPreview(note.content, 500)}
         dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(note.content || '') }}
@@ -268,8 +316,14 @@ const NoteCard = memo(({
               </button>
             )}
           </div>
-          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 xs-down:text-[10px]">
-            <Clock className="w-3 h-3 xs-down:w-2.5 xs-down:h-2.5" />
+          <div 
+            className={`flex items-center gap-1 text-xs ${textColors.textSecondary} xs-down:text-[10px]`}
+            style={hasBg ? { 
+              textShadow: '0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.6)',
+              fontWeight: '600'
+            } : undefined}
+          >
+            <Clock className={`w-3 h-3 xs-down:w-2.5 xs-down:h-2.5 ${textColors.icon}`} style={hasBg ? { filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))' } : undefined} />
             {formatDateMDYY(note.createdAt)}
           </div>
         </div>
@@ -290,9 +344,9 @@ const NoteCard = memo(({
               </>
             )}
           </div>
-          {(isHovered || isTagSelectorOpen) && (!note.tags || note.tags.length < 3) && (
+          {(isHovered || isTagSelectorOpen || isBackgroundPickerOpen) && (!note.tags || note.tags.length < 3) && !showArchived && (
             <div 
-              className="absolute top-1 z-10 scale-75 origin-top-left"
+              className="absolute top-1 z-[10020] scale-75 origin-top-left flex items-center gap-2"
               style={{ 
                 left: note.tags && note.tags.length > 0 ? `${tagSelectorLeft}px` : '0'
               }}
@@ -301,7 +355,31 @@ const NoteCard = memo(({
                 noteId={note.id}
                 selectedTags={[]}
                 onOpenChange={setIsTagSelectorOpen}
+                hasBg={hasBg}
+                textColors={textColors}
               />
+              <div className="relative">
+                <button
+                  ref={paletteBtnRef}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsBackgroundPickerOpen(!isBackgroundPickerOpen);
+                  }}
+                  className="p-1.5 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 rounded-md hover:bg-purple-50 dark:hover:bg-purple-900/20 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-sm"
+                  title={t('notes.background.change')}
+                >
+                  <Palette className="w-3.5 h-3.5" />
+                </button>
+                {isBackgroundPickerOpen && (
+                  <BackgroundPicker
+                    currentBackgroundColor={bgColor}
+                    currentBackgroundImage={bgImage}
+                    onBackgroundChange={handleBackgroundChange}
+                    onClose={() => setIsBackgroundPickerOpen(false)}
+                    anchorRef={paletteBtnRef}
+                  />
+                )}
+              </div>
             </div>
           )}
         </div>

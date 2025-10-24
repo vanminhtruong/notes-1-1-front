@@ -11,9 +11,16 @@ interface TagSelectorProps {
   selectedTags: NoteTag[];
   onOpenManagement?: () => void;
   onOpenChange?: (open: boolean) => void;
+  hasBg?: boolean;
+  textColors?: {
+    text: string;
+    textSecondary: string;
+    border: string;
+    icon: string;
+  };
 }
 
-const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: TagSelectorProps) => {
+const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange, hasBg = false, textColors }: TagSelectorProps) => {
   const { t } = useTranslation('dashboard');
   const { tags, isLoading, loadTags, addTagToNote, removeTagFromNote } = useNoteTags();
   const [isOpen, setIsOpen] = useState(false);
@@ -173,9 +180,21 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange }: T
             setIsOpen(next);
             onOpenChange && onOpenChange(next);
           }}
-          className={`inline-flex items-center gap-1 px-2.5 py-1 md-down:px-2 md-down:py-0.5 rounded-full text-xs md-down:text-[10px] font-medium border-2 border-dashed transition-colors ${selectedTags.length >= MAX_TAGS ? 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60' : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400'}`}
+          className={`inline-flex items-center gap-1 px-2.5 py-1 md-down:px-2 md-down:py-0.5 rounded-full text-xs md-down:text-[10px] font-medium border-2 border-dashed transition-colors ${
+            selectedTags.length >= MAX_TAGS 
+              ? 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60' 
+              : hasBg && textColors
+                ? `${textColors.border} ${textColors.text} hover:border-blue-500 hover:text-blue-600`
+                : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400'
+          }`}
+          style={hasBg ? {
+            textShadow: '0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.6)',
+            fontWeight: '700',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(4px)'
+          } : undefined}
         >
-          <Plus className="w-3 h-3 md-down:w-2.5 md-down:h-2.5" />
+          <Plus className="w-3 h-3 md-down:w-2.5 md-down:h-2.5" style={hasBg ? { filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))' } : undefined} />
           {t('tags.addTag')}
         </button>
       </div>

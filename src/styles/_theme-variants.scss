@@ -15,16 +15,16 @@
  */
 
 // Import modular theme components
-@import './css-child/base-backgrounds.module';
-@import './css-child/borders.module';
-@import './css-child/gradients.module';
-@import './css-child/buttons.module';
-@import './css-child/inputs.module';
-@import './css-child/colors.module';
-@import './css-child/pinned-banner.module';
-@import './css-child/chat-messages.module';
-@import './css-child/message-actions.module';
-@import './css-child/header-tabs.module';
+@use './css-child/base-backgrounds.module' as base-backgrounds;
+@use './css-child/borders.module' as borders;
+@use './css-child/gradients.module' as gradients;
+@use './css-child/buttons.module' as buttons;
+@use './css-child/inputs.module' as inputs;
+@use './css-child/colors.module' as colors;
+@use './css-child/pinned-banner.module' as pinned-banner;
+@use './css-child/chat-messages.module' as chat-messages;
+@use './css-child/message-actions.module' as message-actions;
+@use './css-child/header-tabs.module' as header-tabs;
 
 @mixin generate-dark-theme(
   $theme-class,
@@ -37,14 +37,14 @@
   $text-muted: #9ca3af
 ) {
   // Apply all modular theme components
-  @include apply-base-backgrounds($theme-class, $bg-base, $bg-elevated, $bg-card, $bg-hover, $border-color);
-  @include apply-borders($theme-class, $border-color, $border-hover, $bg-hover);
-  @include apply-gradients($theme-class, $bg-base, $bg-elevated, $bg-card, $bg-hover);
-  @include apply-buttons($theme-class, $bg-card, $bg-hover, $border-hover);
-  @include apply-inputs($theme-class, $bg-card, $border-color, $border-hover);
-  @include apply-colors($theme-class, $bg-card, $bg-hover, $text-muted);
-  @include apply-pinned-banner($theme-class, $bg-base, $bg-card, $bg-hover, $border-color, $text-muted);
-  @include apply-chat-messages($theme-class, $bg-card);
-  @include apply-message-actions($theme-class, $bg-card, $bg-hover, $border-color, $border-hover);
-  @include apply-header-tabs($theme-class, $bg-card, $border-hover);
+  @include base-backgrounds.apply-base-backgrounds($theme-class, $bg-base, $bg-elevated, $bg-card, $bg-hover, $border-color);
+  @include borders.apply-borders($theme-class, $border-color, $border-hover, $bg-hover);
+  @include gradients.apply-gradients($theme-class, $bg-base, $bg-elevated, $bg-card, $bg-hover);
+  @include buttons.apply-buttons($theme-class, $bg-card, $bg-hover, $border-hover);
+  @include inputs.apply-inputs($theme-class, $bg-card, $border-color, $border-hover);
+  @include colors.apply-colors($theme-class, $bg-card, $bg-hover, $text-muted);
+  @include pinned-banner.apply-pinned-banner($theme-class, $bg-base, $bg-card, $bg-hover, $border-color, $text-muted);
+  @include chat-messages.apply-chat-messages($theme-class, $bg-card);
+  @include message-actions.apply-message-actions($theme-class, $bg-card, $bg-hover, $border-color, $border-hover);
+  @include header-tabs.apply-header-tabs($theme-class, $bg-card, $border-hover);
 }

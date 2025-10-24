@@ -301,6 +301,14 @@
       "imagePreviewAlt": "Ảnh",
       "imageUploadError": "Tải ảnh thất bại",
       "close": "Đóng"
+    },
+    "background": {
+      "title": "Tùy chọn nền",
+      "change": "Đổi màu nền",
+      "colors": "Màu sắc",
+      "images": "Hình ảnh",
+      "updateSuccess": "Cập nhật nền thành công",
+      "updateError": "Không thể cập nhật nền"
     }
   },
   "chat": {
