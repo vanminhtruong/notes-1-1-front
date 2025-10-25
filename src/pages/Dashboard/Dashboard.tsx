@@ -180,6 +180,7 @@ const Dashboard = () => {
     selectedPriority,
     folders,
     fetchFolders,
+    showMoveToFolderModal,
   });
 
   // Lazy load categories when opening create/edit modals

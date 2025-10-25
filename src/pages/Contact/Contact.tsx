@@ -61,45 +61,49 @@ const Contact = () => {
           </LazyLoad>
         ))}
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm-down:gap-6 xs-down:gap-5 items-start">
           {/* Form */}
-          <div className="lg:col-span-2 bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-10 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30">
-            <h2 className="text-2xl sm-down:text-xl xs-down:text-lg font-bold text-gray-900 dark:text-white mb-6 xs-down:mb-4">{t('form.title')}</h2>
-            <form onSubmit={handleSubmit} className="space-y-5 xs-down:space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 xs-down:gap-4">
-                <div>
-                  <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">{t('form.name')}</label>
-                  <input className="w-full px-4 py-3 xs-down:py-2.5 rounded-xl border bg-white dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-white" placeholder={t('form.namePh')!} required />
+          <div className="lg:col-span-2">
+            <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} reAnimate={false}>
+              <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl p-8 md:p-10 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30">
+              <h2 className="text-2xl sm-down:text-xl xs-down:text-lg font-bold text-gray-900 dark:text-white mb-6 xs-down:mb-4">{t('form.title')}</h2>
+              <form onSubmit={handleSubmit} className="space-y-5 xs-down:space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 xs-down:gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">{t('form.name')}</label>
+                    <input className="w-full px-4 py-3 xs-down:py-2.5 rounded-xl border bg-white dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-white" placeholder={t('form.namePh')!} required />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">{t('form.email')}</label>
+                    <input type="email" className="w-full px-4 py-3 xs-down:py-2.5 rounded-xl border bg-white dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-white" placeholder={t('form.emailPh')!} required />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">{t('form.email')}</label>
-                  <input type="email" className="w-full px-4 py-3 xs-down:py-2.5 rounded-xl border bg-white dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-white" placeholder={t('form.emailPh')!} required />
+                  <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">{t('form.subject')}</label>
+                  <input className="w-full px-4 py-3 xs-down:py-2.5 rounded-xl border bg-white dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-gray-900 dark:text-white" placeholder={t('form.subjectPh')!} />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">{t('form.subject')}</label>
-                <input className="w-full px-4 py-3 xs-down:py-2.5 rounded-xl border bg-white dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-gray-900 dark:text-white" placeholder={t('form.subjectPh')!} />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">{t('form.message')}</label>
-                <textarea rows={5} className="w-full px-4 py-3 xs-down:py-2.5 rounded-xl border bg-white dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-white" placeholder={t('form.messagePh')!} required />
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 xs-down:gap-2.5 sm:items-center sm:justify-between">
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                  <ShieldCheck className="w-5 h-5 text-green-500" />
-                  <span className="text-sm xs-down:text-xs">{t('form.privacyNote')}</span>
+                <div>
+                  <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">{t('form.message')}</label>
+                  <textarea rows={5} className="w-full px-4 py-3 xs-down:py-2.5 rounded-xl border bg-white dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-white" placeholder={t('form.messagePh')!} required />
                 </div>
-                <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 px-6 xs-down:px-5 py-3 xs-down:py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-60">
-                  <Send className="w-5 h-5 xs-down:w-4 xs-down:h-4" />
-                  {loading ? t('form.sending') : t('form.send')}
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3 xs-down:gap-2.5 sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                    <ShieldCheck className="w-5 h-5 text-green-500" />
+                    <span className="text-sm xs-down:text-xs">{t('form.privacyNote')}</span>
+                  </div>
+                  <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 px-6 xs-down:px-5 py-3 xs-down:py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-60">
+                    <Send className="w-5 h-5 xs-down:w-4 xs-down:h-4" />
+                    {loading ? t('form.sending') : t('form.send')}
+                  </button>
+                </div>
+              </form>
               </div>
-            </form>
+            </LazyLoad>
           </div>
 
           {/* Aside */}
-          <div className="space-y-6">
+          <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} reAnimate={false}>
+            <div className="space-y-6">
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl p-7 sm-down:p-6 xs-down:p-5 text-white">
               <h3 className="text-xl xs-down:text-lg font-bold mb-2">{t('aside.title')}</h3>
               <p className="text-white/90 mb-4 xs-down:text-sm">{t('aside.subtitle')}</p>
@@ -115,7 +119,8 @@ const Contact = () => {
                 <li>{t('hours.weekend')}</li>
               </ul>
             </div>
-          </div>
+            </div>
+          </LazyLoad>
         </div>
       </div>
     </div>

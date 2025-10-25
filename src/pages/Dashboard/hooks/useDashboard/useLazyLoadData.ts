@@ -11,6 +11,7 @@ interface UseLazyLoadDataProps {
   selectedPriority: string;
   folders: any[];
   fetchFolders: () => void;
+  showMoveToFolderModal?: boolean;
 }
 
 export const useLazyLoadData = ({
@@ -21,6 +22,7 @@ export const useLazyLoadData = ({
   selectedPriority,
   folders,
   fetchFolders,
+  showMoveToFolderModal,
 }: UseLazyLoadDataProps) => {
   const dispatch = useAppDispatch();
 
@@ -51,4 +53,11 @@ export const useLazyLoadData = ({
     }
     // Tags view doesn't need initial fetch - handled by TagsView component
   }, [viewMode, currentPage, searchTerm, selectedCategory, selectedPriority, dispatch, folders.length, fetchFolders]);
+
+  // Fetch folders when Move to Folder modal opens (if not already loaded)
+  useEffect(() => {
+    if (showMoveToFolderModal && folders.length === 0) {
+      fetchFolders();
+    }
+  }, [showMoveToFolderModal, folders.length, fetchFolders]);
 };
