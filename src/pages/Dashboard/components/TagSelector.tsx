@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, X, Tag as TagIcon, Settings, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useNoteTags } from '../hooks/useNoteTags';
+import { useNoteTagsHandler } from '../hooks/Manager-handle/useNoteTagsHandler';
+import { useNoteTagsEffects } from '../hooks/Manager-Effects/useNoteTagsEffects';
 import type { NoteTag } from '@/services/notesService';
 import toast from 'react-hot-toast';
 
@@ -22,7 +23,8 @@ interface TagSelectorProps {
 
 const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange, hasBg = false, textColors }: TagSelectorProps) => {
   const { t } = useTranslation('dashboard');
-  const { tags, isLoading, loadTags, addTagToNote, removeTagFromNote } = useNoteTags();
+  const { tags, isLoading, loadTags, addTagToNote, removeTagFromNote } = useNoteTagsHandler();
+  useNoteTagsEffects();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);

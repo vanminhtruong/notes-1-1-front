@@ -3,18 +3,33 @@ export { useState, useCallback, useEffect } from 'react';
 export { useTranslation } from 'react-i18next';
 export { default as toast } from 'react-hot-toast';
 
-// Custom hooks
-export { useDashboard } from '@/pages/Dashboard/hooks/useDashboard';
-export { useFolders } from '~/pages/Dashboard/hooks/useDashboard/useFolders';
-export { useBodyScrollLock } from '~/pages/Dashboard/hooks/useDashboard/useBodyScrollLock';
-export { useFolderNotes } from '~/pages/Dashboard/hooks/useDashboard/useFolderNotes';
-export { useViewMode } from '~/pages/Dashboard/hooks/useDashboard/useViewMode';
-export { useModals } from '~/pages/Dashboard/hooks/useDashboard/useModals';
-export { useFolderHandlers } from '~/pages/Dashboard/hooks/useDashboard/useFolderHandlers';
-export { useMoveToFolder } from '~/pages/Dashboard/hooks/useDashboard/useMoveToFolder';
-export { useMoveOutOfFolder } from '~/pages/Dashboard/hooks/useDashboard/useMoveOutOfFolder';
-export { useSocketListeners } from '~/pages/Dashboard/hooks/useDashboard/useSocketListeners';
-export { useTagsView } from '~/pages/Dashboard/hooks/useTagsView';
+// Custom hooks - Manager-useState
+export { useDashboardState } from '@/pages/Dashboard/hooks/Manager-useState/useDashboardState';
+export { useFoldersState } from '@/pages/Dashboard/hooks/Manager-useState/useFoldersState';
+export { useFolderNotesState } from '@/pages/Dashboard/hooks/Manager-useState/useFolderNotesState';
+export { useViewModeState } from '@/pages/Dashboard/hooks/Manager-useState/useViewModeState';
+export { useModalsState } from '@/pages/Dashboard/hooks/Manager-useState/useModalsState';
+export { useSharedNotesState } from '@/pages/Dashboard/hooks/Manager-useState/useSharedNotesState';
+
+// Custom hooks - Manager-handle
+export { useDashboardHandlers } from '@/pages/Dashboard/hooks/Manager-handle/useDashboardHandlers';
+export { useFolderHandlers } from '@/pages/Dashboard/hooks/Manager-handle/useFolderHandlers';
+export { useMoveToFolderHandler } from '@/pages/Dashboard/hooks/Manager-handle/useMoveToFolderHandler';
+export { useMoveOutOfFolderHandler } from '@/pages/Dashboard/hooks/Manager-handle/useMoveOutOfFolderHandler';
+export { useUtilityHandlers } from '@/pages/Dashboard/hooks/Manager-handle/useUtilityHandlers';
+export { useSharedNotesHandlers } from '@/pages/Dashboard/hooks/Manager-handle/useSharedNotesHandlers';
+
+// Custom hooks - Manager-Effects
+export { useReminderEffects } from '@/pages/Dashboard/hooks/Manager-Effects/useReminderEffects';
+export { useFilterEffects } from '@/pages/Dashboard/hooks/Manager-Effects/useFilterEffects';
+export { useCategoryEffects } from '@/pages/Dashboard/hooks/Manager-Effects/useCategoryEffects';
+export { useSocketListenersEffects } from '@/pages/Dashboard/hooks/Manager-Effects/useSocketListenersEffects';
+export { useLazyLoadDataEffects } from '@/pages/Dashboard/hooks/Manager-Effects/useLazyLoadDataEffects';
+export { useLazyLoadCategoriesEffects } from '@/pages/Dashboard/hooks/Manager-Effects/useLazyLoadCategoriesEffects';
+export { useBodyScrollLockEffect } from '@/pages/Dashboard/hooks/Manager-Effects/useBodyScrollLockEffect';
+export { useSharedNotesEffects } from '@/pages/Dashboard/hooks/Manager-Effects/useSharedNotesEffects';
+
+// Other hooks
 
 // Components - Dashboard specific
 export { default as StatsCards } from '@/pages/Dashboard/components/StatsCards';

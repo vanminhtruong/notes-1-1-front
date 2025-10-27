@@ -24,12 +24,13 @@ interface CallModalProps {
   micOn?: boolean;
   onAccept?: () => void;
   onReject?: () => void;
+  onCancel?: () => void;
   onEnd?: () => void;
   onToggleCamera?: () => void;
   onToggleMic?: () => void;
 }
 
-const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0, mediaType = 'audio', localStream = null, remoteStream = null, cameraOn = false, micOn = true, onAccept, onReject, onEnd, onToggleCamera, onToggleMic }: CallModalProps) => {
+const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0, mediaType = 'audio', localStream = null, remoteStream = null, cameraOn = false, micOn = true, onAccept, onReject, onCancel, onEnd, onToggleCamera, onToggleMic }: CallModalProps) => {
   const { t } = useTranslation('dashboard');
   const me = useAppSelector((s) => s.auth.user);
   

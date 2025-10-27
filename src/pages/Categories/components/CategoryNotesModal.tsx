@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, FileText, Calendar, AlertCircle, Pin, Image, Video, Youtube, User, Clock } from 'lucide-react';
 import Pagination from '@/components/Pagination';
-import { useCategoryNotes } from '@/pages/Categories/hooks/useCategoryNotes';
+import { useCategoryNotesState } from '@/pages/Categories/hooks/Manager-useState/useCategoryNotesState';
+import { useCategoryNotesHandler } from '@/pages/Categories/hooks/Manager-handle/useCategoryNotesHandler';
+import { useCategoryNotesEffects } from '@/pages/Categories/hooks/Manager-Effects/useCategoryNotesEffects';
 import type { NoteCategory } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
 
@@ -14,10 +16,30 @@ interface CategoryNotesModalProps {
 
 const CategoryNotesModal = ({ isOpen, onClose, category }: CategoryNotesModalProps) => {
   const { t } = useTranslation('categories');
-  const { notes, isLoading, currentPage, totalPages, setCurrentPage } = useCategoryNotes(
-    isOpen ? category.id : null,
-    3 // 3 notes per page
-  );
+  const categoryId = isOpen ? category.id : null;
+  const pageSize = 3;
+
+  // State management
+  const state = useCategoryNotesState();
+  const { notes, isLoading, currentPage, totalPages, setCurrentPage } = state;
+
+  // Handlers
+  const handlers = useCategoryNotesHandler({
+    categoryId,
+    pageSize,
+    currentPage,
+    setNotes: state.setNotes,
+    setIsLoading: state.setIsLoading,
+    setError: state.setError,
+    setTotalPages: state.setTotalPages,
+  });
+
+  // Effects
+  useCategoryNotesEffects({
+    categoryId,
+    fetchNotes: handlers.fetchNotes,
+    setCurrentPage: state.setCurrentPage,
+  });
 
   const getCategoryIcon = (iconName: string) => {
     const Icon = (LucideIcons as any)[iconName] || FileText;

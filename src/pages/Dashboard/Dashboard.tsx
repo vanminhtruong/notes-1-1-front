@@ -1,207 +1,191 @@
+import { useAppDispatch } from '@/store';
+import { useTranslation } from 'react-i18next';
+
+// Import hooks và components
+import * as DashboardHooks from './hooks';
+
 import {
-  useCallback,
-  useDashboard, useFolders, useBodyScrollLock, useFolderNotes,
-  useViewMode, useModals, useFolderHandlers, useMoveToFolder, useMoveOutOfFolder, useSocketListeners,
   StatsCards, ViewToggle, SearchAndFilters, BulkActionsBar, NotesGrid,
   FoldersView, FolderNotesView, TagsView,
   CreateNoteModal, ViewNoteModal, EditNoteModal, CreateNoteInFolderModal, EditNoteInFolderModal,
   CreateFolderModal, EditFolderModal, MoveToFolderModal, MoveOutOfFolderModal,
-  TagManagementModal,
-  ShareNoteModal, LazyLoad,
-  useAppDispatch
+  TagManagementModal, ShareNoteModal, LazyLoad,
 } from '@/pages/Dashboard/import';
-import { useLazyLoadData } from './hooks/useDashboard/useLazyLoadData';
-import { useLazyLoadCategories } from './hooks/useDashboard/useLazyLoadCategories';
-import type { NoteFolder } from '@/services/notesService';
-import { useTranslation } from 'react-i18next';
 
 const Dashboard = () => {
   const { t } = useTranslation('dashboard');
   const dispatch = useAppDispatch();
-  const {
-    notes, isLoading, stats, pagination,
-    searchTerm, setSearchTerm,
-    selectedCategory, setSelectedCategory,
-    selectedPriority, setSelectedPriority,
-    currentPage, setCurrentPage,
-    showCreateModal, setShowCreateModal,
-    setShowArchived,
-    newNote, setNewNote,
-    selectedIds, toggleSelect, clearSelection, confirmBulkDelete,
-    showEditModal, setShowEditModal,
-    editNote, setEditNote,
-    handleCreateNote, confirmArchiveNote, confirmDeleteNote, openEdit, handleUpdateNote,
-    getPriorityColor, getPriorityText,
-    dueReminderNoteIds,
-    acknowledgeReminderNote,
-    // view
-    showViewModal, setShowViewModal, viewNote, openView,
-    // categories
-    categories,
-    // tag management
-    showTagManagementModal, setShowTagManagementModal,
-  } = useDashboard();
 
-  // Folders hook
-  const {
-    folders,
-    isLoading: isFoldersLoading,
-    selectedFolder,
-    folderNotes,
-    isFolderNotesLoading,
-    folderNotesPagination,
-    currentPage: folderCurrentPage,
-    fetchFolders,
-    fetchFolderNotes,
-    createFolder,
-    updateFolder,
-    deleteFolder,
-    moveNoteToFolder,
-    pinFolder,
-    unpinFolder,
-    setSelectedFolder,
-  } = useFolders();
-
-  // View mode hook
-  const { viewMode, setViewMode } = useViewMode({ setShowArchived, setCurrentPage });
-
-  // Modals hook
-  const {
-    showShareModal,
-    handleOpenShareModal,
-    handleCloseShareModal,
-    showMoveToFolderModal,
-    noteToMove,
-    handleOpenMoveToFolder,
-    handleCloseMoveToFolder,
-    showMoveOutOfFolderModal,
-    noteToMoveOut,
-    handleOpenMoveOutOfFolder,
-    handleCloseMoveOutOfFolder,
-    showCreateFolderModal,
-    showEditFolderModal,
-    editingFolder,
-    handleOpenCreateFolderModal,
-    handleCloseCreateFolderModal,
-    handleOpenEditFolderModal,
-    handleCloseEditFolderModal,
-  } = useModals();
-
-  // Folder notes hook (for create/edit notes within folder)
-  const {
-    showCreateModal: showCreateNoteInFolderModal,
-    newNote: newFolderNote,
-    setNewNote: setNewFolderNote,
-    handleOpenCreateModal: handleOpenCreateNoteInFolder,
-    handleCloseCreateModal: handleCloseCreateNoteInFolder,
-    handleCreateNote: handleCreateNoteInFolder,
-    showEditModal: showEditNoteInFolderModal,
-    editNote: editFolderNote,
-    setEditNote: setEditFolderNote,
-    handleOpenEditModal: handleOpenEditNoteInFolder,
-    handleCloseEditModal: handleCloseEditNoteInFolder,
-    handleUpdateNote: handleUpdateNoteInFolder,
-    categories: folderCategories,
-  } = useFolderNotes(selectedFolder?.id || null, () => {
-    if (selectedFolder) {
-      fetchFolderNotes(selectedFolder.id);
-    }
+  // State hooks
+  const dashboardState = DashboardHooks.useDashboardState();
+  const foldersState = DashboardHooks.useFoldersState();
+  const viewModeState = DashboardHooks.useViewModeState();
+  const modalsState = DashboardHooks.useModalsState();
+  const folderNotesState = DashboardHooks.useFolderNotesState();
+  const utilityHandlers = DashboardHooks.useUtilityHandlers();
+  const categoryHandler = DashboardHooks.useCategoryHandler({
+    setCategories: dashboardState.setCategories,
   });
 
-  // Folder handlers hook
-  const {
-    handleDeleteFolder,
-    handleViewFolder,
-    handleBackFromFolder,
-    handleArchiveNoteInFolder,
-    handleDeleteNoteInFolder,
-    handleRemoveFromFolder,
-  } = useFolderHandlers({
-    deleteFolder,
-    fetchFolderNotes,
-    setSelectedFolder,
-    confirmArchiveNote,
-    confirmDeleteNote,
-    moveNoteToFolder,
-    selectedFolder,
-    currentPage: folderCurrentPage,
+  const foldersHandler = DashboardHooks.useFoldersHandler({
+    setFolders: foldersState.setFolders,
+    setIsLoading: foldersState.setIsLoading,
+    setFolderNotes: foldersState.setFolderNotes,
+    setIsFolderNotesLoading: foldersState.setIsFolderNotesLoading,
+    setFolderNotesPagination: foldersState.setFolderNotesPagination,
+    setCurrentPage: foldersState.setCurrentPage,
+    selectedFolder: foldersState.selectedFolder,
+    setSelectedFolder: foldersState.setSelectedFolder,
   });
 
-  // Move to folder hook
-  const { handleSelectFolder } = useMoveToFolder({
-    noteToMove,
-    moveNoteToFolder,
-    handleCloseMoveToFolder,
+  // Modals handler
+  const modalsHandler = DashboardHooks.useModalsHandler({
+    setShowShareModal: modalsState.setShowShareModal,
+    setShowMoveToFolderModal: modalsState.setShowMoveToFolderModal,
+    setNoteToMove: modalsState.setNoteToMove,
+    setShowMoveOutOfFolderModal: modalsState.setShowMoveOutOfFolderModal,
+    setNoteToMoveOut: modalsState.setNoteToMoveOut,
+    setShowCreateFolderModal: modalsState.setShowCreateFolderModal,
+    setShowEditFolderModal: modalsState.setShowEditFolderModal,
+    setEditingFolder: modalsState.setEditingFolder,
   });
 
-  // Move out of folder hook
-  const { handleMoveToActive, handleMoveToArchived } = useMoveOutOfFolder({
-    noteToMoveOut,
-    moveNoteToFolder,
-    confirmArchiveNote,
-    handleCloseMoveOutOfFolder,
-    selectedFolder,
-    fetchFolderNotes,
-    currentPage: folderCurrentPage,
+  // Folder notes handler
+  const folderNotesHandler = DashboardHooks.useFolderNotesHandler({
+    folderId: foldersState.selectedFolder?.id || null,
+    newNote: folderNotesState.newNote,
+    editNote: folderNotesState.editNote,
+    setShowCreateModal: folderNotesState.setShowCreateModal,
+    setNewNote: folderNotesState.setNewNote,
+    setShowEditModal: folderNotesState.setShowEditModal,
+    setEditNote: folderNotesState.setEditNote,
+    onSuccess: () => {
+      if (foldersState.selectedFolder) {
+        foldersHandler.fetchFolderNotes(foldersState.selectedFolder.id);
+      }
+    },
   });
 
-  // Pin note handler
-  const handlePinUpdate = useCallback((updatedNote: any) => {
-    // Notes will be automatically refreshed via Redux state
-    console.log('Note pinned/unpinned:', updatedNote);
-  }, []);
+  // Category effects
+  DashboardHooks.useCategoryEffects({
+    categories: dashboardState.categories,
+    setCategories: dashboardState.setCategories,
+    newNoteCategoryId: dashboardState.newNote.categoryId,
+    editNoteCategoryId: dashboardState.editNote.categoryId,
+    moveToFront: utilityHandlers.moveToFront,
+    loadCategories: categoryHandler.loadCategories,
+  });
 
-  // Pin folder handler
-  const handlePinFolder = useCallback((folder: NoteFolder) => {
-    pinFolder(folder.id);
-  }, [pinFolder]);
+  // Dashboard handlers
+  const dashboardHandlers = DashboardHooks.useDashboardHandlers({
+    newNote: dashboardState.newNote,
+    editNote: dashboardState.editNote,
+    setShowCreateModal: dashboardState.setShowCreateModal,
+    setNewNote: dashboardState.setNewNote,
+    setShowEditModal: dashboardState.setShowEditModal,
+    setEditNote: dashboardState.setEditNote,
+    setShowViewModal: dashboardState.setShowViewModal,
+    setViewNote: dashboardState.setViewNote,
+    setCategories: dashboardState.setCategories,
+    moveToFront: utilityHandlers.moveToFront,
+    selectedIds: dashboardState.selectedIds,
+    setSelectedIds: dashboardState.setSelectedIds,
+  });
 
-  // Unpin folder handler
-  const handleUnpinFolder = useCallback((folder: NoteFolder) => {
-    unpinFolder(folder.id);
-  }, [unpinFolder]);
+  // Folder handlers (existing useFolderHandlers - different from useFoldersHandler)
+  const folderHandlers = DashboardHooks.useFolderHandlers({
+    deleteFolder: foldersHandler.deleteFolder,
+    fetchFolderNotes: foldersHandler.fetchFolderNotes,
+    setSelectedFolder: foldersState.setSelectedFolder,
+    confirmArchiveNote: dashboardHandlers.confirmArchiveNote,
+    confirmDeleteNote: dashboardHandlers.confirmDeleteNote,
+    moveNoteToFolder: foldersHandler.moveNoteToFolder,
+    selectedFolder: foldersState.selectedFolder,
+    currentPage: foldersState.currentPage,
+  });
 
-  // Socket listeners hook
-  useSocketListeners({
+  // Move to folder handler
+  const moveToFolderHandler = DashboardHooks.useMoveToFolderHandler({
+    noteToMove: modalsState.noteToMove,
+    moveNoteToFolder: foldersHandler.moveNoteToFolder,
+    handleCloseMoveToFolder: modalsHandler.handleCloseMoveToFolder,
+  });
+
+  // Move out of folder handler
+  const moveOutOfFolderHandler = DashboardHooks.useMoveOutOfFolderHandler({
+    noteToMoveOut: modalsState.noteToMoveOut,
+    moveNoteToFolder: foldersHandler.moveNoteToFolder,
+    confirmArchiveNote: dashboardHandlers.confirmArchiveNote,
+    handleCloseMoveOutOfFolder: modalsHandler.handleCloseMoveOutOfFolder,
+    selectedFolder: foldersState.selectedFolder,
+    fetchFolderNotes: foldersHandler.fetchFolderNotes,
+    currentPage: foldersState.currentPage,
+  });
+
+  // Pin handlers
+  const pinHandler = DashboardHooks.useDashboardPinHandler({
+    pinFolder: foldersHandler.pinFolder,
+    unpinFolder: foldersHandler.unpinFolder,
+  });
+
+  // Effects hooks
+  DashboardHooks.useReminderEffects({ dueReminderNoteIds: dashboardState.dueReminderNoteIds });
+  
+  DashboardHooks.useViewModeEffects({
+    viewMode: viewModeState.viewMode,
+    setShowArchived: dashboardState.setShowArchived,
+    setCurrentPage: dashboardState.setCurrentPage,
+  });
+  
+  DashboardHooks.useFilterEffects({
+    searchTerm: dashboardState.searchTerm,
+    selectedCategory: dashboardState.selectedCategory,
+    selectedPriority: dashboardState.selectedPriority,
+    showArchived: dashboardState.showArchived,
+    setCurrentPage: dashboardState.setCurrentPage,
+  });
+
+  DashboardHooks.useSocketListenersEffects({
     dispatch,
-    currentPage,
-    searchTerm,
-    selectedCategory,
-    selectedPriority,
-    viewMode,
+    currentPage: dashboardState.currentPage,
+    searchTerm: dashboardState.searchTerm,
+    selectedCategory: dashboardState.selectedCategory,
+    selectedPriority: dashboardState.selectedPriority,
+    viewMode: viewModeState.viewMode,
   });
 
-  // Lazy load data based on viewMode
-  useLazyLoadData({
-    viewMode,
-    currentPage,
-    searchTerm,
-    selectedCategory,
-    selectedPriority,
-    folders,
-    fetchFolders,
-    showMoveToFolderModal,
+  DashboardHooks.useLazyLoadDataEffects({
+    dispatch,
+    viewMode: viewModeState.viewMode,
+    currentPage: dashboardState.currentPage,
+    searchTerm: dashboardState.searchTerm,
+    selectedCategory: dashboardState.selectedCategory,
+    selectedPriority: dashboardState.selectedPriority,
+    folders: foldersState.folders,
+    fetchFolders: foldersHandler.fetchFolders,
+    showMoveToFolderModal: modalsState.showMoveToFolderModal,
   });
 
-  // Lazy load categories when opening create/edit modals
-  useLazyLoadCategories({
-    showCreateModal,
-    showEditModal,
-    categories,
+  DashboardHooks.useLazyLoadCategoriesEffects({
+    showCreateModal: dashboardState.showCreateModal,
+    showEditModal: dashboardState.showEditModal,
+    categories: dashboardState.categories,
+    onCategoriesLoaded: dashboardState.setCategories,
   });
 
-  // Disable body scroll when modals are open
-  useBodyScrollLock(showViewModal || showEditModal || showShareModal || showCreateModal);
+  DashboardHooks.useBodyScrollLockEffect(
+    dashboardState.showViewModal || 
+    dashboardState.showEditModal || 
+    modalsState.showShareModal || 
+    dashboardState.showCreateModal
+  );
 
-  const handleShareSuccess = useCallback(() => {
-    // Optionally refresh notes or update UI
-    setShowViewModal(false);
-  }, [setShowViewModal]);
-
-  const handleCloseCreateModal = useCallback(() => setShowCreateModal(false), [setShowCreateModal]);
-  const handleOpenCreateModal = useCallback(() => setShowCreateModal(true), [setShowCreateModal]);
-  const handleCloseViewModal = useCallback(() => setShowViewModal(false), [setShowViewModal]);
-  const handleCloseEditModal = useCallback(() => setShowEditModal(false), [setShowEditModal]);
+  // Modals handlers
+  const modalsActionsHandler = DashboardHooks.useDashboardModalsHandler({
+    setShowViewModal: dashboardState.setShowViewModal,
+    setShowEditModal: dashboardState.setShowEditModal,
+    setShowCreateModal: dashboardState.setShowCreateModal,
+  });
 
 
   return (
@@ -209,15 +193,15 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 xl-down:py-7 lg-down:py-6 md-down:py-5 sm-down:py-4 xs-down:py-3 xl-down:px-3 md-down:px-2">
         {/* Stats Cards */}
         <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={0}>
-          <StatsCards stats={stats} />
+          <StatsCards stats={dashboardState.stats} />
         </LazyLoad>
 
         {/* View Toggle */}
         <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={100}>
           <div className="flex items-center justify-between gap-4 flex-wrap xl-down:gap-3 md-down:gap-2.5 mb-6 xl-down:mb-5 lg-down:mb-4 md-down:mb-4 sm-down:mb-3 xs-down:mb-3">
-            <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+            <ViewToggle viewMode={viewModeState.viewMode} setViewMode={viewModeState.setViewMode} />
             <button
-              onClick={() => setShowTagManagementModal(true)}
+              onClick={() => dashboardState.setShowTagManagementModal(true)}
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg xl-down:px-3.5 xl-down:py-1.5 lg-down:px-3 lg-down:py-1.5 md-down:px-2.5 md-down:py-1 sm-down:text-sm sm-down:px-2 sm-down:py-1 xs-down:text-xs xs-down:px-1.5 xs-down:py-0.5 xs-down:gap-1 mt-0 xl-down:mt-2 md-down:mt-1"
             >
               <svg className="w-5 h-5 xl-down:w-4.5 xl-down:h-4.5 md-down:w-4 md-down:h-4 sm-down:w-3.5 sm-down:h-3.5 xs-down:w-3 xs-down:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,48 +213,48 @@ const Dashboard = () => {
         </LazyLoad>
 
         {/* Conditional rendering based on viewMode */}
-        {viewMode === 'tags' ? (
+        {viewModeState.viewMode === 'tags' ? (
           // Tags View
           <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={300}>
             <TagsView
-              onView={openView}
-              onEdit={openEdit}
-              onArchive={confirmArchiveNote}
-              onDelete={confirmDeleteNote}
-              toggleSelect={toggleSelect}
-              selectedIds={selectedIds}
-              onPinUpdate={handlePinUpdate}
-              acknowledgeReminderNote={acknowledgeReminderNote}
-              getPriorityColor={getPriorityColor}
-              getPriorityText={getPriorityText}
+              onView={dashboardHandlers.openView}
+              onEdit={dashboardHandlers.openEdit}
+              onArchive={dashboardHandlers.confirmArchiveNote}
+              onDelete={dashboardHandlers.confirmDeleteNote}
+              toggleSelect={dashboardHandlers.toggleSelect}
+              selectedIds={dashboardState.selectedIds}
+              onPinUpdate={pinHandler.handlePinUpdate}
+              acknowledgeReminderNote={dashboardHandlers.acknowledgeReminderNote}
+              getPriorityColor={dashboardHandlers.getPriorityColor}
+              getPriorityText={dashboardHandlers.getPriorityText}
             />
           </LazyLoad>
-        ) : viewMode === 'folders' ? (
+        ) : viewModeState.viewMode === 'folders' ? (
           // Folders View
-          selectedFolder ? (
+          foldersState.selectedFolder ? (
             <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={300}>
               <FolderNotesView
-                folder={selectedFolder}
-                notes={folderNotes}
-                isLoading={isFolderNotesLoading}
-                dueReminderNoteIds={dueReminderNoteIds}
-                onBack={handleBackFromFolder}
-                onView={openView}
-                onEdit={handleOpenEditNoteInFolder}
-                onArchive={handleArchiveNoteInFolder}
-                onDelete={handleDeleteNoteInFolder}
-                onAcknowledgeReminder={acknowledgeReminderNote}
-                onCreateNote={handleOpenCreateNoteInFolder}
-                onRemoveFromFolder={handleRemoveFromFolder}
-                onMoveOutOfFolder={handleOpenMoveOutOfFolder}
-                onPinUpdate={handlePinUpdate}
-                getPriorityColor={getPriorityColor}
-                getPriorityText={getPriorityText}
-                currentPage={folderCurrentPage}
-                totalPages={folderNotesPagination.totalPages}
+                folder={foldersState.selectedFolder}
+                notes={foldersState.folderNotes}
+                isLoading={foldersState.isFolderNotesLoading}
+                dueReminderNoteIds={dashboardState.dueReminderNoteIds}
+                onBack={folderHandlers.handleBackFromFolder}
+                onView={dashboardHandlers.openView}
+                onEdit={folderNotesHandler.handleOpenEditModal}
+                onArchive={folderHandlers.handleArchiveNoteInFolder as any}
+                onDelete={folderHandlers.handleDeleteNoteInFolder as any}
+                onAcknowledgeReminder={dashboardHandlers.acknowledgeReminderNote}
+                onCreateNote={folderNotesHandler.handleOpenCreateModal}
+                onRemoveFromFolder={folderHandlers.handleRemoveFromFolder}
+                onMoveOutOfFolder={modalsHandler.handleOpenMoveOutOfFolder}
+                onPinUpdate={pinHandler.handlePinUpdate}
+                getPriorityColor={dashboardHandlers.getPriorityColor}
+                getPriorityText={dashboardHandlers.getPriorityText}
+                currentPage={foldersState.currentPage}
+                totalPages={foldersState.folderNotesPagination.totalPages}
                 onPageChange={(page) => {
-                  if (selectedFolder) {
-                    fetchFolderNotes(selectedFolder.id, page);
+                  if (foldersState.selectedFolder) {
+                    foldersHandler.fetchFolderNotes(foldersState.selectedFolder.id, page);
                   }
                 }}
               />
@@ -278,14 +262,14 @@ const Dashboard = () => {
           ) : (
             <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={300}>
               <FoldersView
-                folders={folders}
-                isLoading={isFoldersLoading}
-                onCreateFolder={handleOpenCreateFolderModal}
-                onEditFolder={handleOpenEditFolderModal}
-                onDeleteFolder={handleDeleteFolder}
-                onViewFolder={handleViewFolder}
-                onPinFolder={handlePinFolder}
-                onUnpinFolder={handleUnpinFolder}
+                folders={foldersState.folders}
+                isLoading={foldersState.isLoading}
+                onCreateFolder={modalsHandler.handleOpenCreateFolderModal}
+                onEditFolder={modalsHandler.handleOpenEditFolderModal}
+                onDeleteFolder={folderHandlers.handleDeleteFolder}
+                onViewFolder={folderHandlers.handleViewFolder}
+                onPinFolder={pinHandler.handlePinFolder}
+                onUnpinFolder={pinHandler.handleUnpinFolder}
               />
             </LazyLoad>
           )
@@ -295,47 +279,48 @@ const Dashboard = () => {
             {/* Controls */}
             <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={200}>
               <SearchAndFilters
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                selectedPriority={selectedPriority}
-                setSelectedPriority={setSelectedPriority}
-                onCreateNote={handleOpenCreateModal}
-                showArchived={viewMode === 'archived'}
-                categories={categories}
+                searchTerm={dashboardState.searchTerm}
+                setSearchTerm={dashboardState.setSearchTerm}
+                selectedCategory={dashboardState.selectedCategory}
+                setSelectedCategory={dashboardState.setSelectedCategory}
+                selectedPriority={dashboardState.selectedPriority}
+                setSelectedPriority={dashboardState.setSelectedPriority}
+                onCreateNote={modalsActionsHandler.handleOpenCreateModal}
+                showArchived={viewModeState.viewMode === 'archived'}
+                categories={dashboardState.categories}
+                onLoadCategories={categoryHandler.loadCategories}
               />
             </LazyLoad>
 
             <BulkActionsBar
-              selectedCount={selectedIds.length}
-              showArchived={viewMode === 'archived'}
-              onClearSelection={clearSelection}
-              onBulkDelete={confirmBulkDelete}
+              selectedCount={dashboardState.selectedIds.length}
+              showArchived={viewModeState.viewMode === 'archived'}
+              onClearSelection={dashboardHandlers.clearSelection}
+              onBulkDelete={dashboardHandlers.confirmBulkDelete}
             />
 
             {/* Notes Grid */}
             <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={400}>
               <NotesGrid
-                notes={notes}
-                isLoading={isLoading}
-                showArchived={viewMode === 'archived'}
-                selectedIds={selectedIds}
-                dueReminderNoteIds={dueReminderNoteIds}
-                onToggleSelect={toggleSelect}
-                onView={openView}
-                onEdit={openEdit}
-                onArchive={confirmArchiveNote}
-                onDelete={confirmDeleteNote}
-                onMoveToFolder={handleOpenMoveToFolder}
-                onPinUpdate={handlePinUpdate}
-                onAcknowledgeReminder={acknowledgeReminderNote}
-                onCreateNote={handleOpenCreateModal}
-                getPriorityColor={getPriorityColor}
-                getPriorityText={getPriorityText}
-                currentPage={currentPage}
-                totalPages={notes.length < 9 ? currentPage : Math.max(1, Math.ceil(pagination.total / 9))}
-                onPageChange={setCurrentPage}
+                notes={dashboardState.notes}
+                isLoading={dashboardState.isLoading}
+                showArchived={viewModeState.viewMode === 'archived'}
+                selectedIds={dashboardState.selectedIds}
+                dueReminderNoteIds={dashboardState.dueReminderNoteIds}
+                onToggleSelect={dashboardHandlers.toggleSelect}
+                onView={dashboardHandlers.openView}
+                onEdit={dashboardHandlers.openEdit}
+                onArchive={dashboardHandlers.confirmArchiveNote}
+                onDelete={dashboardHandlers.confirmDeleteNote}
+                onMoveToFolder={modalsHandler.handleOpenMoveToFolder}
+                onPinUpdate={pinHandler.handlePinUpdate}
+                onAcknowledgeReminder={dashboardHandlers.acknowledgeReminderNote}
+                onCreateNote={modalsActionsHandler.handleOpenCreateModal}
+                getPriorityColor={dashboardHandlers.getPriorityColor}
+                getPriorityText={dashboardHandlers.getPriorityText}
+                currentPage={dashboardState.currentPage}
+                totalPages={dashboardState.notes.length < 9 ? dashboardState.currentPage : Math.max(1, Math.ceil(dashboardState.pagination.total / 9))}
+                onPageChange={dashboardState.setCurrentPage}
               />
             </LazyLoad>
           </>
@@ -344,104 +329,105 @@ const Dashboard = () => {
 
       {/* Create Note Modal */}
       <CreateNoteModal
-        isOpen={showCreateModal}
-        onClose={handleCloseCreateModal}
-        newNote={newNote}
-        setNewNote={setNewNote}
-        onSubmit={handleCreateNote}
-        categories={categories}
+        isOpen={dashboardState.showCreateModal}
+        onClose={modalsActionsHandler.handleCloseCreateModal}
+        newNote={dashboardState.newNote}
+        setNewNote={dashboardState.setNewNote}
+        onSubmit={dashboardHandlers.handleCreateNote}
+        categories={dashboardState.categories}
       />
 
       {/* View Note Modal */}
       <ViewNoteModal
-        isOpen={showViewModal}
-        onClose={handleCloseViewModal}
-        note={viewNote}
-        onOpenShare={handleOpenShareModal}
-        getPriorityColor={getPriorityColor}
-        getPriorityText={getPriorityText}
+        isOpen={dashboardState.showViewModal}
+        onClose={modalsActionsHandler.handleCloseViewModal}
+        note={dashboardState.viewNote}
+        onOpenShare={modalsHandler.handleOpenShareModal}
+        getPriorityColor={dashboardHandlers.getPriorityColor}
+        getPriorityText={dashboardHandlers.getPriorityText}
       />
+
       {/* Edit Note Modal */}
       <EditNoteModal
-        isOpen={showEditModal}
-        onClose={handleCloseEditModal}
-        editNote={editNote}
-        setEditNote={setEditNote}
-        onSubmit={handleUpdateNote}
-        categories={categories}
+        isOpen={dashboardState.showEditModal}
+        onClose={modalsActionsHandler.handleCloseEditModal}
+        editNote={dashboardState.editNote}
+        setEditNote={dashboardState.setEditNote}
+        onSubmit={dashboardHandlers.handleUpdateNote}
+        categories={dashboardState.categories}
       />
 
       {/* Share Note Modal */}
       <ShareNoteModal
-        isOpen={showShareModal}
-        onClose={handleCloseShareModal}
-        note={viewNote}
-        onSuccess={handleShareSuccess}
+        isOpen={modalsState.showShareModal}
+        onClose={modalsHandler.handleCloseShareModal}
+        note={dashboardState.viewNote}
+        onSuccess={modalsActionsHandler.handleShareSuccess}
       />
 
       {/* Create Folder Modal */}
       <CreateFolderModal
-        isOpen={showCreateFolderModal}
-        onClose={handleCloseCreateFolderModal}
-        onSubmit={createFolder}
+        isOpen={modalsState.showCreateFolderModal}
+        onClose={modalsHandler.handleCloseCreateFolderModal}
+        onSubmit={foldersHandler.createFolder as any}
       />
 
       {/* Edit Folder Modal */}
       <EditFolderModal
-        isOpen={showEditFolderModal}
-        folder={editingFolder}
-        onClose={handleCloseEditFolderModal}
-        onSubmit={updateFolder}
+        isOpen={modalsState.showEditFolderModal}
+        folder={modalsState.editingFolder}
+        onClose={modalsHandler.handleCloseEditFolderModal}
+        onSubmit={foldersHandler.updateFolder as any}
       />
 
       {/* Create Note in Folder Modal */}
-      {selectedFolder && (
+      {foldersState.selectedFolder && (
         <CreateNoteInFolderModal
-          isOpen={showCreateNoteInFolderModal}
-          onClose={handleCloseCreateNoteInFolder}
-          newNote={newFolderNote}
-          setNewNote={setNewFolderNote}
-          onSubmit={handleCreateNoteInFolder}
-          folderName={selectedFolder.name}
-          categories={folderCategories}
+          isOpen={folderNotesState.showCreateModal}
+          onClose={folderNotesHandler.handleCloseCreateModal}
+          newNote={folderNotesState.newNote as any}
+          setNewNote={folderNotesState.setNewNote}
+          onSubmit={folderNotesHandler.handleCreateNote}
+          folderName={foldersState.selectedFolder.name}
+          categories={folderNotesState.categories}
         />
       )}
 
       {/* Edit Note in Folder Modal */}
-      {selectedFolder && (
+      {foldersState.selectedFolder && (
         <EditNoteInFolderModal
-          isOpen={showEditNoteInFolderModal}
-          onClose={handleCloseEditNoteInFolder}
-          editNote={editFolderNote}
-          setEditNote={setEditFolderNote}
-          onSubmit={handleUpdateNoteInFolder}
-          folderName={selectedFolder.name}
-          categories={folderCategories}
+          isOpen={folderNotesState.showEditModal}
+          onClose={folderNotesHandler.handleCloseEditModal}
+          editNote={folderNotesState.editNote as any}
+          setEditNote={folderNotesState.setEditNote as any}
+          onSubmit={folderNotesHandler.handleUpdateNote}
+          folderName={foldersState.selectedFolder.name}
+          categories={folderNotesState.categories}
         />
       )}
 
       {/* Move to Folder Modal */}
       <MoveToFolderModal
-        isOpen={showMoveToFolderModal}
-        onClose={handleCloseMoveToFolder}
-        folders={folders}
-        onSelectFolder={handleSelectFolder}
-        noteTitle={noteToMove?.title || ''}
+        isOpen={modalsState.showMoveToFolderModal}
+        onClose={modalsHandler.handleCloseMoveToFolder}
+        folders={foldersState.folders}
+        onSelectFolder={moveToFolderHandler.handleSelectFolder}
+        noteTitle={modalsState.noteToMove?.title || ''}
       />
 
       {/* Move Out of Folder Modal */}
       <MoveOutOfFolderModal
-        isOpen={showMoveOutOfFolderModal}
-        onClose={handleCloseMoveOutOfFolder}
-        onMoveToActive={handleMoveToActive}
-        onMoveToArchived={handleMoveToArchived}
-        noteTitle={noteToMoveOut?.title || ''}
+        isOpen={modalsState.showMoveOutOfFolderModal}
+        onClose={modalsHandler.handleCloseMoveOutOfFolder}
+        onMoveToActive={moveOutOfFolderHandler.handleMoveToActive}
+        onMoveToArchived={moveOutOfFolderHandler.handleMoveToArchived}
+        noteTitle={modalsState.noteToMoveOut?.title || ''}
       />
 
       {/* Tag Management Modal */}
       <TagManagementModal
-        isOpen={showTagManagementModal}
-        onClose={() => setShowTagManagementModal(false)}
+        isOpen={dashboardState.showTagManagementModal}
+        onClose={() => dashboardState.setShowTagManagementModal(false)}
       />
   </div>
 );

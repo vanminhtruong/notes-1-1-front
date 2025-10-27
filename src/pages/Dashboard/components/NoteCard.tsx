@@ -8,7 +8,7 @@ import PinButton from './PinButton';
 import TagBadge from './TagBadge';
 import TagSelector from './TagSelector';
 import BackgroundPicker from './BackgroundPicker';
-import { useNoteBackground } from '../hooks/useNoteBackground';
+import { useNoteBackgroundHandler } from '../hooks/Manager-handle/useNoteBackgroundHandler';
 import type { Note as ServiceNote, NoteTag } from '@/services/notesService';
 import type { NoteCategory } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
@@ -72,7 +72,7 @@ const NoteCard = memo(({
   const tagsContainerRef = useRef<HTMLDivElement>(null);
   const [tagSelectorLeft, setTagSelectorLeft] = useState(0);
   const paletteBtnRef = useRef<HTMLButtonElement | null>(null);
-  const { updateBackground } = useNoteBackground();
+  const { updateBackground } = useNoteBackgroundHandler();
   // UI state để phản ánh ngay thay đổi nền (tránh phải đợi socket/refetch)
   const [bgColor, setBgColor] = useState<string | null>(note.backgroundColor ?? null);
   const [bgImage, setBgImage] = useState<string | null>(note.backgroundImage ?? null);

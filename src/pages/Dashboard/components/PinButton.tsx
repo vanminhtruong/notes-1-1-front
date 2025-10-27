@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { Pin, PinOff, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { type Note } from '@/services/notesService';
-import { usePinNote } from '../hooks/usePinNote';
+import { usePinNoteHandler } from '../hooks/Manager-handle/usePinNoteHandler';
 
 interface PinButtonProps {
   note: Note;
@@ -20,7 +20,7 @@ const PinButton = memo(({
   className = '' 
 }: PinButtonProps) => {
   const { t } = useTranslation('dashboard');
-  const { isPinning, togglePin } = usePinNote(onPinUpdate, onPinUpdate);
+  const { isPinning, togglePin } = usePinNoteHandler(onPinUpdate, onPinUpdate);
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { X, Tag, Plus, Edit2, Trash2, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useNoteTags } from '../hooks/useNoteTags';
+import { useNoteTagsHandler } from '../hooks/Manager-handle/useNoteTagsHandler';
+import { useNoteTagsEffects } from '../hooks/Manager-Effects/useNoteTagsEffects';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
-import { useConfirmationToast } from '../hooks/useChatWindow/useConfirmationToast';
+import { useConfirmationToast } from '../hooks/Manager-handle/useConfirmationToastHandler';
 import type { NoteTag, CreateTagData } from '@/services/notesService';
 
 interface TagManagementModalProps {
@@ -26,7 +27,8 @@ const TAG_COLORS = [
 
 const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
   const { t } = useTranslation('dashboard');
-  const { tags, isLoading, loadTags, createTag, updateTag, deleteTag } = useNoteTags();
+  const { tags, isLoading, loadTags, createTag, updateTag, deleteTag } = useNoteTagsHandler();
+  useNoteTagsEffects();
   const { confirmWithToast } = useConfirmationToast({ 
     t: (key: string, defaultValue?: string) => t(key, defaultValue || '') as string 
   });

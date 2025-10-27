@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Tag, ArrowLeft, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useNoteTags } from '../hooks/useNoteTags';
-import { useTagsView } from '../hooks/useTagsView';
+import { useAppSelector } from '@/store';
+import { useNoteTagsHandler } from '../hooks/Manager-handle/useNoteTagsHandler';
+import { useNoteTagsEffects } from '../hooks/Manager-Effects/useNoteTagsEffects';
+import { useTagsViewState } from '../hooks/Manager-useState/useTagsViewState';
+import { useTagsViewHandler } from '../hooks/Manager-handle/useTagsViewHandler';
+import { useTagsViewEffects } from '../hooks/Manager-Effects/useTagsViewEffects';
 import NotesGrid from './NotesGrid';
 import TagBadge from './TagBadge';
 
@@ -32,19 +36,46 @@ const TagsView = ({
   getPriorityText,
 }: TagsViewProps) => {
   const { t } = useTranslation('dashboard');
-  const { tags, loadTags } = useNoteTags();
+  const { tags, loadTags } = useNoteTagsHandler();
+  useNoteTagsEffects();
+  const dueReminderNoteIds = useAppSelector((state) => state.notes.dueReminderNoteIds);
+
+  // State management
   const {
     selectedTag,
     setSelectedTag,
-    notes,
+    allNotes,
+    setAllNotes,
     isLoading,
+    setIsLoading,
     searchTerm,
     setSearchTerm,
     currentPage,
     setCurrentPage,
     pagination,
-    dueReminderNoteIds,
-  } = useTagsView();
+    setPagination,
+  } = useTagsViewState();
+
+  // Handlers and computed values
+  const { fetchNotesByTag, filteredNotes, handleSelectTag } = useTagsViewHandler({
+    setIsLoading,
+    setAllNotes,
+    setPagination,
+    setSelectedTag,
+    setCurrentPage,
+    setSearchTerm,
+    allNotes,
+    searchTerm,
+  });
+
+  // Effects
+  useTagsViewEffects({
+    selectedTag,
+    currentPage,
+    fetchNotesByTag,
+  });
+
+  const notes = filteredNotes;
 
   const [tagSearchQuery, setTagSearchQuery] = useState('');
 
@@ -102,7 +133,7 @@ const TagsView = ({
               filteredTags.map((tag) => (
                 <button
                   key={tag.id}
-                  onClick={() => setSelectedTag(tag)}
+                  onClick={() => handleSelectTag(tag)}
                   className="flex items-center justify-between gap-2 p-3 rounded-xl border-2 border-transparent hover:border-blue-500 dark:hover:border-blue-400 transition-all hover:shadow-md bg-gray-50 dark:bg-gray-700/50 xl-down:p-2.5 md-down:p-2 sm-down:p-1.5 xs-down:rounded-lg"
                   style={{ borderLeftColor: tag.color, borderLeftWidth: '4px' }}
                 >
@@ -135,7 +166,7 @@ const TagsView = ({
         <div className="flex items-center justify-between flex-wrap gap-3 xl-down:gap-2.5 md-down:gap-2 sm-down:gap-1.5">
           <div className="flex items-center gap-3 xl-down:gap-2.5 md-down:gap-2 sm-down:gap-1.5">
             <button
-              onClick={() => setSelectedTag(null)}
+              onClick={() => handleSelectTag(null)}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors xl-down:p-1.5 sm-down:p-1"
               title={t('tags.backToTags')}
             >

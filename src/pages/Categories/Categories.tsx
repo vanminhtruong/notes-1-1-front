@@ -1,60 +1,45 @@
-import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Tag, Plus } from 'lucide-react';
 import LazyLoad from '@/components/LazyLoad';
-import { useCategories } from '@/pages/Categories/hooks/useCategories';
+import * as CategoriesHooks from '@/pages/Categories/hooks';
 import CategoriesGrid from '@/pages/Categories/components/CategoriesGrid';
 import CreateCategoryModal from '@/pages/Categories/components/CreateCategoryModal';
 import EditCategoryModal from '@/pages/Categories/components/EditCategoryModal';
 import DeleteCategoryModal from '@/pages/Categories/components/DeleteCategoryModal';
 import CategoryNotesModal from '@/pages/Categories/components/CategoryNotesModal';
-import type { NoteCategory } from '@/services/notesService';
 
 export default function Categories() {
   const { t } = useTranslation('categories');
   const navigate = useNavigate();
-  const {
-    categories,
-    isLoading,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-  } = useCategories();
 
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [viewNotesModalOpen, setViewNotesModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<NoteCategory | null>(null);
+  // State management
+  const state = CategoriesHooks.useCategoriesState();
+  const { categories, isLoading } = state;
 
-  // Tối ưu: Sử dụng useCallback để tránh re-create functions
-  const handleCreateCategory = useCallback(() => {
-    setCreateModalOpen(true);
-  }, []);
+  const modalsState = CategoriesHooks.useCategoriesModalsState();
 
-  const handleEditCategory = useCallback((category: NoteCategory) => {
-    setSelectedCategory(category);
-    setEditModalOpen(true);
-  }, []);
+  // Handlers
+  const handlers = CategoriesHooks.useCategoriesHandler({
+    setCategories: state.setCategories,
+    setIsLoading: state.setIsLoading,
+    categories: state.categories,
+  });
+  const { createCategory, updateCategory, deleteCategory } = handlers;
 
-  const handleDeleteCategory = useCallback((category: NoteCategory) => {
-    setSelectedCategory(category);
-    setDeleteModalOpen(true);
-  }, []);
+  const modalsHandler = CategoriesHooks.useCategoriesModalsHandler({
+    setCreateModalOpen: modalsState.setCreateModalOpen,
+    setEditModalOpen: modalsState.setEditModalOpen,
+    setDeleteModalOpen: modalsState.setDeleteModalOpen,
+    setViewNotesModalOpen: modalsState.setViewNotesModalOpen,
+    setSelectedCategory: modalsState.setSelectedCategory,
+  });
 
-  const handleViewNotes = useCallback((category: NoteCategory) => {
-    setSelectedCategory(category);
-    setViewNotesModalOpen(true);
-  }, []);
-
-  const handleCloseModals = useCallback(() => {
-    setCreateModalOpen(false);
-    setEditModalOpen(false);
-    setDeleteModalOpen(false);
-    setViewNotesModalOpen(false);
-    setSelectedCategory(null);
-  }, []);
+  // Effects
+  CategoriesHooks.useCategoriesEffects({
+    fetchCategories: handlers.fetchCategories,
+    setCategories: state.setCategories,
+  });
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-900/60 dark:to-gray-800 min-h-screen">
@@ -80,7 +65,7 @@ export default function Categories() {
               </div>
               <button
                 type="button"
-                onClick={handleCreateCategory}
+                onClick={modalsHandler.handleCreateCategory}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm lg-down:px-3 lg-down:py-1.5 lg-down:text-sm md-down:px-2.5 md-down:py-1.5 md-down:text-xs sm-down:gap-1.5"
               >
                 <Plus className="w-4 h-4 lg-down:w-3.5 lg-down:h-3.5 sm-down:w-3 sm-down:h-3" />
@@ -96,9 +81,9 @@ export default function Categories() {
               <CategoriesGrid
                 categories={categories}
                 isLoading={isLoading}
-                onEdit={handleEditCategory}
-                onDelete={handleDeleteCategory}
-                onView={handleViewNotes}
+                onEdit={modalsHandler.handleEditCategory}
+                onDelete={modalsHandler.handleDeleteCategory}
+                onView={modalsHandler.handleViewNotes}
               />
             </LazyLoad>
           </div>
@@ -107,29 +92,29 @@ export default function Categories() {
 
       {/* Modals */}
       <CreateCategoryModal
-        isOpen={createModalOpen}
-        onClose={handleCloseModals}
+        isOpen={modalsState.createModalOpen}
+        onClose={modalsHandler.handleCloseModals}
         onSubmit={createCategory}
       />
 
-      {selectedCategory && (
+      {modalsState.selectedCategory && (
         <>
           <EditCategoryModal
-            isOpen={editModalOpen}
-            onClose={handleCloseModals}
+            isOpen={modalsState.editModalOpen}
+            onClose={modalsHandler.handleCloseModals}
             onSubmit={updateCategory}
-            category={selectedCategory}
+            category={modalsState.selectedCategory}
           />
           <DeleteCategoryModal
-            isOpen={deleteModalOpen}
-            onClose={handleCloseModals}
+            isOpen={modalsState.deleteModalOpen}
+            onClose={modalsHandler.handleCloseModals}
             onConfirm={deleteCategory}
-            category={selectedCategory}
+            category={modalsState.selectedCategory}
           />
           <CategoryNotesModal
-            isOpen={viewNotesModalOpen}
-            onClose={handleCloseModals}
-            category={selectedCategory}
+            isOpen={modalsState.viewNotesModalOpen}
+            onClose={modalsHandler.handleCloseModals}
+            category={modalsState.selectedCategory}
           />
         </>
       )}

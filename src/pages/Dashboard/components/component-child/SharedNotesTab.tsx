@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Loader2, Inbox, RefreshCw } from 'lucide-react';
 import { SharedNoteItem } from './SharedNoteItem';
 import { GroupSharedNoteItem } from './GroupSharedNoteItem';
-import { useSharedNotes } from '../../hooks/useDashboard/useSharedNotes';
+import { useSharedNotesState } from '../../hooks/Manager-useState/useSharedNotesState';
+import { useSharedNotesHandlers } from '../../hooks/Manager-handle/useSharedNotesHandlers';
+import { useSharedNotesEffects } from '../../hooks/Manager-Effects/useSharedNotesEffects';
 import type { SharedNotesTabProps } from '../interface/SharedNotes.interface';
 import toast from 'react-hot-toast';
 import { notesService } from '@/services/notesService';
@@ -20,17 +22,85 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
   const [viewingNote, setViewingNote] = useState<any>(null);
   const [editingNote, setEditingNote] = useState<any>(null);
   
+  // Initialize hooks
+  const sharedNotesState = useSharedNotesState();
+  const sharedNotesHandlers = useSharedNotesHandlers({
+    setIsLoading: sharedNotesState.setIsLoading,
+    setError: sharedNotesState.setError,
+    setSharedWithMe: sharedNotesState.setSharedWithMe,
+    setSharedByMe: sharedNotesState.setSharedByMe,
+    setGroupSharedNotes: sharedNotesState.setGroupSharedNotes,
+    setTotalPagesWithMe: sharedNotesState.setTotalPagesWithMe,
+    setTotalPagesByMe: sharedNotesState.setTotalPagesByMe,
+    setTotalPagesGroups: sharedNotesState.setTotalPagesGroups,
+    setTotalWithMe: sharedNotesState.setTotalWithMe,
+    setTotalByMe: sharedNotesState.setTotalByMe,
+    setTotalGroups: sharedNotesState.setTotalGroups,
+    setPageWithMe: sharedNotesState.setPageWithMe,
+    setPageByMe: sharedNotesState.setPageByMe,
+    setPageGroups: sharedNotesState.setPageGroups,
+    isLoading: sharedNotesState.isLoading,
+  });
+  
+  useSharedNotesEffects({
+    refreshSharedNotes: sharedNotesHandlers.refreshSharedNotes,
+    fetchSharedWithMe: sharedNotesHandlers.fetchSharedWithMe,
+    fetchSharedByMe: sharedNotesHandlers.fetchSharedByMe,
+    fetchGroupSharedNotes: sharedNotesHandlers.fetchGroupSharedNotes,
+    setSharedWithMe: sharedNotesState.setSharedWithMe,
+    setSharedByMe: sharedNotesState.setSharedByMe,
+    setGroupSharedNotes: sharedNotesState.setGroupSharedNotes,
+  });
+
+  // Destructure for easier access
   const {
     sharedWithMe,
     sharedByMe,
     groupSharedNotes,
     isLoading,
     error,
+    pageWithMe,
+    pageByMe,
+    pageGroups,
+    totalPagesWithMe,
+    totalPagesByMe,
+    totalPagesGroups,
+    totalWithMe,
+    totalByMe,
+    totalGroups,
+  } = sharedNotesState;
+  
+  const {
     refreshSharedNotes,
     removeSharedNote,
-    pagination,
-    changePage,
-  } = useSharedNotes();
+    changePageWithMe,
+    changePageByMe,
+    changePageGroups,
+  } = sharedNotesHandlers;
+  
+  const pagination = {
+    withMe: {
+      currentPage: pageWithMe,
+      totalPages: totalPagesWithMe,
+      total: totalWithMe,
+    },
+    byMe: {
+      currentPage: pageByMe,
+      totalPages: totalPagesByMe,
+      total: totalByMe,
+    },
+    groups: {
+      currentPage: pageGroups,
+      totalPages: totalPagesGroups,
+      total: totalGroups,
+    },
+  };
+  
+  const changePage = {
+    withMe: changePageWithMe,
+    byMe: changePageByMe,
+    groups: changePageGroups,
+  };
 
   const handleViewNote = async (noteId: number) => {
     try {

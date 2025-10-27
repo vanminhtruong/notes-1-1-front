@@ -11,20 +11,32 @@ const CategoryDropdown = memo(({
   categories, 
   selectedCategory, 
   setSelectedCategory, 
-  t 
+  t,
+  onLoadCategories
 }: { 
   categories: Array<{ id: number; name: string; color: string; icon: string }>; 
   selectedCategory: string; 
   setSelectedCategory: (value: string) => void; 
   t: any;
+  onLoadCategories?: () => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+  const hasLoadedRef = useRef(false);
 
   const selectedCat = categories.find(c => c.id.toString() === selectedCategory);
+
+  // Load categories khi mở dropdown lần đầu
+  const handleOpen = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen && !hasLoadedRef.current && categories.length === 0 && onLoadCategories) {
+      hasLoadedRef.current = true;
+      onLoadCategories();
+    }
+  };
 
   const getCategoryIcon = (iconName: string) => {
     const Icon = (LucideIcons as any)[iconName];
@@ -73,7 +85,7 @@ const CategoryDropdown = memo(({
     <div ref={dropdownRef} className="relative z-[10002]">
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleOpen}
         ref={buttonRef}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -149,6 +161,7 @@ interface SearchAndFiltersProps {
   onCreateNote: () => void;
   showArchived?: boolean;
   categories: Array<{ id: number; name: string; color: string; icon: string }>;
+  onLoadCategories?: () => void;
 }
 
 const SearchAndFilters = memo(({
@@ -159,7 +172,8 @@ const SearchAndFilters = memo(({
   setSelectedPriority,
   onCreateNote,
   showArchived = false,
-  categories
+  categories,
+  onLoadCategories
 }: SearchAndFiltersProps) => {
   const { t } = useTranslation('dashboard');
 
@@ -180,6 +194,7 @@ const SearchAndFilters = memo(({
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
           t={t}
+          onLoadCategories={onLoadCategories}
         />
 
         <PriorityDropdownFilter
