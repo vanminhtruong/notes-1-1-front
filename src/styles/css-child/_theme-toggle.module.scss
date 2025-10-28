@@ -1,0 +1,50 @@
+/**
+ * Theme Toggle Dropdown Module
+ * Styles for theme toggle dropdown and submenu in pure dark mode
+ */
+
+@mixin apply-theme-toggle($theme-class, $bg-card, $bg-hover, $border-color, $border-hover) {
+  .#{$theme-class} {
+    // Theme toggle dropdown container
+    .theme-toggle-dropdown {
+      background-color: $bg-card;
+      border-color: $border-color;
+
+      // Dropdown items
+      button {
+        &:hover {
+          background-color: $bg-hover;
+        }
+      }
+
+      // Submenu for dark-black theme
+      .theme-submenu {
+        background-color: $bg-card;
+        border-color: $border-color;
+
+        // Toggle switch
+        .toggle-switch {
+          &.enabled {
+            background-color: #7c3aed; // purple-600
+          }
+
+          &.disabled {
+            background-color: #4b5563; // gray-600
+          }
+        }
+
+        // Submenu items
+        button {
+          &:hover {
+            background-color: $bg-hover;
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+  }
+}

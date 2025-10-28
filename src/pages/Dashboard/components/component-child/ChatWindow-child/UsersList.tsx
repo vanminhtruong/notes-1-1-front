@@ -1,9 +1,10 @@
 import { Search, Check, X, UserPlus, MessageSquare, Ban, MoreVertical } from 'lucide-react';
-import { useState, memo } from 'react';
+import { useState, memo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { UsersListProps } from '../../interface/ChatUI.interface';
 import type { User } from '../../interface/ChatTypes.interface';
+import { blockService, type BlockStatus } from '@/services/blockService';
 import LazyLoad from '@/components/LazyLoad';
 
 const UsersList = memo(({
@@ -19,6 +20,25 @@ const UsersList = memo(({
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
   const [menuUser, setMenuUser] = useState<User | null>(null);
+  const [blockStatusMap, setBlockStatusMap] = useState<Record<number, BlockStatus | undefined>>({});
+
+  // Fetch block status for all visible users
+  useEffect(() => {
+    const fetchBlockStatuses = async () => {
+      const allUsers = [...friendRequests, ...filteredUsers];
+      for (const user of allUsers) {
+        if (!blockStatusMap[user.id]) {
+          try {
+            const res = await blockService.getStatus(user.id);
+            setBlockStatusMap((prev) => ({ ...prev, [user.id]: res.data }));
+          } catch (e) {
+            // Silent fail
+          }
+        }
+      }
+    };
+    fetchBlockStatuses();
+  }, [friendRequests, filteredUsers]);
   return (
     <div className="h-full flex flex-col overflow-y-auto md-down:px-3 md-down:pb-24">
       {/* User Lists */}
@@ -39,11 +59,18 @@ const UsersList = memo(({
                 reAnimate={true}
               >
                 <div className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg md-down:bg-white/70 md-down:dark:bg-gray-800/70 md-down:backdrop-blur md-down:shadow-sm md-down:mb-3 md-down:last:mb-0">
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                  ) : (
-                    user.name.charAt(0)
+                <div className="relative flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      user.name.charAt(0)
+                    )}
+                  </div>
+                  {blockStatusMap[user.id]?.blockedByMe && (
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white dark:border-gray-900 flex items-center justify-center">
+                      <Ban className="w-3 h-3 text-white" />
+                    </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0 md-down:pr-2">
@@ -92,11 +119,18 @@ const UsersList = memo(({
                 reAnimate={true}
               >
                 <div className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg md-down:bg-white/70 md-down:dark:bg-gray-800/70 md-down:backdrop-blur md-down:shadow-sm md-down:mb-3 md-down:last:mb-0">
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                  ) : (
-                    user.name.charAt(0)
+                <div className="relative flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      user.name.charAt(0)
+                    )}
+                  </div>
+                  {blockStatusMap[user.id]?.blockedByMe && (
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white dark:border-gray-900 flex items-center justify-center">
+                      <Ban className="w-3 h-3 text-white" />
+                    </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0 md-down:pr-2">
@@ -187,9 +221,19 @@ const UsersList = memo(({
                   {t('chat.usersList.actions.message', 'Nhắn tin')}
                 </button>
                 <button
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
-                    onBlockUser(menuUser);
+                    // Update blockStatusMap optimistically
+                    setBlockStatusMap((prev) => ({ 
+                      ...prev, 
+                      [menuUser.id]: { 
+                        blockedByMe: true, 
+                        blockedMe: false, 
+                        isEitherBlocked: true, 
+                        blockId: null 
+                      } 
+                    }));
+                    await onBlockUser(menuUser);
                     setOpenMenuId(null);
                     setMenuPos(null);
                     setMenuUser(null);

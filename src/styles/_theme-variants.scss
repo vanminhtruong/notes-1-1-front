@@ -25,6 +25,7 @@
 @use './css-child/chat-messages.module' as chat-messages;
 @use './css-child/message-actions.module' as message-actions;
 @use './css-child/header-tabs.module' as header-tabs;
+@use './css-child/theme-toggle.module' as theme-toggle;
 
 @mixin generate-dark-theme(
   $theme-class,
@@ -47,4 +48,5 @@
   @include chat-messages.apply-chat-messages($theme-class, $bg-card);
   @include message-actions.apply-message-actions($theme-class, $bg-card, $bg-hover, $border-color, $border-hover);
   @include header-tabs.apply-header-tabs($theme-class, $bg-card, $border-hover);
+  @include theme-toggle.apply-theme-toggle($theme-class, $bg-card, $bg-hover, $border-color, $border-hover);
 }

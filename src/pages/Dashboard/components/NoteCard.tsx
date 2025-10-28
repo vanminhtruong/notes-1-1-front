@@ -344,20 +344,22 @@ const NoteCard = memo(({
               </>
             )}
           </div>
-          {(isHovered || isTagSelectorOpen || isBackgroundPickerOpen) && (!note.tags || note.tags.length < 3) && !showArchived && (
+          {(isHovered || isTagSelectorOpen || isBackgroundPickerOpen) && !showArchived && (
             <div 
               className="absolute top-1 z-[10020] scale-75 origin-top-left flex items-center gap-2"
               style={{ 
                 left: note.tags && note.tags.length > 0 ? `${tagSelectorLeft}px` : '0'
               }}
             >
-              <TagSelector
-                noteId={note.id}
-                selectedTags={[]}
-                onOpenChange={setIsTagSelectorOpen}
-                hasBg={hasBg}
-                textColors={textColors}
-              />
+              {(!note.tags || note.tags.length < 3) && (
+                <TagSelector
+                  noteId={note.id}
+                  selectedTags={[]}
+                  onOpenChange={setIsTagSelectorOpen}
+                  hasBg={hasBg}
+                  textColors={textColors}
+                />
+              )}
               <div className="relative">
                 <button
                   ref={paletteBtnRef}

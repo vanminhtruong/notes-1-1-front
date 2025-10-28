@@ -49,5 +49,13 @@ export const settingsService = {
     const res = await api.put('/settings/privacy', payload);
     return res.data;
   },
+  async getAnimatedBackground(): Promise<{ enabled: boolean; theme: 'christmas' | 'tet' | 'easter' | 'none' }> {
+    const res = await api.get('/settings/animated-background');
+    return res.data;
+  },
+  async setAnimatedBackground(payload: { enabled: boolean; theme: 'christmas' | 'tet' | 'easter' | 'none' }): Promise<{ message: string; enabled: boolean; theme: 'christmas' | 'tet' | 'easter' | 'none' }> {
+    const res = await api.put('/settings/animated-background', payload);
+    return res.data;
+  },
 };
 

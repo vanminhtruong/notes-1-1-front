@@ -1,0 +1,13 @@
+export { default as Sky } from './Sky';
+export { default as Moon } from './Moon';
+export { default as Hills } from './Hills';
+export { default as Trees } from './Trees';
+export { default as House } from './House';
+export { default as ChristmasTree } from './ChristmasTree';
+export { default as Reindeer } from './Reindeer';
+export { default as Snowman } from './Snowman';
+export { default as Gifts } from './Gifts';
+export { default as Fence } from './Fence';
+export { default as Ground } from './Ground';
+export { default as SnowCanvas } from './SnowCanvas';
+export { default as DistantHouses } from './DistantHouses';

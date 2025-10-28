@@ -10,22 +10,25 @@ export function useFilteredUsers(
   friendRequests: User[],
   searchTerm: string,
   currentUserId?: number | null,
+  blockedUsers?: Array<{ id: number; name: string; email?: string; avatar?: string | null }>,
 ): User[] {
   return useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     const friendIds = new Set(friends.map((f) => f.id));
     const requestedIds = new Set(friendRequests.map((u) => u.id));
+    const blockedIds = new Set((blockedUsers || []).map((b) => b.id));
     return users.filter((u) => {
       if (currentUserId && u.id === currentUserId) return false;
       if (friendIds.has(u.id)) return false;
       if (requestedIds.has(u.id)) return false;
+      if (blockedIds.has(u.id)) return false;
       if (!term) return true;
       return (
         (u.name && u.name.toLowerCase().includes(term)) ||
         (u.email && u.email.toLowerCase().includes(term))
       );
     });
-  }, [users, friends, friendRequests, searchTerm, currentUserId]);
+  }, [users, friends, friendRequests, searchTerm, currentUserId, blockedUsers]);
 }
 
 export function useUnreadChats(

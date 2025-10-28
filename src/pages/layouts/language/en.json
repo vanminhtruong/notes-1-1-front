@@ -60,6 +60,16 @@
     "darkBlack": "Dark Black",
     "selectTheme": "Select theme"
   },
+  "animatedBackground": {
+    "title": "Animated Background",
+    "none": "None",
+    "christmas": "Christmas",
+    "tet": "Lunar New Year",
+    "easter": "Easter",
+    "updated": "Animated background updated",
+    "updateFailed": "Failed to update animated background",
+    "disabled": "Turn on to select animated background theme"
+  },
   "footer": {
     "copyright": "All rights reserved",
     "privacy": "Privacy",

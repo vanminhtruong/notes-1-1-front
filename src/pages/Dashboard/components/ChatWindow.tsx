@@ -1,181 +1,59 @@
 import { useMemo, useCallback, memo } from 'react';
-import { type User, type Message, type MessageGroup, type ChatWindowProps, type GroupSummary, useState, useEffect, useRef, toast, useTranslation, chatService, groupService, getSocket, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
-import { blockService, type BlockStatus } from '@/services/blockService';
-import { notificationService } from '@/services/notificationService';
-import type { NotificationPagination } from './interface/NotificationBell.interface';
+import { type ChatWindowProps, toast, useTranslation, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
+import * as DashboardHooks from '../hooks';
 
 const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   const { t } = useTranslation('dashboard');
   const currentUser = getCachedUser();
-  const [activeTab, setActiveTab] = useState<'users' | 'chats' | 'unread' | 'groups' | 'sharedNotes'>('users');
-  const [users, setUsers] = useState<User[]>([]);
-  const [friends, setFriends] = useState<User[]>([]);
-  const [friendRequests, setFriendRequests] = useState<User[]>([]);
-  const [, setFriendRequestsMeta] = useState<Record<number, string | Date>>({});
-  const [, setPersistedFriendRequests] = useState<User[]>([]);
-  const [, setPersistedFriendRequestsMeta] = useState<Record<number, string | Date>>({});
-  const [selectedChat, setSelectedChat] = useState<User | null>(null);
-  const [selectedGroup, setSelectedGroup] = useState<GroupSummary | null>(null);
-  const [messages, setMessages] = useState<(Message | any)[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isPartnerTyping, setIsPartnerTyping] = useState(false);
-  const typingTimeoutRef = useRef<number | undefined>(undefined);
-  const typingSentRef = useRef(false);
-  const [groupTypingUsers, setGroupTypingUsers] = useState<Array<{ id: any; name: string; avatar?: string }>>([]);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [pendingImages, setPendingImages] = useState<Array<{ id: string; file: File; preview: string }>>([]);
-  const [pendingFiles, setPendingFiles] = useState<Array<{ id: string; file: File }>>([]);
-  const [menuOpenKey, setMenuOpenKey] = useState<string | null>(null);
-  const [replyingToMessage, setReplyingToMessage] = useState<any | null>(null);
-  const [onlineIds, setOnlineIds] = useState<number[]>([]);
-  const [chatList, setChatList] = useState<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean }>>([]);
-  const [showGroupEditor, setShowGroupEditor] = useState(false);
-  const [showRemoveMembers, setShowRemoveMembers] = useState(false);
-  const [, setPendingInvites] = useState<Array<{ id: number; status: 'pending' | 'accepted' | 'declined'; group: any; inviter: any }>>([]);
-  const [blockStatus, setBlockStatus] = useState<BlockStatus | null>(null);
-  const [historyLoading, setHistoryLoading] = useState<boolean>(false);
+  
+  // State hooks
+  const chatWindowState = DashboardHooks.useChatWindowState();
+  const messageInputState = DashboardHooks.useMessageInputState();
+  const attachmentState = DashboardHooks.useAttachmentState();
+  const groupModalsState = DashboardHooks.useGroupModalsState();
+  const blockStatusState = DashboardHooks.useBlockStatusState();
+  const bellNotificationState = DashboardHooks.useBellNotificationState();
   
   // Chat settings - split into 3 hooks
   const chatSettingsState = useChatSettingsStateOnly();
-  const chatSettingsHandler = useChatSettingsHandler({
-    setShowSettings: chatSettingsState.setShowSettings,
-    setE2EEEnabled: chatSettingsState.setE2EEEnabled,
-    setE2EEPinHash: chatSettingsState.setE2EEPinHash,
-    setE2EEUnlocked: chatSettingsState.setE2EEUnlocked,
-    setShowSetPin: chatSettingsState.setShowSetPin,
-    setReadStatusEnabled: chatSettingsState.setReadStatusEnabled,
-    setHidePhone: chatSettingsState.setHidePhone,
-    setHideBirthDate: chatSettingsState.setHideBirthDate,
-    setAllowMessagesFromNonFriends: chatSettingsState.setAllowMessagesFromNonFriends,
-    setBlockedUsers: chatSettingsState.setBlockedUsers,
-    e2eeEnabled: chatSettingsState.e2eeEnabled,
-    t,
-  });
-  useChatSettingsEffects({
-    e2eeEnabled: chatSettingsState.e2eeEnabled,
-    e2eeUnlocked: chatSettingsState.e2eeUnlocked,
-    readStatusEnabled: chatSettingsState.readStatusEnabled,
-    allowMessagesFromNonFriends: chatSettingsState.allowMessagesFromNonFriends,
-    hidePhone: chatSettingsState.hidePhone,
-    hideBirthDate: chatSettingsState.hideBirthDate,
-    setE2EEEnabled: chatSettingsState.setE2EEEnabled,
-    setE2EEPinHash: chatSettingsState.setE2EEPinHash,
-    setE2EEUnlocked: chatSettingsState.setE2EEUnlocked,
-    setShowEnterPin: chatSettingsState.setShowEnterPin,
-    setReadStatusEnabled: chatSettingsState.setReadStatusEnabled,
-    setHidePhone: chatSettingsState.setHidePhone,
-    setHideBirthDate: chatSettingsState.setHideBirthDate,
-    setAllowMessagesFromNonFriends: chatSettingsState.setAllowMessagesFromNonFriends,
-    refreshBlockedUsers: chatSettingsHandler.refreshBlockedUsers,
+
+  // Notifications handler - unread per user + group + ring animation
+  const { unreadMap, ring, ringSeq, totalUnread, totalGroupUnread, markChatAsRead, markGroupAsRead, markAllRead, hydrateFromChatList } = DashboardHooks.useMessageNotificationsHandler({
+    currentUserId: currentUser?.id,
+    selectedChatId: chatWindowState.selectedChat?.id ?? null,
+    selectedGroupId: chatWindowState.selectedGroup?.id ?? null,
   });
 
-  // Notifications: unread per user + group + ring animation
-  const { unreadMap, ring, ringSeq, totalUnread, totalGroupUnread, markChatAsRead, markGroupAsRead, markAllRead, hydrateFromChatList } = useMessageNotifications(
-    currentUser?.id,
-    selectedChat?.id ?? null,
-    selectedGroup?.id ?? null
-  );
-  const [myGroups, setMyGroups] = useState<GroupSummary[]>([]);
-  const [bellFeedItems, setBellFeedItems] = useState<Array<{ id: number; name: string; avatar?: string | null; count?: number; time?: string }>>([]);
-  const [bellBadgeTotal, setBellBadgeTotal] = useState<number>(0);
-  const [bellPagination, setBellPagination] = useState<NotificationPagination | undefined>(undefined);
-  const [bellLoading, setBellLoading] = useState<boolean>(false);
-  const loadBellFeed = useCallback(async (page: number = 1, limit: number = 4) => {
-    setBellLoading(true);
-    try {
-      const [feedRes, badgeRes] = await Promise.all([
-        notificationService.getBellFeed({ page, limit }),
-        notificationService.getBellBadge().catch(() => null),
-      ]);
-      if (feedRes?.success && feedRes.data) {
-        if (page === 1) {
-          setBellFeedItems(feedRes.data.items || []);
-        } else {
-          setBellFeedItems(prev => [...prev, ...(feedRes.data.items || [])]);
-        }
-        setBellPagination(feedRes.data.pagination);
-      }
-      if (badgeRes?.success) setBellBadgeTotal(Number(badgeRes.data?.total || 0));
-    } catch {}
-    finally {
-      setBellLoading(false);
-    }
-  }, []);
+  // Bell notification handler
+  const bellNotificationHandler = DashboardHooks.useBellNotificationHandler({
+    setBellFeedItems: bellNotificationState.setBellFeedItems,
+    setBellPagination: bellNotificationState.setBellPagination,
+    setBellBadgeTotal: bellNotificationState.setBellBadgeTotal,
+    setBellLoading: bellNotificationState.setBellLoading,
+  });
 
   const handleLoadMoreNotifications = useCallback(() => {
-    if (bellPagination?.hasNextPage) {
-      loadBellFeed(bellPagination.currentPage + 1);
+    if (bellNotificationState.bellPagination?.hasNextPage) {
+      bellNotificationHandler.loadBellFeed(bellNotificationState.bellPagination.currentPage + 1);
     }
-  }, [bellPagination, loadBellFeed]);
-
-  useEffect(() => {
-    loadNotifications();
-    loadBellFeed();
-  }, []);
-
-  const handleBellItemDismiss = useCallback(async (id: number) => {
-    try {
-      if (id === -1001) {
-        await notificationService.dismissBellItem('fr');
-        setBellFeedItems((prev) => prev.filter((x) => x.id !== -1001));
-      } else if (id === -1002) {
-        await notificationService.dismissBellItem('inv');
-        setBellFeedItems((prev) => prev.filter((x) => x.id !== -1002));
-      } else if (id <= -300000) {
-        const groupId = -id - 300000;
-        await notificationService.dismissBellItem('group', groupId);
-        setBellFeedItems((prev) => prev.filter((x) => x.id !== id));
-      } else {
-        await notificationService.dismissBellItem('dm', id);
-        setBellFeedItems((prev) => prev.filter((x) => x.id !== id));
-      }
-      // Reload first page after dismiss
-      await loadBellFeed(1);
-    } catch (e) {
-      // soft fail, keep UI unchanged if error
-    }
-  }, [loadBellFeed]);
+  }, [bellNotificationState.bellPagination, bellNotificationHandler]);
 
   const bellNotificationItems = useMemo(() => {
-    return (bellFeedItems || []).map((it) => ({
+    return (bellNotificationState.bellFeedItems || []).map((it) => ({
       id: it.id,
       name: it.name,
       avatar: (it.avatar || undefined) as string | undefined,
       count: Number(it.count || 0),
       time: it.time,
     }));
-  }, [bellFeedItems]);
+  }, [bellNotificationState.bellFeedItems]);
 
-  const reloadBellFeed = useCallback(async () => {
-    await loadBellFeed(1);
-  }, [loadBellFeed]);
-
-  const unreadChats = useUnreadChats(chatList, unreadMap);
-
-  useEffect(() => {
-    if (Array.isArray(chatList) && chatList.length >= 0) {
-      hydrateFromChatList(chatList as any);
-    }
-  }, [chatList]);
-
-  const filteredUsers = useFilteredUsers(users, friends, friendRequests, searchTerm, currentUser?.id);
-  const groupedMessages = useGroupedMessages(messages);
-  const isSelectedGroupOnline = useGroupOnline(selectedGroup, onlineIds, currentUser?.id);
-  const removableMembers = useRemovableMembers(selectedGroup, friends, users, currentUser, t);
+  const unreadChats = useUnreadChats(chatWindowState.chatList, unreadMap);
+  const filteredUsers = useFilteredUsers(chatWindowState.users, chatWindowState.friends, chatWindowState.friendRequests, chatWindowState.searchTerm, currentUser?.id, chatSettingsState.blockedUsers);
+  const groupedMessages = useGroupedMessages(chatWindowState.messages);
+  const isSelectedGroupOnline = useGroupOnline(chatWindowState.selectedGroup, chatWindowState.onlineIds, currentUser?.id);
+  const removableMembers = useRemovableMembers(chatWindowState.selectedGroup, chatWindowState.friends, chatWindowState.users, currentUser, t);
   const scrollToBottom = () => {};
-
-  useEffect(() => {
-    if (isOpen) setSearchTerm('');
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (chatSettingsState.showEnterPin) setSearchTerm('');
-  }, [chatSettingsState.showEnterPin]);
-
-  useEffect(() => {
-    setSearchTerm('');
-  }, [currentUser?.id]);
 
   // Load per-chat background (1-1 only)
   const chatBackgroundState = useChatBackgroundState();
@@ -184,57 +62,9 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
     t,
   });
   useChatBackgroundEffects({
-    selectedChatId: selectedChat?.id ?? null,
+    selectedChatId: chatWindowState.selectedChat?.id ?? null,
     setChatBackgroundUrl: chatBackgroundState.setChatBackgroundUrl,
   });
-
-  // Prepend older messages (lazy load). Keep order ascending and dedupe by id.
-  const handlePrependMessages = useCallback((older: any[]) => {
-    if (!Array.isArray(older) || older.length === 0) return;
-    setMessages((prev) => {
-      const existingIds = new Set(prev.map((m: any) => m.id));
-      // Ensure older list is in ascending order (backend already returns ascending)
-      const dedup = older.filter((m: any) => m && !existingIds.has(m.id));
-      if (dedup.length === 0) return prev;
-      return [...dedup, ...prev];
-    });
-  }, []);
-
-  // Remove messages by IDs (for admin deletion)
-  const handleRemoveMessages = useCallback((messageIds: number[]) => {
-    setMessages((prev) => prev.filter((m: any) => !messageIds.includes(m.id)));
-  }, []);
-
-  // Update or insert a chatList entry with a new last message
-  const upsertChatListWithMessage = useCallback((otherUserId: number, msg: Message) => {
-    setChatList((prev) => {
-      const baseFriend = friends.find((f) => f.id === otherUserId) || users.find((u) => u.id === otherUserId);
-      if (!baseFriend) return prev;
-      // Only update the existing item's lastMessage; do not reorder on client.
-      const exists = prev.some((it) => it.friend.id === otherUserId);
-      if (!exists) return prev;
-      // Enrich friend avatar/name from message payload if available
-      const enrichFromMsg = (it: typeof prev[number]) => {
-        let name = it.friend.name;
-        let avatar = (it.friend as any).avatar || null;
-        const isOtherSender = (msg as any)?.senderId === otherUserId;
-        const isOtherReceiver = (msg as any)?.receiverId === otherUserId;
-        if (isOtherSender) {
-          if ((msg as any)?.senderName) name = (msg as any).senderName;
-          if ((msg as any)?.senderAvatar !== undefined) avatar = (msg as any).senderAvatar;
-        } else if (isOtherReceiver) {
-          if ((msg as any)?.receiverName) name = (msg as any).receiverName;
-          if ((msg as any)?.receiverAvatar !== undefined) avatar = (msg as any).receiverAvatar;
-        }
-        return { ...it.friend, name, avatar } as any;
-      };
-      return prev.map((it) => (
-        it.friend.id === otherUserId
-          ? { ...it, friend: enrichFromMsg(it), lastMessage: msg }
-          : it
-      ));
-    });
-  }, [friends, users]);
 
   const tt = t;
 
@@ -260,509 +90,305 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
     ), { duration: Infinity });
   }), [tt]);
 
+  // Load data functions - must be declared before being used
   const { loadUsers, loadFriends, loadChatList, loadFriendRequests, loadPendingInvites, loadNotifications } = useChatData({
-    setUsers,
-    setFriends,
-    setOnlineIds,
-    setChatList,
-    setFriendRequests,
-    setFriendRequestsMeta,
-    setPersistedFriendRequests,
-    setPersistedFriendRequestsMeta,
-    setPendingInvites,
-    setMyGroups,
+    setUsers: chatWindowState.setUsers,
+    setFriends: chatWindowState.setFriends,
+    setOnlineIds: chatWindowState.setOnlineIds,
+    setChatList: chatWindowState.setChatList,
+    setFriendRequests: chatWindowState.setFriendRequests,
+    setFriendRequestsMeta: chatWindowState.setFriendRequestsMeta,
+    setPersistedFriendRequests: chatWindowState.setPersistedFriendRequests,
+    setPersistedFriendRequestsMeta: chatWindowState.setPersistedFriendRequestsMeta,
+    setPendingInvites: chatWindowState.setPendingInvites,
+    setMyGroups: chatWindowState.setMyGroups,
   });
 
-  useEffect(() => {
-    loadNotifications();
-  }, []);
+  // Message actions handler
+  const messageActionsHandler = DashboardHooks.useMessageActionsHandler({
+    selectedChat: chatWindowState.selectedChat,
+    selectedGroup: chatWindowState.selectedGroup,
+    setMessages: chatWindowState.setMessages,
+    setChatList: chatWindowState.setChatList,
+    setMenuOpenKey: attachmentState.setMenuOpenKey,
+    t,
+  });
 
-  const editMessage = useCallback(async (msg: Message, content: string) => {
-    try {
-      if (selectedGroup) {
-        const res = await groupService.editGroupMessage(selectedGroup.id, msg.id, content);
-        if (res.success) {
-          setMessages((prev) => prev.map((m: any) => (m.id === msg.id ? { ...m, content: res.data.content, updatedAt: res.data.updatedAt } : m)));
-          toast.success(t('chat.success.edit', 'Đã cập nhật tin nhắn'));
-        }
-      } else if (selectedChat) {
-        const res = await chatService.editMessage(msg.id, content);
-        if (res.success) {
-          setMessages((prev) => prev.map((m: any) => (m.id === msg.id ? { ...m, content: res.data.content, updatedAt: res.data.updatedAt } : m)));
-          setChatList((prev) => prev.map((it) => {
-            const lm = it.lastMessage;
-            if (!lm || lm.id !== msg.id) return it;
-            return { ...it, lastMessage: { ...lm, content: res.data.content } };
-          }));
-          toast.success(t('chat.success.edit', 'Đã cập nhật tin nhắn'));
-        }
-      }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || t('chat.errors.generic'));
-    }
-  }, [selectedGroup, selectedChat, t]);
+  // Chat list handler
+  const chatListHandler = DashboardHooks.useChatListHandler({
+    friends: chatWindowState.friends,
+    users: chatWindowState.users,
+    selectedChat: chatWindowState.selectedChat,
+    setChatList: chatWindowState.setChatList,
+    setMessages: chatWindowState.setMessages,
+    loadFriends,
+    loadChatList,
+    t,
+  });
+
+  // Initialize chatSettingsHandler after loadUsers and loadFriends are available
+  const chatSettingsHandler = useChatSettingsHandler({
+    setShowSettings: chatSettingsState.setShowSettings,
+    setE2EEEnabled: chatSettingsState.setE2EEEnabled,
+    setE2EEPinHash: chatSettingsState.setE2EEPinHash,
+    setE2EEUnlocked: chatSettingsState.setE2EEUnlocked,
+    setShowSetPin: chatSettingsState.setShowSetPin,
+    setReadStatusEnabled: chatSettingsState.setReadStatusEnabled,
+    setHidePhone: chatSettingsState.setHidePhone,
+    setHideBirthDate: chatSettingsState.setHideBirthDate,
+    setAllowMessagesFromNonFriends: chatSettingsState.setAllowMessagesFromNonFriends,
+    setBlockedUsers: chatSettingsState.setBlockedUsers,
+    e2eeEnabled: chatSettingsState.e2eeEnabled,
+    t,
+    onRefreshFriends: loadFriends,
+    onRefreshUsers: loadUsers,
+  });
+
+  useChatSettingsEffects({
+    e2eeEnabled: chatSettingsState.e2eeEnabled,
+    e2eeUnlocked: chatSettingsState.e2eeUnlocked,
+    readStatusEnabled: chatSettingsState.readStatusEnabled,
+    allowMessagesFromNonFriends: chatSettingsState.allowMessagesFromNonFriends,
+    hidePhone: chatSettingsState.hidePhone,
+    hideBirthDate: chatSettingsState.hideBirthDate,
+    setE2EEEnabled: chatSettingsState.setE2EEEnabled,
+    setE2EEPinHash: chatSettingsState.setE2EEPinHash,
+    setE2EEUnlocked: chatSettingsState.setE2EEUnlocked,
+    setShowEnterPin: chatSettingsState.setShowEnterPin,
+    setReadStatusEnabled: chatSettingsState.setReadStatusEnabled,
+    setHidePhone: chatSettingsState.setHidePhone,
+    setHideBirthDate: chatSettingsState.setHideBirthDate,
+    setAllowMessagesFromNonFriends: chatSettingsState.setAllowMessagesFromNonFriends,
+    refreshBlockedUsers: chatSettingsHandler.refreshBlockedUsers,
+  });
+
+  // Initialize effects
+  DashboardHooks.useChatWindowInitEffects({
+    loadNotifications,
+    loadBellFeed: bellNotificationHandler.loadBellFeed,
+  });
+
+  DashboardHooks.useSearchTermEffects({
+    isOpen,
+    showEnterPin: chatSettingsState.showEnterPin,
+    currentUserId: currentUser?.id,
+    setSearchTerm: chatWindowState.setSearchTerm,
+  });
+
+  DashboardHooks.useChatListHydrateEffect({
+    chatList: chatWindowState.chatList,
+    hydrateFromChatList,
+  });
+
+  // Use editMessage from messageActionsHandler
+  const editMessage = messageActionsHandler.editMessage;
 
   const { downloadAttachment } = useAttachmentDownloader(t);
 
   const { handleFileChange, sendMessage, sendGroupMessage, handleTyping, handleGroupTyping } = useMessageComposer({
-    selectedChat,
-    selectedGroup,
-    newMessage,
-    setNewMessage,
-    setMessages,
-    pendingImages,
-    setPendingImages,
-    pendingFiles,
-    setPendingFiles,
+    selectedChat: chatWindowState.selectedChat,
+    selectedGroup: chatWindowState.selectedGroup,
+    newMessage: messageInputState.newMessage,
+    setNewMessage: messageInputState.setNewMessage,
+    setMessages: chatWindowState.setMessages,
+    pendingImages: attachmentState.pendingImages,
+    setPendingImages: attachmentState.setPendingImages,
+    pendingFiles: attachmentState.pendingFiles,
+    setPendingFiles: attachmentState.setPendingFiles,
     scrollToBottom,
-    typingTimeoutRef,
-    typingSentRef,
-    upsertChatListWithMessage,
+    typingTimeoutRef: messageInputState.typingTimeoutRef,
+    typingSentRef: messageInputState.typingSentRef,
+    upsertChatListWithMessage: chatListHandler.upsertChatListWithMessage,
     t,
-    replyingToMessage,
-    clearReply: () => setReplyingToMessage(null),
+    replyingToMessage: messageInputState.replyingToMessage,
+    clearReply: () => messageInputState.setReplyingToMessage(null),
   });
 
   useChatSocket({
     currentUser,
-    selectedChat,
-    selectedGroup,
-    friends,
-    users,
-    searchTerm,
-    onlineIds,
+    selectedChat: chatWindowState.selectedChat,
+    selectedGroup: chatWindowState.selectedGroup,
+    friends: chatWindowState.friends,
+    users: chatWindowState.users,
+    searchTerm: chatWindowState.searchTerm,
+    onlineIds: chatWindowState.onlineIds,
     readStatusEnabled: chatSettingsState.readStatusEnabled,
-    setFriends,
-    setUsers,
-    setSelectedChat,
-    setSelectedGroup,
-    setMessages,
-    setOnlineIds,
-    setGroupTypingUsers,
-    setChatList,
-    setIsPartnerTyping,
+    setFriends: chatWindowState.setFriends,
+    setUsers: chatWindowState.setUsers,
+    setSelectedChat: chatWindowState.setSelectedChat,
+    setSelectedGroup: chatWindowState.setSelectedGroup,
+    setMessages: chatWindowState.setMessages,
+    setOnlineIds: chatWindowState.setOnlineIds,
+    setGroupTypingUsers: messageInputState.setGroupTypingUsers,
+    setChatList: chatWindowState.setChatList,
+    setIsPartnerTyping: messageInputState.setIsPartnerTyping,
     loadFriendRequests,
     loadFriends,
     loadUsers,
     loadChatList,
     loadPendingInvites,
     loadNotifications,
-    upsertChatListWithMessage,
+    upsertChatListWithMessage: chatListHandler.upsertChatListWithMessage,
     scrollToBottom,
-    reloadBellFeed,
+    reloadBellFeed: bellNotificationHandler.reloadBellFeed,
     t,
   });
 
   useReadReceipts({
-    selectedChatId: selectedChat?.id ?? null,
+    selectedChatId: chatWindowState.selectedChat?.id ?? null,
     currentUserId: currentUser?.id,
-    messages,
+    messages: chatWindowState.messages,
     markChatAsRead,
     loadChatList,
-    setMessages,
+    setMessages: chatWindowState.setMessages,
   });
 
   const { startChat, startGroupChat } = useChatOpeners({
     currentUser,
-    friends,
-    users,
-    setSelectedChat,
-    setSelectedGroup,
-    setActiveTab,
+    friends: chatWindowState.friends,
+    users: chatWindowState.users,
+    setSelectedChat: chatWindowState.setSelectedChat,
+    setSelectedGroup: chatWindowState.setSelectedGroup,
+    setActiveTab: chatWindowState.setActiveTab,
     markChatAsRead,
     markGroupAsRead,
     refreshChatList: loadChatList,
-    setChatList,
-    setMenuOpenKey,
-    setMessages,
-    setHistoryLoading,
-    pendingImages,
-    setPendingImages,
-    pendingFiles,
-    setPendingFiles,
+    setChatList: chatWindowState.setChatList,
+    setMenuOpenKey: attachmentState.setMenuOpenKey,
+    setMessages: chatWindowState.setMessages,
+    setHistoryLoading: chatWindowState.setHistoryLoading,
+    pendingImages: attachmentState.pendingImages,
+    setPendingImages: attachmentState.setPendingImages,
+    pendingFiles: attachmentState.pendingFiles,
+    setPendingFiles: attachmentState.setPendingFiles,
     scrollToBottom,
   });
 
   const { handleBellItemClick } = useBellNavigation({
-    friends,
-    users,
-    myGroups,
+    friends: chatWindowState.friends,
+    users: chatWindowState.users,
+    myGroups: chatWindowState.myGroups,
     startChat,
     startGroupChat,
-    setActiveTab,
+    setActiveTab: chatWindowState.setActiveTab,
   });
 
-  const recallGroup = useCallback(async (group: MessageGroup, scope: 'self' | 'all') => {
-    const ids = group.items.map((i) => i.id);
-    try {
-      let ok = false;
-      if (selectedGroup) {
-        const resp = await groupService.recallGroupMessages(selectedGroup.id, ids, scope);
-        ok = !!resp.success;
-      } else if (selectedChat) {
-        const resp = await chatService.recallMessages(ids, scope);
-        ok = !!resp.success;
-      } else {
-        return;
-      }
-      if (ok) {
-        if (scope === 'self') {
-          setMessages((prev) => prev.filter((m) => !ids.includes(m.id)));
-          toast.success(t('chat.success.recallSelf'));
-        } else {
-          setMessages((prev) => prev.map((m) => (ids.includes(m.id) ? { ...m, isDeletedForAll: true } : m)));
-          toast.success(t('chat.success.recallAll'));
-        }
-        setMenuOpenKey(null);
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || t('chat.errors.recall'));
-    }
-  }, [selectedGroup, selectedChat, t]);
+  // Use recallGroup and recallMessage from messageActionsHandler
+  const recallGroup = messageActionsHandler.recallGroup;
+  const recallMessage = messageActionsHandler.recallMessage;
 
-  const recallMessage = useCallback(async (msg: Message, scope: 'self' | 'all') => {
-    try {
-      let ok = false;
-      if (selectedGroup) {
-        const resp = await groupService.recallGroupMessages(selectedGroup.id, [msg.id], scope);
-        ok = !!resp.success;
-      } else if (selectedChat) {
-        const resp = await chatService.recallMessages([msg.id], scope);
-        ok = !!resp.success;
-      } else {
-        return;
-      }
-      if (ok) {
-        if (scope === 'self') {
-          setMessages((prev) => prev.filter((m) => m.id !== msg.id));
-          toast.success(t('chat.success.recallSelf'));
-        } else {
-          setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, isDeletedForAll: true } : m)));
-          setChatList((prev) => prev.map((it) => {
-            const lm = it.lastMessage;
-            if (!lm || lm.id !== msg.id) return it;
-            return { ...it, lastMessage: { ...lm, isDeletedForAll: true } };
-          }));
-          toast.success(t('chat.success.recallAll'));
-        }
-        setMenuOpenKey(null);
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || t('chat.errors.recall'));
-    }
-  }, [selectedGroup, selectedChat, t]);
+  useAutoScroll(chatWindowState.messages, messageInputState.isPartnerTyping, scrollToBottom, chatWindowState.selectedChat?.id, chatWindowState.selectedGroup?.id);
 
-  useAutoScroll(messages, isPartnerTyping, scrollToBottom, selectedChat?.id, selectedGroup?.id);
-
-  usePreviewEscape(previewImage, setPreviewImage);
+  usePreviewEscape(attachmentState.previewImage, attachmentState.setPreviewImage);
 
   // Fallback: when window/tab regains focus, refresh Users + FriendRequests if Users tab is active
-  useVisibilityRefresh(activeTab, searchTerm, loadUsers, loadFriendRequests);
+  useVisibilityRefresh(chatWindowState.activeTab, chatWindowState.searchTerm, loadUsers, loadFriendRequests);
 
   // Typing indicators and group sync extracted
   useTypingAndGroupSync({
-    selectedChatId: selectedChat?.id ?? null,
-    selectedGroup,
-    friends,
-    users,
-    setIsPartnerTyping,
-    setGroupTypingUsers,
-    setMessages,
+    selectedChatId: chatWindowState.selectedChat?.id ?? null,
+    selectedGroup: chatWindowState.selectedGroup,
+    friends: chatWindowState.friends,
+    users: chatWindowState.users,
+    setIsPartnerTyping: messageInputState.setIsPartnerTyping,
+    setGroupTypingUsers: messageInputState.setGroupTypingUsers,
+    setMessages: chatWindowState.setMessages,
   });
 
   // Fetch and keep block status in sync for the selected 1-1 chat
-  useEffect(() => {
-    let mounted = true;
-    setBlockStatus(null);
-    if (!selectedChat) return;
-    (async () => {
-      try {
-        const res = await blockService.getStatus(selectedChat.id);
-        if (mounted) setBlockStatus(res.data);
-      } catch {
-        if (mounted) setBlockStatus(null);
-      }
-    })();
-
-    const socket = getSocket();
-    const refreshIfMatch = (payload: any) => {
-      const userId = Number(payload?.userId);
-      const targetId = Number(payload?.targetId);
-      const me = Number(currentUser?.id);
-      const other = Number(selectedChat?.id);
-      if (!me || !other) return;
-      const involvesPair = (userId === me && targetId === other) || (userId === other && targetId === me);
-      if (involvesPair) {
-        blockService
-          .getStatus(other)
-          .then((res) => setBlockStatus(res.data))
-          .catch(() => {});
-      }
-    };
-    if (socket) {
-      socket.on('user_blocked', refreshIfMatch);
-      socket.on('user_unblocked', refreshIfMatch);
-    }
-    return () => {
-      mounted = false;
-      if (socket) {
-        socket.off('user_blocked', refreshIfMatch);
-        socket.off('user_unblocked', refreshIfMatch);
-      }
-    };
-  }, [selectedChat?.id, currentUser?.id]);
+  DashboardHooks.useBlockStatusEffect({
+    selectedChat: chatWindowState.selectedChat,
+    currentUserId: currentUser?.id,
+    setBlockStatus: blockStatusState.setBlockStatus,
+  });
 
   // Listen for user status changes (banned/unbanned)
-  useEffect(() => {
-    const socket = getSocket();
-    if (!socket) return;
-
-    const handleUserStatusUpdate = (data: { userId: number; isActive: boolean }) => {
-      // Update selectedChat if it matches
-      if (selectedChat && selectedChat.id === data.userId) {
-        setSelectedChat((prev) => prev ? { ...prev, isActive: data.isActive } : null);
-      }
-
-      // Update users list
-      setUsers((prev) => 
-        prev.map((u) => u.id === data.userId ? { ...u, isActive: data.isActive } : u)
-      );
-
-      // Update friends list
-      setFriends((prev) => 
-        prev.map((u) => u.id === data.userId ? { ...u, isActive: data.isActive } : u)
-      );
-
-      // Update chatList
-      setChatList((prev) =>
-        prev.map((chat) =>
-          chat.friend.id === data.userId
-            ? { ...chat, friend: { ...chat.friend, isActive: data.isActive } }
-            : chat
-        )
-      );
-    };
-
-    socket.on('user_status_updated', handleUserStatusUpdate);
-
-    return () => {
-      socket.off('user_status_updated', handleUserStatusUpdate);
-    };
-  }, [selectedChat]);
+  DashboardHooks.useUserStatusUpdateEffect({
+    selectedChat: chatWindowState.selectedChat,
+    setSelectedChat: chatWindowState.setSelectedChat,
+    setUsers: chatWindowState.setUsers,
+    setFriends: chatWindowState.setFriends,
+    setChatList: chatWindowState.setChatList,
+  });
 
   // Friend request actions extracted
   const { sendFriendRequest, acceptFriendRequest, rejectFriendRequest } = useFriendRequestActions({
-    setUsers,
+    setUsers: chatWindowState.setUsers,
     loadFriends,
     loadFriendRequests,
     loadUsers,
-    searchTerm,
+    searchTerm: chatWindowState.searchTerm,
     loadChatList,
     t,
   });
 
-  const handleDeleteMessages = useCallback(async (friendId: number, friendName: string) => {
-    try {
-      const response = await chatService.deleteAllMessages(friendId);
-      if (response.success) {
-        toast.success(t('chat.success.messagesDeletedForMe', { name: friendName }));
-        // Update chat list to remove the last message
-        setChatList((prev) => prev.map((item) => 
-          item.friend.id === friendId 
-            ? { ...item, lastMessage: null, unreadCount: 0 }
-            : item
-        ));
-        // If currently viewing this chat, clear messages
-        if (selectedChat?.id === friendId) {
-          setMessages([]);
-        }
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || t('chat.errors.generic'));
-    }
-  }, [selectedChat?.id, t]);
+  // Use handleDeleteMessages from chatListHandler
+  const handleDeleteMessages = chatListHandler.handleDeleteMessages;
 
-  // Block a user (for non-friends in Users tab)
-  const handleBlockUser = useCallback(async (user: User) => {
-    try {
-      const ok = await confirmWithToast(String(t('chat.confirm.block', { name: user.name, defaultValue: `Bạn có chắc chắn muốn chặn ${user.name}?` } as any)));
-      if (!ok) return;
-      const res = await blockService.block(user.id);
-      if (res?.success) {
-        // Optimistic: loại bỏ khỏi danh sách users hiện tại để không còn gợi ý
-        setUsers((prev) => prev.filter((u) => u.id !== user.id));
-        // Refresh từ backend để đồng bộ theo bộ lọc server (không lưu local theo rule)
-        try { await loadUsers(searchTerm); } catch {}
-        // Lưu ý: toast sự kiện đã được kích hoạt qua socket (useChatSocket) -> tránh toast trùng lặp
-      }
-    } catch (error: any) {
-      // Nếu backend trả lỗi (ví dụ đã chặn), hiển thị thông báo
-      toast.error(error?.response?.data?.message || t('chat.errors.generic'));
-    }
-  }, [confirmWithToast, t, loadUsers, searchTerm]);
+  // Block user handler
+  const blockUserHandler = DashboardHooks.useBlockUserHandler({
+    setUsers: chatWindowState.setUsers,
+    searchTerm: chatWindowState.searchTerm,
+    loadUsers,
+    refreshBlockedUsers: chatSettingsHandler.refreshBlockedUsers,
+    confirmWithToast,
+    t,
+  });
+  const handleBlockUser = blockUserHandler.handleBlockUser;
 
   if (!isOpen) return null;
 
   // Tổng badge: ưu tiên số liệu backend (DM + Group + FR + Invite).
   // Fallback/phản hồi tức thời: nếu backend chưa kịp trả, dùng tổng local (DM + Group + Friend Requests)
-  const frCountLocal = Array.isArray(friendRequests) ? friendRequests.length : 0;
+  const frCountLocal = Array.isArray(chatWindowState.friendRequests) ? chatWindowState.friendRequests.length : 0;
   const bellTotal = Math.max(
-    Number(bellBadgeTotal || 0),
+    Number(bellNotificationState.bellBadgeTotal || 0),
     Number((totalUnread || 0) + (totalGroupUnread || 0) + (frCountLocal || 0))
   );
 
-  // Remove friend function
-  const handleRemoveFriend = useCallback(async (friendshipId: number, friendName: string) => {
-    try {
-      const response = await chatService.removeFriend(friendshipId);
-      if (response.success) {
-        toast.success(t('chat.success.friendRemoved', { name: friendName }));
-        loadFriends();
-        loadChatList();
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || t('chat.errors.generic'));
-    }
-  }, [t, loadFriends, loadChatList]);
+  // Use handleRemoveFriend from chatListHandler
+  const handleRemoveFriend = chatListHandler.handleRemoveFriend;
 
-  // Inline callback handlers - memoized
-  const handleSearchChange = useCallback((value: string) => {
-    setSearchTerm(value);
-    loadUsers(value);
-  }, [loadUsers]);
+  // Search and notification handler
+  const searchAndNotificationHandler = DashboardHooks.useSearchAndNotificationHandler({
+    setSearchTerm: chatWindowState.setSearchTerm,
+    loadUsers,
+    markAllRead,
+    loadNotifications,
+    loadPendingInvites,
+    loadBellFeed: bellNotificationHandler.loadBellFeed,
+  });
+  const handleSearchChange = searchAndNotificationHandler.handleSearchChange;
+  const handleClearAll = searchAndNotificationHandler.handleClearAll;
 
-  const handleClearAll = useCallback(async () => {
-    try {
-      await markAllRead();
-      await notificationService.markAllRead();
-      try { await loadNotifications(); } catch {}
-      try { await loadPendingInvites(); } catch {}
-      try { await loadBellFeed(1); } catch {}
-    } catch {}
-  }, [markAllRead, loadNotifications, loadPendingInvites, loadBellFeed]);
+  // Chat window callbacks handler
+  const chatWindowCallbacksHandler = DashboardHooks.useChatWindowCallbacksHandler({
+    selectedChat: chatWindowState.selectedChat,
+    selectedGroup: chatWindowState.selectedGroup,
+    setSelectedChat: chatWindowState.setSelectedChat,
+    setSelectedGroup: chatWindowState.setSelectedGroup,
+    setActiveTab: chatWindowState.setActiveTab,
+    setReplyingToMessage: messageInputState.setReplyingToMessage,
+    setShowGroupEditor: groupModalsState.setShowGroupEditor,
+    setShowRemoveMembers: groupModalsState.setShowRemoveMembers,
+    setPreviewImage: attachmentState.setPreviewImage,
+    setPendingImages: attachmentState.setPendingImages,
+    setPendingFiles: attachmentState.setPendingFiles,
+    typingSentRef: messageInputState.typingSentRef,
+    chatSettingsState,
+    chatBackgroundHandler,
+  });
 
-  const handleBackToChats = useCallback(() => {
-    setSelectedChat(null);
-    setActiveTab('chats');
-  }, []);
+  // Group actions handler
+  const groupActionsHandler = DashboardHooks.useGroupActionsHandler({
+    selectedGroup: chatWindowState.selectedGroup,
+    setSelectedGroup: chatWindowState.setSelectedGroup,
+    setMessages: chatWindowState.setMessages,
+    setShowRemoveMembers: groupModalsState.setShowRemoveMembers,
+    confirmWithToast,
+    t,
+  });
 
-  const handleBackToGroups = useCallback(() => {
-    const gid = selectedGroup?.id;
-    setSelectedGroup(null);
-    setActiveTab('groups');
-    if (typeof window !== 'undefined' && gid) {
-      setTimeout(() => {
-        try { window.dispatchEvent(new CustomEvent('group_marked_read', { detail: { groupId: gid } })); } catch {}
-      }, 60);
-    }
-  }, [selectedGroup?.id]);
-
-  const handleUnlock = useCallback(() => chatSettingsState.setShowEnterPin(true), [chatSettingsState]);
-  const handleSetReplyingToMessage = useCallback((m: any) => setReplyingToMessage(m), []);
-  const handleClearReply = useCallback(() => setReplyingToMessage(null), []);
-  const handleCloseGroupEditor = useCallback(() => setShowGroupEditor(false), []);
-  const handleCloseRemoveMembers = useCallback(() => setShowRemoveMembers(false), []);
-  const handlePreviewImage = useCallback((url: string | null) => setPreviewImage(url), []);
-  const handleClosePreview = useCallback(() => setPreviewImage(null), []);
-  const handleRemoveImage = useCallback((id: string) => setPendingImages((prev) => prev.filter((p) => p.id !== id)), []);
-  const handleRemoveFile = useCallback((id: string) => setPendingFiles((prev) => prev.filter((p) => p.id !== id)), []);
-
-  const handleTypingStop = useCallback(() => {
-    const socket = getSocket();
-    if (socket && selectedChat) {
-      socket.emit('typing_stop', { receiverId: selectedChat.id });
-      typingSentRef.current = false;
-    }
-  }, [selectedChat]);
-
-  const handleGroupTypingStop = useCallback(() => {
-    const socket = getSocket();
-    if (socket && selectedGroup) {
-      socket.emit('group_typing', { groupId: selectedGroup.id, isTyping: false });
-      typingSentRef.current = false;
-    }
-  }, [selectedGroup]);
-
-  const handleChangeBackground = useCallback(async () => {
-    if (!selectedChat) return;
-    await chatBackgroundHandler.changeBackground(selectedChat.id);
-  }, [selectedChat, chatBackgroundHandler]);
-
-  const handleChangeBackgroundForBoth = useCallback(async () => {
-    if (!selectedChat) return;
-    await chatBackgroundHandler.changeBackgroundForBoth(selectedChat.id);
-  }, [selectedChat, chatBackgroundHandler]);
-
-  const handleResetBackground = useCallback(async () => {
-    if (!selectedChat) return;
-    await chatBackgroundHandler.resetBackground(selectedChat.id);
-  }, [selectedChat, chatBackgroundHandler]);
-
-  const handleUpdateRecipientStatus = useCallback((isActive: boolean) => {
-    if (selectedChat) {
-      setSelectedChat((prev) => prev ? { ...prev, isActive } : null);
-    }
-  }, [selectedChat]);
-
-  const handleGroupEditorSuccess = useCallback((g: GroupSummary) => {
-    setSelectedGroup((prev) => (prev && prev.id === g.id ? g : prev));
-  }, []);
-
-  const handleRemoveMembersConfirm = useCallback(async (memberIds: number[]) => {
-    if (!selectedGroup) return;
-    try {
-      const res = await groupService.removeMembers(selectedGroup.id, memberIds);
-      if (res.success) {
-        toast.success(t('chat.groups.success.removed'));
-        setShowRemoveMembers(false);
-        setSelectedGroup((prev) => prev ? { ...prev, members: prev.members.filter((id) => !memberIds.includes(id)) } : prev);
-      }
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || t('chat.groups.errors.removeFailed'));
-    }
-  }, [selectedGroup, t]);
-
-  const handleLeaveGroup = useCallback(async () => {
-    if (!selectedGroup) return;
-    const ok = await confirmWithToast(String(t('chat.groups.confirm.leave')));
-    if (!ok) return;
-    try {
-      const res = await groupService.leaveGroup(selectedGroup.id);
-      if (res.success) {
-        toast.success(t('chat.groups.success.left'));
-        setSelectedGroup(null);
-        setMessages([]);
-      }
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || t('chat.errors.generic'));
-    }
-  }, [selectedGroup, confirmWithToast, t]);
-
-  const handleDeleteGroup = useCallback(async () => {
-    if (!selectedGroup) return;
-    const ok = await confirmWithToast(String(t('chat.groups.confirm.delete')));
-    if (!ok) return;
-    try {
-      const res = await groupService.deleteGroup(selectedGroup.id);
-      if (res.success) {
-        setSelectedGroup(null);
-        setMessages([]);
-      }
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || t('chat.groups.errors.deleteFailed'));
-    }
-  }, [selectedGroup, confirmWithToast, t]);
-
-  const handleEditGroup = useCallback(() => setShowGroupEditor(true), []);
-  const handleRemoveMembersOpen = useCallback(() => setShowRemoveMembers(true), []);
-
-  const handleSetPinClose = useCallback(() => chatSettingsState.setShowSetPin(false), [chatSettingsState]);
-  const handleEnterPinClose = useCallback(() => chatSettingsState.setShowEnterPin(false), [chatSettingsState]);
-  const handleEnterPinUnlock = useCallback(() => {
-    chatSettingsState.setE2EEUnlocked(true);
-    sessionStorage.setItem('e2ee_unlocked', '1');
-    chatSettingsState.setShowEnterPin(false);
-  }, [chatSettingsState]);
 
   return (
     <div
@@ -774,17 +400,17 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
         ring={ring}
         ringSeq={ringSeq}
         notificationItems={bellNotificationItems}
-        notificationPagination={bellPagination}
-        notificationLoading={bellLoading}
-        searchTerm={searchTerm}
-        activeTab={activeTab}
+        notificationPagination={bellNotificationState.bellPagination}
+        notificationLoading={bellNotificationState.bellLoading}
+        searchTerm={chatWindowState.searchTerm}
+        activeTab={chatWindowState.activeTab}
         onClose={onClose}
         onItemClick={handleBellItemClick}
-        onItemDismissed={handleBellItemDismiss}
+        onItemDismissed={(id) => bellNotificationHandler.handleBellItemDismiss(id, bellNotificationHandler.loadBellFeed)}
         onLoadMoreNotifications={handleLoadMoreNotifications}
         onClearAll={handleClearAll}
         onSearchChange={handleSearchChange}
-        onTabChange={setActiveTab}
+        onTabChange={chatWindowState.setActiveTab}
         onOpenSettings={chatSettingsHandler.openSettings}
         showSettings={chatSettingsState.showSettings}
       />
@@ -811,9 +437,9 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
           />
         ) : (
           <>
-        {activeTab === 'users' && (
+        {chatWindowState.activeTab === 'users' && (
           <UsersList
-            friendRequests={friendRequests}
+            friendRequests={chatWindowState.friendRequests}
             filteredUsers={filteredUsers}
             onAcceptFriendRequest={acceptFriendRequest}
             onRejectFriendRequest={rejectFriendRequest}
@@ -823,54 +449,54 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
           />
         )}
 
-        {activeTab === 'chats' && (
+        {chatWindowState.activeTab === 'chats' && (
           <div className="h-full flex flex-col">
-            {selectedChat ? (
+            {chatWindowState.selectedChat ? (
               <>
                 <ChatView
-                  selectedChat={selectedChat}
-                  messages={messages}
+                  selectedChat={chatWindowState.selectedChat}
+                  messages={chatWindowState.messages}
                   groupedMessages={groupedMessages}
-                  isPartnerTyping={isPartnerTyping}
-                  menuOpenKey={menuOpenKey}
+                  isPartnerTyping={messageInputState.isPartnerTyping}
+                  menuOpenKey={attachmentState.menuOpenKey}
                   currentUserId={currentUser?.id}
-                  initialAlias={(chatList.find((c) => c.friend.id === selectedChat.id) as any)?.nickname ?? null}
-                  onBack={handleBackToChats}
-                  onMenuToggle={setMenuOpenKey}
+                  initialAlias={(chatWindowState.chatList.find((c) => c.friend.id === chatWindowState.selectedChat!.id) as any)?.nickname ?? null}
+                  onBack={chatWindowCallbacksHandler.handleBackToChats}
+                  onMenuToggle={attachmentState.setMenuOpenKey}
                   onRecallMessage={recallMessage}
                   onRecallGroup={recallGroup}
                   onEditMessage={editMessage}
                   onDownloadAttachment={downloadAttachment}
-                  onPreviewImage={handlePreviewImage}
-                  initialLoading={historyLoading}
-                  onPrependMessages={handlePrependMessages}
-                  onRemoveMessages={handleRemoveMessages}
+                  onPreviewImage={chatWindowCallbacksHandler.handlePreviewImage}
+                  initialLoading={chatWindowState.historyLoading}
+                  onPrependMessages={messageActionsHandler.handlePrependMessages}
+                  onRemoveMessages={messageActionsHandler.handleRemoveMessages}
                   maskMessages={chatSettingsState.e2eeEnabled && !chatSettingsState.e2eeUnlocked}
                   lockedNotice={t('chat.encryption.chatLocked')}
-                  onUnlock={handleUnlock}
+                  onUnlock={chatWindowCallbacksHandler.handleUnlock}
                   backgroundUrl={chatBackgroundState.chatBackgroundUrl}
-                  onChangeBackground={handleChangeBackground}
-                  onChangeBackgroundForBoth={handleChangeBackgroundForBoth}
-                  onResetBackground={handleResetBackground}
-                  blocked={blockStatus ? !!blockStatus.isEitherBlocked : true}
-                  onReplyRequested={handleSetReplyingToMessage}
-                  onUpdateRecipientStatus={handleUpdateRecipientStatus}
+                  onChangeBackground={chatWindowCallbacksHandler.handleChangeBackground}
+                  onChangeBackgroundForBoth={chatWindowCallbacksHandler.handleChangeBackgroundForBoth}
+                  onResetBackground={chatWindowCallbacksHandler.handleResetBackground}
+                  blocked={blockStatusState.blockStatus ? !!blockStatusState.blockStatus.isEitherBlocked : true}
+                  onReplyRequested={chatWindowCallbacksHandler.handleSetReplyingToMessage}
+                  onUpdateRecipientStatus={chatWindowCallbacksHandler.handleUpdateRecipientStatus}
                 />
-                {!(blockStatus?.isEitherBlocked) ? (
+                {!(blockStatusState.blockStatus?.isEitherBlocked) ? (
                   <MessageInput
-                    newMessage={newMessage}
-                    pendingImages={pendingImages}
-                    pendingFiles={pendingFiles}
-                    onMessageChange={setNewMessage}
+                    newMessage={messageInputState.newMessage}
+                    pendingImages={attachmentState.pendingImages}
+                    pendingFiles={attachmentState.pendingFiles}
+                    onMessageChange={messageInputState.setNewMessage}
                     onSendMessage={sendMessage}
                     onFileChange={handleFileChange}
-                    onRemoveImage={handleRemoveImage}
-                    onRemoveFile={handleRemoveFile}
+                    onRemoveImage={chatWindowCallbacksHandler.handleRemoveImage}
+                    onRemoveFile={chatWindowCallbacksHandler.handleRemoveFile}
                     onTyping={handleTyping}
-                    onTypingStop={handleTypingStop}
-                    replyingToMessage={replyingToMessage as any}
-                    onClearReply={handleClearReply}
-                    recipientIsActive={selectedChat?.isActive !== false}
+                    onTypingStop={chatWindowCallbacksHandler.handleTypingStop}
+                    replyingToMessage={messageInputState.replyingToMessage as any}
+                    onClearReply={chatWindowCallbacksHandler.handleClearReply}
+                    recipientIsActive={chatWindowState.selectedChat?.isActive !== false}
                   />
                 ) : (
                   <div className="p-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
@@ -880,14 +506,15 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
               </>
             ) : (
               <ChatList
-                chatList={chatList}
-                friends={friends}
+                chatList={chatWindowState.chatList}
+                friends={chatWindowState.friends}
                 unreadMap={unreadMap}
                 currentUserId={currentUser?.id}
                 onStartChat={startChat}
                 onRemoveFriend={handleRemoveFriend}
                 onDeleteMessages={handleDeleteMessages}
                 onRefreshChatList={loadChatList}
+                onRefreshBlockedUsers={chatSettingsHandler.refreshBlockedUsers}
                 e2eeEnabled={chatSettingsState.e2eeEnabled}
                 e2eeUnlocked={chatSettingsState.e2eeUnlocked}
                 lockedPlaceholder={t('chat.encryption.previewLocked')}
@@ -896,85 +523,86 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
           </div>
         )}
 
-        {activeTab === 'unread' && (
+        {chatWindowState.activeTab === 'unread' && (
           <div className="h-full flex flex-col">
             <ChatList
               chatList={unreadChats}
-              friends={friends}
+              friends={chatWindowState.friends}
               unreadMap={unreadMap}
               currentUserId={currentUser?.id}
               onStartChat={startChat}
               onRemoveFriend={handleRemoveFriend}
               onDeleteMessages={handleDeleteMessages}
               onRefreshChatList={loadChatList}
+              onRefreshBlockedUsers={chatSettingsHandler.refreshBlockedUsers}
               e2eeEnabled={chatSettingsState.e2eeEnabled}
               e2eeUnlocked={chatSettingsState.e2eeUnlocked}
-              lockedPlaceholder={"\uD83D\uDD12 Encrypted — unlock to preview"}
+              lockedPlaceholder="🔒 Encrypted — unlock to preview"
             />
           </div>
         )}
 
-        {activeTab === 'groups' && (
+        {chatWindowState.activeTab === 'groups' && (
           <div className="h-full flex flex-col">
-            {selectedGroup ? (
+            {chatWindowState.selectedGroup ? (
               <>
                 <ChatView
-                  selectedChat={selectedGroup as any}
-                  messages={messages}
+                  selectedChat={chatWindowState.selectedGroup as any}
+                  messages={chatWindowState.messages}
                   groupedMessages={groupedMessages}
                   isPartnerTyping={false}
-                  typingUsers={groupTypingUsers}
-                  menuOpenKey={menuOpenKey}
+                  typingUsers={messageInputState.groupTypingUsers}
+                  menuOpenKey={attachmentState.menuOpenKey}
                   currentUserId={currentUser?.id}
-                  onBack={handleBackToGroups}
-                  onMenuToggle={setMenuOpenKey}
+                  onBack={chatWindowCallbacksHandler.handleBackToGroups}
+                  onMenuToggle={attachmentState.setMenuOpenKey}
                   onRecallMessage={recallMessage}
                   onRecallGroup={recallGroup}
                   onEditMessage={editMessage}
                   onDownloadAttachment={downloadAttachment}
-                  onPreviewImage={handlePreviewImage}
-                  initialLoading={historyLoading}
-                  onPrependMessages={handlePrependMessages}
-                  onRemoveMessages={handleRemoveMessages}
+                  onPreviewImage={chatWindowCallbacksHandler.handlePreviewImage}
+                  initialLoading={chatWindowState.historyLoading}
+                  onPrependMessages={messageActionsHandler.handlePrependMessages}
+                  onRemoveMessages={messageActionsHandler.handleRemoveMessages}
                   isGroup
                   groupOnline={isSelectedGroupOnline}
-                  isGroupOwner={!!currentUser && currentUser.id === selectedGroup.ownerId}
-                  onEditGroup={handleEditGroup}
-                  onRemoveMembers={handleRemoveMembersOpen}
-                  onLeaveGroup={handleLeaveGroup}
-                  onDeleteGroup={handleDeleteGroup}
+                  isGroupOwner={!!currentUser && currentUser.id === chatWindowState.selectedGroup.ownerId}
+                  onEditGroup={chatWindowCallbacksHandler.handleEditGroup}
+                  onRemoveMembers={chatWindowCallbacksHandler.handleRemoveMembersOpen}
+                  onLeaveGroup={groupActionsHandler.handleLeaveGroup}
+                  onDeleteGroup={groupActionsHandler.handleDeleteGroup}
                   maskMessages={chatSettingsState.e2eeEnabled && !chatSettingsState.e2eeUnlocked}
                   lockedNotice={t('chat.encryption.groupLocked')}
-                  onUnlock={handleUnlock}
-                  onReplyRequested={handleSetReplyingToMessage}
+                  onUnlock={chatWindowCallbacksHandler.handleUnlock}
+                  onReplyRequested={chatWindowCallbacksHandler.handleSetReplyingToMessage}
                 />
                 <RemoveMembersModal
-                  isOpen={showRemoveMembers}
-                  onClose={handleCloseRemoveMembers}
+                  isOpen={groupModalsState.showRemoveMembers}
+                  onClose={chatWindowCallbacksHandler.handleCloseRemoveMembers}
                   members={removableMembers}
-                  onConfirm={handleRemoveMembersConfirm}
+                  onConfirm={groupActionsHandler.handleRemoveMembersConfirm}
                 />
                 {(() => {
-                  const isOwner = !!currentUser && selectedGroup.ownerId === currentUser.id;
-                  const myRole = (selectedGroup as any)?.myRole as ('member'|'admin'|'owner'|undefined);
+                  const isOwner = !!currentUser && chatWindowState.selectedGroup!.ownerId === currentUser.id;
+                  const myRole = (chatWindowState.selectedGroup as any)?.myRole as ('member'|'admin'|'owner'|undefined);
                   const isAdmin = myRole === 'admin' || myRole === 'owner' || isOwner;
-                  const adminsOnly = !!(selectedGroup as any)?.adminsOnly;
+                  const adminsOnly = !!(chatWindowState.selectedGroup as any)?.adminsOnly;
                   const canSendGroup = !adminsOnly || isAdmin;
                   if (canSendGroup) {
                     return (
                       <MessageInput
-                        newMessage={newMessage}
-                        pendingImages={pendingImages}
-                        pendingFiles={pendingFiles}
-                        onMessageChange={setNewMessage}
+                        newMessage={messageInputState.newMessage}
+                        pendingImages={attachmentState.pendingImages}
+                        pendingFiles={attachmentState.pendingFiles}
+                        onMessageChange={messageInputState.setNewMessage}
                         onSendMessage={sendGroupMessage}
                         onFileChange={handleFileChange}
-                        onRemoveImage={handleRemoveImage}
-                        onRemoveFile={handleRemoveFile}
+                        onRemoveImage={chatWindowCallbacksHandler.handleRemoveImage}
+                        onRemoveFile={chatWindowCallbacksHandler.handleRemoveFile}
                         onTyping={handleGroupTyping}
-                        onTypingStop={handleGroupTypingStop}
-                        replyingToMessage={replyingToMessage as any}
-                        onClearReply={handleClearReply}
+                        onTypingStop={chatWindowCallbacksHandler.handleGroupTypingStop}
+                        replyingToMessage={messageInputState.replyingToMessage as any}
+                        onClearReply={chatWindowCallbacksHandler.handleClearReply}
                       />
                     );
                   }
@@ -991,9 +619,9 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
           </div>
         )}
 
-        {activeTab === 'sharedNotes' && (
+        {chatWindowState.activeTab === 'sharedNotes' && (
           <SharedNotesTab 
-            searchTerm={searchTerm}
+            searchTerm={chatWindowState.searchTerm}
             currentUserId={currentUser?.id}
           />
         )}
@@ -1003,29 +631,29 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
 
       {/* Group Editor Modal */}
       <GroupEditorModal
-        isOpen={showGroupEditor}
+        isOpen={groupModalsState.showGroupEditor}
         mode="edit"
-        initial={selectedGroup || undefined}
-        onClose={handleCloseGroupEditor}
-        onSuccess={handleGroupEditorSuccess}
+        initial={chatWindowState.selectedGroup || undefined}
+        onClose={chatWindowCallbacksHandler.handleCloseGroupEditor}
+        onSuccess={groupActionsHandler.handleGroupEditorSuccess}
       />
 
       <ImagePreview
-        previewImage={previewImage}
-        onClose={handleClosePreview}
+        previewImage={attachmentState.previewImage}
+        onClose={chatWindowCallbacksHandler.handleClosePreview}
       />
 
       {/* E2EE PIN modals */}
       <SetPinModal
         isOpen={chatSettingsState.showSetPin}
-        onClose={handleSetPinClose}
+        onClose={chatWindowCallbacksHandler.handleSetPinClose}
         hasExisting={!!chatSettingsState.e2eePinHash}
         onSet={chatSettingsHandler.handleSetPin}
       />
       <EnterPinModal
         isOpen={chatSettingsState.showEnterPin}
-        onClose={handleEnterPinClose}
-        onUnlock={handleEnterPinUnlock}
+        onClose={chatWindowCallbacksHandler.handleEnterPinClose}
+        onUnlock={chatWindowCallbacksHandler.handleEnterPinUnlock}
         expectedHash={chatSettingsState.e2eePinHash}
       />
     </div>

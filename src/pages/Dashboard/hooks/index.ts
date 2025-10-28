@@ -14,6 +14,12 @@ export * from './Manager-useState/useChatBackgroundState';
 export * from './Manager-useState/useChatSettingsStateOnly';
 export * from './Manager-useState/useGroupedMessagesState';
 export * from './Manager-useState/useTagsViewState';
+export * from './Manager-useState/useChatWindowState';
+export * from './Manager-useState/useMessageInputState';
+export * from './Manager-useState/useAttachmentState';
+export * from './Manager-useState/useGroupModalsState';
+export * from './Manager-useState/useBlockStatusState';
+export * from './Manager-useState/useBellNotificationState';
 
 // Export handler hooks
 export * from './Manager-handle/useDashboardHandlers';
@@ -42,6 +48,14 @@ export * from './Manager-handle/useChatDataHandler';
 export * from './Manager-handle/useChatSettingsHandler';
 export * from './Manager-handle/useDashboardModalsHandler';
 export * from './Manager-handle/useDashboardPinHandler';
+export * from './Manager-handle/useBellNotificationHandler';
+export * from './Manager-handle/useMessageActionsHandler';
+export * from './Manager-handle/useChatListHandler';
+export * from './Manager-handle/useGroupActionsHandler';
+export * from './Manager-handle/useBlockUserHandler';
+export * from './Manager-handle/useChatWindowCallbacksHandler';
+export * from './Manager-handle/useSearchAndNotificationHandler';
+export { useMessageNotificationsHandler } from './Manager-handle/useMessageNotificationsHandler';
 
 // Export effects hooks
 export * from './Manager-Effects/useReminderEffects';
@@ -65,5 +79,10 @@ export * from './Manager-Effects/useViewModeEffects';
 export * from './Manager-Effects/useChatBackgroundEffects';
 export * from './Manager-Effects/useChatDataEffects';
 export * from './Manager-Effects/useChatSettingsEffects';
+export * from './Manager-Effects/useChatWindowInitEffects';
+export * from './Manager-Effects/useSearchTermEffects';
+export * from './Manager-Effects/useChatListHydrateEffect';
+export * from './Manager-Effects/useBlockStatusEffect';
+export * from './Manager-Effects/useUserStatusUpdateEffect';
 
 // Export other hooks (keep existing ones that are still needed)

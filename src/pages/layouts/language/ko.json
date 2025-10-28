@@ -13,6 +13,7 @@
     "chat": "채팅",
     "changePassword": "비밀번호 변경",
     "devices": "로그인된 기기",
+    "logout": "로그아웃",
     "deleteAccount": "계정 삭제",
     "deleteConfirm": "계정을 삭제하시겠습니까?",
     "deleteMessage": "이 작업은 되돌릴 수 없습니다. 모든 데이터가 삭제되며 모든 기기에서 로그아웃됩니다.",
@@ -28,6 +29,7 @@
   "devices": {
     "title": "로그인된 기기",
     "subtitle": "기기 및 로그인 세션 관리",
+    "current": "현재",
     "lastActive": "마지막 활동",
     "justNow": "방금",
     "minutesAgo": "{{count}}분 전",
@@ -57,6 +59,16 @@
     "dark": "어둡게",
     "darkBlack": "다크 블랙",
     "selectTheme": "테마 선택"
+  },
+  "animatedBackground": {
+    "title": "애니메이션 배경",
+    "none": "없음",
+    "christmas": "크리스마스",
+    "tet": "설날",
+    "easter": "부활절",
+    "updated": "애니메이션 배경이 업데이트되었습니다",
+    "updateFailed": "애니메이션 배경 업데이트 실패",
+    "disabled": "애니메이션 배경 테마를 선택하려면 켜세요"
   },
   "footer": {
     "copyright": "모든 권리 보유",

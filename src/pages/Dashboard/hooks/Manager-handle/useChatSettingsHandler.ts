@@ -18,6 +18,8 @@ interface UseChatSettingsHandlerProps {
   setBlockedUsers: (v: Array<{ id: number; name: string; email?: string; avatar?: string | null }>) => void;
   e2eeEnabled: boolean;
   t: TFunction<'dashboard'>;
+  onRefreshFriends?: () => Promise<void>;
+  onRefreshUsers?: (search?: string) => Promise<void>;
 }
 
 export const useChatSettingsHandler = ({
@@ -33,6 +35,8 @@ export const useChatSettingsHandler = ({
   setBlockedUsers,
   e2eeEnabled,
   t,
+  onRefreshFriends,
+  onRefreshUsers,
 }: UseChatSettingsHandlerProps) => {
   const openSettings = useCallback(() => setShowSettings(true), [setShowSettings]);
   const closeSettings = useCallback(() => setShowSettings(false), [setShowSettings]);
@@ -69,11 +73,18 @@ export const useChatSettingsHandler = ({
     try {
       await blockService.unblock(userId);
       await refreshBlockedUsers();
+      // Refresh friends and users list to sync with backend
+      if (onRefreshFriends) {
+        await onRefreshFriends();
+      }
+      if (onRefreshUsers) {
+        await onRefreshUsers();
+      }
       toast.success(t('chat.notifications.youUnblocked', { name: '', defaultValue: 'Unblocked user' }));
     } catch (error: any) {
       toast.error(error?.response?.data?.message || t('chat.errors.generic'));
     }
-  }, [refreshBlockedUsers, t]);
+  }, [refreshBlockedUsers, t, onRefreshFriends, onRefreshUsers]);
 
   const handleToggleAllowMessagesFromNonFriends = useCallback(async (enabled: boolean) => {
     try {

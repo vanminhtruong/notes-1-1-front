@@ -12,6 +12,7 @@ import '@/libs/i18n'
 import { unlockAudioOnce } from '@/utils/notificationSound'
 import { CallProvider, GlobalCallUI } from '@/contexts/CallContext'
 import { getCachedUser } from '@pages/Dashboard/components/interface/chatWindowImports'
+import AnimatedBackground from '@/components/AnimatedBackground'
 
 // Prepare audio unlock on first user interaction (autoplay policy)
 unlockAudioOnce()
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
     <ThemeProvider>
       <Provider store={store}>
         <CallProvider currentUserId={currentUser?.id ?? null}>
+          <AnimatedBackground />
           <RouterProvider router={router} />
           <ThemedToaster />
           <GlobalCallUI />

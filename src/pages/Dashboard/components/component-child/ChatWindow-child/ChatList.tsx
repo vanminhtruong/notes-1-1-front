@@ -1,6 +1,6 @@
 import React from 'react';
 import { MessageCircle, MoreVertical, UserX, Trash2, Ban, Pin, PinOff } from 'lucide-react';
-import { useState, memo } from 'react';
+import { useState, memo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { formatPreviewText, formatPreviewTime } from '../../../../../utils/utils';
@@ -10,7 +10,7 @@ import type { User, Message } from '../../interface/ChatTypes.interface';
 import { blockService, type BlockStatus } from '@/services/blockService';
 import { pinService } from '@/services/pinService';
 import LazyLoad from '@/components/LazyLoad';
-const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
+const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, onRefreshBlockedUsers, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
   const { t } = useTranslation('dashboard');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
@@ -18,6 +18,24 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
   const [loadingBlockFor, setLoadingBlockFor] = useState<number | null>(null);
   const [pinStatusMap, setPinStatusMap] = useState<Record<number, boolean>>({});
   const [loadingPinFor, setLoadingPinFor] = useState<number | null>(null);
+
+  // Fetch block status for all friends in chatList on mount
+  useEffect(() => {
+    const fetchBlockStatuses = async () => {
+      for (const item of chatList) {
+        const friendId = item.friend.id;
+        if (!blockStatusMap[friendId]) {
+          try {
+            const res = await blockService.getStatus(friendId);
+            setBlockStatusMap((prev) => ({ ...prev, [friendId]: res.data }));
+          } catch (e) {
+            // Silent fail
+          }
+        }
+      }
+    };
+    fetchBlockStatuses();
+  }, [chatList]);
 
   const fetchBlockStatus = async (userId: number) => {
     try {
@@ -60,7 +78,20 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
   const handleBlock = async (userId: number) => {
     try {
       await blockService.block(userId);
-      setBlockStatusMap((prev) => ({ ...prev, [userId]: { blockedByMe: true, blockedMe: prev[userId]?.blockedMe ?? false, isEitherBlocked: true, blockId: prev[userId]?.blockId ?? null } }));
+      setBlockStatusMap((prev) => ({ 
+        ...prev, 
+        [userId]: { 
+          blockedByMe: true, 
+          blockedMe: prev[userId]?.blockedMe ?? false, 
+          isEitherBlocked: true, 
+          blockId: prev[userId]?.blockId ?? null 
+        } 
+      }));
+      // Refresh blocked users list
+      if (onRefreshBlockedUsers) {
+        await onRefreshBlockedUsers();
+      }
+      toast.success(t('chat.success.blocked', 'User blocked successfully'));
     } catch (e: any) {
       toast.error(e?.response?.data?.message || t('chat.errors.block', 'Failed to block user'));
     } finally {
@@ -71,7 +102,20 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
   const handleUnblock = async (userId: number) => {
     try {
       await blockService.unblock(userId);
-      setBlockStatusMap((prev) => ({ ...prev, [userId]: { blockedByMe: false, blockedMe: prev[userId]?.blockedMe ?? false, isEitherBlocked: !!(prev[userId]?.blockedMe), blockId: null } }));
+      setBlockStatusMap((prev) => ({ 
+        ...prev, 
+        [userId]: { 
+          blockedByMe: false, 
+          blockedMe: prev[userId]?.blockedMe ?? false, 
+          isEitherBlocked: !!(prev[userId]?.blockedMe), 
+          blockId: null 
+        } 
+      }));
+      // Refresh blocked users list
+      if (onRefreshBlockedUsers) {
+        await onRefreshBlockedUsers();
+      }
+      toast.success(t('chat.success.unblocked', 'User unblocked successfully'));
     } catch (e: any) {
       toast.error(e?.response?.data?.message || t('chat.errors.unblock', 'Failed to unblock user'));
     } finally {
@@ -176,8 +220,13 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                     (displayName || '').charAt(0)
                   )}
                 </div>
-                {online && (
+                {online && !blockStatusMap[friend.id]?.blockedByMe && (
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
+                )}
+                {blockStatusMap[friend.id]?.blockedByMe && (
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white dark:border-gray-900 flex items-center justify-center">
+                    <Ban className="w-3 h-3 text-white" />
+                  </div>
                 )}
                 {count > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[11px] leading-[18px] text-center shadow">
