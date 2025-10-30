@@ -8,8 +8,9 @@ import MediumWithTurret from './houses/MediumWithTurret';
 import FarRightWideManor from './houses/FarRightWideManor';
 import ExtraFarRightCottage from './houses/ExtraFarRightCottage';
 import RightmostTiny from './houses/RightmostTiny';
+import { memo } from 'react';
 
-const HousesCluster = () => (
+const HousesCluster = memo(() => (
   <div className="absolute left-0 right-0" style={{ zIndex: 6, height: 220, bottom: '80px' }}>
     <svg width="100%" height="100%" viewBox="0 0 1400 220" preserveAspectRatio="none">
       <HousesDefs />
@@ -24,6 +25,8 @@ const HousesCluster = () => (
       <RightmostTiny />
     </svg>
   </div>
-);
+));
+
+HousesCluster.displayName = 'HousesCluster';
 
 export default HousesCluster;

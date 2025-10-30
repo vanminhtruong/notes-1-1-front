@@ -1,4 +1,6 @@
-const GlobalHalloweenAnimations = () => (
+import { memo } from 'react';
+
+const GlobalHalloweenAnimations = memo(() => (
   <style>
     {`
           @keyframes fogMoveSlow { 0% { transform: translateX(0); } 100% { transform: translateX(-20%); } }
@@ -62,6 +64,8 @@ const GlobalHalloweenAnimations = () => (
           @keyframes eyeGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
         `}
   </style>
-);
+));
+
+GlobalHalloweenAnimations.displayName = 'GlobalHalloweenAnimations';
 
 export default GlobalHalloweenAnimations;

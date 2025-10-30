@@ -1,4 +1,6 @@
-const FenceLayer = () => (
+import { memo } from 'react';
+
+const FenceLayer = memo(() => (
   <div className="absolute left-0 right-0" style={{ zIndex: 8, height: 220, bottom: '80px' }}>
     <svg width="100%" height="100%" viewBox="0 0 1400 220" preserveAspectRatio="none">
       <g fill="#0a0a0a" stroke="#0d0d0d" strokeWidth="0.5">
@@ -13,6 +15,8 @@ const FenceLayer = () => (
       </g>
     </svg>
   </div>
-);
+));
+
+FenceLayer.displayName = 'FenceLayer';
 
 export default FenceLayer;

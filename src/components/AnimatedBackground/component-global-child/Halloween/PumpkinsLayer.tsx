@@ -1,4 +1,6 @@
-const PumpkinsLayer = () => (
+import { memo } from 'react';
+
+const PumpkinsLayer = memo(() => (
   <div className="absolute left-0 right-0" style={{ zIndex: 7, height: 160, bottom: '60px' }}>
     <svg width="100%" height="100%" viewBox="0 0 1200 160" preserveAspectRatio="none">
       <defs>
@@ -126,6 +128,8 @@ const PumpkinsLayer = () => (
       </g>
     </svg>
   </div>
-);
+));
+
+PumpkinsLayer.displayName = 'PumpkinsLayer';
 
 export default PumpkinsLayer;

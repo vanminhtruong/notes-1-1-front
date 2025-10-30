@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, memo } from 'react';
 import Particles from '@tsparticles/react';
 import type { Container } from '@tsparticles/engine';
 import { ensureParticlesEngine } from '../../utils/particlesEngine';
 
-const EasterBackground = () => {
+const EasterBackground = memo(() => {
   const [init, setInit] = useState(false);
 
   useEffect(() => {
@@ -143,6 +143,8 @@ const EasterBackground = () => {
       </div>
     </div>
   );
-};
+});
+
+EasterBackground.displayName = 'EasterBackground';
 
 export default EasterBackground;

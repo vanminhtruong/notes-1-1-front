@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import { rand } from './utils';
 import type { ShootingStar } from './types';
 
-const SnowCanvas = () => {
+const SnowCanvas = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -212,6 +212,8 @@ const SnowCanvas = () => {
       style={{ zIndex: 10 }}
     />
   );
-};
+});
+
+SnowCanvas.displayName = 'SnowCanvas';
 
 export default SnowCanvas;

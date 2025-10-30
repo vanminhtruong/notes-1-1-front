@@ -1,4 +1,6 @@
-const MoonAndClouds = () => (
+import { memo } from 'react';
+
+const MoonAndClouds = memo(() => (
   <div className="absolute inset-0" style={{ zIndex: 1 }}>
     <svg width="100%" height="100%" viewBox="0 0 1200 600" preserveAspectRatio="none">
       <defs>
@@ -17,6 +19,8 @@ const MoonAndClouds = () => (
       </g>
     </svg>
   </div>
-);
+));
+
+MoonAndClouds.displayName = 'MoonAndClouds';
 
 export default MoonAndClouds;

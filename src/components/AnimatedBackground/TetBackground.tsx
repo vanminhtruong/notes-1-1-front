@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, memo } from 'react';
 import Particles from '@tsparticles/react';
 import type { Container } from '@tsparticles/engine';
 import { ensureParticlesEngine } from '../../utils/particlesEngine';
 
-const TetBackground = () => {
+const TetBackground = memo(() => {
   const [init, setInit] = useState(false);
 
   useEffect(() => {
@@ -212,6 +212,8 @@ const TetBackground = () => {
       </div>
     </div>
   );
-};
+});
+
+TetBackground.displayName = 'TetBackground';
 
 export default TetBackground;

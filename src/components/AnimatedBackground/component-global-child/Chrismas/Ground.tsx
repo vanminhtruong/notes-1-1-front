@@ -1,4 +1,6 @@
-const Ground = () => {
+import { memo } from 'react';
+
+const Ground = memo(() => {
   return (
     <div className="absolute bottom-0 left-0 right-0 w-full h-24 bg-gradient-to-t from-white via-[#f0f8ff] to-transparent overflow-hidden">
       {/* Gợn sóng tuyết */}
@@ -47,6 +49,8 @@ const Ground = () => {
       ))}
     </div>
   );
-};
+});
+
+Ground.displayName = 'Ground';
 
 export default Ground;

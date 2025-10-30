@@ -1,4 +1,6 @@
-const Sky = () => {
+import { memo } from 'react';
+
+const Sky = memo(() => {
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-[#0a1128] via-[#1a2332] to-[#2d3e50]">
       {/* Aurora Borealis - Cực quang */}
@@ -25,6 +27,8 @@ const Sky = () => {
       ))}
     </div>
   );
-};
+});
+
+Sky.displayName = 'Sky';
 
 export default Sky;

@@ -1,4 +1,6 @@
-const Trees = () => {
+import { memo } from 'react';
+
+const Trees = memo(() => {
   return (
     <>
       {/* Rừng cây phía xa - Lớp 1 (xa nhất, nhỏ nhất) - Tăng số lượng và chiều cao */}
@@ -135,6 +137,8 @@ const Trees = () => {
       </div>
     </>
   );
-};
+});
+
+Trees.displayName = 'Trees';
 
 export default Trees;

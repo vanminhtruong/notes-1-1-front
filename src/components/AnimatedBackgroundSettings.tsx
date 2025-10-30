@@ -25,11 +25,12 @@ const AnimatedBackgroundSettings = memo(() => {
   ];
 
   const handleToggle = async () => {
+    if (isUpdating) return;
     setIsUpdating(true);
     try {
       const result = await updateSettings(!rawEnabled, theme);
       if (result.success) {
-        toast.success(t('animatedBackground.updated'));
+        toast.success(t('animatedBackground.updated'), { duration: 2000 });
       } else {
         toast.error(t('animatedBackground.updateFailed'));
       }
@@ -41,11 +42,12 @@ const AnimatedBackgroundSettings = memo(() => {
   };
 
   const handleThemeChange = async (newTheme: AnimatedBackgroundTheme) => {
+    if (isUpdating || newTheme === theme) return;
     setIsUpdating(true);
     try {
       const result = await updateSettings(rawEnabled, newTheme);
       if (result.success) {
-        toast.success(t('animatedBackground.updated'));
+        toast.success(t('animatedBackground.updated'), { duration: 2000 });
       } else {
         toast.error(t('animatedBackground.updateFailed'));
       }

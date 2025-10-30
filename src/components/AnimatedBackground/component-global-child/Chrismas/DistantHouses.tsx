@@ -1,4 +1,6 @@
-const DistantHouses = () => {
+import { memo } from 'react';
+
+const DistantHouses = memo(() => {
   return (
     <>
       <div className="absolute bottom-40 left-[15%] transform -translate-x-1/2 scale-[0.35]">
@@ -88,6 +90,8 @@ const DistantHouses = () => {
       </div>
     </>
   );
-};
+});
+
+DistantHouses.displayName = 'DistantHouses';
 
 export default DistantHouses;

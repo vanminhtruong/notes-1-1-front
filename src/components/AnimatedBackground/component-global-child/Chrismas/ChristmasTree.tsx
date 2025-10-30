@@ -1,4 +1,6 @@
-const ChristmasTree = () => {
+import { memo } from 'react';
+
+const ChristmasTree = memo(() => {
   return (
     <div className="absolute bottom-16 right-1/4 transform translate-x-1/2 scale-150">
       {/* Thân cây */}
@@ -67,6 +69,8 @@ const ChristmasTree = () => {
       </div>
     </div>
   );
-};
+});
+
+ChristmasTree.displayName = 'ChristmasTree';
 
 export default ChristmasTree;

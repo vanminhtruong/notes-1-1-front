@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 
 interface Bat {
   id: number;
@@ -10,7 +10,7 @@ interface Bat {
   path: string;
 }
 
-const BatsSwarm = () => {
+const BatsSwarm = memo(() => {
   const [bats, setBats] = useState<Bat[]>([]);
 
   useEffect(() => {
@@ -264,6 +264,8 @@ const BatsSwarm = () => {
       </div>
     </>
   );
-};
+});
+
+BatsSwarm.displayName = 'BatsSwarm';
 
 export default BatsSwarm;

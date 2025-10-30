@@ -1,4 +1,6 @@
-const WitchFlying = () => (
+import { memo } from 'react';
+
+const WitchFlying = memo(() => (
   <div className="absolute" style={{ top: '10%', zIndex: 5, animation: 'witchFly 25s linear infinite' }}>
     <svg width="80" height="60" viewBox="0 0 80 60">
       <line x1="10" y1="35" x2="70" y2="35" stroke="#5a3a1a" strokeWidth="2" />
@@ -11,6 +13,8 @@ const WitchFlying = () => (
       <path d="M35 27 q2 2 4 0" stroke="#8B4513" strokeWidth="0.5" fill="none" />
     </svg>
   </div>
-);
+));
+
+WitchFlying.displayName = 'WitchFlying';
 
 export default WitchFlying;

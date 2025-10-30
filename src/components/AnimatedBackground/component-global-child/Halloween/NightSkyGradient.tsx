@@ -1,4 +1,6 @@
-const NightSkyGradient = () => (
+import { memo } from 'react';
+
+const NightSkyGradient = memo(() => (
   <div
     className="absolute inset-0"
     style={{
@@ -7,6 +9,8 @@ const NightSkyGradient = () => (
       zIndex: 0,
     }}
   />
-);
+));
+
+NightSkyGradient.displayName = 'NightSkyGradient';
 
 export default NightSkyGradient;

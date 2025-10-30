@@ -69,19 +69,26 @@ export const useAnimatedBackground = () => {
     };
   }, []);
 
-  // Update settings
+  // Update settings with optimistic update
   const updateSettings = useCallback(
     async (enabled: boolean, theme: AnimatedBackgroundTheme) => {
+      // Optimistic update - update UI immediately
+      const previousState = { ...state };
+      setState({ enabled, theme });
+
       try {
         const data = await settingsService.setAnimatedBackground({ enabled, theme });
+        // Confirm with server response
         setState({ enabled: data.enabled, theme: data.theme });
         return { success: true };
       } catch (error) {
         console.error('Failed to update animated background settings:', error);
+        // Rollback on error
+        setState(previousState);
         return { success: false, error };
       }
     },
-    []
+    [state]
   );
 
   // Only show animated background when dark-black theme is active

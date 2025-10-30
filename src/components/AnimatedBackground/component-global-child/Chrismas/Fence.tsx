@@ -1,4 +1,6 @@
-const Fence = () => {
+import { memo } from 'react';
+
+const Fence = memo(() => {
   return (
     <div className="absolute bottom-16 left-0 right-0 flex justify-around px-8">
       {[...Array(12)].map((_, i) => (
@@ -11,6 +13,8 @@ const Fence = () => {
       <div className="absolute left-8 right-8 top-6 h-1 bg-gradient-to-r from-[#5c3a22] to-[#3e2723] rounded" />
     </div>
   );
-};
+});
+
+Fence.displayName = 'Fence';
 
 export default Fence;

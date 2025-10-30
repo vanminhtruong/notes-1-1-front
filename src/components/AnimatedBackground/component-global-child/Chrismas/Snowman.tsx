@@ -1,4 +1,6 @@
-const Snowman = () => {
+import { memo } from 'react';
+
+const Snowman = memo(() => {
   return (
     <div className="absolute bottom-20 left-1/2 transform translate-x-32 flex flex-col items-center">
       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-20 h-3 bg-black/25 blur-md rounded-full" />
@@ -97,6 +99,8 @@ const Snowman = () => {
       ))}
     </div>
   );
-};
+});
+
+Snowman.displayName = 'Snowman';
 
 export default Snowman;

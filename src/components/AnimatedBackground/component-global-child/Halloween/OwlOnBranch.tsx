@@ -1,4 +1,6 @@
-const OwlOnBranch = () => (
+import { memo } from 'react';
+
+const OwlOnBranch = memo(() => (
   <div className="absolute" style={{ left: '5%', top: '35%', zIndex: 6 }}>
     <svg width="40" height="50" viewBox="0 0 40 50">
       <rect x="0" y="35" width="40" height="4" fill="#3a2a1a" rx="2" />
@@ -12,6 +14,8 @@ const OwlOnBranch = () => (
       <path d="M26 20 l-3 -4 l-3 2" fill="#4a3a2a" />
     </svg>
   </div>
-);
+));
+
+OwlOnBranch.displayName = 'OwlOnBranch';
 
 export default OwlOnBranch;

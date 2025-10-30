@@ -1,4 +1,6 @@
-const Hills = () => {
+import { memo } from 'react';
+
+const Hills = memo(() => {
   return (
     <div className="absolute bottom-0 left-0 right-0 w-full h-2/5 overflow-hidden">
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
@@ -7,6 +9,8 @@ const Hills = () => {
       </svg>
     </div>
   );
-};
+});
+
+Hills.displayName = 'Hills';
 
 export default Hills;

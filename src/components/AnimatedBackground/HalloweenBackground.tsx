@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, memo } from 'react';
 import type { Container } from '@tsparticles/engine';
 import { ensureParticlesEngine } from '../../utils/particlesEngine';
 import BatsSwarm from './component-global-child/Halloween/BatsSwarm';
@@ -22,7 +22,7 @@ import WitchFlying from './component-global-child/Halloween/WitchFlying';
 import BlackCatWalking from './component-global-child/Halloween/BlackCatWalking';
 import DeadTrees from './component-global-child/Halloween/DeadTrees';
 
-const HalloweenBackground = () => {
+const HalloweenBackground = memo(() => {
   const [init, setInit] = useState(false);
 
   useEffect(() => {
@@ -148,7 +148,9 @@ const HalloweenBackground = () => {
       <BlackCatWalking />
     </div>
   );
-};
+});
+
+HalloweenBackground.displayName = 'HalloweenBackground';
 
 export default HalloweenBackground;
 

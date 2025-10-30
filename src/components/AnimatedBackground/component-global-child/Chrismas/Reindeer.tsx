@@ -1,4 +1,6 @@
-const Reindeer = () => {
+import { memo } from 'react';
+
+const Reindeer = memo(() => {
   return (
     <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 animate-bounce" style={{ animationDuration: '3s' }}>
       <div className="relative w-16 h-16">
@@ -25,6 +27,8 @@ const Reindeer = () => {
       </div>
     </div>
   );
-};
+});
+
+Reindeer.displayName = 'Reindeer';
 
 export default Reindeer;

@@ -1,4 +1,6 @@
-const FallingLeaves = () => (
+import { memo } from 'react';
+
+const FallingLeaves = memo(() => (
   <div className="absolute inset-0" style={{ zIndex: 3, overflow: 'hidden' }}>
     {[
       { left: '10%', delay: 0, duration: 8 },
@@ -15,6 +17,8 @@ const FallingLeaves = () => (
       </div>
     ))}
   </div>
-);
+));
+
+FallingLeaves.displayName = 'FallingLeaves';
 
 export default FallingLeaves;

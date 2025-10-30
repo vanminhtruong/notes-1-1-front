@@ -1,4 +1,6 @@
-const MidgroundTrees = () => (
+import { memo } from 'react';
+
+const MidgroundTrees = memo(() => (
   <div className="absolute bottom-0 left-0 right-0" style={{ zIndex: 4, height: 200 }}>
     <svg width="100%" height="100%" viewBox="0 0 1200 200" preserveAspectRatio="none">
       <g fill="#0b0b0b" opacity="0.9">
@@ -10,6 +12,8 @@ const MidgroundTrees = () => (
       </g>
     </svg>
   </div>
-);
+));
+
+MidgroundTrees.displayName = 'MidgroundTrees';
 
 export default MidgroundTrees;

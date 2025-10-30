@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
   Sky,
   Moon,
@@ -14,7 +15,7 @@ import {
   SnowCanvas,
 } from './component-global-child/Chrismas';
 
-const ChristmasBackground = () => {
+const ChristmasBackground = memo(() => {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Canvas cho tuyết rơi */}
@@ -60,6 +61,8 @@ const ChristmasBackground = () => {
       </div>
     </div>
   );
-};
+});
+
+ChristmasBackground.displayName = 'ChristmasBackground';
 
 export default ChristmasBackground;

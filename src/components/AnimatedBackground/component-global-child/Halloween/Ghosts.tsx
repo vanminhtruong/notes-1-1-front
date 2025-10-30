@@ -1,4 +1,6 @@
-const Ghosts = () => (
+import { memo } from 'react';
+
+const Ghosts = memo(() => (
   <div className="absolute inset-0" style={{ zIndex: 6 }}>
     {[
       { left: '18%', top: '28%', scale: 0.9, delay: 0 },
@@ -18,6 +20,8 @@ const Ghosts = () => (
       </div>
     ))}
   </div>
-);
+));
+
+Ghosts.displayName = 'Ghosts';
 
 export default Ghosts;

@@ -1,4 +1,6 @@
-const Spiders = () => (
+import { memo } from 'react';
+
+const Spiders = memo(() => (
   <div className="absolute inset-0" style={{ zIndex: 6 }}>
     {[
       { left: '8%', top: '15%', delay: 0 },
@@ -137,6 +139,8 @@ const Spiders = () => (
       </div>
     ))}
   </div>
-);
+));
+
+Spiders.displayName = 'Spiders';
 
 export default Spiders;

@@ -1,4 +1,6 @@
-const House = () => {
+import { memo } from 'react';
+
+const House = memo(() => {
   return (
     <>
       {/* Nhà chính */}
@@ -101,6 +103,8 @@ const House = () => {
     </div>
     </>
   );
-};
+});
+
+House.displayName = 'House';
 
 export default House;

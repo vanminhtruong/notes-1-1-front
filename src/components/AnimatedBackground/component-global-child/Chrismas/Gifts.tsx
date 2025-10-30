@@ -1,4 +1,6 @@
-const Gifts = () => {
+import { memo } from 'react';
+
+const Gifts = memo(() => {
   return (
     <div className="absolute bottom-16 right-1/3 flex gap-2">
       {[...Array(3)].map((_, i) => (
@@ -22,6 +24,8 @@ const Gifts = () => {
       ))}
     </div>
   );
-};
+});
+
+Gifts.displayName = 'Gifts';
 
 export default Gifts;

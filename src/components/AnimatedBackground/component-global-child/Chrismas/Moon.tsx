@@ -1,4 +1,6 @@
-const Moon = () => {
+import { memo } from 'react';
+
+const Moon = memo(() => {
   return (
     <div className="absolute top-10 right-20">
       <div className="w-24 h-24 rounded-full bg-gradient-radial from-yellow-100 via-yellow-50 to-transparent shadow-[0_0_80px_30px_rgba(255,255,200,0.6)]" />
@@ -11,6 +13,8 @@ const Moon = () => {
       <div className="absolute bottom-5 right-8 w-2.5 h-2.5 rounded-full bg-yellow-200/40" />
     </div>
   );
-};
+});
+
+Moon.displayName = 'Moon';
 
 export default Moon;

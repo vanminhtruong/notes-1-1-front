@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import Particles from '@tsparticles/react';
 import type { Container, ISourceOptions } from '@tsparticles/engine';
 
@@ -6,10 +7,12 @@ interface Props {
   particlesLoaded: (container?: Container) => Promise<void>;
 }
 
-const BatsSilhouetteParticles = ({ options, particlesLoaded }: Props) => (
+const BatsSilhouetteParticles = memo(({ options, particlesLoaded }: Props) => (
   <div className="absolute inset-0" style={{ zIndex: 4 }}>
     <Particles id="halloween-bats" particlesLoaded={particlesLoaded} options={options} />
   </div>
-);
+));
+
+BatsSilhouetteParticles.displayName = 'BatsSilhouetteParticles';
 
 export default BatsSilhouetteParticles;
