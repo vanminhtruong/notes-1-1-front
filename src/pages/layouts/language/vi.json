@@ -65,12 +65,14 @@
     "christmas": "Giáng sinh",
     "tet": "Tết Nguyên Đán",
     "easter": "Lễ Phục Sinh",
+    "halloween": "Halloween",
     "updated": "Đã cập nhật nền động",
     "updateFailed": "Không thể cập nhật nền động",
     "disabled": "Bật để chọn chủ đề nền động"
   },
   "footer": {
     "copyright": "Tất cả quyền được bảo lưu",
+    
     "privacy": "Bảo mật",
     "terms": "Điều khoản"
   }

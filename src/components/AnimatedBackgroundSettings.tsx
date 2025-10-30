@@ -21,6 +21,7 @@ const AnimatedBackgroundSettings = memo(() => {
     { value: 'christmas', labelKey: 'animatedBackground.christmas' },
     { value: 'tet', labelKey: 'animatedBackground.tet' },
     { value: 'easter', labelKey: 'animatedBackground.easter' },
+    { value: 'halloween', labelKey: 'animatedBackground.halloween' },
   ];
 
   const handleToggle = async () => {

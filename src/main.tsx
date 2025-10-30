@@ -13,11 +13,21 @@ import { unlockAudioOnce } from '@/utils/notificationSound'
 import { CallProvider, GlobalCallUI } from '@/contexts/CallContext'
 import { getCachedUser } from '@pages/Dashboard/components/interface/chatWindowImports'
 import AnimatedBackground from '@/components/AnimatedBackground'
+import { preloadAnimatedBackgrounds } from '~/utils/preload'
 
 // Prepare audio unlock on first user interaction (autoplay policy)
 unlockAudioOnce()
 
 const currentUser = getCachedUser();
+
+// Preload animated background bundles if user is already in dark-black theme
+try {
+  const lsTheme = localStorage.getItem('theme');
+  const isDarkBlack = lsTheme === 'dark-black' || document.documentElement.classList.contains('dark-black');
+  if (isDarkBlack) {
+    preloadAnimatedBackgrounds();
+  }
+} catch {}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

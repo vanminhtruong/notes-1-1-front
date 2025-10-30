@@ -12,7 +12,7 @@ import {
   Fence,
   Ground,
   SnowCanvas,
-} from './component-global-child';
+} from './component-global-child/Chrismas';
 
 const ChristmasBackground = () => {
   return (

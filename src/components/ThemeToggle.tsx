@@ -4,6 +4,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { useAnimatedBackground, type AnimatedBackgroundTheme } from '@/hooks/useAnimatedBackground';
 import toast from 'react-hot-toast';
+import { preloadAnimatedBackgrounds } from '~/utils/preload';
 
 const ThemeToggle = memo(() => {
   const { theme, setTheme } = useTheme();
@@ -13,6 +14,9 @@ const ThemeToggle = memo(() => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { theme: bgTheme, updateSettings, isLoading } = useAnimatedBackground();
   const [isUpdating, setIsUpdating] = useState(false);
+  const closeTimerRef = useRef<number | null>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -31,6 +35,40 @@ const ThemeToggle = memo(() => {
     };
   }, [isOpen]);
 
+  // Detect touch/mobile environment (no hover)
+  useEffect(() => {
+    try {
+      const mq = window.matchMedia('(hover: none), (pointer: coarse)');
+      setIsTouchDevice(mq.matches);
+      const handler = (e: MediaQueryListEvent) => setIsTouchDevice(e.matches);
+      // @ts-ignore: Safari legacy
+      mq.addEventListener ? mq.addEventListener('change', handler) : mq.addListener(handler);
+      return () => {
+        // @ts-ignore: Safari legacy
+        mq.removeEventListener ? mq.removeEventListener('change', handler) : mq.removeListener(handler);
+      };
+    } catch {
+      setIsTouchDevice(false);
+    }
+  }, []);
+
+  // Detect small viewport (mobile breakpoints) to support desktop emulators
+  useEffect(() => {
+    try {
+      const mq = window.matchMedia('(max-width: 768px)');
+      setIsMobileViewport(mq.matches);
+      const handler = (e: MediaQueryListEvent) => setIsMobileViewport(e.matches);
+      // @ts-ignore: Safari legacy
+      mq.addEventListener ? mq.addEventListener('change', handler) : mq.addListener(handler);
+      return () => {
+        // @ts-ignore: Safari legacy
+        mq.removeEventListener ? mq.removeEventListener('change', handler) : mq.removeListener(handler);
+      };
+    } catch {
+      setIsMobileViewport(false);
+    }
+  }, []);
+
   const themeOptions = [
     { value: 'light' as const, labelKey: 'theme.light', icon: Sun },
     { value: 'dark' as const, labelKey: 'theme.dark', icon: Moon },
@@ -42,6 +80,7 @@ const ThemeToggle = memo(() => {
     { value: 'christmas', labelKey: 'animatedBackground.christmas' },
     { value: 'tet', labelKey: 'animatedBackground.tet' },
     { value: 'easter', labelKey: 'animatedBackground.easter' },
+    { value: 'halloween', labelKey: 'animatedBackground.halloween' },
   ];
 
   const currentThemeOption = themeOptions.find(opt => opt.value === theme) || themeOptions[0];
@@ -52,6 +91,8 @@ const ThemeToggle = memo(() => {
     try {
       // Đổi sang dark-black theme và set background theme
       setTheme('dark-black');
+      // Warm up dynamic chunks immediately for instant switch
+      preloadAnimatedBackgrounds();
       const enabled = newTheme !== 'none';
       const result = await updateSettings(enabled, newTheme);
       if (result.success) {
@@ -70,7 +111,13 @@ const ThemeToggle = memo(() => {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          if (!isOpen) {
+            // Preload background bundles when opening the menu
+            preloadAnimatedBackgrounds();
+          }
+        }}
         className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors duration-200 md-down:p-1.5"
         aria-label={t('theme.selectTheme')}
         title={t('theme.selectTheme')}
@@ -88,13 +135,26 @@ const ThemeToggle = memo(() => {
               <div
                 key={option.value}
                 className="relative group"
-                onMouseEnter={() => isDarkBlack && setHoveredTheme(option.value)}
+                onMouseEnter={() => {
+                  if (isDarkBlack && !isTouchDevice) {
+                    if (closeTimerRef.current) {
+                      window.clearTimeout(closeTimerRef.current);
+                      closeTimerRef.current = null;
+                    }
+                    setHoveredTheme(option.value);
+                    preloadAnimatedBackgrounds();
+                  }
+                }}
                 onMouseLeave={(e) => {
-                  if (isDarkBlack) {
-                    // Kiểm tra xem chuột có di chuyển vào submenu không
-                    const relatedTarget = e.relatedTarget;
-                    if (!relatedTarget || !(relatedTarget instanceof Element) || !relatedTarget.closest('.theme-submenu')) {
-                      setHoveredTheme(null);
+                  if (isDarkBlack && !isTouchDevice) {
+                    const relatedTarget = e.relatedTarget as Element | null;
+                    const toSubmenu = !!(relatedTarget && relatedTarget.closest && relatedTarget.closest('.theme-submenu'));
+                    if (!toSubmenu) {
+                      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+                      closeTimerRef.current = window.setTimeout(() => {
+                        setHoveredTheme(null);
+                        closeTimerRef.current = null;
+                      }, 180);
                     }
                   }
                 }}
@@ -104,21 +164,28 @@ const ThemeToggle = memo(() => {
                     if (!isDarkBlack) {
                       setTheme(option.value);
                       setIsOpen(false);
+                    } else {
+                      // On touch/mobile, tap to toggle submenu
+                      if (isTouchDevice) {
+                        setHoveredTheme(prev => (prev === option.value ? null : option.value));
+                        preloadAnimatedBackgrounds();
+                      }
                     }
-                    // Nếu là dark-black, không làm gì cả, chỉ hiển thị submenu qua hover
                   }}
                   className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between transition-colors duration-150 md-down:px-3 md-down:py-1.5 sm-down:px-2.5"
                 >
                   <div className="flex items-center gap-3 md-down:gap-2">
+                    {isDarkBlack && (isTouchDevice || isMobileViewport) && (
+                      <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5 transform rotate-180" />
+                    )}
                     <OptionIcon className="w-4 h-4 text-gray-600 dark:text-gray-300 md-down:w-3.5 md-down:h-3.5" />
                     <span className="text-sm text-gray-700 dark:text-gray-200 md-down:text-xs">{t(option.labelKey)}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    {/* Chỉ hiển thị check mark cho theme không phải dark-black */}
                     {theme === option.value && !isDarkBlack && (
                       <Check className="w-4 h-4 text-blue-500 dark:text-blue-400 md-down:w-3.5 md-down:h-3.5" />
                     )}
-                    {isDarkBlack && (
+                    {isDarkBlack && !(isTouchDevice || isMobileViewport) && (
                       <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5" />
                     )}
                   </div>
@@ -128,8 +195,24 @@ const ThemeToggle = memo(() => {
                 {isDarkBlack && hoveredTheme === option.value && (
                   <div 
                     className="theme-submenu absolute left-full top-0 ml-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 lg-down:w-44 md-down:w-40 sm-down:w-36 sm-down:left-auto sm-down:right-full sm-down:mr-1 sm-down:ml-0"
-                    onMouseEnter={() => setHoveredTheme(option.value)}
-                    onMouseLeave={() => setHoveredTheme(null)}
+                    onMouseEnter={() => {
+                      if (!isTouchDevice) {
+                        if (closeTimerRef.current) {
+                          window.clearTimeout(closeTimerRef.current);
+                          closeTimerRef.current = null;
+                        }
+                        setHoveredTheme(option.value);
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (!isTouchDevice) {
+                        if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+                        closeTimerRef.current = window.setTimeout(() => {
+                          setHoveredTheme(null);
+                          closeTimerRef.current = null;
+                        }, 180);
+                      }
+                    }}
                   >
                     {backgroundThemeOptions.map((bgOption) => (
                       <button

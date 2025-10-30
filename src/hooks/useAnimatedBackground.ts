@@ -3,7 +3,7 @@ import { settingsService } from '@/services/settingsService';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getSocket } from '@/services/socket';
 
-export type AnimatedBackgroundTheme = 'christmas' | 'tet' | 'easter' | 'none';
+export type AnimatedBackgroundTheme = 'christmas' | 'tet' | 'easter' | 'halloween' | 'none';
 
 interface AnimatedBackgroundState {
   enabled: boolean;

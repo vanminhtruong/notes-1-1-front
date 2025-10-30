@@ -66,6 +66,7 @@
     "christmas": "Christmas",
     "tet": "Lunar New Year",
     "easter": "Easter",
+    "halloween": "Halloween",
     "updated": "Animated background updated",
     "updateFailed": "Failed to update animated background",
     "disabled": "Turn on to select animated background theme"

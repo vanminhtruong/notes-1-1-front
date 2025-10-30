@@ -367,10 +367,13 @@ const NoteCard = memo(({
                     e.stopPropagation();
                     setIsBackgroundPickerOpen(!isBackgroundPickerOpen);
                   }}
-                  className="p-1.5 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 rounded-md hover:bg-purple-50 dark:hover:bg-purple-900/20 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-sm"
+                  className={`p-1.5 rounded-md transition-colors duration-200 shadow-sm border 
+                    ${hasBg && textColors 
+                      ? `${textColors.border} ${textColors.text} hover:border-blue-500 hover:text-blue-600`
+                      : 'text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'}`}
                   title={t('notes.background.change')}
                 >
-                  <Palette className="w-3.5 h-3.5" />
+                  <Palette className="w-3.5 h-3.5" style={hasBg ? { filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.8))' } : undefined} />
                 </button>
                 {isBackgroundPickerOpen && (
                   <BackgroundPicker
