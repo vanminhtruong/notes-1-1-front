@@ -307,6 +307,9 @@
       "change": "Change background",
       "colors": "Colors",
       "images": "Images",
+      "searchPlaceholder": "Search backgrounds...",
+      "noColorsFound": "No colors found",
+      "noImagesFound": "No images found",
       "updateSuccess": "Background updated successfully",
       "updateError": "Failed to update background"
     }

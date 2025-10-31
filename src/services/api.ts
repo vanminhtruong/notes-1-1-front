@@ -53,4 +53,16 @@ api.interceptors.response.use(
   }
 );
 
+// Background API functions
+export const backgroundApi = {
+  getColors: (search?: string) => {
+    const params = search ? `?search=${encodeURIComponent(search)}` : '';
+    return api.get(`/settings/background/colors${params}`);
+  },
+  getImages: (search?: string) => {
+    const params = search ? `?search=${encodeURIComponent(search)}` : '';
+    return api.get(`/settings/background/images${params}`);
+  }
+};
+
 export default api;

@@ -307,6 +307,9 @@
       "change": "Đổi màu nền",
       "colors": "Màu sắc",
       "images": "Hình ảnh",
+      "searchPlaceholder": "Tìm kiếm hình nền...",
+      "noColorsFound": "Không tìm thấy màu nào",
+      "noImagesFound": "Không tìm thấy hình ảnh nào",
       "updateSuccess": "Cập nhật nền thành công",
       "updateError": "Không thể cập nhật nền"
     }
