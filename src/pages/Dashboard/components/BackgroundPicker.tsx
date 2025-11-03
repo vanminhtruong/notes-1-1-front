@@ -1,9 +1,10 @@
-import { memo, useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
-import type { RefObject } from 'react';
+import { memo, useState, useRef, useEffect, useLayoutEffect } from 'react';
+import type { RefObject, UIEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { backgroundApi } from '../../../services/api';
+import { getSocket } from '../../../services/socket';
 
 interface BackgroundPickerProps {
   currentBackgroundColor?: string | null;
@@ -25,10 +26,18 @@ const BackgroundPicker = memo(({
   const [searchQuery, setSearchQuery] = useState('');
   const [colors, setColors] = useState<any[]>([]);
   const [images, setImages] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [colorPage, setColorPage] = useState(1);
+  const [imagePage, setImagePage] = useState(1);
+  const [colorHasMore, setColorHasMore] = useState(true);
+  const [imageHasMore, setImageHasMore] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
+  const isFetchingRef = useRef(false);
   const [coords, setCoords] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
   const [ready, setReady] = useState(false);
+  const PAGE_SIZE = 10;
+  const MIN_SPINNER_MS = 400;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -40,6 +49,47 @@ const BackgroundPicker = memo(({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
+
+  // Socket listeners for real-time background updates
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleBackgroundEvent = async () => {
+      // Tránh fetch nhiều lần cùng lúc
+      if (isFetchingRef.current) return;
+      
+      isFetchingRef.current = true;
+      try {
+        // Fetch nhẹ nhàng, không hiển loading spinner
+        const [colorsResponse, imagesResponse] = await Promise.all([
+          backgroundApi.getColors(searchQuery, 1, PAGE_SIZE),
+          backgroundApi.getImages(searchQuery, 1, PAGE_SIZE)
+        ]);
+
+        setColors(colorsResponse.data?.items || []);
+        setImages(imagesResponse.data?.items || []);
+        setColorHasMore(!!colorsResponse.data?.hasMore);
+        setImageHasMore(!!imagesResponse.data?.hasMore);
+        setColorPage(1);
+        setImagePage(1);
+      } catch (error) {
+        console.error('Error fetching backgrounds:', error);
+      } finally {
+        isFetchingRef.current = false;
+      }
+    };
+
+    socket.on('background_created', handleBackgroundEvent);
+    socket.on('background_updated', handleBackgroundEvent);
+    socket.on('background_deleted', handleBackgroundEvent);
+
+    return () => {
+      socket.off('background_created', handleBackgroundEvent);
+      socket.off('background_updated', handleBackgroundEvent);
+      socket.off('background_deleted', handleBackgroundEvent);
+    };
+  }, [searchQuery]);
 
   // Tính vị trí theo anchor, thực hiện trước paint để tránh nhấp nháy tại (0,0)
   useLayoutEffect(() => {
@@ -86,21 +136,81 @@ const BackgroundPicker = memo(({
     onClose?.();
   };
 
-  // Fetch backgrounds from API
+  // Fetch backgrounds from API (initial, page=1)
   const fetchBackgrounds = async (search?: string) => {
     try {
-      setIsLoading(true);
+      setIsInitialLoading(true);
+      setColors([]);
+      setImages([]);
+      setColorPage(1);
+      setImagePage(1);
+      setColorHasMore(true);
+      setImageHasMore(true);
       const [colorsResponse, imagesResponse] = await Promise.all([
-        backgroundApi.getColors(search),
-        backgroundApi.getImages(search)
+        backgroundApi.getColors(search, 1, PAGE_SIZE),
+        backgroundApi.getImages(search, 1, PAGE_SIZE)
       ]);
-      
-      setColors(colorsResponse.data);
-      setImages(imagesResponse.data);
+
+      setColors(colorsResponse.data?.items || []);
+      setImages(imagesResponse.data?.items || []);
+      setColorHasMore(!!colorsResponse.data?.hasMore);
+      setImageHasMore(!!imagesResponse.data?.hasMore);
     } catch (error) {
       console.error('Error fetching backgrounds:', error);
     } finally {
-      setIsLoading(false);
+      setIsInitialLoading(false);
+    }
+  };
+
+  const loadMoreColors = async () => {
+    if (!colorHasMore || isLoadingMore) return;
+    setIsLoadingMore(true);
+    const start = Date.now();
+    try {
+      const next = colorPage + 1;
+      const res = await backgroundApi.getColors(searchQuery, next, PAGE_SIZE);
+      const newItems: any[] = res.data?.items || [];
+      const newHasMore: boolean = !!res.data?.hasMore;
+      // Wait for spinner min time, then append and update paging info
+      const elapsed = Date.now() - start;
+      if (elapsed < MIN_SPINNER_MS) {
+        await new Promise((r) => setTimeout(r, MIN_SPINNER_MS - elapsed));
+      }
+      if (newItems.length) {
+        setColors((prev) => [...prev, ...newItems]);
+      }
+      setColorPage(next);
+      setColorHasMore(newHasMore);
+    } catch (error) {
+      console.error('Error loading more colors:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const loadMoreImages = async () => {
+    if (!imageHasMore || isLoadingMore) return;
+    setIsLoadingMore(true);
+    const start = Date.now();
+    try {
+      const next = imagePage + 1;
+      const res = await backgroundApi.getImages(searchQuery, next, PAGE_SIZE);
+      const newItems: any[] = res.data?.items || [];
+      const newHasMore: boolean = !!res.data?.hasMore;
+      // Wait for spinner min time, then append and update paging info
+      const elapsed = Date.now() - start;
+      if (elapsed < MIN_SPINNER_MS) {
+        await new Promise((r) => setTimeout(r, MIN_SPINNER_MS - elapsed));
+      }
+      if (newItems.length) {
+        setImages((prev) => [...prev, ...newItems]);
+      }
+      setImagePage(next);
+      setImageHasMore(newHasMore);
+    } catch (error) {
+      console.error('Error loading more images:', error);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -108,6 +218,17 @@ const BackgroundPicker = memo(({
   useEffect(() => {
     fetchBackgrounds(searchQuery);
   }, [searchQuery]);
+
+  const handleScroll = (e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
+    if (!nearBottom) return;
+    if (activeTab === 'color') {
+      loadMoreColors();
+    } else {
+      loadMoreImages();
+    }
+  };
 
   const content = (
     <div
@@ -179,8 +300,8 @@ const BackgroundPicker = memo(({
       </div>
 
       {/* Content */}
-      <div className="p-3 max-h-[240px] overflow-y-auto">
-        {isLoading ? (
+      <div className="p-3 max-h-[240px] overflow-y-auto" onScroll={handleScroll}>
+        {isInitialLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
           </div>
@@ -246,6 +367,11 @@ const BackgroundPicker = memo(({
                 {t('notes.background.noImagesFound')}
               </div>
             )}
+          </div>
+        )}
+        {isLoadingMore && (
+          <div className="sticky bottom-0 left-0 right-0 mt-2 py-2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 dark:border-blue-400"></div>
           </div>
         )}
       </div>

@@ -55,13 +55,21 @@ api.interceptors.response.use(
 
 // Background API functions
 export const backgroundApi = {
-  getColors: (search?: string) => {
-    const params = search ? `?search=${encodeURIComponent(search)}` : '';
-    return api.get(`/settings/background/colors${params}`);
+  getColors: (search?: string, page: number = 1, limit: number = 10) => {
+    const q = new URLSearchParams();
+    if (search) q.set('search', search);
+    if (page) q.set('page', String(page));
+    if (limit) q.set('limit', String(limit));
+    const params = q.toString();
+    return api.get(`/settings/background/colors${params ? `?${params}` : ''}`);
   },
-  getImages: (search?: string) => {
-    const params = search ? `?search=${encodeURIComponent(search)}` : '';
-    return api.get(`/settings/background/images${params}`);
+  getImages: (search?: string, page: number = 1, limit: number = 10) => {
+    const q = new URLSearchParams();
+    if (search) q.set('search', search);
+    if (page) q.set('page', String(page));
+    if (limit) q.set('limit', String(limit));
+    const params = q.toString();
+    return api.get(`/settings/background/images${params ? `?${params}` : ''}`);
   }
 };
 
