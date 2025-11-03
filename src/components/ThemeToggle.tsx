@@ -66,7 +66,6 @@ const ThemeToggle = memo(() => {
       // @ts-ignore: Safari legacy
       mq.addEventListener ? mq.addEventListener('change', handler) : mq.addListener(handler);
       return () => {
-        // @ts-ignore: Safari legacy
         mq.removeEventListener ? mq.removeEventListener('change', handler) : mq.removeListener(handler);
       };
     } catch {
@@ -94,9 +93,7 @@ const ThemeToggle = memo(() => {
   const handleBackgroundThemeChange = async (newTheme: AnimatedBackgroundTheme) => {
     setIsUpdating(true);
     try {
-      // Đổi sang dark-black theme và set background theme
       setTheme('dark-black');
-      // Warm up dynamic chunks immediately for instant switch
       preloadAnimatedBackgrounds();
       const enabled = newTheme !== 'none';
       const result = await updateSettings(enabled, newTheme);
@@ -104,7 +101,11 @@ const ThemeToggle = memo(() => {
         toast.success(t('animatedBackground.updated'));
         setIsOpen(false);
       } else {
-        toast.error(t('animatedBackground.updateFailed'));
+        if (result.error === 'Authentication required') {
+          toast.error('Vui lòng đăng nhập để sử dụng nền động');
+        } else {
+          toast.error(t('animatedBackground.updateFailed'));
+        }
       }
     } catch (error) {
       toast.error(t('animatedBackground.updateFailed'));
@@ -119,7 +120,6 @@ const ThemeToggle = memo(() => {
         onClick={() => {
           setIsOpen(!isOpen);
           if (!isOpen) {
-            // Preload background bundles when opening the menu
             preloadAnimatedBackgrounds();
           }
         }}
@@ -143,7 +143,7 @@ const ThemeToggle = memo(() => {
                 key={option.value}
                 className="relative group"
                 onMouseEnter={() => {
-                  if (isDarkBlack && !isTouchDevice) {
+                  if (isDarkBlack && !isTouchDevice && localStorage.getItem('token')) {
                     if (closeTimerRef.current) {
                       window.clearTimeout(closeTimerRef.current);
                       closeTimerRef.current = null;
@@ -172,17 +172,25 @@ const ThemeToggle = memo(() => {
                       setTheme(option.value);
                       setIsOpen(false);
                     } else {
-                      // On touch/mobile, tap to toggle submenu
-                      if (isTouchDevice) {
-                        setHoveredTheme(prev => (prev === option.value ? null : option.value));
-                        preloadAnimatedBackgrounds();
+                      // Check if logged in
+                      const token = localStorage.getItem('token');
+                      if (!token) {
+                        // Not logged in: just switch to dark-black theme without submenu
+                        setTheme('dark-black');
+                        setIsOpen(false);
+                      } else {
+                        // Logged in: show submenu on touch/mobile
+                        if (isTouchDevice) {
+                          setHoveredTheme(prev => (prev === option.value ? null : option.value));
+                          preloadAnimatedBackgrounds();
+                        }
                       }
                     }
                   }}
                   className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between transition-colors duration-150 md-down:px-3 md-down:py-1.5 sm-down:px-2.5"
                 >
                   <div className="flex items-center gap-3 md-down:gap-2">
-                    {isDarkBlack && (isTouchDevice || isMobileViewport) && (
+                    {isDarkBlack && (isTouchDevice || isMobileViewport) && localStorage.getItem('token') && (
                       isAuthPage ? (
                         <ChevronLeft className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5" />
                       ) : (
@@ -196,7 +204,7 @@ const ThemeToggle = memo(() => {
                     {theme === option.value && !isDarkBlack && (
                       <Check className="w-4 h-4 text-blue-500 dark:text-blue-400 md-down:w-3.5 md-down:h-3.5" />
                     )}
-                    {isDarkBlack && !(isTouchDevice || isMobileViewport) && (
+                    {isDarkBlack && !(isTouchDevice || isMobileViewport) && localStorage.getItem('token') && (
                       isAuthPage ? (
                         <ChevronLeft className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5" />
                       ) : (
@@ -206,8 +214,8 @@ const ThemeToggle = memo(() => {
                   </div>
                 </button>
 
-                {/* Submenu for dark-black theme */}
-                {isDarkBlack && hoveredTheme === option.value && (
+                {/* Submenu for dark-black theme - only show when logged in */}
+                {isDarkBlack && hoveredTheme === option.value && localStorage.getItem('token') && (
                   <div 
                     className={`theme-submenu absolute top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 lg-down:w-44 md-down:w-40 sm-down:w-36 ${
                       isAuthPage ? 'right-full mr-1' : 'left-full ml-1 sm-down:left-auto sm-down:right-full sm-down:mr-1 sm-down:ml-0'

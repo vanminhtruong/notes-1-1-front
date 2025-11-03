@@ -14,9 +14,16 @@ const AnimatedBackground = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const preloadedRef = useRef(false);
   const transitionTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Only show background when dark-black theme is active
-  const shouldShow = enabled && appTheme === 'dark-black';
+  // Allow background on auth pages even if appTheme is not dark-black
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const isAuthPage = ['/login', '/register', '/forgot-password'].includes(pathname);
+  // Show when enabled; restrict to dark-black except for auth pages
+  const shouldShow = enabled && (isAuthPage || appTheme === 'dark-black');
+
+  // Debug logging
+  useEffect(() => {
+    console.log('[AnimatedBackground Component] enabled:', enabled, 'theme:', theme, 'currentTheme:', currentTheme, 'appTheme:', appTheme, 'isAuthPage:', isAuthPage, 'shouldShow:', shouldShow);
+  }, [enabled, theme, currentTheme, appTheme, isAuthPage, shouldShow]);
 
   // Preload all backgrounds when enabled
   useEffect(() => {
@@ -34,30 +41,32 @@ const AnimatedBackground = () => {
 
   // Cross-fade transition when theme changes
   useEffect(() => {
-    if (theme !== currentTheme && theme !== 'none') {
+    if (theme !== currentTheme) {
+      console.log('[AnimatedBackground] Theme changing from', currentTheme, 'to', theme);
       // Clear any existing timer
       if (transitionTimerRef.current) {
         clearTimeout(transitionTimerRef.current);
+      }
+
+      if (theme === 'none') {
+        setCurrentTheme('none');
+        setPreviousTheme(null);
+        setIsTransitioning(false);
+        return;
       }
 
       // Start transition
       setIsTransitioning(true);
       setPreviousTheme(currentTheme);
       
-      // Wait for new component to mount, then fade
+      // Update immediately for instant visual feedback
+      setCurrentTheme(theme);
+      
+      // Clean up previous theme after transition
       transitionTimerRef.current = setTimeout(() => {
-        setCurrentTheme(theme);
-        
-        // Clean up previous theme after transition
-        transitionTimerRef.current = setTimeout(() => {
-          setPreviousTheme(null);
-          setIsTransitioning(false);
-        }, 300);
-      }, 50);
-    } else if (theme === 'none') {
-      setCurrentTheme('none');
-      setPreviousTheme(null);
-      setIsTransitioning(false);
+        setPreviousTheme(null);
+        setIsTransitioning(false);
+      }, 300);
     }
 
     return () => {
@@ -66,6 +75,17 @@ const AnimatedBackground = () => {
       }
     };
   }, [theme, currentTheme]);
+
+  // Reset when enabled changes
+  useEffect(() => {
+    if (!enabled) {
+      setCurrentTheme('none');
+      setPreviousTheme(null);
+      setIsTransitioning(false);
+    } else if (theme !== 'none' && currentTheme === 'none') {
+      setCurrentTheme(theme);
+    }
+  }, [enabled, theme, currentTheme]);
 
   if (!shouldShow || theme === 'none') {
     return null;
@@ -102,7 +122,7 @@ const AnimatedBackground = () => {
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
       {previousTheme && previousTheme !== 'none' && renderBackground(previousTheme, true)}
       {currentTheme !== 'none' && renderBackground(currentTheme, false)}
     </div>

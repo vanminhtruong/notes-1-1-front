@@ -58,13 +58,13 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 py-12 xl-down:py-10 lg-down:py-9 md-down:py-8 sm-down:py-6 xs-down:py-5 xl-down:px-3.5 lg-down:px-3 md-down:px-2.5 sm-down:px-2">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 py-12 xl-down:py-10 lg-down:py-9 md-down:py-8 sm-down:py-6 xs-down:py-5 xl-down:px-3.5 lg-down:px-3 md-down:px-2.5 sm-down:px-2 relative">
       {/* Theme Toggle */}
       <div className="fixed top-4 right-4 z-10 lg-down:top-3 lg-down:right-3 md-down:top-2.5 md-down:right-2.5 sm-down:top-2 sm-down:right-2">
         <ThemeToggle />
       </div>
       
-      <div className="max-w-md w-full">
+      <div className="max-w-md w-full relative z-[1]">
         {/* Header */}
         <div className="text-center mb-8 lg-down:mb-7 md-down:mb-6 sm-down:mb-5 xs-down:mb-4">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mb-4 lg-down:w-14 lg-down:h-14 md-down:w-12 md-down:h-12 sm-down:w-10 sm-down:h-10 sm-down:mb-3 xs-down:mb-2.5">

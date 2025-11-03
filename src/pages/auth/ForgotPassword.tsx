@@ -81,12 +81,12 @@ const ForgotPassword = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 md-down:py-10 sm-down:py-8 xs-down:py-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 md-down:py-10 sm-down:py-8 xs-down:py-6 relative">
       <div className="fixed top-4 right-4 z-10">
         <ThemeToggle />
       </div>
 
-      <div className="max-w-md w-full">
+      <div className="max-w-md w-full relative z-[1]">
         <div className="text-center mb-8 xs-down:mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
             <ShieldCheck className="w-8 h-8 text-white" />

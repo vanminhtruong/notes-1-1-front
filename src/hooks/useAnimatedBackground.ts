@@ -18,7 +18,7 @@ export const useAnimatedBackground = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load settings from backend
+  // Load settings (only when logged in; otherwise keep defaults)
   useEffect(() => {
     let mounted = true;
 
@@ -26,24 +26,9 @@ export const useAnimatedBackground = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          console.log('[AnimatedBackground] No token found, loading from localStorage');
-          // Load from localStorage for non-logged-in users
-          try {
-            const saved = localStorage.getItem('animatedBackground');
-            if (saved) {
-              const parsed = JSON.parse(saved);
-              if (mounted) {
-                setState(parsed);
-              }
-            } else {
-              if (mounted) {
-                setState({ enabled: false, theme: 'none' });
-              }
-            }
-          } catch {
-            if (mounted) {
-              setState({ enabled: false, theme: 'none' });
-            }
+          console.log('[AnimatedBackground] No token found; keeping defaults (no persistence)');
+          if (mounted) {
+            setState({ enabled: false, theme: 'none' });
           }
           if (mounted) {
             setIsLoading(false);
@@ -80,42 +65,51 @@ export const useAnimatedBackground = () => {
   // Listen for real-time updates via socket
   useEffect(() => {
     const socket = getSocket();
-    if (!socket) return;
+    if (!socket) {
+      console.log('[AnimatedBackground] No socket connection');
+      return;
+    }
+
+    console.log('[AnimatedBackground] Setting up socket listener');
 
     const handleUpdate = (data: AnimatedBackgroundState) => {
+      console.log('[AnimatedBackground] Received WebSocket update:', data);
       setState(data);
     };
 
     socket.on('animated_background_updated', handleUpdate);
 
     return () => {
+      console.log('[AnimatedBackground] Cleaning up socket listener');
       socket.off('animated_background_updated', handleUpdate);
     };
   }, []);
 
-  // Update settings with optimistic update
+  // Update settings with optimistic update (transient when logged-out)
   const updateSettings = useCallback(
     async (enabled: boolean, theme: AnimatedBackgroundTheme) => {
+      console.log('[AnimatedBackground] Updating settings:', { enabled, theme });
       // Optimistic update - update UI immediately
       const previousState = { ...state };
-      setState({ enabled, theme });
+      const newState = { enabled, theme };
+      setState(newState);
 
       try {
         const token = localStorage.getItem('token');
-        
-        // If no token, save to localStorage only
+        // If not logged in: do not persist anywhere; allow temporary effect only
         if (!token) {
-          localStorage.setItem('animatedBackground', JSON.stringify({ enabled, theme }));
+          console.log('[AnimatedBackground] Not logged in; applying temporary effect (no persistence)');
           return { success: true };
         }
 
         // If logged in, save to backend
+        console.log('[AnimatedBackground] Logged in, saving to backend');
         const data = await settingsService.setAnimatedBackground({ enabled, theme });
-        // Confirm with server response
-        setState({ enabled: data.enabled, theme: data.theme });
+        // Server will broadcast via WebSocket to all connected clients
+        console.log('[AnimatedBackground] Saved successfully:', data);
         return { success: true };
       } catch (error) {
-        console.error('Failed to update animated background settings:', error);
+        console.error('[AnimatedBackground] Failed to update settings:', error);
         // Rollback on error
         setState(previousState);
         return { success: false, error };
