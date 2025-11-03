@@ -95,11 +95,6 @@ export const authService = {
     return response.data;
   },
 
-  async loginWithFacebook(accessToken: string): Promise<AuthResponse> {
-    const response = await api.post('/auth/facebook', { accessToken });
-    return response.data;
-  },
-
   async getRememberPref(email: string): Promise<{ remember: boolean }> {
     const response = await api.post('/auth/remember-pref', { email });
     return response.data;

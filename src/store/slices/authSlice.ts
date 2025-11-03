@@ -75,27 +75,6 @@ export const loginWithGoogle = createAsyncThunk(
   }
 );
 
-export const loginWithFacebook = createAsyncThunk(
-  'auth/loginWithFacebook',
-  async (accessToken: string, { rejectWithValue }) => {
-    try {
-      const response = await authService.loginWithFacebook(accessToken);
-      localStorage.setItem('token', response.token);
-      toast.success(i18n.t('auth:success.loginSuccess'));
-      return response;
-    } catch (error: any) {
-      let message: string = error.response?.data?.message || i18n.t('auth:errors.facebookFailed');
-      try {
-        const low = String(message).toLowerCase();
-        if (low.includes('vô hiệu hóa') || low.includes('deactivated')) {
-          message = i18n.t('auth:errors.deactivated');
-        }
-      } catch {}
-      toast.error(String(message), { id: 'login-error' });
-      return rejectWithValue(String(message));
-    }
-  }
-);
 
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
@@ -237,31 +216,6 @@ const authSlice = createSlice({
         sessionStorage.setItem('e2ee_lock_started_at', String(Date.now()));
       })
       .addCase(loginWithGoogle.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-        state.isAuthenticated = false;
-      })
-      // Login with Facebook
-      .addCase(loginWithFacebook.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(loginWithFacebook.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.isAuthenticated = true;
-        state.error = null;
-        // Save user info to localStorage
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
-        // Ensure E2EE starts locked on fresh login
-        sessionStorage.removeItem('e2ee_unlocked');
-        // Allow a single auto-prompt this session
-        sessionStorage.removeItem('e2ee_pin_prompt_shown');
-        // Start a new lock window to hide prior locked-session messages
-        sessionStorage.setItem('e2ee_lock_started_at', String(Date.now()));
-      })
-      .addCase(loginWithFacebook.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
         state.isAuthenticated = false;

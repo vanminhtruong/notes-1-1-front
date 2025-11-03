@@ -1,10 +1,11 @@
 import { memo, useState, useRef, useEffect } from 'react';
-import { Moon, Sun, Palette, Check, ChevronRight } from 'lucide-react';
+import { Moon, Sun, Palette, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { useAnimatedBackground, type AnimatedBackgroundTheme } from '@/hooks/useAnimatedBackground';
 import toast from 'react-hot-toast';
 import { preloadAnimatedBackgrounds } from '~/utils/preload';
+import { useLocation } from 'react-router-dom';
 
 const ThemeToggle = memo(() => {
   const { theme, setTheme } = useTheme();
@@ -17,6 +18,10 @@ const ThemeToggle = memo(() => {
   const closeTimerRef = useRef<number | null>(null);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const location = useLocation();
+  
+  // Check if on login/register/forgot-password pages
+  const isAuthPage = ['/login', '/register', '/forgot-password'].includes(location.pathname);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -126,7 +131,9 @@ const ThemeToggle = memo(() => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 lg-down:w-44 md-down:w-40 sm-down:w-36">
+        <div className={`absolute mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 lg-down:w-44 md-down:w-40 sm-down:w-36 ${
+          isAuthPage ? 'left-0 -translate-x-[calc(100%-2.5rem)]' : 'right-0'
+        }`}>
           {themeOptions.map((option) => {
             const OptionIcon = option.icon;
             const isDarkBlack = option.value === 'dark-black';
@@ -176,7 +183,11 @@ const ThemeToggle = memo(() => {
                 >
                   <div className="flex items-center gap-3 md-down:gap-2">
                     {isDarkBlack && (isTouchDevice || isMobileViewport) && (
-                      <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5 transform rotate-180" />
+                      isAuthPage ? (
+                        <ChevronLeft className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5 transform rotate-180" />
+                      )
                     )}
                     <OptionIcon className="w-4 h-4 text-gray-600 dark:text-gray-300 md-down:w-3.5 md-down:h-3.5" />
                     <span className="text-sm text-gray-700 dark:text-gray-200 md-down:text-xs">{t(option.labelKey)}</span>
@@ -186,7 +197,11 @@ const ThemeToggle = memo(() => {
                       <Check className="w-4 h-4 text-blue-500 dark:text-blue-400 md-down:w-3.5 md-down:h-3.5" />
                     )}
                     {isDarkBlack && !(isTouchDevice || isMobileViewport) && (
-                      <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5" />
+                      isAuthPage ? (
+                        <ChevronLeft className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 md-down:w-3.5 md-down:h-3.5" />
+                      )
                     )}
                   </div>
                 </button>
@@ -194,7 +209,9 @@ const ThemeToggle = memo(() => {
                 {/* Submenu for dark-black theme */}
                 {isDarkBlack && hoveredTheme === option.value && (
                   <div 
-                    className="theme-submenu absolute left-full top-0 ml-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 lg-down:w-44 md-down:w-40 sm-down:w-36 sm-down:left-auto sm-down:right-full sm-down:mr-1 sm-down:ml-0"
+                    className={`theme-submenu absolute top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 lg-down:w-44 md-down:w-40 sm-down:w-36 ${
+                      isAuthPage ? 'right-full mr-1' : 'left-full ml-1 sm-down:left-auto sm-down:right-full sm-down:mr-1 sm-down:ml-0'
+                    }`}
                     onMouseEnter={() => {
                       if (!isTouchDevice) {
                         if (closeTimerRef.current) {

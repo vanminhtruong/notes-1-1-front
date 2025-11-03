@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { authService } from '@/services/authService';
-import { loginUser, loginWithGoogle, loginWithFacebook } from '@/store/slices/authSlice';
+import { loginUser, loginWithGoogle } from '@/store/slices/authSlice';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import GoogleSignInModal from '@/components/GoogleSignInModal';
@@ -13,7 +13,6 @@ import { useTranslation } from 'react-i18next';
 declare global {
   interface Window {
     google?: any;
-    FB?: any;
   }
 }
 
@@ -31,7 +30,6 @@ const Login = () => {
   const dispatch = useAppDispatch();
   const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
-  const FACEBOOK_APP_ID = import.meta.env.VITE_FACEBOOK_APP_ID as string | undefined;
 
   const getRememberFromCookie = () => {
     try {
@@ -126,37 +124,6 @@ const Login = () => {
     };
   }, [dispatch, navigate, GOOGLE_CLIENT_ID]);
 
-  // Load Facebook SDK and initialize
-  useEffect(() => {
-    if (!FACEBOOK_APP_ID) return;
-
-    const initFB = () => {
-      if (!window.FB) return;
-
-      window.FB.init({
-        appId: FACEBOOK_APP_ID,
-        cookie: true,
-        xfbml: true,
-        version: 'v18.0'
-      });
-    };
-
-    if (window.FB) {
-      initFB();
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://connect.facebook.net/vi_VN/sdk.js';
-    script.async = true;
-    script.defer = true;
-    script.onload = initFB;
-    document.body.appendChild(script);
-
-    return () => {
-      script.onload = null;
-    };
-  }, [FACEBOOK_APP_ID]);
 
   const handleGoogleClick = () => {
     if (!GOOGLE_CLIENT_ID) {
@@ -175,49 +142,6 @@ const Login = () => {
     await handleGoogleResponse({ credential });
   };
 
-  const handleFacebookClick = () => {
-    if (!FACEBOOK_APP_ID) {
-      toast.error(t('errors.facebookAppIdMissing'));
-      return;
-    }
-    
-    if (!window.FB) {
-      toast.error(t('errors.facebookNotReady'));
-      return;
-    }
-
-    // Check if running on localhost with HTTP (development mode)
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const isHttp = window.location.protocol === 'http:';
-    
-    if (isHttp && !isLocalhost) {
-      toast.error(t('errors.facebookHttpsRequired'));
-      return;
-    }
-
-    // Use FB.getLoginStatus for HTTP localhost development
-    if (isHttp && isLocalhost) {
-      window.FB.getLoginStatus((statusResponse: any) => {
-        if (statusResponse.status === 'connected') {
-          // User is already logged in
-          handleFacebookResponse(statusResponse);
-        } else {
-          // Redirect to Facebook login page instead of popup for HTTP
-          const redirectUrl = encodeURIComponent(window.location.origin + '/auth/facebook/callback');
-          const facebookLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${FACEBOOK_APP_ID}&redirect_uri=${redirectUrl}&scope=email&response_type=code`;
-          
-          toast.loading(t('loading.facebookRedirect'));
-          window.location.href = facebookLoginUrl;
-        }
-      });
-      return;
-    }
-
-    // Normal popup login for HTTPS
-    window.FB.login((response: any) => {
-      handleFacebookResponse(response);
-    }, { scope: 'email' });
-  };
 
   const handleGoogleResponse = async (response: any) => {
     const idToken = response?.credential;
@@ -228,19 +152,6 @@ const Login = () => {
     }
   };
 
-  const handleFacebookResponse = async (response: any) => {
-    if (response.authResponse) {
-      const accessToken = response.authResponse.accessToken;
-      if (accessToken) {
-        const result = await dispatch(loginWithFacebook(accessToken));
-        if (loginWithFacebook.fulfilled.match(result)) {
-          navigate('/dashboard');
-        }
-      }
-    } else {
-      toast.error(t('errors.facebookCancelled'));
-    }
-  };
 
   const onSubmit = async (data: LoginFormData) => {
     // Save credentials to cookies if remember is checked
@@ -423,11 +334,11 @@ t('login')
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3 lg-down:mt-5 lg-down:gap-2.5 md-down:mt-4 md-down:gap-2 sm-down:grid-cols-1 sm-down:gap-2.5 xs-down:gap-2">
+          <div className="mt-6 lg-down:mt-5 md-down:mt-4">
             <button
               type="button"
               onClick={handleGoogleClick}
-              className="w-full inline-flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white/50 text-sm font-medium text-gray-700 hover:bg-white/70 transition-all duration-200 lg-down:py-2.5 md-down:py-2.5 md-down:text-sm sm-down:py-2 xs-down:text-xs"
+              className="w-full inline-flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white/50 dark:bg-gray-700/50 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-white/70 dark:hover:bg-gray-600/50 transition-all duration-200 lg-down:py-2.5 md-down:py-2.5 md-down:text-sm sm-down:py-2 xs-down:text-xs"
             >
               <svg className="w-5 h-5 lg-down:w-4 lg-down:h-4 sm-down:w-3.5 sm-down:h-3.5" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -436,17 +347,6 @@ t('login')
                 <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
               <span className="ml-2 sm-down:ml-1.5">Google</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleFacebookClick}
-              className="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white/50 text-sm font-medium text-gray-500 hover:bg-white/70 transition-all duration-200 lg-down:py-2.5 md-down:py-2.5 md-down:text-sm sm-down:py-2 xs-down:text-xs"
-            >
-              <svg className="w-5 h-5 lg-down:w-4 lg-down:h-4 sm-down:w-3.5 sm-down:h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-              <span className="ml-2 sm-down:ml-1.5">Facebook</span>
             </button>
           </div>
         </div>

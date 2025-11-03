@@ -82,7 +82,23 @@
     "deactivated": "계정이 비활성화되었습니다",
     "loginFailed": "로그인 실패",
     "googleFailed": "Google 로그인 실패",
-    "facebookFailed": "Facebook 로그인 실패"
+    "facebookFailed": "Facebook 로그인 실패",
+    "registerFailed": "회원가입 실패",
+    "logoutFailed": "로그아웃 실패",
+    "googleClientIdMissing": "Google Client ID 구성이 누락되었습니다",
+    "googleNotReady": "Google 로그인이 아직 준비되지 않았습니다. 다시 시도해주세요.",
+    "facebookAppIdMissing": "VITE_FACEBOOK_APP_ID 구성이 누락되었습니다",
+    "facebookNotReady": "Facebook SDK가 아직 준비되지 않았습니다. 다시 시도해주세요.",
+    "facebookHttpsRequired": "Facebook 로그인은 HTTPS가 필요합니다. HTTPS 또는 localhost를 사용하세요.",
+    "facebookCancelled": "Facebook 로그인이 취소되었거나 실패했습니다"
+  },
+  "loading": {
+    "facebookRedirect": "Facebook 로그인 페이지로 리디렉션 중..."
+  },
+  "googleModal": {
+    "title": "Google로 로그인",
+    "subtitle": "계속하려면 Google 계정을 선택하세요",
+    "termsText": "로그인하면 서비스 약관 및 개인정보 처리방침에 동의하는 것입니다"
   }
 }
 

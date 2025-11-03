@@ -26,8 +26,28 @@ export const useAnimatedBackground = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          console.log('[AnimatedBackground] No token found');
-          setIsLoading(false);
+          console.log('[AnimatedBackground] No token found, loading from localStorage');
+          // Load from localStorage for non-logged-in users
+          try {
+            const saved = localStorage.getItem('animatedBackground');
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (mounted) {
+                setState(parsed);
+              }
+            } else {
+              if (mounted) {
+                setState({ enabled: false, theme: 'none' });
+              }
+            }
+          } catch {
+            if (mounted) {
+              setState({ enabled: false, theme: 'none' });
+            }
+          }
+          if (mounted) {
+            setIsLoading(false);
+          }
           return;
         }
 
@@ -39,6 +59,10 @@ export const useAnimatedBackground = () => {
         }
       } catch (error) {
         console.error('[AnimatedBackground] Failed to load settings:', error);
+        // Set default state on error
+        if (mounted) {
+          setState({ enabled: false, theme: 'none' });
+        }
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -77,6 +101,15 @@ export const useAnimatedBackground = () => {
       setState({ enabled, theme });
 
       try {
+        const token = localStorage.getItem('token');
+        
+        // If no token, save to localStorage only
+        if (!token) {
+          localStorage.setItem('animatedBackground', JSON.stringify({ enabled, theme }));
+          return { success: true };
+        }
+
+        // If logged in, save to backend
         const data = await settingsService.setAnimatedBackground({ enabled, theme });
         // Confirm with server response
         setState({ enabled: data.enabled, theme: data.theme });
@@ -91,8 +124,9 @@ export const useAnimatedBackground = () => {
     [state]
   );
 
-  // Only show animated background when dark-black theme is active
-  const shouldShow = appTheme === 'dark-black' && state.enabled;
+  // Show animated background when enabled, regardless of theme
+  // This allows background to work on login pages and persist during logout
+  const shouldShow = state.enabled;
 
   return {
     enabled: shouldShow,
@@ -100,5 +134,6 @@ export const useAnimatedBackground = () => {
     rawEnabled: state.enabled,
     isLoading,
     updateSettings,
+    appTheme, // Export appTheme for components that need it
   };
 };

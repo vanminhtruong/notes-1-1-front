@@ -99,5 +99,10 @@
   },
   "loading": {
     "facebookRedirect": "Chuyển hướng đến trang đăng nhập Facebook..."
+  },
+  "googleModal": {
+    "title": "Đăng nhập với Google",
+    "subtitle": "Chọn tài khoản Google để tiếp tục",
+    "termsText": "Bằng cách đăng nhập, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi"
   }
 }

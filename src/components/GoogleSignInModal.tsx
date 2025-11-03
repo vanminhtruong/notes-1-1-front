@@ -1,6 +1,7 @@
 import { useEffect, useRef, memo } from 'react';
 import { X } from 'lucide-react';
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
+import { useTranslation } from 'react-i18next';
 
 interface GoogleSignInModalProps {
   clientId: string;
@@ -9,6 +10,7 @@ interface GoogleSignInModalProps {
 }
 
 const GoogleSignInModal = memo(({ clientId, onSuccess, onClose }: GoogleSignInModalProps) => {
+  const { t } = useTranslation('auth');
   const buttonRef = useRef<HTMLDivElement>(null);
 
   // Disable body scroll when modal is mounted
@@ -75,10 +77,10 @@ const GoogleSignInModal = memo(({ clientId, onSuccess, onClose }: GoogleSignInMo
               </svg>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Đăng nhập với Google
+              {t('googleModal.title')}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Chọn tài khoản Google để tiếp tục
+              {t('googleModal.subtitle')}
             </p>
           </div>
 
@@ -90,7 +92,7 @@ const GoogleSignInModal = memo(({ clientId, onSuccess, onClose }: GoogleSignInMo
           {/* Divider */}
           <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-              Bằng cách đăng nhập, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi
+              {t('googleModal.termsText')}
             </p>
           </div>
         </div>

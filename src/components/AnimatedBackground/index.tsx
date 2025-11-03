@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState, useRef, memo } from 'react';
+import { lazy, Suspense, useEffect, useState, useRef } from 'react';
 import { useAnimatedBackground } from '@/hooks/useAnimatedBackground';
 import type { AnimatedBackgroundTheme } from '@/hooks/useAnimatedBackground';
 
@@ -7,13 +7,16 @@ const TetBackground = lazy(() => import('./TetBackground'));
 const EasterBackground = lazy(() => import('./EasterBackground'));
 const HalloweenBackground = lazy(() => import('./HalloweenBackground'));
 
-const AnimatedBackground = memo(() => {
-  const { enabled, theme } = useAnimatedBackground();
+const AnimatedBackground = () => {
+  const { enabled, theme, appTheme } = useAnimatedBackground();
   const [currentTheme, setCurrentTheme] = useState<AnimatedBackgroundTheme>(theme);
   const [previousTheme, setPreviousTheme] = useState<AnimatedBackgroundTheme | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const preloadedRef = useRef(false);
   const transitionTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Only show background when dark-black theme is active
+  const shouldShow = enabled && appTheme === 'dark-black';
 
   // Preload all backgrounds when enabled
   useEffect(() => {
@@ -64,7 +67,7 @@ const AnimatedBackground = memo(() => {
     };
   }, [theme, currentTheme]);
 
-  if (!enabled || theme === 'none') {
+  if (!shouldShow || theme === 'none') {
     return null;
   }
 
@@ -104,8 +107,6 @@ const AnimatedBackground = memo(() => {
       {currentTheme !== 'none' && renderBackground(currentTheme, false)}
     </div>
   );
-});
-
-AnimatedBackground.displayName = 'AnimatedBackground';
+};
 
 export default AnimatedBackground;

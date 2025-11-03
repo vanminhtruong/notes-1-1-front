@@ -97,5 +97,10 @@
   },
   "loading": {
     "facebookRedirect": "Redirecting to Facebook login page..."
+  },
+  "googleModal": {
+    "title": "Sign in with Google",
+    "subtitle": "Select your Google account to continue",
+    "termsText": "By signing in, you agree to our Terms of Service and Privacy Policy"
   }
 }
