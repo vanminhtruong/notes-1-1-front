@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, memo } from 'react';
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { groupService } from '../../../../../services/groupService';
 import { getSocket } from '../../../../../services/socket';
 import { chatService } from '../../../../../services/chatService';
@@ -26,6 +27,8 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  // Viewport position of the context menu to avoid being clipped by overflow containers
+  const [openMenuPos, setOpenMenuPos] = useState<{ top: number; left: number } | null>(null);
   const [pinStatusMap, setPinStatusMap] = useState<Record<number, boolean>>({});
   const [loadingPinFor, setLoadingPinFor] = useState<number | null>(null);
   const [groupSearchTerm, setGroupSearchTerm] = useState('');
@@ -364,7 +367,16 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
     const next = openMenuId === groupId ? null : groupId;
     setOpenMenuId(next);
     if (next) {
+      // Tính toán vị trí theo viewport để render menu ở layer fixed, tránh bị overflow/stacking context che
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      // Menu min width ~160px, đặt cạnh phải của nút
+      const top = Math.round(rect.bottom + 8 + window.scrollY);
+      const left = Math.round(rect.right - 180 + window.scrollX);
+      setOpenMenuPos({ top, left });
       fetchGroupPinStatus(groupId);
+    }
+    else {
+      setOpenMenuPos(null);
     }
   };
 
@@ -551,17 +563,21 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                     >
                       <MoreVertical className="w-4 h-4 text-gray-400" />
                     </button>
-                    {openMenuId === g.id && (
+                    {openMenuId === g.id && openMenuPos && createPortal(
                       <>
                         <div
-                          className="fixed inset-0 z-10"
+                          className="fixed inset-0 z-[9998]"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             setOpenMenuId(null);
+                            setOpenMenuPos(null);
                           }}
                         />
-                        <div className="absolute right-0 top-8 z-20 min-w-[160px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                        <div
+                          className="fixed z-[9999] min-w-[180px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
+                          style={{ top: openMenuPos.top, left: openMenuPos.left }}
+                        >
                           <button
                             disabled={loadingPinFor === g.id}
                             onClick={(e) => {
@@ -583,7 +599,8 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                             )}
                           </button>
                         </div>
-                      </>
+                      </>,
+                      document.body
                     )}
                   </div>
                 </div>
