@@ -8,6 +8,23 @@ interface RotatingCubeProps {
 
 const RotatingCube = memo(({ size = 32, className = '' }: RotatingCubeProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [rotation, setRotation] = useState({ x: 0, y: 0, z: 0 });
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    // Tạo góc xoay ngẫu nhiên khi hover
+    setRotation({
+      x: Math.floor(Math.random() * 4) * 90, // 0, 90, 180, 270
+      y: Math.floor(Math.random() * 4) * 90,
+      z: Math.floor(Math.random() * 4) * 90
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    // Quay về vị trí ban đầu khi không hover
+    setRotation({ x: 0, y: 0, z: 0 });
+  };
 
   return (
     <div 
@@ -17,18 +34,18 @@ const RotatingCube = memo(({ size = 32, className = '' }: RotatingCubeProps) => 
         height: `${size}px`,
         perspective: '200px'
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Main rotating cube container */}
       <div 
         className={`
-          relative w-full h-full transform-gpu transition-transform duration-1000 ease-in-out
+          relative w-full h-full transform-gpu transition-all duration-1000 ease-in-out
           ${isHovered ? 'scale-110' : 'scale-100'}
         `}
         style={{
           transformStyle: 'preserve-3d',
-          animation: 'rotateCube 8s linear infinite'
+          transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) rotateZ(${rotation.z}deg)`
         }}
       >
         {/* Front Face */}
@@ -173,14 +190,6 @@ const RotatingCube = memo(({ size = 32, className = '' }: RotatingCubeProps) => 
 
       <style dangerouslySetInnerHTML={{
         __html: `
-          @keyframes rotateCube {
-            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-            25% { transform: rotateX(90deg) rotateY(90deg) rotateZ(0deg); }
-            50% { transform: rotateX(180deg) rotateY(180deg) rotateZ(90deg); }
-            75% { transform: rotateX(270deg) rotateY(270deg) rotateZ(180deg); }
-            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
-          }
-
           @keyframes float0 {
             0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
             50% { transform: translateY(-8px) rotate(180deg); opacity: 1; }
