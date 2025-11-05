@@ -84,7 +84,7 @@ export const groupService = {
     return res.data as { success: boolean; data: { groupId: number } };
   },
 
-  async getGroupMessages(groupId: number, page = 1, limit = 10) {
+  async getGroupMessages(groupId: number, page = 1, limit = 50) {
     const res = await api.get(`/groups/${groupId}/messages`, { params: { page, limit } });
     return res.data as { success: boolean; data: GroupMessage[] };
   },

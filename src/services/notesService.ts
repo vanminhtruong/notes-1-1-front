@@ -30,6 +30,7 @@ export interface Note {
   updatedAt: string;
   backgroundColor?: string | null;
   backgroundImage?: string | null;
+  background?: string | null; // Alias for backgroundColor or backgroundImage
   user: {
     id: number;
     name: string;

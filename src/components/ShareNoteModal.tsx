@@ -147,6 +147,13 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
       
       // Create note content for sharing
       const contentToSend = (() => {
+        const background = note.background || note.backgroundImage || note.backgroundColor || null;
+        console.log('📝 ShareNoteModal - Note background fields:', {
+          background: note.background,
+          backgroundImage: note.backgroundImage,
+          backgroundColor: note.backgroundColor,
+          finalBackground: background
+        });
         const payload = {
           type: 'note',
           v: 1,
@@ -158,7 +165,9 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
           youtubeUrl: note.youtubeUrl || null,
           category: note.category,
           priority: note.priority,
+          background: background,
         };
+        console.log('📤 ShareNoteModal - Payload to send:', payload);
         return 'NOTE_SHARE::' + encodeURIComponent(JSON.stringify(payload));
       })();
 
@@ -353,11 +362,19 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {selectedTarget.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  {selectedTarget.avatar ? (
+                    <img
+                      src={selectedTarget.avatar}
+                      alt={selectedTarget.name}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">
+                        {selectedTarget.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white text-sm">
                       {selectedTarget.name}
@@ -403,11 +420,19 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
                       onClick={() => setSelectedTarget(target)}
                       className="w-full flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm font-medium">
-                          {target.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
+                      {target.avatar ? (
+                        <img
+                          src={target.avatar}
+                          alt={target.name}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm font-medium">
+                            {target.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
                       <div className="ml-3 text-left">
                         <p className="font-medium text-gray-900 dark:text-white text-sm">
                           {target.name}

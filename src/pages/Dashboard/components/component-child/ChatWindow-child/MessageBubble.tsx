@@ -35,6 +35,8 @@ const MessageBubble = memo(({
   // Call controls for redial from call-log cards (optional)
   const callCtx = useOptionalCall();
   const [isEditing, setIsEditing] = useState(false);
+  // Robust recalled detection: from prop or message flag (for F5 reload cases)
+  const recalled = Boolean(isRecalled || (message as any)?.isDeletedForAll);
   const [editValue, setEditValue] = useState<string>(String(message.content || ''));
   const [showReactions, setShowReactions] = useState(false);
   const [reactions, setReactions] = useState<Array<{ userId: number; type: any }>>(message.Reactions || []);
@@ -328,7 +330,7 @@ const MessageBubble = memo(({
           const raw = message.content.slice(prefix.length);
           const obj = JSON.parse(decodeURIComponent(raw));
           if (obj && (obj.type === 'note' || obj.v === 1)) {
-            const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
+            const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string; background?: string | null };
             return (
               <SharedNoteCard 
                 note={note} 
@@ -473,7 +475,7 @@ const MessageBubble = memo(({
                     const raw = replyTo.content.slice(prefix.length);
                     const obj = JSON.parse(decodeURIComponent(raw));
                     if (obj && (obj.type === 'note' || obj.v === 1)) {
-                      const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
+                      const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string; background?: string | null };
                       return (
                         <div className="mb-0.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleJump(); }}>
                           <div className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-0.5 px-2">
@@ -542,7 +544,7 @@ const MessageBubble = memo(({
         const raw = replyTo.content.slice(prefix.length);
         const obj = JSON.parse(decodeURIComponent(raw));
         if (obj && (obj.type === 'note' || obj.v === 1)) {
-          const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string };
+          const note = obj as { id: number; title: string; content?: string; imageUrl?: string | null; videoUrl?: string | null; youtubeUrl?: string | null; category: string; priority: 'low'|'medium'|'high'; createdAt: string; background?: string | null };
           return (
             <div className="mb-0.5 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleJump(); }}>
               <div className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-0.5">
@@ -578,7 +580,7 @@ const MessageBubble = memo(({
   };
 
   const renderContent = () => {
-    if (isRecalled) {
+    if (recalled) {
       return renderRecalledMessage();
     }
 
@@ -601,14 +603,14 @@ const MessageBubble = memo(({
 
   return (
     <Tooltip.Provider delayDuration={150} skipDelayDuration={250}>
-    <div id={`message-${message.id}`} className={`message-bubble relative group flex ${isOwnMessage ? 'justify-end' : 'justify-start'} ${((message.messageType === 'image' || message.messageType === 'file') ? 'mb-1.5' : 'mb-1')} ${isLatestMineRow ? '' : 'hover:mb-2'}`}
+    <div id={`message-${message.id}`} className={`message-bubble relative group flex ${isOwnMessage ? 'justify-end' : 'justify-start'} ${((message.messageType === 'image' || message.messageType === 'file') ? 'mb-1.5' : 'mb-1')} ${(isLatestMineRow || recalled) ? '' : 'hover:mb-2'}`}
          onMouseLeave={() => setShowReactions(false)}>
       <div className="inline-flex flex-col">
         <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
           <div className={`relative`}>
             {renderContent()}
             {/* Reply button - positioned to the left of message content */}
-            {!isRecalled && !isCallLogMessage && onReplyMessage && (
+            {!recalled && !isCallLogMessage && onReplyMessage && (
               <button
                 type="button"
                 className={`absolute ${isOwnMessage ? '-left-8' : '-right-8'} top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-600 dark:text-gray-300 opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity hover:bg-gray-50 dark:hover:bg-gray-700`}
@@ -672,10 +674,10 @@ const MessageBubble = memo(({
         
         {/* Status and Reaction row (latest own message: always visible; others: expand on hover) */}
         <div
-          className={`flex items-center gap-1 ${isOwnMessage ? 'justify-end' : 'justify-start'} ${isLatestMineRow ? 'mt-0' : 'overflow-hidden transition-all duration-150 h-0 max-h-0 group-hover:h-6 group-hover:max-h-6 mt-0 group-hover:mt-1'}`}
+          className={`flex items-center gap-1 ${isOwnMessage ? 'justify-end' : 'justify-start'} ${isLatestMineRow ? 'mt-0' : (recalled ? 'mt-0 h-0 max-h-0' : 'overflow-hidden transition-all duration-150 h-0 max-h-0 group-hover:h-6 group-hover:max-h-6 mt-0 group-hover:mt-1')}`}
         >
             {/* Reaction trigger - show before status for own messages (always visible on hover; disabled if not allowed) */}
-            {!isRecalled && isOwnMessage && (
+            {!recalled && isOwnMessage && (
               <button
                 type="button"
                 disabled={!!disableReactions}
@@ -706,7 +708,7 @@ const MessageBubble = memo(({
             )}
             
             {/* Reaction trigger - show after status for received messages (always visible on hover) */}
-            {!isRecalled && !isOwnMessage && (
+            {!recalled && !isOwnMessage && (
               <button
                 type="button"
                 disabled={!!disableReactions}

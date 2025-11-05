@@ -167,7 +167,7 @@ export function useChatOpeners(params: {
         }
       } catch {}
 
-      const response = await groupService.getGroupMessages(group.id);
+      const response = await groupService.getGroupMessages(group.id, 1, 100);
       if (response.success) {
         const msgs = (response.data as any[]).map((m: any) => {
           const u = (currentUser && currentUser.id === m.senderId)

@@ -20,6 +20,7 @@ interface SharedNoteData {
   category?: string | { id: number; name: string; color: string; icon: string } | null;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
+  background?: string | null;
 }
 
 interface SharedNoteCardProps {
@@ -90,6 +91,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
           videoUrl: detail.videoUrl || prev.videoUrl,
           youtubeUrl: detail.youtubeUrl || prev.youtubeUrl,
           priority: detail.priority || prev.priority,
+          background: detail.background !== undefined ? detail.background : prev.background,
         }));
       }
     };
@@ -136,6 +138,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
           category: n.category,
           priority: n.priority,
           createdAt: n.createdAt,
+          background: n.background || n.backgroundImage || n.backgroundColor || null,
         });
         // Lưu owner của ghi chú để phục vụ canCreate
         if (typeof n.userId === 'number') {
@@ -290,9 +293,36 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
   const imgH = compact ? 'h-28' : 'h-40';
   const rightInfoMargin = compact ? 'ml-3' : '';
 
+  // Determine if background is a color or image URL
+  const isBackgroundImage = currentNote.background && (
+    currentNote.background.startsWith('http') || 
+    currentNote.background.startsWith('/') ||
+    currentNote.background.startsWith('data:')
+  );
+  
+  // Debug log
+  console.log('🎨 SharedNoteCard - Background info:', {
+    noteId: currentNote.id,
+    background: currentNote.background,
+    isBackgroundImage,
+    hasBackground: !!currentNote.background
+  });
+
   return (
     <>
-    <div className={`bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl ${wrapPad} border border-white/20 dark:border-gray-700/30 ${wrapMaxW}`}>
+    <div 
+      className={`backdrop-blur-lg rounded-2xl ${wrapPad} border border-white/20 dark:border-gray-700/30 ${wrapMaxW} ${!currentNote.background ? 'bg-white/70 dark:bg-gray-800/90' : ''}`}
+      style={currentNote.background ? (
+        isBackgroundImage ? {
+          backgroundImage: `url(${currentNote.background})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        } : {
+          backgroundColor: currentNote.background
+        }
+      ) : undefined}
+    >
       <div className={`flex items-start justify-between gap-2 ${headerMb}`}>
         <h3 className={`${titleSize} font-semibold text-gray-900 dark:text-white truncate flex-1 min-w-0`}>
           {currentNote.title}
