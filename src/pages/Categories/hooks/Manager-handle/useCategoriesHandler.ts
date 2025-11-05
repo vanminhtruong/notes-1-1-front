@@ -39,6 +39,7 @@ export const useCategoriesHandler = ({
       color: data.color,
       icon: data.icon,
       isDefault: false,
+      isPinned: false,
       userId: 0,
       notesCount: 0,
       createdAt: new Date().toISOString(),
@@ -113,10 +114,60 @@ export const useCategoriesHandler = ({
     }
   }, [t, setCategories]);
 
+  // Pin category - Optimistic update
+  const pinCategory = useCallback(async (id: number) => {
+    const oldCategory = categories.find(c => c.id === id);
+    
+    setCategories(prev => prev.map(c => {
+      if (c.id !== id) return c;
+      return { ...c, isPinned: true };
+    }));
+
+    try {
+      await notesService.pinCategory(id);
+      toast.success(t('pinSuccess'));
+      // Fetch lại data từ backend để lấy thứ tự mới (backend đã sort)
+      await fetchCategories();
+    } catch (error: any) {
+      console.error('Pin category error:', error);
+      if (oldCategory) {
+        setCategories(prev => prev.map(c => c.id === id ? oldCategory : c));
+      }
+      toast.error(error.response?.data?.message || t('pinError'));
+      throw error;
+    }
+  }, [t, categories, setCategories, fetchCategories]);
+
+  // Unpin category - Optimistic update
+  const unpinCategory = useCallback(async (id: number) => {
+    const oldCategory = categories.find(c => c.id === id);
+    
+    setCategories(prev => prev.map(c => {
+      if (c.id !== id) return c;
+      return { ...c, isPinned: false };
+    }));
+
+    try {
+      await notesService.unpinCategory(id);
+      toast.success(t('unpinSuccess'));
+      // Fetch lại data từ backend để lấy thứ tự mới (backend đã sort)
+      await fetchCategories();
+    } catch (error: any) {
+      console.error('Unpin category error:', error);
+      if (oldCategory) {
+        setCategories(prev => prev.map(c => c.id === id ? oldCategory : c));
+      }
+      toast.error(error.response?.data?.message || t('unpinError'));
+      throw error;
+    }
+  }, [t, categories, setCategories, fetchCategories]);
+
   return {
     fetchCategories,
     createCategory,
     updateCategory,
     deleteCategory,
+    pinCategory,
+    unpinCategory,
   };
 };

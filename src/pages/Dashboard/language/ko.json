@@ -901,6 +901,7 @@
     "create": "새 태그 만들기",
     "edit": "태그 수정",
     "delete": "태그 삭제",
+    "deleteTag": "태그 삭제",
     "name": "태그 이름",
     "color": "색상",
     "namePlaceholder": "태그 이름 입력...",

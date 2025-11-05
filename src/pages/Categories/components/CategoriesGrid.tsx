@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Tag, Edit2, Trash2, Eye } from 'lucide-react';
+import { Tag, Edit2, Trash2, Eye, Pin, PinOff } from 'lucide-react';
 import Pagination from '@/components/Pagination';
 import { type NoteCategory } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
@@ -11,6 +11,8 @@ interface CategoriesGridProps {
   onEdit: (category: NoteCategory) => void;
   onDelete: (category: NoteCategory) => void;
   onView: (category: NoteCategory) => void;
+  onPin: (id: number) => Promise<void>;
+  onUnpin: (id: number) => Promise<void>;
 }
 
 // Tối ưu: Sử dụng memo để tránh re-render không cần thiết
@@ -20,6 +22,8 @@ const CategoriesGrid = memo(({
   onEdit,
   onDelete,
   onView,
+  onPin,
+  onUnpin,
 }: CategoriesGridProps) => {
   const { t } = useTranslation('categories');
   const PAGE_SIZE = 8;
@@ -115,8 +119,25 @@ const CategoriesGrid = memo(({
             return (
               <div
                 key={category.id}
-                className="group bg-white dark:bg-gray-800 rounded-xl xl-down:rounded-lg lg-down:rounded-lg md-down:rounded-lg sm-down:rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700 overflow-hidden"
+                className="group bg-white dark:bg-gray-800 rounded-xl xl-down:rounded-lg lg-down:rounded-lg md-down:rounded-lg sm-down:rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700 overflow-hidden relative"
               >
+                {/* Pin Button - Top Right Corner */}
+                <button
+                  onClick={() => category.isPinned ? onUnpin(category.id) : onPin(category.id)}
+                  className={`absolute top-2 right-2 z-10 p-1.5 rounded-lg transition-all duration-200 ${
+                    category.isPinned 
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                  title={category.isPinned ? t('unpin') : t('pin')}
+                >
+                  {category.isPinned ? (
+                    <Pin className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 fill-current" />
+                  ) : (
+                    <PinOff className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                  )}
+                </button>
+
                 {/* Category Icon - Centered */}
                 <div 
                   className="p-6 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-4 xs-down:p-3 flex items-center justify-center border-b border-gray-100 dark:border-gray-700"

@@ -25,7 +25,7 @@ export default function Categories() {
     setIsLoading: state.setIsLoading,
     categories: state.categories,
   });
-  const { createCategory, updateCategory, deleteCategory } = handlers;
+  const { createCategory, updateCategory, deleteCategory, pinCategory, unpinCategory } = handlers;
 
   const modalsHandler = CategoriesHooks.useCategoriesModalsHandler({
     setCreateModalOpen: modalsState.setCreateModalOpen,
@@ -84,6 +84,8 @@ export default function Categories() {
                 onEdit={modalsHandler.handleEditCategory}
                 onDelete={modalsHandler.handleDeleteCategory}
                 onView={modalsHandler.handleViewNotes}
+                onPin={pinCategory}
+                onUnpin={unpinCategory}
               />
             </LazyLoad>
           </div>

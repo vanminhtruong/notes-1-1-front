@@ -87,6 +87,18 @@ export const useCategoriesEffects = ({
       });
     };
 
+    const handleCategoryPinned = (data: any) => {
+      console.log('✅ Category pinned event received:', data);
+      // Fetch lại data để lấy thứ tự mới từ backend (đã được sort)
+      fetchCategoriesRef.current();
+    };
+
+    const handleCategoryUnpinned = (data: any) => {
+      console.log('✅ Category unpinned event received:', data);
+      // Fetch lại data để lấy thứ tự mới từ backend (đã được sort)
+      fetchCategoriesRef.current();
+    };
+
     const handleCategoriesReorderNeeded = () => {
       console.log('Categories reorder needed event received');
       fetchCategoriesRef.current();
@@ -95,12 +107,16 @@ export const useCategoriesEffects = ({
     socket.on('category_created', handleCategoryCreated);
     socket.on('category_updated', handleCategoryUpdated);
     socket.on('category_deleted', handleCategoryDeleted);
+    socket.on('category_pinned', handleCategoryPinned);
+    socket.on('category_unpinned', handleCategoryUnpinned);
     socket.on('categories_reorder_needed', handleCategoriesReorderNeeded);
     
     console.log('📋 Registered socket events:', [
       'category_created',
       'category_updated', 
       'category_deleted',
+      'category_pinned',
+      'category_unpinned',
       'categories_reorder_needed'
     ]);
 
@@ -109,6 +125,8 @@ export const useCategoriesEffects = ({
       socket.off('category_created', handleCategoryCreated);
       socket.off('category_updated', handleCategoryUpdated);
       socket.off('category_deleted', handleCategoryDeleted);
+      socket.off('category_pinned', handleCategoryPinned);
+      socket.off('category_unpinned', handleCategoryUnpinned);
       socket.off('categories_reorder_needed', handleCategoriesReorderNeeded);
     };
   }, [setCategories]);

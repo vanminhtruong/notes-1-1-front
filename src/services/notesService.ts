@@ -240,6 +240,7 @@ export interface NoteCategory {
   color: string;
   icon: string;
   isDefault: boolean;
+  isPinned: boolean;
   userId: number;
   notesCount?: number;
   createdAt: string;
@@ -521,6 +522,16 @@ export const notesService = {
 
   async deleteCategory(id: number): Promise<{ message: string }> {
     const response = await api.delete(`/notes/categories/${id}`);
+    return response.data;
+  },
+
+  async pinCategory(id: number): Promise<{ message: string; category: NoteCategory }> {
+    const response = await api.patch(`/notes/categories/${id}/pin`);
+    return response.data;
+  },
+
+  async unpinCategory(id: number): Promise<{ message: string; category: NoteCategory }> {
+    const response = await api.patch(`/notes/categories/${id}/unpin`);
     return response.data;
   },
 

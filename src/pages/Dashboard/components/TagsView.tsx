@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Tag, ArrowLeft, Search, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Tag, ArrowLeft, Search, X, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { useAppSelector } from '@/store';
 import { useNoteTagsHandler } from '../hooks/Manager-handle/useNoteTagsHandler';
 import { useNoteTagsEffects } from '../hooks/Manager-Effects/useNoteTagsEffects';
@@ -36,7 +37,7 @@ const TagsView = ({
   getPriorityText,
 }: TagsViewProps) => {
   const { t } = useTranslation('dashboard');
-  const { tags, loadTags } = useNoteTagsHandler();
+  const { tags, loadTags, deleteTag } = useNoteTagsHandler();
   useNoteTagsEffects();
   const dueReminderNoteIds = useAppSelector((state) => state.notes.dueReminderNoteIds);
 
@@ -78,6 +79,65 @@ const TagsView = ({
   const notes = filteredNotes;
 
   const [tagSearchQuery, setTagSearchQuery] = useState('');
+  const [hoveredTagId, setHoveredTagId] = useState<number | null>(null);
+
+  // Handler xóa tag
+  const handleDeleteTag = async (e: React.MouseEvent, tag: any) => {
+    e.stopPropagation(); // Ngăn không cho trigger handleSelectTag
+    
+    toast.custom((toastData) => {
+      const containerClass = `max-w-sm w-full rounded-xl shadow-lg border ${
+        toastData.visible ? 'animate-enter' : 'animate-leave'
+      } bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`;
+      
+      return React.createElement(
+        'div',
+        { className: containerClass },
+        React.createElement(
+          'div',
+          { className: 'flex items-start gap-3' },
+          React.createElement(
+            'div',
+            { className: 'flex-1' },
+            React.createElement('p', { className: 'font-semibold' }, t('tags.confirmDelete')),
+            React.createElement('p', { className: 'text-sm text-gray-600 dark:text-gray-300 mt-1' }, tag.name),
+            React.createElement('p', { className: 'text-xs text-gray-500 dark:text-gray-400 mt-1' }, t('tags.confirmDeleteDesc'))
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'mt-3 flex justify-end gap-2' },
+          React.createElement(
+            'button',
+            {
+              onClick: () => toast.dismiss(toastData.id),
+              className: 'px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm',
+            },
+            t('tags.cancel')
+          ),
+          React.createElement(
+            'button',
+            {
+              onClick: async () => {
+                try {
+                  await deleteTag(tag.id);
+                  toast.dismiss(toastData.id);
+                  toast.success(t('tags.deleteSuccess'));
+                  loadTags();
+                } catch (error: any) {
+                  console.error('Error deleting tag:', error);
+                  toast.dismiss(toastData.id);
+                  toast.error(error.response?.data?.message || t('tags.deleteError'));
+                }
+              },
+              className: 'px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm',
+            },
+            t('tags.delete')
+          )
+        )
+      );
+    }, { duration: 8000 });
+  };
 
   // Load tags only if not already loaded (fallback)
   useEffect(() => {
@@ -134,6 +194,8 @@ const TagsView = ({
                 <button
                   key={tag.id}
                   onClick={() => handleSelectTag(tag)}
+                  onMouseEnter={() => setHoveredTagId(tag.id)}
+                  onMouseLeave={() => setHoveredTagId(null)}
                   className="flex items-center justify-between gap-2 p-3 rounded-xl border-2 border-transparent hover:border-blue-500 dark:hover:border-blue-400 transition-all hover:shadow-md bg-gray-50 dark:bg-gray-700/50 xl-down:p-2.5 md-down:p-2 sm-down:p-1.5 xs-down:rounded-lg"
                   style={{ borderLeftColor: tag.color, borderLeftWidth: '4px' }}
                 >
@@ -146,9 +208,24 @@ const TagsView = ({
                       {tag.name}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 px-2 py-0.5 rounded-full flex-shrink-0 sm-down:text-2xs sm-down:px-1.5">
-                    {tag.notesCount || 0}
-                  </span>
+                  <div 
+                    className="relative flex-shrink-0 inline-flex items-center justify-center text-xs bg-gray-200 dark:bg-gray-600 rounded-full sm-down:text-2xs w-7 h-7 sm-down:w-6 sm-down:h-6"
+                    onMouseEnter={(e) => e.stopPropagation()}
+                  >
+                    {hoveredTagId === tag.id ? (
+                      <button
+                        onClick={(e) => handleDeleteTag(e, tag)}
+                        className="absolute inset-0 text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-200"
+                        title={t('tags.deleteTag')}
+                      >
+                        <Trash2 className="w-3 h-3 sm-down:w-2.5 sm-down:h-2.5" />
+                      </button>
+                    ) : (
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {tag.notesCount || 0}
+                      </span>
+                    )}
+                  </div>
                 </button>
               ))
             )}

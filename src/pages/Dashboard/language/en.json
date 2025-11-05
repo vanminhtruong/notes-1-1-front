@@ -943,6 +943,7 @@
     "create": "Create new tag",
     "edit": "Edit tag",
     "delete": "Delete tag",
+    "deleteTag": "Delete tag",
     "name": "Tag name",
     "color": "Color",
     "namePlaceholder": "Enter tag name...",

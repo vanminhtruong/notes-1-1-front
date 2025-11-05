@@ -940,6 +940,7 @@
     "create": "Tạo tag mới",
     "edit": "Chỉnh sửa tag",
     "delete": "Xóa tag",
+    "deleteTag": "Xóa tag",
     "name": "Tên tag",
     "color": "Màu sắc",
     "namePlaceholder": "Nhập tên tag...",
