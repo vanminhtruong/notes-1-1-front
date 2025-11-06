@@ -154,7 +154,14 @@ const noteTagsSlice = createSlice({
     addTagRealtime: (state, action: PayloadAction<NoteTag>) => {
       const exists = state.tags.some(tag => tag.id === action.payload.id);
       if (!exists) {
-        state.tags.push(action.payload);
+        // Thêm tag mới vào đầu danh sách rồi sắp xếp: tag ghim lên trước, sau đó theo thời gian tạo (mới trước)
+        state.tags.unshift(action.payload);
+        state.tags.sort((a: any, b: any) => {
+          if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+          const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return bTime - aTime;
+        });
       }
     },
     updateTagRealtime: (state, action: PayloadAction<NoteTag>) => {
@@ -162,22 +169,15 @@ const noteTagsSlice = createSlice({
       if (index !== -1) {
         // Xóa tag cũ khỏi vị trí hiện tại
         state.tags.splice(index, 1);
-        
-        // Tìm vị trí mới để insert (dựa trên isPinned)
-        let insertIndex = 0;
-        if (action.payload.isPinned) {
-          // Nếu tag được ghim, insert vào cuối danh sách tag ghim
-          insertIndex = state.tags.findIndex(tag => !tag.isPinned);
-          if (insertIndex === -1) insertIndex = state.tags.length;
-        } else {
-          // Nếu tag bỏ ghim, insert vào đầu danh sách tag không ghim
-          insertIndex = state.tags.findIndex(tag => !tag.isPinned);
-          if (insertIndex === -1) insertIndex = state.tags.length;
-        }
-        
-        // Insert tag vào vị trí mới
-        state.tags.splice(insertIndex, 0, action.payload);
       }
+      // Thêm/cập nhật tag rồi sắp xếp lại: tag ghim lên trước, sau đó theo thời gian tạo (mới trước)
+      state.tags.push(action.payload);
+      state.tags.sort((a: any, b: any) => {
+        if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bTime - aTime;
+      });
       if (state.currentTag?.id === action.payload.id) {
         state.currentTag = action.payload;
       }
