@@ -4,6 +4,7 @@ export interface NoteTag {
   id: number;
   name: string;
   color: string;
+  isPinned?: boolean;
   notesCount?: number;
   createdAt: string;
   updatedAt: string;
@@ -562,6 +563,11 @@ export const notesService = {
 
   async deleteTag(id: number): Promise<{ message: string }> {
     const response = await api.delete(`/notes/tags/${id}`);
+    return response.data;
+  },
+
+  async togglePinTag(id: number): Promise<{ message: string; tag: NoteTag }> {
+    const response = await api.patch(`/notes/tags/${id}/pin`);
     return response.data;
   },
 

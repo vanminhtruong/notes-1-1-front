@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Tag, Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { X, Tag, Plus, Edit2, Trash2, Search, Pin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNoteTagsHandler } from '../hooks/Manager-handle/useNoteTagsHandler';
 import { useNoteTagsEffects } from '../hooks/Manager-Effects/useNoteTagsEffects';
@@ -27,7 +27,7 @@ const TAG_COLORS = [
 
 const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
   const { t } = useTranslation('dashboard');
-  const { tags, isLoading, loadTags, createTag, updateTag, deleteTag } = useNoteTagsHandler();
+  const { tags, isLoading, loadTags, createTag, updateTag, deleteTag, togglePinTag } = useNoteTagsHandler();
   useNoteTagsEffects();
   const { confirmWithToast } = useConfirmationToast({ 
     t: (key: string, defaultValue?: string) => t(key, defaultValue || '') as string 
@@ -81,6 +81,10 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
     if (confirmed) {
       await deleteTag(id);
     }
+  };
+
+  const handleTogglePin = async (id: number) => {
+    await togglePinTag(id);
   };
 
   const handleCancel = () => {
@@ -210,6 +214,9 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
                   className="flex items-center justify-between p-3 md-down:p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {tag.isPinned && (
+                      <Pin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0 md-down:w-3 md-down:h-3" fill="currentColor" />
+                    )}
                     <div
                       className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 rounded-full flex-shrink-0"
                       style={{ backgroundColor: tag.color }}
@@ -223,16 +230,27 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
+                      onClick={() => handleTogglePin(tag.id)}
+                      className={`p-2 md-down:p-1.5 rounded-lg transition-colors ${
+                        tag.isPinned
+                          ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                      title={tag.isPinned ? t('tags.unpin') : t('tags.pin')}
+                    >
+                      <Pin className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" fill={tag.isPinned ? 'currentColor' : 'none'} />
+                    </button>
+                    <button
                       onClick={() => handleEdit(tag)}
                       className="p-2 md-down:p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-                      title="Sửa"
+                      title={t('tags.edit')}
                     >
                       <Edit2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(tag.id)}
                       className="p-2 md-down:p-1.5 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-                      title="Xóa"
+                      title={t('tags.delete')}
                     >
                       <Trash2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                     </button>

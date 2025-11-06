@@ -5,6 +5,7 @@ import {
   createTag,
   updateTag,
   deleteTag,
+  togglePinTag,
   addTagToNote,
   removeTagFromNote,
 } from '@/store/slices/noteTagsSlice';
@@ -42,6 +43,10 @@ export const useNoteTagsHandler = () => {
     return dispatch(removeTagFromNote({ noteId, tagId }));
   }, [dispatch]);
 
+  const handleTogglePinTag = useCallback((id: number) => {
+    return dispatch(togglePinTag(id));
+  }, [dispatch]);
+
   return {
     tags,
     currentTag,
@@ -51,6 +56,7 @@ export const useNoteTagsHandler = () => {
     createTag: handleCreateTag,
     updateTag: handleUpdateTag,
     deleteTag: handleDeleteTag,
+    togglePinTag: handleTogglePinTag,
     addTagToNote: handleAddTagToNote,
     removeTagFromNote: handleRemoveTagFromNote,
   };

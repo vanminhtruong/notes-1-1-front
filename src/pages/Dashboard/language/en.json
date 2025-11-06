@@ -967,6 +967,9 @@
     "confirmDeleteDesc": "Tag will be removed from all notes.",
     "alreadyAdded": "Tag already added",
     "searchToAdd": "Search to add tags...",
+    "pin": "Pin tag",
+    "unpin": "Unpin tag",
+    "pinError": "Failed to pin/unpin tag",
     "maxLimit": "You can only add up to {{max}} tags per note",
     "loading": "Loading...",
     "loadMore": "Load more"

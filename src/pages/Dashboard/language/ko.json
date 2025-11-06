@@ -925,6 +925,9 @@
     "confirmDeleteDesc": "모든 노트에서 태그가 제거됩니다.",
     "alreadyAdded": "이미 추가된 태그입니다",
     "searchToAdd": "태그를 검색하여 추가...",
+    "pin": "태그 고정",
+    "unpin": "태그 고정 해제",
+    "pinError": "태그 고정/해제 실패",
     "maxLimit": "각 노트에는 최대 {{max}}개의 태그만 추가할 수 있습니다",
     "loading": "로딩 중...",
     "loadMore": "더 보기"

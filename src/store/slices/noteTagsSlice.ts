@@ -92,6 +92,21 @@ export const deleteTag = createAsyncThunk(
   }
 );
 
+export const togglePinTag = createAsyncThunk(
+  'noteTags/togglePinTag',
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const response = await notesService.togglePinTag(id);
+      toast.success(response.message);
+      return response.tag;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Ghim/bỏ ghim tag thất bại';
+      toast.error(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
 export const addTagToNote = createAsyncThunk(
   'noteTags/addTagToNote',
   async ({ noteId, tagId }: { noteId: number; tagId: number }, { rejectWithValue }) => {
@@ -139,12 +154,15 @@ const noteTagsSlice = createSlice({
     addTagRealtime: (state, action: PayloadAction<NoteTag>) => {
       const exists = state.tags.some(tag => tag.id === action.payload.id);
       if (!exists) {
+        // Thêm tag mới vào cuối, sau đó sẽ fetch lại để backend sắp xếp
         state.tags.push(action.payload);
       }
     },
     updateTagRealtime: (state, action: PayloadAction<NoteTag>) => {
       const index = state.tags.findIndex(tag => tag.id === action.payload.id);
       if (index !== -1) {
+        // Chỉ cập nhật thông tin tag, không di chuyển vị trí
+        // Vị trí sẽ được sắp xếp lại khi fetch từ backend
         state.tags[index] = action.payload;
       }
       if (state.currentTag?.id === action.payload.id) {
@@ -191,6 +209,11 @@ const noteTagsSlice = createSlice({
       // Delete Tag
       .addCase(deleteTag.fulfilled, (state) => {
         // Tag will be removed by socket event 'tag_deleted' for real-time sync
+        state.isLoading = false;
+      })
+      // Toggle Pin Tag
+      .addCase(togglePinTag.fulfilled, (state) => {
+        // Tag will be updated by socket event 'tag_updated' for real-time sync
         state.isLoading = false;
       });
   },

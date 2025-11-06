@@ -964,6 +964,9 @@
     "confirmDeleteDesc": "Tag sẽ bị xóa khỏi tất cả ghi chú.",
     "alreadyAdded": "Tag đã được thêm",
     "searchToAdd": "Tìm kiếm để thêm tag...",
+    "pin": "Ghim tag",
+    "unpin": "Bỏ ghim tag",
+    "pinError": "Không thể ghim/bỏ ghim tag",
     "maxLimit": "Bạn chỉ được thêm tối đa {{max}} tag cho mỗi ghi chú",
     "loading": "Đang tải...",
     "loadMore": "Tải thêm"

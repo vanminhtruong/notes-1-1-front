@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { socketService } from '@/services/socketService';
 import type { AppDispatch } from '@/store';
 import { fetchNotes, fetchNoteStats } from '@/store/slices/notesSlice';
-import { addTagRealtime, updateTagRealtime, deleteTagRealtime } from '@/store/slices/noteTagsSlice';
+import { addTagRealtime, updateTagRealtime, deleteTagRealtime, fetchTags } from '@/store/slices/noteTagsSlice';
 
 type ViewMode = 'active' | 'archived' | 'folders' | 'tags';
 
@@ -133,6 +133,16 @@ export const useSocketListenersEffects = ({
       dispatch(deleteTagRealtime({ id: data.id }));
     };
 
+    const handleTagPinned = () => {
+      // Fetch lại danh sách tags để backend sắp xếp lại theo isPinned
+      dispatch(fetchTags({}));
+    };
+
+    const handleTagUnpinned = () => {
+      // Fetch lại danh sách tags để backend sắp xếp lại theo isPinned
+      dispatch(fetchTags({}));
+    };
+
     const handleNoteTagAdded = () => {
       const filters = filtersRef.current;
       // Refresh notes to show updated tags
@@ -162,6 +172,13 @@ export const useSocketListenersEffects = ({
     socket.on('tag_created', handleTagCreated);
     socket.on('tag_updated', handleTagUpdated);
     socket.on('tag_deleted', handleTagDeleted);
+    socket.on('tag_pinned', handleTagPinned);
+    socket.on('tag_unpinned', handleTagUnpinned);
+    socket.on('admin_tag_created', handleTagCreated);
+    socket.on('admin_tag_updated', handleTagUpdated);
+    socket.on('admin_tag_deleted', handleTagDeleted);
+    socket.on('admin_tag_pinned', handleTagPinned);
+    socket.on('admin_tag_unpinned', handleTagUnpinned);
     socket.on('note_tag_added', handleNoteTagAdded);
     socket.on('note_tag_removed', handleNoteTagRemoved);
 
@@ -169,6 +186,13 @@ export const useSocketListenersEffects = ({
       socket.off('tag_created', handleTagCreated);
       socket.off('tag_updated', handleTagUpdated);
       socket.off('tag_deleted', handleTagDeleted);
+      socket.off('tag_pinned', handleTagPinned);
+      socket.off('tag_unpinned', handleTagUnpinned);
+      socket.off('admin_tag_created', handleTagCreated);
+      socket.off('admin_tag_updated', handleTagUpdated);
+      socket.off('admin_tag_deleted', handleTagDeleted);
+      socket.off('admin_tag_pinned', handleTagPinned);
+      socket.off('admin_tag_unpinned', handleTagUnpinned);
       socket.off('note_tag_added', handleNoteTagAdded);
       socket.off('note_tag_removed', handleNoteTagRemoved);
     };
