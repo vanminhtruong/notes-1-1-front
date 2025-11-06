@@ -4,7 +4,6 @@ import {
   addTagRealtime,
   updateTagRealtime,
   deleteTagRealtime,
-  fetchTags,
 } from '@/store/slices/noteTagsSlice';
 import type { NoteTag } from '@/services/notesService';
 import { getSocket } from '@/services/socket';
@@ -41,46 +40,18 @@ export const useNoteTagsEffects = () => {
       console.log('Note tag removed:', data);
     };
 
-    const handleTagPinned = () => {
-      // Fetch lại danh sách tags để backend sắp xếp lại theo isPinned
-      dispatch(fetchTags({}));
-    };
-
-    const handleTagUnpinned = () => {
-      // Fetch lại danh sách tags để backend sắp xếp lại theo isPinned
-      dispatch(fetchTags({}));
-    };
-
-    // User events
     socket.on('tag_created', handleTagCreated);
     socket.on('tag_updated', handleTagUpdated);
     socket.on('tag_deleted', handleTagDeleted);
-    socket.on('tag_pinned', handleTagPinned);
-    socket.on('tag_unpinned', handleTagUnpinned);
     socket.on('note_tag_added', handleNoteTagAdded);
     socket.on('note_tag_removed', handleNoteTagRemoved);
-
-    // Admin events
-    socket.on('admin_tag_created', handleTagCreated);
-    socket.on('admin_tag_updated', handleTagUpdated);
-    socket.on('admin_tag_deleted', handleTagDeleted);
-    socket.on('admin_tag_pinned', handleTagPinned);
-    socket.on('admin_tag_unpinned', handleTagUnpinned);
 
     return () => {
       socket.off('tag_created', handleTagCreated);
       socket.off('tag_updated', handleTagUpdated);
       socket.off('tag_deleted', handleTagDeleted);
-      socket.off('tag_pinned', handleTagPinned);
-      socket.off('tag_unpinned', handleTagUnpinned);
       socket.off('note_tag_added', handleNoteTagAdded);
       socket.off('note_tag_removed', handleNoteTagRemoved);
-      
-      socket.off('admin_tag_created', handleTagCreated);
-      socket.off('admin_tag_updated', handleTagUpdated);
-      socket.off('admin_tag_deleted', handleTagDeleted);
-      socket.off('admin_tag_pinned', handleTagPinned);
-      socket.off('admin_tag_unpinned', handleTagUnpinned);
     };
   }, [dispatch]);
 };

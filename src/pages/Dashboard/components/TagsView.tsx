@@ -207,13 +207,13 @@ const TagsView = ({
               </div>
             ) : (
               filteredTags.map((tag) => (
-                <div
+                <button
                   key={tag.id}
+                  onClick={() => handleSelectTag(tag)}
                   onMouseEnter={() => setHoveredTagId(tag.id)}
                   onMouseLeave={() => setHoveredTagId(null)}
-                  className="flex items-center justify-between gap-2 p-3 rounded-xl border-2 border-transparent hover:border-blue-500 dark:hover:border-blue-400 transition-all hover:shadow-md bg-gray-50 dark:bg-gray-700/50 xl-down:p-2.5 md-down:p-2 sm-down:p-1.5 xs-down:rounded-lg cursor-pointer"
+                  className="flex items-center justify-between gap-2 p-3 rounded-xl border-2 border-transparent hover:border-blue-500 dark:hover:border-blue-400 transition-all hover:shadow-md bg-gray-50 dark:bg-gray-700/50 xl-down:p-2.5 md-down:p-2 sm-down:p-1.5 xs-down:rounded-lg"
                   style={{ borderLeftColor: tag.color, borderLeftWidth: '4px' }}
-                  onClick={() => handleSelectTag(tag)}
                 >
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     {tag.isPinned && (
@@ -256,7 +256,7 @@ const TagsView = ({
                       </span>
                     )}
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>
