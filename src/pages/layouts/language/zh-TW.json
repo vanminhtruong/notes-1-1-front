@@ -1,0 +1,79 @@
+{
+  "appName": "筆記應用",
+  "nav": {
+    "dashboard": "儀表板",
+    "categories": "類別",
+    "about": "關於",
+    "contact": "聯絡"
+  },
+  "user": {
+    "account": "帳戶",
+    "accountDetails": "帳戶詳情",
+    "categories": "管理類別",
+    "chat": "聊天",
+    "changePassword": "更改密碼",
+    "devices": "已登入裝置",
+    "logout": "登出",
+    "deleteAccount": "刪除帳戶",
+    "deleteConfirm": "確認刪除帳戶？",
+    "deleteMessage": "此動作無法復原。您的所有資料將被刪除，且所有裝置將登出。",
+    "deleteSuccess": "帳戶刪除成功",
+    "deleteFailed": "帳戶刪除失敗",
+    "accountDeleted": "您的帳戶已被刪除。",
+    "sessionTerminated": "您的工作階段已被管理員終止",
+    "allSessionsTerminated": "您所有的工作階段已被管理員終止",
+    "logoutConfirm": "確認登出？",
+    "logoutMessage": "您確定要登出嗎？",
+    "cancel": "取消"
+  },
+  "devices": {
+    "title": "已登入裝置",
+    "subtitle": "管理您的裝置和登入工作階段",
+    "current": "目前裝置",
+    "lastActive": "最後活躍",
+    "justNow": "剛剛",
+    "minutesAgo": "{{count}} 分鐘前",
+    "hoursAgo": "{{count}} 小時前",
+    "daysAgo": "{{count}} 天前",
+    "noSessions": "未找到登入工作階段",
+    "confirmDelete": "移除此工作階段？",
+    "confirmDeleteMessage": "此裝置將立即登出。",
+    "confirmDeleteAll": "登出其他所有裝置？",
+    "confirmDeleteAllMessage": "除了目前裝置外，所有其他裝置都將登出。",
+    "deleteSuccess": "工作階段移除成功",
+    "deleteAllSuccess": "已登出所有其他裝置",
+    "deleteError": "移除工作階段失敗",
+    "deleteAllError": "登出其他裝置失敗",
+    "deleteAllOther": "登出所有其他裝置",
+    "deleting": "處理中...",
+    "fetchError": "載入裝置列表失敗",
+    "sessionRevokedMessage": "工作階段列表已更新",
+    "allSessionsRevokedMessage": "裝置列表已更新",
+    "confirm": "確認",
+    "cancel": "取消",
+    "deleteCurrentWarning": "您將從目前裝置登出。",
+    "deleteDevice": "刪除此裝置"
+  },
+  "theme": {
+    "light": "亮色",
+    "dark": "暗色",
+    "darkBlack": "純黑",
+    "selectTheme": "選擇主題"
+  },
+  "animatedBackground": {
+    "title": "動態背景",
+    "none": "無",
+    "christmas": "聖誕節",
+    "tet": "農曆新年",
+    "easter": "復活節",
+    "halloween": "萬聖節",
+    "updated": "動態背景已更新",
+    "updateFailed": "更新動態背景失敗",
+    "disabled": "開啟以選擇動態背景主題"
+  },
+  "footer": {
+    "copyright": "版權所有",
+    "privacy": "隱私",
+    "terms": "條款"
+  }
+}

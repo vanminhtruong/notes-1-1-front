@@ -1,0 +1,79 @@
+{
+  "appName": "笔记应用",
+  "nav": {
+    "dashboard": "仪表盘",
+    "categories": "分类",
+    "about": "关于",
+    "contact": "联系"
+  },
+  "user": {
+    "account": "账户",
+    "accountDetails": "账户详情",
+    "categories": "管理分类",
+    "chat": "聊天",
+    "changePassword": "修改密码",
+    "devices": "已登录设备",
+    "logout": "退出登录",
+    "deleteAccount": "删除账户",
+    "deleteConfirm": "确认删除账户？",
+    "deleteMessage": "此操作不可逆。您的所有数据将被删除，且所有设备将退出登录。",
+    "deleteSuccess": "账户删除成功",
+    "deleteFailed": "账户删除失败",
+    "accountDeleted": "您的账户已被删除。",
+    "sessionTerminated": "您的会话已被管理员终止",
+    "allSessionsTerminated": "您所有的会话已被管理员终止",
+    "logoutConfirm": "确认退出？",
+    "logoutMessage": "您确定要退出登录吗？",
+    "cancel": "取消"
+  },
+  "devices": {
+    "title": "已登录设备",
+    "subtitle": "管理您的设备和登录会话",
+    "current": "当前设备",
+    "lastActive": "最后活跃",
+    "justNow": "刚刚",
+    "minutesAgo": "{{count}} 分钟前",
+    "hoursAgo": "{{count}} 小时前",
+    "daysAgo": "{{count}} 天前",
+    "noSessions": "未找到登录会话",
+    "confirmDelete": "移除此会话？",
+    "confirmDeleteMessage": "此设备将立即退出登录。",
+    "confirmDeleteAll": "退出其他所有设备？",
+    "confirmDeleteAllMessage": "除了当前设备外，所有其他设备都将退出登录。",
+    "deleteSuccess": "会话移除成功",
+    "deleteAllSuccess": "已退出所有其他设备",
+    "deleteError": "移除会话失败",
+    "deleteAllError": "退出其他设备失败",
+    "deleteAllOther": "退出所有其他设备",
+    "deleting": "处理中...",
+    "fetchError": "加载设备列表失败",
+    "sessionRevokedMessage": "会话列表已更新",
+    "allSessionsRevokedMessage": "设备列表已更新",
+    "confirm": "确认",
+    "cancel": "取消",
+    "deleteCurrentWarning": "您将从当前设备退出登录。",
+    "deleteDevice": "删除此设备"
+  },
+  "theme": {
+    "light": "亮色",
+    "dark": "暗色",
+    "darkBlack": "纯黑",
+    "selectTheme": "选择主题"
+  },
+  "animatedBackground": {
+    "title": "动态背景",
+    "none": "无",
+    "christmas": "圣诞节",
+    "tet": "农历新年",
+    "easter": "复活节",
+    "halloween": "万圣节",
+    "updated": "动态背景已更新",
+    "updateFailed": "更新动态背景失败",
+    "disabled": "开启以选择动态背景主题"
+  },
+  "footer": {
+    "copyright": "版权所有",
+    "privacy": "隐私",
+    "terms": "条款"
+  }
+}

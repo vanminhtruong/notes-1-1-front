@@ -37,6 +37,17 @@
     "health": "Sức khỏe"
   },
   "filters": {
+    "title": "Tìm kiếm & Bộ lọc",
+    "subtitle": "Tìm ghi chú của bạn nhanh chóng",
+    "categoryLabel": "Danh mục",
+    "priorityLabel": "Mức độ",
+    "selectCategory": "Chọn danh mục",
+    "selectPriority": "Chọn mức độ",
+    "activeFilters": "Đang lọc",
+    "clearAll": "Xóa",
+    "quickFilters": "Nhanh:",
+    "showFilters": "Bộ lọc",
+    "hideFilters": "Ẩn",
     "allCategories": "Tất cả danh mục",
     "category": {
       "work": "Công việc",
@@ -46,7 +57,11 @@
     "allPriorities": "Tất cả mức độ",
     "priority": {
       "high": "Cao",
-      "low": "Thấp"
+      "highDesc": "Việc cần gấp",
+      "medium": "Trung bình",
+      "mediumDesc": "Việc quan trọng",
+      "low": "Thấp",
+      "lowDesc": "Có thể chờ"
     }
   },
   "actions": {
@@ -104,7 +119,8 @@
     "selectAll": "Chọn tất cả",
     "unselectAll": "Bỏ chọn tất cả",
     "pleaseWait": "Đang xử lý...",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "close": "Đóng"
   },
   "gender": {
     "male": "Nam",
@@ -530,8 +546,7 @@
         "owner": "Chủ nhóm",
         "admin": "Quản trị",
         "member": "Thành viên"
-      }
-    ,
+      },
       "adminsOnly": {
         "inputHidden": "Chỉ trưởng/phó nhóm được gửi tin nhắn vào nhóm. Tìm hiểu thêm"
       },

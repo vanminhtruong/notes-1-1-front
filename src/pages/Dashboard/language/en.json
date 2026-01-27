@@ -37,6 +37,17 @@
     "health": "Health"
   },
   "filters": {
+    "title": "Search & Filters",
+    "subtitle": "Find your notes quickly",
+    "categoryLabel": "Category",
+    "priorityLabel": "Priority",
+    "selectCategory": "Select Category",
+    "selectPriority": "Select Priority",
+    "activeFilters": "Active",
+    "clearAll": "Clear",
+    "quickFilters": "Quick:",
+    "showFilters": "Filters",
+    "hideFilters": "Hide",
     "allCategories": "All categories",
     "category": {
       "work": "Work",
@@ -46,8 +57,11 @@
     "allPriorities": "All priorities",
     "priority": {
       "high": "High",
+      "highDesc": "Urgent tasks",
       "medium": "Medium",
-      "low": "Low"
+      "mediumDesc": "Important tasks",
+      "low": "Low",
+      "lowDesc": "Can wait"
     }
   },
   "actions": {
@@ -111,7 +125,8 @@
     "selectAll": "Select all",
     "unselectAll": "Unselect all",
     "pleaseWait": "Please wait...",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "gender": {
     "male": "Male",
@@ -975,5 +990,3 @@
     "loadMore": "Load more"
   }
 }
-
-

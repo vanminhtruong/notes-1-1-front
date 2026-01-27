@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "badge": "我们随时为您提供帮助",
+    "title": "联系我们",
+    "subtitle": "有疑问、反馈或合作意向？给我们发送消息，我们的团队将尽快回复您。"
+  },
+  "cards": {
+    "email": {
+      "title": "邮箱",
+      "value": "support@notesapp.com"
+    },
+    "phone": {
+      "title": "电话",
+      "value": "+1 (555) 123-4567"
+    },
+    "address": {
+      "title": "地址",
+      "value": "123 Innovation Street, Silicon Valley, CA"
+    }
+  },
+  "form": {
+    "title": "发送消息",
+    "name": "该子您的姓名",
+    "email": "电子邮箱",
+    "subject": "主题",
+    "message": "消息内容",
+    "namePh": "输入您的姓名",
+    "emailPh": "输入您的邮箱",
+    "subjectPh": "我们能为您做什么？",
+    "messagePh": "在此输入消息...",
+    "privacyNote": "我们尊重您的隐私，绝不分享您的数据。",
+    "send": "发送消息",
+    "sending": "发送中...",
+    "success": "消息已发送！我们将尽快回复。",
+    "error": "发送失败，请重试。"
+  },
+  "aside": {
+    "title": "优先支持",
+    "subtitle": "我们的团队随时准备协助解决任何技术或账户问题。",
+    "cta": "我们通常在 1-3 小时内回复。"
+  },
+  "hours": {
+    "title": "工作时间",
+    "weekdays": "周一至周五: 9:00 – 18:00 (GMT+7)",
+    "weekend": "周六至周日: 10:00 – 16:00 (GMT+7)"
+  }
+}

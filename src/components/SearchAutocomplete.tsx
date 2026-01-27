@@ -99,13 +99,30 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
     const rect = el.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
     const spaceBelow = viewportHeight - rect.bottom - 16; // 16px padding từ bottom
-    const maxHeight = Math.min(spaceBelow, 500); // Tối đa 500px hoặc không gian còn lại
-    setDropdownPos({ 
-      top: rect.bottom + 8, 
-      left: rect.left, 
-      width: rect.width,
-      maxHeight: Math.max(maxHeight, 200) // Tối thiểu 200px
-    });
+    const spaceAbove = rect.top - 16; // 16px padding từ top
+
+    // Ưu tiên hiển thị phía dưới, nhưng nếu không đủ space (< 150px) và space trên nhiều hơn thì đảo lên trên
+    const preferBelow = spaceBelow >= 150 || spaceBelow >= spaceAbove;
+
+    if (preferBelow) {
+      // Hiển thị phía dưới - giới hạn chiều cao theo không gian thực tế
+      const maxHeight = Math.min(spaceBelow, 400); // Tối đa 400px
+      setDropdownPos({
+        top: rect.bottom + 8,
+        left: rect.left,
+        width: rect.width,
+        maxHeight: Math.max(maxHeight, 100) // Tối thiểu 100px để hiện ít nhất 1 item
+      });
+    } else {
+      // Hiển thị phía trên - tính bottom position thay vì top
+      const maxHeight = Math.min(spaceAbove, 400);
+      setDropdownPos({
+        top: rect.top - maxHeight - 8, // Đặt dropdown phía trên input
+        left: rect.left,
+        width: rect.width,
+        maxHeight: Math.max(maxHeight, 100)
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -113,7 +130,7 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
       updateDropdownPosition();
       window.addEventListener('resize', updateDropdownPosition);
       window.addEventListener('scroll', updateDropdownPosition, true);
-      
+
       // Ngăn scroll của body khi dropdown mở (bù trừ độ rộng scrollbar để tránh lệch vị trí)
       const originalOverflow = document.body.style.overflow;
       const originalPaddingRight = document.body.style.paddingRight;
@@ -127,7 +144,7 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
       requestAnimationFrame(() => {
         updateDropdownPosition();
       });
-      
+
       return () => {
         window.removeEventListener('resize', updateDropdownPosition);
         window.removeEventListener('scroll', updateDropdownPosition, true);
@@ -208,11 +225,11 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
   // Highlight matched text
   const highlightText = (text: string, searchQuery: string) => {
     if (!searchQuery.trim()) return text;
-    
+
     const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'));
     return (
       <>
-        {parts.map((part, index) => 
+        {parts.map((part, index) =>
           part.toLowerCase() === searchQuery.toLowerCase() ? (
             <mark key={index} className="bg-yellow-200 dark:bg-yellow-600 text-gray-900 dark:text-white font-medium rounded px-0.5">
               {part}
@@ -228,7 +245,7 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
   // Highlight matched text in HTML
   const highlightHtml = (html: string, searchQuery: string): string => {
     if (!searchQuery.trim()) return sanitizeInlineHtml(html);
-    
+
     const sanitized = sanitizeInlineHtml(html);
     const regex = new RegExp(`(${searchQuery})`, 'gi');
     return sanitized.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-600 text-gray-900 dark:text-white font-medium rounded px-0.5">$1</mark>');
@@ -257,7 +274,7 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
     if (diffDays === 0) return t('search.today', 'Hôm nay');
     if (diffDays === 1) return t('search.yesterday', 'Hôm qua');
     if (diffDays < 7) return `${diffDays} ${t('search.daysAgo', 'ngày trước')}`;
-    
+
     return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
@@ -302,13 +319,13 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
       {isOpen && suggestions.length > 0 && dropdownPos && createPortal(
         <div
           ref={dropdownRef}
-          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl shadow-2xl overflow-y-auto"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg sm:rounded-xl shadow-2xl overflow-hidden flex flex-col"
           style={{
             position: 'fixed',
             top: `${dropdownPos.top}px`,
             left: `${dropdownPos.left}px`,
             width: `${dropdownPos.width}px`,
-            maxHeight: `${dropdownPos.maxHeight}px`,
+            maxHeight: `${Math.min(dropdownPos.maxHeight, 320)}px`, // Giới hạn tối đa 320px
             zIndex: 100000,
             backdropFilter: 'blur(8px)'
           }}
@@ -317,8 +334,8 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
             e.stopPropagation();
           }}
         >
-          <div className="py-1 sm:py-2">
-            {suggestions.map((suggestion, index) => (
+          <div className="py-1 overflow-y-auto flex-1 max-h-[260px]">
+            {suggestions.slice(0, 5).map((suggestion, index) => (
               <LazyLoad
                 key={suggestion.id}
                 threshold={0.1}
@@ -330,19 +347,17 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
                 <button
                   onClick={() => handleSelectSuggestion(suggestion)}
                   onMouseEnter={() => setSelectedIndex(index)}
-                  className={`w-full text-left px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 transition-all border-b border-gray-100 dark:border-gray-700/50 last:border-b-0 ${
-                    selectedIndex === index
-                      ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 shadow-sm'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                  }`}
+                  className={`w-full text-left px-2 sm:px-3 py-2 transition-all border-b border-gray-100 dark:border-gray-700/50 last:border-b-0 ${selectedIndex === index
+                    ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 shadow-sm'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    }`}
                 >
                   <div className="flex items-start gap-2 sm:gap-2.5 md:gap-3">
                     {/* Icon */}
-                    <div className={`mt-0.5 p-1 sm:p-1.5 md:p-2 rounded-md sm:rounded-lg ${
-                      suggestion.matchType === 'title' 
-                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                        : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
-                    }`}>
+                    <div className={`mt-0.5 p-1 sm:p-1.5 md:p-2 rounded-md sm:rounded-lg ${suggestion.matchType === 'title'
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                      : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                      }`}>
                       <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </div>
 
@@ -358,7 +373,7 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
 
                       {/* Snippet */}
                       {suggestion.snippet && (
-                        <div 
+                        <div
                           className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-1 sm:line-clamp-2 mb-1 sm:mb-1.5 md:mb-2"
                           dangerouslySetInnerHTML={{ __html: highlightHtml(suggestion.snippet, query) }}
                         />
@@ -369,9 +384,9 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
                         {suggestion.category && (() => {
                           const Icon = getCategoryIcon(suggestion.category.icon);
                           return (
-                            <span 
+                            <span
                               className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-white/50 dark:bg-gray-800/50 border"
-                              style={{ 
+                              style={{
                                 borderColor: suggestion.category.color + '40',
                                 backgroundColor: suggestion.category.color + '10',
                                 color: suggestion.category.color
@@ -391,11 +406,10 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
 
                     {/* Match Type Badge */}
                     <div className="hidden md:flex flex-shrink-0">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                        suggestion.matchType === 'title'
-                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                          : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-                      }`}>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${suggestion.matchType === 'title'
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                        : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                        }`}>
                         {suggestion.matchType === 'title' ? t('search.matchInTitle', 'Tiêu đề') : t('search.matchInContent', 'Nội dung')}
                       </span>
                     </div>
@@ -406,9 +420,10 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
           </div>
 
           {/* Footer */}
-          <div className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+          <div className="px-2 sm:px-3 py-1.5 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
             <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 text-center">
-              {t('search.found', 'Tìm thấy')} <span className="font-semibold">{suggestions.length}</span> {t('search.results', 'kết quả')}
+              {t('search.found', 'Tìm thấy')} <span className="font-semibold">{Math.min(suggestions.length, 5)}</span>
+              {suggestions.length > 5 && <span> / {suggestions.length}</span>} {t('search.results', 'kết quả')}
               <span className="hidden sm:inline">
                 {' • '}
                 {t('search.pressEnter', 'Nhấn Enter để tìm kiếm đầy đủ')}

@@ -26,6 +26,7 @@ export interface User {
   phone?: string | null;
   birthDate?: string | null; // ISO date
   gender?: 'male' | 'female' | 'other' | 'unspecified';
+  language?: string;
 }
 
 export interface AuthResponse {

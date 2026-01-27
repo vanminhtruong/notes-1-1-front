@@ -105,7 +105,8 @@
     "selectAll": "모두 선택",
     "unselectAll": "선택 해제",
     "pleaseWait": "처리 중...",
-    "cancel": "취소"
+    "cancel": "취소",
+    "close": "닫기"
   },
   "gender": {
     "male": "남성",

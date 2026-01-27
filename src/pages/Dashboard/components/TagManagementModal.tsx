@@ -262,12 +262,13 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
         </div>
 
         {/* Footer */}
-        <div className="p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-t border-gray-200 dark:border-gray-700 flex justify-end">
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 md-down:px-3 md-down:py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm md-down:text-xs"
+            className="px-6 py-2 md-down:px-5 md-down:py-1.5 sm-down:px-4 sm-down:py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm md-down:text-xs font-medium flex items-center gap-2"
           >
-            Đóng
+            <X className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+            {t('common.close')}
           </button>
         </div>
       </div>

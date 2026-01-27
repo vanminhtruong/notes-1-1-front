@@ -18,7 +18,7 @@ import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock'
 import { socketService } from '@/services/socketService'
 
 export default function MainLayout() {
-  const { t } = useTranslation('layout');
+  const { t, i18n } = useTranslation('layout');
   const dispatch = useAppDispatch();
   const { user, token, isAuthenticated } = useAppSelector((state) => state.auth);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -64,6 +64,14 @@ export default function MainLayout() {
     }
   }, [isAuthenticated, token, dispatch]);
 
+  // Sync i18n with user language preference from profile
+  useEffect(() => {
+    if (user?.language && user.language !== i18n.language) {
+      console.log('Syncing language from user profile:', user.language);
+      i18n.changeLanguage(user.language);
+    }
+  }, [user?.language, i18n]);
+
   const handleLogout = () => {
     // Disconnect socket before logout
     if (socketConnectedRef.current) {
@@ -76,9 +84,8 @@ export default function MainLayout() {
   const confirmLogout = () => {
     toast.custom((toastData) => (
       <div
-        className={`max-w-sm w-full rounded-xl shadow-lg border ${
-          toastData.visible ? 'animate-enter' : 'animate-leave'
-        } bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}
+        className={`max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'
+          } bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}
       >
         <div className="flex items-start gap-3">
           <div className="flex-1">
@@ -110,9 +117,8 @@ export default function MainLayout() {
   const confirmDeleteAccount = () => {
     toast.custom((toastData) => (
       <div
-        className={`max-w-sm w-full rounded-xl shadow-lg border ${
-          toastData.visible ? 'animate-enter' : 'animate-leave'
-        } bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}
+        className={`max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'
+          } bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`}
       >
         <div className="flex items-start gap-3">
           <div className="flex-1">
@@ -213,41 +219,37 @@ export default function MainLayout() {
             <nav className="hidden lg:flex items-center gap-6 xl-down:gap-5 lg-down:gap-4">
               <Link
                 to="/dashboard"
-                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${
-                  isActiveRoute('/dashboard')
-                    ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
-                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
-                }`}
+                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${isActiveRoute('/dashboard')
+                  ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+                  }`}
               >
                 {t('nav.dashboard')}
               </Link>
               <Link
                 to="/categories"
-                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${
-                  isActiveRoute('/categories')
-                    ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
-                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
-                }`}
+                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${isActiveRoute('/categories')
+                  ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+                  }`}
               >
                 {t('nav.categories')}
               </Link>
               <Link
                 to="/about"
-                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${
-                  isActiveRoute('/about')
-                    ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
-                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
-                }`}
+                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${isActiveRoute('/about')
+                  ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+                  }`}
               >
                 {t('nav.about')}
               </Link>
               <Link
                 to="/contact"
-                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${
-                  isActiveRoute('/contact')
-                    ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
-                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
-                }`}
+                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${isActiveRoute('/contact')
+                  ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
+                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+                  }`}
               >
                 {t('nav.contact')}
               </Link>
@@ -419,44 +421,40 @@ export default function MainLayout() {
               <Link
                 to="/dashboard"
                 onClick={() => setMobileNavOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${
-                  isActiveRoute('/dashboard')
-                    ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
-                    : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
-                }`}
+                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${isActiveRoute('/dashboard')
+                  ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
+                  : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
+                  }`}
               >
                 {t('nav.dashboard')}
               </Link>
               <Link
                 to="/categories"
                 onClick={() => setMobileNavOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${
-                  isActiveRoute('/categories')
-                    ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
-                    : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
-                }`}
+                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${isActiveRoute('/categories')
+                  ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
+                  : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
+                  }`}
               >
                 {t('nav.categories')}
               </Link>
               <Link
                 to="/about"
                 onClick={() => setMobileNavOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${
-                  isActiveRoute('/about')
-                    ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
-                    : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
-                }`}
+                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${isActiveRoute('/about')
+                  ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
+                  : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
+                  }`}
               >
                 {t('nav.about')}
               </Link>
               <Link
                 to="/contact"
                 onClick={() => setMobileNavOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${
-                  isActiveRoute('/contact')
-                    ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
-                    : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
-                }`}
+                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${isActiveRoute('/contact')
+                  ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
+                  : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
+                  }`}
               >
                 {t('nav.contact')}
               </Link>
@@ -476,16 +474,16 @@ export default function MainLayout() {
 
       {/* Chat Window */}
       {chatOpen && (
-        <ChatWindow 
-          isOpen={chatOpen} 
-          onClose={() => setChatOpen(false)} 
+        <ChatWindow
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
         />
       )}
 
       {/* Devices Modal */}
-      <DevicesModal 
-        isOpen={devicesOpen} 
-        onClose={() => setDevicesOpen(false)} 
+      <DevicesModal
+        isOpen={devicesOpen}
+        onClose={() => setDevicesOpen(false)}
       />
 
       {/* Global Back To Top for all tabs/pages */}

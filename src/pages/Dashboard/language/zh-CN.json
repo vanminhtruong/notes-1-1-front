@@ -1,0 +1,972 @@
+{
+  "title": "仪表盘",
+  "welcome": "欢迎来到您的仪表盘",
+  "stats": {
+    "total": "总笔记",
+    "active": "活跃",
+    "archived": "已归档",
+    "folders": "文件夹",
+    "notesInFolders": "文件夹中的笔记",
+    "uptime": "运行时间"
+  },
+  "view": {
+    "active": "活跃",
+    "archived": "已归档",
+    "folders": "文件夹"
+  },
+  "search": {
+    "placeholder": "搜索笔记...",
+    "today": "今天",
+    "yesterday": "昨天",
+    "daysAgo": "天前",
+    "matchInTitle": "标题",
+    "matchInContent": "内容",
+    "found": "找到",
+    "results": "结果",
+    "pressEnter": "按回车键完全搜索",
+    "noResults": "未找到结果",
+    "tryDifferent": "尝试不同的关键词搜索",
+    "foundResults": "找到 {{count}} 个结果",
+    "tryDifferentKeywords": "尝试不同的关键词搜索"
+  },
+  "categories": {
+    "work": "工作",
+    "personal": "个人",
+    "general": "常规",
+    "shopping": "购物",
+    "health": "健康"
+  },
+  "filters": {
+    "title": "搜索 & 筛选",
+    "subtitle": "快速查找您的笔记",
+    "categoryLabel": "分类",
+    "priorityLabel": "优先级",
+    "selectCategory": "选择分类",
+    "selectPriority": "选择优先级",
+    "activeFilters": "活跃",
+    "clearAll": "清除",
+    "quickFilters": "快速:",
+    "showFilters": "筛选",
+    "hideFilters": "隐藏",
+    "allCategories": "所有分类",
+    "category": {
+      "work": "工作",
+      "personal": "个人",
+      "general": "常规"
+    },
+    "allPriorities": "所有优先级",
+    "priority": {
+      "high": "高",
+      "highDesc": "紧急任务",
+      "medium": "中",
+      "mediumDesc": "重要任务",
+      "low": "低",
+      "lowDesc": "稍后处理"
+    }
+  },
+  "actions": {
+    "createNote": "创建笔记",
+    "createNoteFor": "为 {{name}} 创建",
+    "createNoteShared": "为 {{name}} 创建笔记",
+    "save": "保存",
+    "saving": "保存中...",
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除",
+    "clearSelection": "清除选择",
+    "deleteSelected": "删除所选",
+    "selectNote": "选择笔记",
+    "restore": "恢复",
+    "archive": "归档",
+    "edit": "编辑",
+    "view": "查看",
+    "update": "更新",
+    "reminderDue": "提醒到期",
+    "close": "关闭",
+    "viewDetails": "查看详情",
+    "share": "分享",
+    "sharing": "分享中...",
+    "back": "返回",
+    "pin": "置顶",
+    "unpin": "取消置顶"
+  },
+  "confirm": {
+    "removeFriend": "移除好友 {{name}}？",
+    "blockUser": "拉黑 {{name}}？",
+    "blockUserHint": "您和该用户将无法互相发送消息。",
+    "unblockUser": "取消拉黑 {{name}}？"
+  },
+  "messages": {
+    "selectedCount": "选择了 {{count}} 项",
+    "noNotes": "暂无笔记",
+    "selectedNotes": "选择了 {{count}} 条笔记",
+    "confirmBulkRemove": "确定要从文件夹中移除 {{count}} 条笔记吗？",
+    "noContent": "无内容",
+    "videoNotSupported": "您的浏览器不支持视频",
+    "noArchived": "无归档笔记",
+    "switchToActive": "切换到活跃标签以查看当前笔记",
+    "createFirst": "创建您的第一条笔记以开始"
+  },
+  "category": {
+    "none": "无",
+    "searchPlaceholder": "搜索分类...",
+    "noResults": "未找到分类",
+    "general": "常规",
+    "work": "工作",
+    "personal": "个人"
+  },
+  "priority": {
+    "low": "低",
+    "medium": "中",
+    "high": "高"
+  },
+  "common": {
+    "notProvided": "未提供",
+    "selectAll": "全选",
+    "unselectAll": "取消全选",
+    "pleaseWait": "请稍候...",
+    "cancel": "取消",
+    "close": "关闭"
+  },
+  "gender": {
+    "male": "男",
+    "female": "女",
+    "other": "其他",
+    "unspecified": "不详"
+  },
+  "toasts": {
+    "archiveSuccess": "笔记归档成功",
+    "noteCreated": "笔记创建成功",
+    "noteUpdated": "笔记更新成功",
+    "noteDeleted": "笔记删除成功",
+    "noteCreateFailed": "创建笔记失败",
+    "noteUpdateFailed": "更新笔记失败",
+    "noteDeleteFailed": "删除笔记失败",
+    "noteActionFailed": "操作失败"
+  },
+  "editor": {
+    "loading": "加载编辑器...",
+    "link": {
+      "placeholder": "https://...",
+      "add": "添加",
+      "cancel": "取消",
+      "invalidUrl": "无效的URL",
+      "inserted": "链接已插入",
+      "addTitle": "添加链接"
+    },
+    "toolbar": {
+      "bold": "粗体 (Ctrl+B)",
+      "italic": "斜体 (Ctrl+I)",
+      "underline": "下划线 (Ctrl+U)",
+      "strike": "删除线",
+      "code": "代码",
+      "h1": "标题 1",
+      "h2": "标题 2",
+      "h3": "标题 3",
+      "bulletList": "无序列表",
+      "orderedList": "有序列表",
+      "alignLeft": "左对齐",
+      "alignCenter": "居中",
+      "alignRight": "右对齐",
+      "alignJustify": "两端对齐",
+      "blockquote": "引用块",
+      "horizontalRule": "水平线",
+      "undo": "撤销 (Ctrl+Z)",
+      "redo": "重做 (Ctrl+Y)"
+    }
+  },
+  "modals": {
+    "confirm": {
+      "deleteTitle": "删除笔记？",
+      "bulkDeleteTitle": "删除所选笔记？",
+      "irreversible": "此操作无法撤销。",
+      "archiveTitle": "归档笔记？",
+      "archiveMessage": "笔记将被移至归档。"
+    },
+    "create": {
+      "title": "新建笔记",
+      "fields": {
+        "title": "标题",
+        "titlePlaceholder": "输入笔记标题",
+        "content": "内容",
+        "contentPlaceholder": "输入笔记内容",
+        "image": "图片",
+        "media": "媒体",
+        "video": "视频",
+        "youtube": "YouTube URL",
+        "youtubePlaceholder": "输入YouTube视频URL",
+        "category": "分类",
+        "selectCategory": "选择分类",
+        "priority": "优先级",
+        "reminderAt": "提醒时间",
+        "reminderHint": "可选 — 到期时会显示铃铛图标"
+      }
+    },
+    "callLog": {
+      "incomingVideo": "来电视频",
+      "incomingAudio": "来电语音",
+      "outgoingVideo": "去电视频",
+      "outgoingAudio": "去电语音",
+      "missedYou": "未接来电",
+      "youCancelled": "您取消了通话",
+      "cancelled": "通话已取消",
+      "video": "视频通话",
+      "audio": "语音通话",
+      "redial": "重拨",
+      "duration": "{{m}} 分 {{s}} 秒"
+    },
+    "edit": {
+      "title": "编辑笔记"
+    },
+    "view": {
+      "title": "笔记详情",
+      "share": {
+        "title": "分享到聊天",
+        "modeUser": "私聊",
+        "modeGroup": "群组",
+        "selectFriend": "选择好友",
+        "selectGroup": "选择群组",
+        "shareButton": "分享",
+        "hint": "内容将以文本形式发送，包括标题、内容、图片URL（如有）和基本信息。"
+      }
+    }
+  },
+  "success": {
+    "reminderAcknowledged": "已确认提醒"
+  },
+  "notes": {
+    "title": "笔记",
+    "inFolders": "文件夹中的笔记",
+    "noContent": "无内容",
+    "pinSuccess": "笔记置顶成功",
+    "editSuccess": "正在打开笔记进行编辑",
+    "editError": "无法编辑笔记",
+    "createdAt": "创建于",
+    "confirmDelete": "确定要删除这条笔记吗？",
+    "deleteSuccess": "笔记删除成功",
+    "deleteError": "无法删除笔记",
+    "pinAction": "置顶笔记",
+    "unpinAction": "取消置顶",
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "category": {
+      "general": "常规",
+      "work": "工作",
+      "personal": "个人"
+    },
+    "share": {
+      "title": "分享笔记",
+      "users": "用户",
+      "groups": "群组",
+      "selectUser": "选择接收者",
+      "selectGroup": "选择群组",
+      "searchPlaceholderUsers": "搜索用户...",
+      "searchPlaceholderGroups": "搜索群组...",
+      "availableUsers": "个可用用户",
+      "availableGroups": "个可用群组",
+      "noResults": "未找到用户",
+      "noGroupResults": "未找到群组",
+      "noUsers": "无用户",
+      "noGroups": "无群组",
+      "permissions": "权限",
+      "permissionsUpdated": "权限更新成功",
+      "permissionsUpdateFailed": "权限更新失败",
+      "canEdit": "允许编辑",
+      "canDelete": "允许删除",
+      "canCreate": "允许创建新笔记",
+      "message": "留言（可选）",
+      "groupMessage": "群留言（可选）",
+      "messagePlaceholder": "添加留言...",
+      "groupMessagePlaceholder": "为群组添加留言...",
+      "description": "与他人分享此笔记并设置相应权限。",
+      "success": "笔记分享成功",
+      "successGroup": "分享至群组成功",
+      "error": "无法分享笔记"
+    },
+    "modal": {
+      "title": "编辑共享笔记",
+      "titleLabel": "标题",
+      "titlePlaceholder": "输入笔记标题...",
+      "contentLabel": "内容",
+      "contentPlaceholder": "输入笔记内容...",
+      "imageUrlLabel": "图片URL",
+      "imageUrlPlaceholder": "https://example.com/image.jpg",
+      "categoryLabel": "分类",
+      "category": {
+        "personal": "个人",
+        "work": "工作"
+      },
+      "priorityLabel": "优先级",
+      "priority": {
+        "low": "低",
+        "medium": "中",
+        "high": "高"
+      },
+      "cancel": "取消",
+      "save": "保存",
+      "titleRequired": "标题必填",
+      "updateSuccess": "笔记更新成功",
+      "updateError": "无法更新笔记",
+      "imageUpload": "上传图片",
+      "imageUploading": "上传中...",
+      "imageRemove": "移除图片",
+      "imagePreviewAlt": "图片",
+      "imageUploadError": "上传图片失败",
+      "close": "关闭"
+    },
+    "background": {
+      "title": "背景选项",
+      "change": "更改背景",
+      "colors": "颜色",
+      "images": "图片",
+      "searchPlaceholder": "搜索背景...",
+      "noColorsFound": "未找到颜色",
+      "noImagesFound": "未找到图片",
+      "updateSuccess": "背景更新成功",
+      "updateError": "更新背景失败"
+    }
+  },
+  "errors": {
+    "reminderAcknowledgeFailed": "确认提醒失败",
+    "loadUsers": "加载用户失败",
+    "loadGroups": "加载群组失败"
+  },
+  "chat": {
+    "errors": {
+      "downloadFile": "无法下载文件",
+      "recall": "无法撤回消息",
+      "generic": "出错了",
+      "sendMessage": "发送消息失败",
+      "oversizedFiles": "部分文件超出大小限制被跳过",
+      "settingsUpdateFailed": "更新设置失败",
+      "pinUpdateFailed": "更新PIN失败",
+      "encryptionEnableFailed": "启用加密失败",
+      "block": "拉黑用户失败",
+      "unblock": "取消拉黑失败",
+      "loadUsersFailed": "加载用户失败",
+      "messageBlocked": "由于该用户已被拉黑，消息未发送。",
+      "messageBlockedCurrent": "消息未发送。由于您和该用户之间的屏蔽关系。",
+      "shareForbidden": "由于被屏蔽或权限不足，无法发送",
+      "shareFailed": "分享失败，请重试",
+      "callBlocked": "无法通话，因为双方已被屏蔽"
+    },
+    "success": {
+      "recallSelf": "已为您撤回消息",
+      "recallAll": "已为所有人撤回消息",
+      "sentFriendRequest": "好友请求已发送",
+      "acceptedFriendRequest": "已接受好友请求",
+      "rejectedFriendRequest": "已拒绝好友请求",
+      "pinUpdated": "PIN已更新",
+      "friendRemoved": "已移除好友 {{name}}",
+      "messagesDeletedForMe": "已为您删除与 {{name}} 的所有消息",
+      "sharedToUser": "已分享笔记给好友",
+      "sharedToGroup": "已分享笔记到群组",
+      "edit": "消息已更新"
+    },
+    "notifications": {
+      "newFriendRequest": "{{name}} 发送了好友请求",
+      "friendAccepted": "{{name}} 接受了您的好友请求",
+      "friendRejected": "{{name}} 拒绝了您的好友请求",
+      "youBlocked": "您拉黑了 {{name}}",
+      "youWereBlocked": "您被 {{name}} 拉黑了",
+      "youUnblocked": "您取消拉黑了 {{name}}",
+      "unblockedYou": "{{name}} 取消了对您的拉黑"
+    },
+    "notificationsBell": {
+      "bellAria": "消息通知",
+      "title": "通知",
+      "markAllRead": "全部标记为已读",
+      "empty": "暂无通知",
+      "loading": "加载中...",
+      "loadMore": "加载更多 ({{remaining}})",
+      "newMessagesCount": "{{count}} 条新消息",
+      "deleteItem": "删除通知",
+      "friendRequests": "好友请求",
+      "groupInvites": "群组邀请",
+      "friendRequestsCount": "{{count}} 个好友请求",
+      "friendRequestsCount_plural": "{{count}} 个好友请求",
+      "groupInvitesCount": "{{count}} 个群组邀请",
+      "groupInvitesCount_plural": "{{count}} 个群组邀请"
+    },
+    "fallback": {
+      "user": "用户 {{id}}"
+    },
+    "system": {
+      "joined": "{{name}} 加入了群组",
+      "left": "{{name}} 离开了群组"
+    },
+    "header": {
+      "title": "信使",
+      "searchPlaceholder": "搜索...",
+      "tabs": {
+        "all": "全部",
+        "unread": "未读",
+        "users": "用户",
+        "groups": "群组"
+      }
+    },
+    "usersList": {
+      "friendRequests": "好友请求",
+      "users": "用户",
+      "sendRequest": "添加好友",
+      "message": "发消息",
+      "actions": {
+        "accept": "接受",
+        "acceptRequest": "接受好友请求",
+        "reject": "拒绝",
+        "rejectRequest": "拒绝好友请求",
+        "message": "发消息"
+      },
+      "empty": {
+        "noResults": "未找到匹配用户",
+        "tryAnother": "尝试其他姓名或邮箱"
+      }
+    },
+    "groups": {
+      "title": "群组",
+      "create": "创建群组",
+      "searchPlaceholder": "搜索群组...",
+      "createModal": {
+        "title": "新建群组",
+        "nameLabel": "群名称",
+        "namePlaceholder": "输入群名称",
+        "membersLabel": "成员",
+        "invitePlaceholder": "输入姓名或邮箱邀请",
+        "createButton": "创建",
+        "cancel": "取消"
+      },
+      "invite": {
+        "title": "邀请成员",
+        "subtitle": "邀请成员加入 {{groupName}}",
+        "searchLabel": "搜索用户",
+        "placeholder": "通过姓名或邮箱搜索",
+        "addButton": "添加",
+        "selected": "已选",
+        "availableUsers": "可用用户",
+        "loading": "加载用户中...",
+        "noUsers": "未找到用户",
+        "tryDifferent": "尝试不同的关键词搜索",
+        "inviting": "邀请中..."
+      },
+      "actions": {
+        "edit": "编辑群组",
+        "leave": "退出群组",
+        "delete": "解散群组",
+        "removeMember": "移除成员",
+        "removeCount": "移除 ({{count}})",
+        "addMembers": "添加成员",
+        "viewMembers": "查看成员",
+        "adminsOnlyEnable": "仅管理员可发言",
+        "adminsOnlyDisable": "允许所有人发言",
+        "deleteAllMessages": "删除所有消息",
+        "promoteToAdmin": "提升为管理员",
+        "demoteToMember": "降级为成员"
+      },
+      "remove": {
+        "subtitle": "选择要移除的成员",
+        "searchLabel": "搜索成员",
+        "searchPlaceholder": "搜索成员...",
+        "selected": "已选",
+        "listTitle": "列表 ({{count}})",
+        "warning": "被移除的成员将无法再访问此群组"
+      },
+      "editor": {
+        "titleEdit": "编辑群组",
+        "titleCreate": "创建群组",
+        "fields": {
+          "name": "群名称",
+          "avatar": "群头像",
+          "background": "群背景"
+        },
+        "placeholders": {
+          "name": "输入群名称",
+          "avatar": "未选择头像",
+          "background": "未选择背景"
+        },
+        "actions": {
+          "chooseImage": "选择图片",
+          "cancel": "取消",
+          "save": "保存",
+          "create": "创建"
+        },
+        "errors": {
+          "nameRequired": "群名称必填",
+          "invalid": "无效的群数据"
+        }
+      },
+      "empty": {
+        "noGroups": "暂无群组",
+        "createFirst": "创建您的第一个群组",
+        "noResults": "未找到群组",
+        "tryDifferent": "尝试不同的关键词"
+      },
+      "pendingInvites": {
+        "title": "群组邀请"
+      },
+      "status": {
+        "membersCount": "{{count}} 成员",
+        "you": "您"
+      },
+      "errors": {
+        "createFailed": "创建群组失败",
+        "inviteFailed": "邀请成员失败",
+        "leaveFailed": "退出群组失败",
+        "deleteFailed": "解散群组失败",
+        "removeFailed": "移除成员失败",
+        "loadFailed": "无法加载群组",
+        "updateFailed": "更新群组失败"
+      },
+      "confirm": {
+        "leave": "退出群组？",
+        "delete": "解散群组？",
+        "deleteAllMessages": "删除群组内所有消息？"
+      },
+      "success": {
+        "created": "群组已创建",
+        "invited": "邀请已发送",
+        "left": "已退出群组",
+        "deleted": "群组已解散",
+        "removed": "成员已移除",
+        "updated": "群组已更新",
+        "roleUpdated": "角色已更新",
+        "messagesDeleted": "已删除所有群消息",
+        "membersAdded": "成员已添加",
+        "inviteSent": "邀请已发送"
+      },
+      "members": {
+        "title": "群组成员",
+        "empty": "暂无成员"
+      },
+      "roles": {
+        "owner": "群主",
+        "admin": "管理员",
+        "member": "成员"
+      },
+      "adminsOnly": {
+        "inputHidden": "仅群主/管理员可在此群组发言。"
+      },
+      "notifications": {
+        "promoted": "您已被提升为管理员",
+        "demoted": "您已被降级为成员"
+      }
+    },
+    "chatList": {
+      "empty": {
+        "noChats": "暂无对话",
+        "addFriends": "添加好友开始聊天"
+      }
+    },
+    "preview": {
+      "recalled": "已撤回消息",
+      "image": "图片",
+      "file": "文件",
+      "youPrefix": "您: ",
+      "noteShare": "分享了笔记"
+    },
+    "chatView": {
+      "status": {
+        "online": "在线",
+        "offline": "离线"
+      },
+      "empty": {
+        "youAreFriends": "您和 {{name}} 现在是好友了",
+        "inGroup": "您在群组 {{name}} 中"
+      },
+      "viewProfile": "查看资料",
+      "actions": {
+        "voiceCall": "语音通话",
+        "videoCall": "视频通话"
+      },
+      "backToBottom": "回到底部",
+      "daySeparator": {
+        "today": "今天",
+        "yesterday": "昨天"
+      },
+      "profile": {
+        "title": "用户信息",
+        "close": "关闭资料",
+        "email": "邮箱",
+        "phone": "电话",
+        "phoneHiddenMask": ".....",
+        "birthDate": "生日",
+        "birthDateHiddenMask": "../..",
+        "gender": "性别",
+        "lastSeen": "最后上线",
+        "privacy": "如果用户未分享，部分信息可能不可见。"
+      }
+    },
+    "loadingHistory": "加载历史记录...",
+    "loadingOlder": "加载更早的消息...",
+    "commonGroups": {
+      "title": "共同群组",
+      "tabs": {
+        "all": "全部",
+        "my": "我的群组"
+      },
+      "empty": {
+        "all": "该用户未加入任何群组",
+        "my": "暂无共同群组"
+      }
+    },
+    "menu": {
+      "options": "选项",
+      "messageOptionsAria": "消息选项",
+      "chatOptionsAria": "聊天选项",
+      "searchMessages": "搜索消息",
+      "changeBackground": "更改背景",
+      "changeBackgroundForBoth": "为双方更改背景",
+      "resetBackground": "重置为默认背景",
+      "recall": {
+        "self": "为自己撤回",
+        "all": "为所有人撤回"
+      },
+      "edit": "编辑消息",
+      "save": "保存",
+      "cancel": "取消",
+      "pinMessage": "置顶消息",
+      "unpinMessage": "取消置顶",
+      "pinned": "已置顶",
+      "unpinned": "已取消置顶",
+      "pinnedMessages": "置顶消息"
+    },
+    "search": {
+      "placeholder": "搜索消息...",
+      "searching": "搜索中...",
+      "hint": "输入以搜索消息",
+      "noResults": "无匹配消息"
+    },
+    "actions": {
+      "deleteMessages": "删除消息",
+      "removeFriend": "解除好友",
+      "block": "拉黑",
+      "unblock": "取消拉黑",
+      "addFriend": "添加好友"
+    },
+    "recalled": {
+      "text": "消息已撤回",
+      "image": "图片已撤回",
+      "file": "文件已撤回"
+    },
+    "input": {
+      "attachmentAlt": "附件",
+      "removeImageAria": "移除图片",
+      "removeFileAria": "移除文件",
+      "attachFileAria": "添加文件",
+      "placeholder": "Aa",
+      "recipientBanned": "账户因违反政策已被停用"
+    },
+    "blocked": {
+      "inputHidden": "由于您或对方已拉黑彼此，无法发送消息或上传文件。"
+    },
+    "toast": {
+      "blocked": "已拉黑 {{name}}。",
+      "unblocked": "已取消拉黑 {{name}}"
+    },
+    "imagePreview": {
+      "close": "关闭",
+      "imageAlt": "预览图片"
+    },
+    "callLog": {
+      "incomingVideo": "来电视频",
+      "incomingAudio": "来电语音",
+      "outgoingVideo": "去电视频",
+      "outgoingAudio": "去电语音",
+      "missedYou": "未接来电",
+      "youCancelled": "您取消了通话",
+      "cancelled": "通话已取消",
+      "video": "视频通话",
+      "audio": "语音通话",
+      "redial": "重拨",
+      "duration": "{{m}} 分 {{s}} 秒"
+    },
+    "call": {
+      "title": {
+        "incoming": "来电",
+        "outgoing": "呼叫中...",
+        "active": "通话中"
+      },
+      "actions": {
+        "accept": "接听",
+        "reject": "拒绝",
+        "cancel": "取消",
+        "end": "结束"
+      },
+      "hint": {
+        "autoCancelIn": "{{seconds}}秒后自动取消"
+      },
+      "toast": {
+        "cannotConnect": "无法建立通话，请重试。",
+        "micDenied": "您拒绝了麦克风权限",
+        "micUnavailable": "麦克风不可用",
+        "serverDisconnected": "服务器已断开连接",
+        "alreadyInCall": "您已在通话中",
+        "calleeNoAnswer": "对方未接听",
+        "rejected": "通话被拒绝",
+        "busy": "对方忙",
+        "offline": "对方离线",
+        "blocked": "无法通话，因为双方已被屏蔽",
+        "ended": "通话结束",
+        "cancelled": "通话已取消",
+        "toggleCameraError": "无法切换摄像头",
+        "toggleMicError": "无法切换麦克风"
+      }
+    },
+    "message": {
+      "imageAlt": "图片"
+    },
+    "attachment": {
+      "downloadImageAria": "下载图片",
+      "downloadImageTitle": "下载图片",
+      "downloadFileTitle": "下载",
+      "downloadFileAria": "下载文件",
+      "fileFallback": "文件",
+      "downloadLabel": "下载"
+    },
+    "readBy": {
+      "title": "{{name}} 于 {{time}} 查看",
+      "more": "+{{count}} 人查看"
+    },
+    "reactions": {
+      "modal": {
+        "title": "回应",
+        "empty": "暂无回应",
+        "tabs": {
+          "all": "全部"
+        }
+      },
+      "types": {
+        "like": "赞",
+        "love": "爱心",
+        "haha": "哈哈",
+        "wow": "哇",
+        "sad": "难过",
+        "angry": "生气"
+      },
+      "tooltip": {
+        "reactedBy": "{{names}} 回应了",
+        "default": "已回应"
+      },
+      "removeType": "移除 {{type}}"
+    },
+    "locked": {
+      "notice": "消息已加密",
+      "hint": "输入 PIN 码以解锁并查看对话历史。您仍可继续发送消息。",
+      "unlockCta": "输入 PIN 解锁"
+    },
+    "encryption": {
+      "chatLocked": "消息已加密",
+      "groupLocked": "群组内容已加密",
+      "previewLocked": "🔒 已加密 — 解锁以预览"
+    },
+    "nickname": {
+      "title": "设置昵称",
+      "description": "为 {{name}} 设置一个易记的名称。注意：昵称仅您可见。",
+      "inputPlaceholder": "输入昵称",
+      "confirm": "确认",
+      "setButton": "设置昵称",
+      "saved": "昵称已保存"
+    },
+    "settings": {
+      "title": "聊天设置",
+      "back": "返回",
+      "encryption": {
+        "title": "端到端加密",
+        "description": "使用 PIN 保护此账户的消息",
+        "enabled": "加密已开启。每次登录查看消息需要输入 PIN。",
+        "disabled": "加密已关闭。"
+      },
+      "readStatus": {
+        "title": "已读状态",
+        "description": "显示消息何时被接收者阅读",
+        "enabled": "已读回执已开启。仅当双方都开启此设置时生效。",
+        "disabled": "已读回执已关闭。"
+      },
+      "messagingFromNonFriends": {
+        "title": "允许非好友发送消息",
+        "description": "如果开启，非好友也可以给您发送消息。",
+        "enabled": "您允许来自非好友的消息",
+        "disabled": "您不允许来自非好友的消息"
+      },
+      "privacy": {
+        "hidePhone": {
+          "title": "隐藏手机号",
+          "description": "向他人隐藏您的手机号",
+          "enabled": "手机号将隐藏",
+          "disabled": "手机号将可见"
+        },
+        "hideBirthDate": {
+          "title": "隐藏生日",
+          "description": "向他人隐藏您的生日",
+          "enabled": "生日将隐藏",
+          "disabled": "生日将可见"
+        }
+      },
+      "blocked": {
+        "title": "已屏蔽用户",
+        "subtitle": "已屏蔽 {{count}} 人",
+        "description": "管理您屏蔽的人员。您可以随时解除屏蔽。",
+        "searchLabel": "搜索已屏蔽用户",
+        "listTitle": "列表 ({{count}})",
+        "unblock": "解除屏蔽",
+        "unblocking": "正在解除屏蔽...",
+        "empty": "您尚未屏蔽任何用户",
+        "viewList": "查看列表",
+        "notice": "解除屏蔽后，您将可以再次与此人互发消息"
+      },
+      "pin": {
+        "title": "PIN 码",
+        "change": "更改您的 PIN 码。",
+        "set": "设置 PIN 码以启用加密。",
+        "changeButton": "更改 PIN 码",
+        "setButton": "设置 PIN 码"
+      }
+    }
+  },
+  "sharedNotes": {
+    "title": "共享笔记",
+    "received": "收到的共享",
+    "sent": "发出的共享",
+    "groups": "群组共享",
+    "sharedBy": "共享者",
+    "sharedWith": "共享给",
+    "editPermissions": "编辑权限",
+    "permissionsUpdated": "权限更新成功",
+    "permissionsUpdateFailed": "权限更新失败",
+    "confirmRemoveGroup": "确定要从群组中移除此共享笔记吗？",
+    "viewNote": "查看笔记",
+    "editNote": "编辑笔记",
+    "addNote": "添加笔记",
+    "createFromNote": "以此创建新笔记",
+    "remove": "移除",
+    "refresh": "刷新",
+    "loading": "加载中...",
+    "loadingMore": "加载更多...",
+    "loadMore": "加载更多",
+    "canEdit": "可编辑",
+    "viewOnly": "仅查看",
+    "noReceivedNotes": "暂无收到的共享笔记",
+    "noReceivedNotesDesc": "他人与您共享的笔记将显示在这里",
+    "noSentNotes": "暂无发出的共享笔记",
+    "noSentNotesDesc": "您与他人共享的笔记将显示在这里",
+    "noGroupNotes": "暂无群组共享笔记",
+    "noGroupNotesDesc": "群组内共享的笔记将显示在这里",
+    "confirmRemoveReceived": "确定要移除此共享笔记吗？",
+    "confirmRemoveSent": "确定要取消共享此笔记吗？",
+    "removeSuccess": "成功移除共享笔记",
+    "modal": {
+      "title": "标题",
+      "content": "内容",
+      "image": "图片",
+      "video": "视频",
+      "youtube": "YouTube"
+    },
+    "errors": {
+      "fetchFailed": "无法加载共享笔记列表",
+      "removeFailed": "无法移除共享笔记"
+    }
+  },
+  "folders": {
+    "title": "文件夹",
+    "createFolder": "创建文件夹",
+    "editFolder": "编辑文件夹",
+    "deleteFolder": "删除文件夹",
+    "folderName": "文件夹名称",
+    "folderNamePlaceholder": "输入文件夹名称...",
+    "folderColor": "颜色",
+    "folderIcon": "图标",
+    "notesCount": "{{count}} 个笔记",
+    "inFolder": "在文件夹中",
+    "noFolders": "暂无文件夹",
+    "noFoldersDesc": "创建文件夹以按主题整理您的笔记",
+    "confirmDelete": "确定要删除此文件夹吗？",
+    "confirmDeleteDesc": "文件夹中的笔记不会被删除，只会移出文件夹。",
+    "createSuccess": "文件夹创建成功",
+    "updateSuccess": "文件夹更新成功",
+    "deleteSuccess": "文件夹删除成功",
+    "pinSuccess": "文件夹置顶成功",
+    "unpinSuccess": "取消置顶成功",
+    "createError": "创建文件夹失败",
+    "updateError": "更新文件夹失败",
+    "deleteError": "删除文件夹失败",
+    "pinError": "置顶文件夹失败",
+    "unpinError": "取消置顶失败",
+    "loadError": "加载文件夹列表失败",
+    "viewFolder": "查看文件夹",
+    "moveToFolder": "移至文件夹",
+    "moveOutOfFolder": "移出文件夹",
+    "removeFromFolder": "从文件夹中移除",
+    "selectDestination": "选择移动目标：",
+    "moveToActive": "移至活动列表",
+    "moveToActiveDesc": "笔记将显示在活动笔记列表中",
+    "moveToArchived": "移至归档列表",
+    "moveToArchivedDesc": "笔记将被归档并从主列表中隐藏",
+    "selectFolder": "选择文件夹",
+    "noFolder": "无文件夹",
+    "moveSuccess": "笔记已移至文件夹",
+    "moveError": "移动笔记失败",
+    "searchPlaceholder": "搜索文件夹...",
+    "noFoldersFound": "未找到文件夹",
+    "moveButton": "移动",
+    "notes": "笔记",
+    "colors": {
+      "blue": "蓝色",
+      "green": "绿色",
+      "red": "红色",
+      "yellow": "黄色",
+      "purple": "紫色",
+      "pink": "粉色",
+      "orange": "橙色",
+      "gray": "灰色"
+    }
+  },
+  "tags": {
+    "title": "标签",
+    "searchByTags": "按标签搜索",
+    "searchTags": "搜索标签...",
+    "searchNotes": "搜索笔记...",
+    "selectTags": "选择标签",
+    "noTags": "暂无标签",
+    "noTagsFound": "未找到标签",
+    "noNotesWithTag": "暂无带有此标签的笔记",
+    "noNotesFound": "未找到笔记",
+    "notesCount": "{{count}} 个笔记",
+    "backToTags": "返回",
+    "manage": "管理标签",
+    "create": "创建新标签",
+    "edit": "编辑标签",
+    "delete": "删除标签",
+    "deleteTag": "删除标签",
+    "name": "标签名称",
+    "color": "颜色",
+    "namePlaceholder": "输入标签名称...",
+    "selectColor": "选择颜色",
+    "save": "保存",
+    "cancel": "取消",
+    "addTag": "添加标签",
+    "addToNote": "添加到笔记",
+    "removeFromNote": "从笔记中移除",
+    "createSuccess": "标签创建成功",
+    "updateSuccess": "标签更新成功",
+    "deleteSuccess": "标签删除成功",
+    "addSuccess": "已添加标签到笔记",
+    "removeSuccess": "已从笔记中移除标签",
+    "createError": "创建标签失败",
+    "updateError": "更新标签失败",
+    "deleteError": "删除标签失败",
+    "addError": "添加标签失败",
+    "removeError": "移除标签失败",
+    "confirmDelete": "确定要删除此标签吗？",
+    "confirmDeleteDesc": "此标签将从所有笔记中移除。",
+    "alreadyAdded": "标签已添加",
+    "searchToAdd": "搜索以添加标签...",
+    "pin": "置顶标签",
+    "unpin": "取消置顶",
+    "pinError": "置顶/取消置顶失败",
+    "maxLimit": "每个笔记最多只能添加 {{max}} 个标签",
+    "loading": "加载中...",
+    "loadMore": "加载更多"
+  }
+}

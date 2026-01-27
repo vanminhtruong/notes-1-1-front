@@ -68,7 +68,7 @@ const ChatView = memo(({
   const [blockedUserMap, setBlockedUserMap] = useState<Record<number, boolean>>({});
   const [pinnedMessages, setPinnedMessages] = useState<Array<{ id: number; content?: string; messageType?: string; createdAt?: string }>>([]);
   // Group roles map to render owner/admin badges on avatars
-  const [groupRoleMap, setGroupRoleMap] = useState<Record<number, 'owner'|'admin'|'member'>>({});
+  const [groupRoleMap, setGroupRoleMap] = useState<Record<number, 'owner' | 'admin' | 'member'>>({});
   // Nickname editor state
   const [showNickname, setShowNickname] = useState(false);
   const [nicknameValue, setNicknameValue] = useState('');
@@ -130,7 +130,7 @@ const ChatView = memo(({
       try {
         const res = await groupService.getGroupMembers(gid);
         if (!canceled) {
-          const map: Record<number, 'owner'|'admin'|'member'> = {};
+          const map: Record<number, 'owner' | 'admin' | 'member'> = {};
           for (const u of (res?.data || [])) {
             const role = (u?.role === 'owner' || u?.role === 'admin') ? u.role : 'member';
             map[Number(u.id)] = role as any;
@@ -143,11 +143,11 @@ const ChatView = memo(({
     };
     load();
     const socket = getSocket();
-    const onRoleUpdated = (payload: { groupId: number; userId: number; role: 'admin'|'member' }) => {
+    const onRoleUpdated = (payload: { groupId: number; userId: number; role: 'admin' | 'member' }) => {
       try {
         if (!payload || Number(payload.groupId) !== Number(gid)) return;
         setGroupRoleMap(prev => ({ ...prev, [Number(payload.userId)]: (payload.role === 'admin' ? 'admin' : 'member') }));
-      } catch {}
+      } catch { }
     };
     if (socket) socket.on('group_member_role_updated', onRoleUpdated);
     return () => {
@@ -407,7 +407,7 @@ const ChatView = memo(({
         if (payload.participants.includes(Number(currentUserId)) && payload.participants.includes(otherId)) {
           loadPinnedMessages();
         }
-      } catch {}
+      } catch { }
     };
 
     const onPinnedGroup = (payload: { messageId: number; groupId: number; pinned: boolean }) => {
@@ -417,7 +417,7 @@ const ChatView = memo(({
         if (payload?.groupId === gid) {
           loadPinnedMessages();
         }
-      } catch {}
+      } catch { }
     };
 
     socket.on('message_pinned', onPinnedDM);
@@ -430,7 +430,7 @@ const ChatView = memo(({
         if (payload?.otherUserId === currentId) {
           setAliasName(payload?.nickname || '');
         }
-      } catch {}
+      } catch { }
     };
     socket.on('nickname_updated', onNicknameUpdated);
     // Also refresh on message recalls so stale pins disappear
@@ -460,7 +460,7 @@ const ChatView = memo(({
         const gid = Number((selectedChat as any)?.id);
         if (!isGroup || !payload || payload.groupId !== gid) return;
         setPinnedMessages([]);
-      } catch {}
+      } catch { }
     };
     // When user clears 1-1 chat history (delete for me), server emits 'messages_deleted' only to current user
     const onDmDeleted = (payload: { deletedWith: number; deletedBy: number; count: number; scope: 'self' }) => {
@@ -472,22 +472,22 @@ const ChatView = memo(({
           setPinnedMessages([]);
           loadPinnedMessages();
         }
-      } catch {}
+      } catch { }
     };
     socket.on('messages_recalled', onDmRecalled);
     socket.on('group_messages_recalled', onGroupRecalled);
     socket.on('group_messages_deleted', onGroupMessagesDeleted);
     socket.on('messages_deleted', onDmDeleted);
-    
+
     // Admin message deletion events
     const onAdminMessageDeleted = (payload: { messageId: number; chatUserId: number; deletedBy: string }) => {
       try {
         if (isGroup) return;
         const currentId = Number((selectedChat as any)?.id);
         if (payload.chatUserId !== currentId) return;
-        
+
         console.log(`🔥 Admin deleted message ${payload.messageId} in 1-1 chat with user ${payload.chatUserId}`);
-        
+
         // Remove message from UI immediately
         if (onRemoveMessages) {
           console.log(`🗑️ Removing message ${payload.messageId} from UI`);
@@ -495,10 +495,10 @@ const ChatView = memo(({
         } else {
           console.warn('⚠️ onRemoveMessages callback not available');
         }
-        
+
         // Show notification
         if (payload.deletedBy === 'admin') {
-          toast('Một tin nhắn đã bị admin xóa', { 
+          toast('Một tin nhắn đã bị admin xóa', {
             duration: 3000,
             icon: '⚠️'
           });
@@ -507,15 +507,15 @@ const ChatView = memo(({
         console.error('Error handling admin message deletion:', error);
       }
     };
-    
+
     const onAdminGroupMessageDeleted = (payload: { messageId: number; groupId: number; deletedBy: string }) => {
       try {
         if (!isGroup) return;
         const currentGroupId = Number((selectedChat as any)?.id);
         if (payload.groupId !== currentGroupId) return;
-        
+
         console.log(`🔥 Admin deleted group message ${payload.messageId} in group ${payload.groupId}`);
-        
+
         // Remove message from UI immediately
         if (onRemoveMessages) {
           console.log(`🗑️ Removing group message ${payload.messageId} from UI`);
@@ -523,10 +523,10 @@ const ChatView = memo(({
         } else {
           console.warn('⚠️ onRemoveMessages callback not available');
         }
-        
+
         // Show notification
         if (payload.deletedBy === 'admin') {
-          toast('Một tin nhắn nhóm đã bị admin xóa', { 
+          toast('Một tin nhắn nhóm đã bị admin xóa', {
             duration: 3000,
             icon: '⚠️'
           });
@@ -535,7 +535,7 @@ const ChatView = memo(({
         console.error('Error handling admin group message deletion:', error);
       }
     };
-    
+
     socket.on('admin_message_deleted', onAdminMessageDeleted);
     socket.on('admin_group_message_deleted', onAdminGroupMessageDeleted);
     return () => {
@@ -643,10 +643,10 @@ const ChatView = memo(({
             }
             // Buffering: do not prepend yet; wait until finally after the delay
             // Use captured prevHeight for anchor after we actually prepend
-            ;(el as any).__prevHeight = prevHeight;
-            ;(el as any).__nextPage = nextPage;
-            ;(el as any).__more = newHasMore;
-            ;(el as any).__fetched = fetched;
+            ; (el as any).__prevHeight = prevHeight;
+            ; (el as any).__nextPage = nextPage;
+            ; (el as any).__more = newHasMore;
+            ; (el as any).__fetched = fetched;
           } catch {
             // stop further attempts on error for this session
             setHasMore(false);
@@ -686,7 +686,7 @@ const ChatView = memo(({
             // If no more data, disconnect observer to prevent re-triggers at top
             if (bufferedMore === false && observerRef.current) {
               exhaustedRef.current = true;
-              try { observerRef.current.disconnect(); } catch {}
+              try { observerRef.current.disconnect(); } catch { }
             }
             // Cleanup buffer
             delete (el as any).__fetched;
@@ -763,10 +763,10 @@ const ChatView = memo(({
             }
           }
           // Buffer for after-delay application
-          ;(rootEl as any).__prevHeight = prevHeight;
-          ;(rootEl as any).__nextPage = nextPage;
-          ;(rootEl as any).__more = newHasMore;
-          ;(rootEl as any).__fetched = fetched;
+          ; (rootEl as any).__prevHeight = prevHeight;
+          ; (rootEl as any).__nextPage = nextPage;
+          ; (rootEl as any).__more = newHasMore;
+          ; (rootEl as any).__fetched = fetched;
         } catch {
           if (!cancelled) setHasMore(false);
         } finally {
@@ -805,7 +805,7 @@ const ChatView = memo(({
             }
             // If no more data, disconnect observer to prevent re-triggers at top
             if (bufferedMore === false && observerRef.current) {
-              try { observerRef.current.disconnect(); } catch {}
+              try { observerRef.current.disconnect(); } catch { }
             }
             // Cleanup buffer
             delete (rootEl as any).__fetched;
@@ -873,15 +873,15 @@ const ChatView = memo(({
   const lockStartedAt = Number(sessionStorage.getItem('e2ee_lock_started_at') || '0');
   const visibleGroups = maskMessages
     ? groupedMessages
-        .filter((g) => g.senderId === currentUserId)
-        .map((g) => {
-          const filteredItems = g.items.filter((i) => {
-            const ts = typeof i.createdAt === 'string' ? new Date(i.createdAt).getTime() : (i.createdAt as any as number);
-            return !Number.isFinite(lockStartedAt) || lockStartedAt === 0 ? true : ts >= lockStartedAt;
-          });
-          return { ...g, items: filteredItems };
-        })
-        .filter((g) => g.items.length > 0)
+      .filter((g) => g.senderId === currentUserId)
+      .map((g) => {
+        const filteredItems = g.items.filter((i) => {
+          const ts = typeof i.createdAt === 'string' ? new Date(i.createdAt).getTime() : (i.createdAt as any as number);
+          return !Number.isFinite(lockStartedAt) || lockStartedAt === 0 ? true : ts >= lockStartedAt;
+        });
+        return { ...g, items: filteredItems };
+      })
+      .filter((g) => g.items.length > 0)
     : groupedMessages;
 
   // Prefetch block statuses for senders present in the currently visible groups (group chat only)
@@ -950,8 +950,8 @@ const ChatView = memo(({
           <div className="flex-1 min-w-0 md-down:order-3 md-down:w-auto md-down:pt-0">
             <h3 className="font-semibold text-gray-900 dark:text-white md-down:text-base truncate">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 md-down:text-[11px] truncate">
-              {(isGroup ? groupOnline : selectedChat.isOnline) ? 
-                t('chat.chatView.status.online') : 
+              {(isGroup ? groupOnline : selectedChat.isOnline) ?
+                t('chat.chatView.status.online') :
                 (() => {
                   if (!selectedChat.lastSeenAt) {
                     return t('chat.chatView.status.offline');
@@ -1010,7 +1010,7 @@ const ChatView = memo(({
                       if (!otherId) return;
                       if (!callCtx) return;
                       callCtx.startCall({ id: otherId, name: selectedChat.name, avatar: selectedChat.avatar || null });
-                    } catch {}
+                    } catch { }
                   }}
                   title={t('chat.chatView.actions.voiceCall', 'Gọi thoại')}
                   aria-label={t('chat.chatView.actions.voiceCall', 'Gọi thoại')}
@@ -1028,7 +1028,7 @@ const ChatView = memo(({
                       if (!otherId) return;
                       if (!callCtx?.startVideoCall) return;
                       callCtx.startVideoCall({ id: otherId, name: selectedChat.name, avatar: selectedChat.avatar || null });
-                    } catch {}
+                    } catch { }
                   }}
                   title={t('chat.chatView.actions.videoCall', 'Gọi video')}
                   aria-label={t('chat.chatView.actions.videoCall', 'Gọi video')}
@@ -1093,7 +1093,7 @@ const ChatView = memo(({
                 </button>
                 {headerMenuOpen && (
                   <div className="absolute right-0 top-10 z-[60] w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
-                       onMouseLeave={() => setHeaderMenuOpen(false)}
+                    onMouseLeave={() => setHeaderMenuOpen(false)}
                   >
                     <button
                       onClick={() => { openMembersPanel(); }}
@@ -1280,14 +1280,14 @@ const ChatView = memo(({
         style={
           (backgroundUrl || (isGroup && selectedChat?.background))
             ? {
-                backgroundImage: `${isDarkTheme
-                  ? 'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35))'
-                  : 'linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.15))'
+              backgroundImage: `${isDarkTheme
+                ? 'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35))'
+                : 'linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.15))'
                 }, url(${backgroundUrl || selectedChat.background})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundAttachment: 'fixed',
-              }
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: 'fixed',
+            }
             : undefined
         }
       >
@@ -1300,581 +1300,581 @@ const ChatView = memo(({
           </div>
         ) : (
           <>
-        {/* Pinned banner */}
-        {!maskMessages && pinnedMessages.length > 0 && (
-          <PinnedMessageBanner
-            pinnedMessages={pinnedMessages}
-            messages={messages}
-            isGroup={!!isGroup}
-            onScrollToMessage={scrollToMessage}
-            onUnpinMessage={async (messageId) => {
-              try {
-                if (isGroup) {
-                  await pinService.togglePinGroupMessage(Number((selectedChat as any)?.id), messageId, false);
-                } else {
-                  await pinService.togglePinMessage(messageId, false);
-                }
-                await loadPinnedMessages();
-                toast.success(t('chat.menu.unpinned', 'Đã bỏ ghim'));
-              } catch (e: any) {
-                toast.error(e?.response?.data?.message || t('chat.errors.generic'));
-              }
-            }}
-          />
-        )}
-        {/* Top loading spinner for lazy load (placed after pinned banner) */}
-        {isLoadingPrev && showTopSpinner ? (
-          <div className="sticky top-0 z-40 flex items-center justify-center pt-2 pb-1 bg-transparent">
-            <div className="w-6 h-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" aria-label={t('chat.loadingOlder', 'Đang tải tin nhắn cũ...')} />
-          </div>
-        ) : null}
-
-        {/* Top intersection sentinel (1px) to trigger loads reliably */}
-        <div ref={topSentinelRef} style={{ height: 1 }} />
-
-        {/* Overlay to hide older messages area during loading (spinner remains visible) */}
-        {isLoadingPrev && showTopSpinner && (
-          <div
-            className="absolute top-0 left-0 right-0 z-30 h-24 md:h-28 bg-transparent"
-            aria-hidden="true"
-          />
-        )}
-
-        {maskMessages && (
-          <div className="relative z-10 mb-4 flex items-center justify-center text-center select-none">
-            <div>
-              <div className="text-5xl mb-4">🔒</div>
-              <div className="text-gray-700 dark:text-gray-200 font-medium mb-2">
-                {lockedNotice || t('chat.locked.notice', 'Đoạn tin nhắn đã bị mã hóa')}
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                {t('chat.locked.hint', 'Hãy nhập PIN để mở khóa và xem lịch sử cuộc trò chuyện. Bạn vẫn có thể tiếp tục nhắn tin.')}
-              </div>
-              {typeof onUnlock === 'function' && (
-                <button
-                  className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-                  onClick={onUnlock}
-                >
-                  {t('chat.locked.unlockCta', 'Nhập PIN để mở khóa')}
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-        {visibleGroups.length === 0 ? (
-          !maskMessages ? (
-            <div className="text-center py-8 relative z-10">
-              <div className="w-16 h-16 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl mx-auto mb-4 shadow-lg">
-                {selectedChat.avatar ? (
-                  <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
-                ) : (
-                  selectedChat.name.charAt(0)
-                )}
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t('chat.chatView.empty.youAreFriends', { name: selectedChat.name })}</p>
-            </div>
-          ) : null
-        ) : (
-          <div className="space-y-px relative z-10 mt-0.5 px-4">
-            {(() => {
-              let lastDateKey: string | null = null;
-              return visibleGroups.map((group) => {
-                const date = new Date(group.start);
-                const dateKey = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-                const showSep = lastDateKey !== dateKey;
-                if (showSep) lastDateKey = dateKey;
-
-                const isOwnMessage = group.senderId === currentUserId;
-                const showAvatar = !isOwnMessage;
-                const images = group.items.filter((i) => i.messageType === 'image');
-                const files = group.items.filter((i) => i.messageType === 'file');
-                const firstId = group.items[0]?.id ?? `s-${group.start}`;
-                const lastId = group.items[group.items.length - 1]?.id ?? `e-${group.end}`;
-                const groupKey = `g-${group.senderId}-${firstId}-${lastId}`;
-                const hasMedia = images.length > 0 || files.length > 0;
-                const isSameDayGroup = new Date(group.start).toDateString() === new Date(group.end).toDateString();
-                const showGroupMenu = !hasMedia && !isSameDayGroup;
-                const showPerMessageTextMenu = isSameDayGroup;
-                const allRecalled = group.items.every((i) => i.isDeletedForAll);
-
-                const today = new Date();
-                const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate());
-                const diffDays = Math.floor((startOf(today).getTime() - startOf(date).getTime()) / (24 * 60 * 60 * 1000));
-                const sepLabel = diffDays === 0
-                  ? t('chat.chatView.daySeparator.today', 'Hôm nay')
-                  : diffDays === 1
-                    ? t('chat.chatView.daySeparator.yesterday', 'Hôm qua')
-                    : date.toLocaleDateString(i18n.language || undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
-
-                return (
-                  (() => {
-                    const isSystemGroup = group.items.every((i) => i.messageType === 'system');
-                    if (isSystemGroup) {
-                      const sortedSys = [...group.items].sort((a, b) => {
-                        const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
-                        const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
-                        return timeA - timeB;
-                      });
-                      return (
-                        <>
-                          {showSep && (
-                            <div className="w-full flex items-center justify-center py-2" key={`sep-${dateKey}`}>
-                              <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{sepLabel}</span>
-                            </div>
-                          )}
-                          {sortedSys.map((it) => {
-                            const raw = String(it.content || '');
-                            const m = raw.match(/^(.+?)\s+(joined|left)\s+the\s+group/i);
-                            const name = (m && m[1]) || ((it as any)?.sender?.name) || 'User';
-                            const isJoined = !!(m && String(m[2]).toLowerCase() === 'joined');
-                            const localized = isJoined
-                              ? String(t('chat.system.joined', { name }))
-                              : String(t('chat.system.left', { name }));
-                            return (
-                              <div key={`sys-${it.id}`} className="w-full flex items-center justify-center py-1">
-                                <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{localized}</span>
-                              </div>
-                            );
-                          })}
-                        </>
-                      );
+            {/* Pinned banner */}
+            {!maskMessages && pinnedMessages.length > 0 && (
+              <PinnedMessageBanner
+                pinnedMessages={pinnedMessages}
+                messages={messages}
+                isGroup={!!isGroup}
+                onScrollToMessage={scrollToMessage}
+                onUnpinMessage={async (messageId) => {
+                  try {
+                    if (isGroup) {
+                      await pinService.togglePinGroupMessage(Number((selectedChat as any)?.id), messageId, false);
+                    } else {
+                      await pinService.togglePinMessage(messageId, false);
                     }
-                    // Determine if the last message in this group shows read-by avatars (for own messages)
-                    const lastItemSorted = group.items
-                      .slice()
-                      .sort((a, b) => {
-                        const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
-                        const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
-                        return timeA - timeB;
-                      })
-                      .pop();
-                    const hasReadAvatars = !!(isOwnMessage && lastItemSorted && (lastItemSorted as any).status === 'read' && Array.isArray((lastItemSorted as any).readBy) && (lastItemSorted as any).readBy.some((rb: any) => rb.userId !== currentUserId));
-                    // detect if last item is also the latest message sent by me and will show a status icon (sent/delivered)
-                    const latestMyMessageId = (() => {
-                      try {
-                        const myMsgs = (messages || []).filter((m: any) => Number(m.senderId) === Number(currentUserId) && !m.isDeletedForAll);
-                        if (myMsgs.length === 0) return null;
-                        myMsgs.sort((a: any, b: any) => {
-                          const ta = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
-                          const tb = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
-                          if (Number.isFinite(ta) && Number.isFinite(tb)) return ta - tb;
-                          return (a.id || 0) - (b.id || 0);
-                        });
-                        return myMsgs[myMsgs.length - 1]?.id ?? null;
-                      } catch { return null; }
-                    })();
-                    const hasStatusIcon = !!(isOwnMessage && lastItemSorted && latestMyMessageId != null && Number((lastItemSorted as any).id) === Number(latestMyMessageId) && (((lastItemSorted as any).status === 'sent') || ((lastItemSorted as any).status === 'delivered')));
-                    const tsMtClass = (hasReadAvatars || hasStatusIcon) ? 'mt-3' : 'mt-0';
+                    await loadPinnedMessages();
+                    toast.success(t('chat.menu.unpinned', 'Đã bỏ ghim'));
+                  } catch (e: any) {
+                    toast.error(e?.response?.data?.message || t('chat.errors.generic'));
+                  }
+                }}
+              />
+            )}
+            {/* Top loading spinner for lazy load (placed after pinned banner) */}
+            {isLoadingPrev && showTopSpinner ? (
+              <div className="sticky top-0 z-40 flex items-center justify-center pt-2 pb-1 bg-transparent">
+                <div className="w-6 h-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" aria-label={t('chat.loadingOlder', 'Đang tải tin nhắn cũ...')} />
+              </div>
+            ) : null}
+
+            {/* Top intersection sentinel (1px) to trigger loads reliably */}
+            <div ref={topSentinelRef} style={{ height: 1 }} />
+
+            {/* Overlay to hide older messages area during loading (spinner remains visible) */}
+            {isLoadingPrev && showTopSpinner && (
+              <div
+                className="absolute top-0 left-0 right-0 z-30 h-24 md:h-28 bg-transparent"
+                aria-hidden="true"
+              />
+            )}
+
+            {maskMessages && (
+              <div className="relative z-10 mb-4 flex items-center justify-center text-center select-none">
+                <div>
+                  <div className="text-5xl mb-4">🔒</div>
+                  <div className="text-gray-700 dark:text-gray-200 font-medium mb-2">
+                    {lockedNotice || t('chat.locked.notice', 'Đoạn tin nhắn đã bị mã hóa')}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    {t('chat.locked.hint', 'Hãy nhập PIN để mở khóa và xem lịch sử cuộc trò chuyện. Bạn vẫn có thể tiếp tục nhắn tin.')}
+                  </div>
+                  {typeof onUnlock === 'function' && (
+                    <button
+                      className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                      onClick={onUnlock}
+                    >
+                      {t('chat.locked.unlockCta', 'Nhập PIN để mở khóa')}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+            {visibleGroups.length === 0 ? (
+              !maskMessages ? (
+                <div className="text-center py-8 relative z-10">
+                  <div className="w-16 h-16 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl mx-auto mb-4 shadow-lg">
+                    {selectedChat.avatar ? (
+                      <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
+                    ) : (
+                      selectedChat.name.charAt(0)
+                    )}
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('chat.chatView.empty.youAreFriends', { name: selectedChat.name })}</p>
+                </div>
+              ) : null
+            ) : (
+              <div className="space-y-px relative z-10 mt-0.5 px-4">
+                {(() => {
+                  let lastDateKey: string | null = null;
+                  return visibleGroups.map((group) => {
+                    const date = new Date(group.start);
+                    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                    const showSep = lastDateKey !== dateKey;
+                    if (showSep) lastDateKey = dateKey;
+
+                    const isOwnMessage = group.senderId === currentUserId;
+                    const showAvatar = !isOwnMessage;
+                    const images = group.items.filter((i) => i.messageType === 'image');
+                    const files = group.items.filter((i) => i.messageType === 'file');
+                    const firstId = group.items[0]?.id ?? `s-${group.start}`;
+                    const lastId = group.items[group.items.length - 1]?.id ?? `e-${group.end}`;
+                    const groupKey = `g-${group.senderId}-${firstId}-${lastId}`;
+                    const hasMedia = images.length > 0 || files.length > 0;
+                    const isSameDayGroup = new Date(group.start).toDateString() === new Date(group.end).toDateString();
+                    const showGroupMenu = !hasMedia && !isSameDayGroup;
+                    const showPerMessageTextMenu = isSameDayGroup;
+                    const allRecalled = group.items.every((i) => i.isDeletedForAll);
+
+                    const today = new Date();
+                    const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate());
+                    const diffDays = Math.floor((startOf(today).getTime() - startOf(date).getTime()) / (24 * 60 * 60 * 1000));
+                    const sepLabel = diffDays === 0
+                      ? t('chat.chatView.daySeparator.today', 'Hôm nay')
+                      : diffDays === 1
+                        ? t('chat.chatView.daySeparator.yesterday', 'Hôm qua')
+                        : date.toLocaleDateString(i18n.language || undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
 
                     return (
-                      <>
-                        {showSep && (
-                          <div className="w-full flex items-center justify-center py-2" key={`sep-${dateKey}`}>
-                            <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{sepLabel}</span>
-                          </div>
-                        )}
-                        {/* Original group rendering */}
-                        <div key={groupKey} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                          {showAvatar && (
-                            (() => {
-                              const senderId = group.senderId as number;
-                              const isSenderBlocked = isGroup ? blockedUserMap[senderId] !== false : !!blocked;
-                              return (
-                                <div className="relative w-7 h-7 flex-shrink-0 mt-auto">
-                                  <button
-                                    type="button"
-                                    onClick={!isSenderBlocked ? () => {
-                                      const first = group.items[0];
-                                      const user = (first as any)?.sender ?? selectedChat;
-                                      handleOpenProfile(user);
-                                    } : undefined}
-                                    title={!isSenderBlocked ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
-                                    aria-disabled={isSenderBlocked}
-                                    className={`w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold ${!isSenderBlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
-                                  >
-                                    {(() => {
-                                      const first = group.items[0];
-                                      const senderName = (first as any)?.sender?.name || `User ${((first as any)?.senderId ?? '')}`;
-                                      const senderAvatar = (first as any)?.sender?.avatar || null;
-                                      return senderAvatar ? (
-                                        <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
-                                      ) : (
-                                        (senderName || '').charAt(0)
-                                      );
-                                    })()}
-                                  </button>
-                                  {/* Role indicator on sender avatar (group only): owner (gold) / admin (silver) */}
-                                  {isGroup && (() => {
-                                    const sender = Number(senderId);
-                                    const fallbackOwner = Number((selectedChat as any)?.ownerId) === sender ? 'owner' : undefined;
-                                    const role = (groupRoleMap && groupRoleMap[sender]) || fallbackOwner as ('owner'|'admin'|'member'|undefined);
-                                    if (role === 'owner') {
-                                      return (
-                                        <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 border border-amber-300 dark:border-amber-600 shadow-sm">
-                                          <Key className="w-2 h-2 text-amber-500" />
-                                        </span>
-                                      );
-                                    }
-                                    if (role === 'admin') {
-                                      return (
-                                        <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 shadow-sm">
-                                          <Key className="w-2 h-2 text-gray-500 dark:text-gray-300" />
-                                        </span>
-                                      );
-                                    }
-                                    return null;
-                                  })()}
+                      (() => {
+                        const isSystemGroup = group.items.every((i) => i.messageType === 'system');
+                        if (isSystemGroup) {
+                          const sortedSys = [...group.items].sort((a, b) => {
+                            const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                            const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                            return timeA - timeB;
+                          });
+                          return (
+                            <>
+                              {showSep && (
+                                <div className="w-full flex items-center justify-center py-2" key={`sep-${dateKey}`}>
+                                  <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{sepLabel}</span>
                                 </div>
-                              );
-                            })()
-                          )}
-                      <div className={`relative max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col gap-0`}>
-                        {showGroupMenu && (
+                              )}
+                              {sortedSys.map((it) => {
+                                const raw = String(it.content || '');
+                                const m = raw.match(/^(.+?)\s+(joined|left)\s+the\s+group/i);
+                                const name = (m && m[1]) || ((it as any)?.sender?.name) || 'User';
+                                const isJoined = !!(m && String(m[2]).toLowerCase() === 'joined');
+                                const localized = isJoined
+                                  ? String(t('chat.system.joined', { name }))
+                                  : String(t('chat.system.left', { name }));
+                                return (
+                                  <div key={`sys-${it.id}`} className="w-full flex items-center justify-center py-1">
+                                    <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{localized}</span>
+                                  </div>
+                                );
+                              })}
+                            </>
+                          );
+                        }
+                        // Determine if the last message in this group shows read-by avatars (for own messages)
+                        const lastItemSorted = group.items
+                          .slice()
+                          .sort((a, b) => {
+                            const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                            const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                            return timeA - timeB;
+                          })
+                          .pop();
+                        const hasReadAvatars = !!(isOwnMessage && lastItemSorted && (lastItemSorted as any).status === 'read' && Array.isArray((lastItemSorted as any).readBy) && (lastItemSorted as any).readBy.some((rb: any) => rb.userId !== currentUserId));
+                        // detect if last item is also the latest message sent by me and will show a status icon (sent/delivered)
+                        const latestMyMessageId = (() => {
+                          try {
+                            const myMsgs = (messages || []).filter((m: any) => Number(m.senderId) === Number(currentUserId) && !m.isDeletedForAll);
+                            if (myMsgs.length === 0) return null;
+                            myMsgs.sort((a: any, b: any) => {
+                              const ta = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                              const tb = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                              if (Number.isFinite(ta) && Number.isFinite(tb)) return ta - tb;
+                              return (a.id || 0) - (b.id || 0);
+                            });
+                            return myMsgs[myMsgs.length - 1]?.id ?? null;
+                          } catch { return null; }
+                        })();
+                        const hasStatusIcon = !!(isOwnMessage && lastItemSorted && latestMyMessageId != null && Number((lastItemSorted as any).id) === Number(latestMyMessageId) && (((lastItemSorted as any).status === 'sent') || ((lastItemSorted as any).status === 'delivered')));
+                        const tsMtClass = (hasReadAvatars || hasStatusIcon) ? 'mt-3' : 'mt-0';
+
+                        return (
                           <>
-                            <button
-                              onClick={() => onMenuToggle(menuOpenKey === groupKey ? null : groupKey)}
-                              className={`absolute -top-3 ${isOwnMessage ? '-right-3' : '-left-3'} p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity`}
-                              title={t('chat.menu.options')}
-                              aria-label={t('chat.menu.messageOptionsAria')}
-                            >
-                              <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                            </button>
-                            {menuOpenKey === groupKey && (
-                              <div className={`absolute z-[60] ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
-                                onMouseLeave={() => onMenuToggle(null)}
-                              >
-                                <button
-                                  onClick={() => onRecallGroup(group, 'self')}
-                                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                                >
-                                  {t('chat.menu.recall.self')}
-                                </button>
-                                {isOwnMessage && !group.items.every((i) => i.isDeletedForAll) && (
-                                  <button
-                                    onClick={() => onRecallGroup(group, 'all')}
-                                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                  >
-                                    {t('chat.menu.recall.all')}
-                                  </button>
-                                )}
+                            {showSep && (
+                              <div className="w-full flex items-center justify-center py-2" key={`sep-${dateKey}`}>
+                                <span className="px-3 py-1 text-xs rounded-full bg-gray-200/70 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200 shadow-sm">{sepLabel}</span>
                               </div>
                             )}
-                          </>
-                        )}
-                        {/* Content */}
-                        {allRecalled ? (
-                          <>
-                            <div className="flex flex-col gap-0">
-                              {(() => {
-                                // When every item in this sender-time group was recalled,
-                                // compress sequences of image/file (+ optional following text)
-                                // into a single recalled placeholder to avoid duplicates.
-                                const sortedItems = group.items
-                                  .slice()
-                                  .sort((a, b) => {
-                                    const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
-                                    const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
-                                    return timeA - timeB;
-                                  });
-                                const result: any[] = [];
-                                let i = 0;
-                                while (i < sortedItems.length) {
-                                  const current = sortedItems[i];
-                                  if (current.messageType === 'image' || current.messageType === 'file') {
-                                    // Collapse consecutive attachments and an optional trailing text into one placeholder
-                                    let j = i;
-                                    while (j < sortedItems.length && (sortedItems[j].messageType === 'image' || sortedItems[j].messageType === 'file')) {
-                                      j++;
-                                    }
-                                    if (j < sortedItems.length && sortedItems[j].messageType === 'text') {
-                                      j++;
-                                    }
-                                    const placeholderMsg = current; // Use first item as representative
-                                    result.push(
-                                      <MessageBubble
-                                        key={`recalled-combo-${placeholderMsg.id}`}
-                                        message={placeholderMsg}
-                                        isOwnMessage={isOwnMessage}
-                                        isRecalled={true}
-                                        menuOpenKey={menuOpenKey}
-                                        messageKey={`item-${placeholderMsg.id}`}
-                                        showMenu={true}
-                                        currentUserId={currentUserId}
-                                        allMessages={messages}
-                                        onMenuToggle={onMenuToggle}
-                                        onRecallMessage={onRecallMessage}
-                                        onEditMessage={onEditMessage}
-                                        onDownloadAttachment={onDownloadAttachment}
-                                        onPreviewImage={onPreviewImage}
-                                        pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
-                                        onTogglePinMessage={handleTogglePinMessage}
-                                        onOpenProfile={handleOpenProfile}
-                                        disableReactions={!isGroup && !!blocked}
-                                        onReplyMessage={handleReplyMessage}
-                                        onJumpToMessage={scrollToMessage}
-                                      />
-                                    );
-                                    i = j;
-                                  } else {
-                                    // Text-only item (not part of an attachment combo) -> single placeholder
-                                    result.push(
-                                      <MessageBubble
-                                        key={`recalled-${current.id}`}
-                                        message={current}
-                                        isOwnMessage={isOwnMessage}
-                                        isRecalled={true}
-                                        menuOpenKey={menuOpenKey}
-                                        messageKey={`item-${current.id}`}
-                                        showMenu={true}
-                                        currentUserId={currentUserId}
-                                        allMessages={messages}
-                                        onMenuToggle={onMenuToggle}
-                                        onRecallMessage={onRecallMessage}
-                                        onEditMessage={onEditMessage}
-                                        onDownloadAttachment={onDownloadAttachment}
-                                        onPreviewImage={onPreviewImage}
-                                        pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
-                                        onTogglePinMessage={handleTogglePinMessage}
-                                        onOpenProfile={handleOpenProfile}
-                                        disableReactions={!isGroup && !!blocked}
-                                        onReplyMessage={handleReplyMessage}
-                                        onJumpToMessage={scrollToMessage}
-                                      />
-                                    );
-                                    i++;
-                                  }
-                                }
-                                return result;
-                              })()}
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="flex flex-col gap-0">
-                              {(() => {
-                                const sortedItems = group.items.sort((a, b) => {
-                                  const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
-                                  const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
-                                  return timeA - timeB;
-                                });
-                                const result: any[] = [];
-                                let i = 0;
-                                while (i < sortedItems.length) {
-                                  const current = sortedItems[i];
-                                  // Gom ảnh/file liền kề và (nếu có) text ngay sau đó vào CÙNG một bubble
-                                  if (current.messageType === 'image' || current.messageType === 'file') {
-                                    const attachments: any[] = [];
-                                    let j = i;
-                                    while (j < sortedItems.length && (sortedItems[j].messageType === 'image' || sortedItems[j].messageType === 'file')) {
-                                      attachments.push(sortedItems[j]);
-                                      j++;
-                                    }
-                                    let textMsg: any | null = null;
-                                    if (j < sortedItems.length && sortedItems[j].messageType === 'text') {
-                                      textMsg = sortedItems[j];
-                                      j++;
-                                    }
-                                    const imgs = attachments.filter((a) => a.messageType === 'image' && !a.isDeletedForAll);
-                                    const files = attachments.filter((a) => a.messageType === 'file' && !a.isDeletedForAll);
-                                    result.push(
-                                      <div key={`combo-${current.id}`} className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'} mb-1.5`}>
-                                        <div className="relative">
-                                          {/* Menu ba chấm cho combo bubble */}
+                            {/* Original group rendering */}
+                            <div key={groupKey} className={`flex gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+                              {showAvatar && (
+                                (() => {
+                                  const senderId = group.senderId as number;
+                                  const isSenderBlocked = isGroup ? blockedUserMap[senderId] !== false : !!blocked;
+                                  return (
+                                    <div className="relative w-7 h-7 flex-shrink-0 mt-auto">
+                                      <button
+                                        type="button"
+                                        onClick={!isSenderBlocked ? () => {
+                                          const first = group.items[0];
+                                          const user = (first as any)?.sender ?? selectedChat;
+                                          handleOpenProfile(user);
+                                        } : undefined}
+                                        title={!isSenderBlocked ? t('chat.chatView.viewProfile', 'Xem thông tin') : undefined}
+                                        aria-disabled={isSenderBlocked}
+                                        className={`w-7 h-7 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold ${!isSenderBlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                                      >
+                                        {(() => {
+                                          const first = group.items[0];
+                                          const senderName = (first as any)?.sender?.name || `User ${((first as any)?.senderId ?? '')}`;
+                                          const senderAvatar = (first as any)?.sender?.avatar || null;
+                                          return senderAvatar ? (
+                                            <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
+                                          ) : (
+                                            (senderName || '').charAt(0)
+                                          );
+                                        })()}
+                                      </button>
+                                      {/* Role indicator on sender avatar (group only): owner (gold) / admin (silver) */}
+                                      {isGroup && (() => {
+                                        const sender = Number(senderId);
+                                        const fallbackOwner = Number((selectedChat as any)?.ownerId) === sender ? 'owner' : undefined;
+                                        const role = (groupRoleMap && groupRoleMap[sender]) || fallbackOwner as ('owner' | 'admin' | 'member' | undefined);
+                                        if (role === 'owner') {
+                                          return (
+                                            <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 border border-amber-300 dark:border-amber-600 shadow-sm">
+                                              <Key className="w-2 h-2 text-amber-500" />
+                                            </span>
+                                          );
+                                        }
+                                        if (role === 'admin') {
+                                          return (
+                                            <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 shadow-sm">
+                                              <Key className="w-2 h-2 text-gray-500 dark:text-gray-300" />
+                                            </span>
+                                          );
+                                        }
+                                        return null;
+                                      })()}
+                                    </div>
+                                  );
+                                })()
+                              )}
+                              <div className={`relative max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col gap-0`}>
+                                {showGroupMenu && (
+                                  <>
+                                    <button
+                                      onClick={() => onMenuToggle(menuOpenKey === groupKey ? null : groupKey)}
+                                      className={`absolute -top-3 ${isOwnMessage ? '-right-3' : '-left-3'} p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 hover:opacity-100 focus:opacity-100 transition-opacity`}
+                                      title={t('chat.menu.options')}
+                                      aria-label={t('chat.menu.messageOptionsAria')}
+                                    >
+                                      <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                    </button>
+                                    {menuOpenKey === groupKey && (
+                                      <div className={`absolute z-[60] ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
+                                        onMouseLeave={() => onMenuToggle(null)}
+                                      >
+                                        <button
+                                          onClick={() => onRecallGroup(group, 'self')}
+                                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        >
+                                          {t('chat.menu.recall.self')}
+                                        </button>
+                                        {isOwnMessage && !group.items.every((i) => i.isDeletedForAll) && (
                                           <button
-                                            onClick={() => onMenuToggle(menuOpenKey === `combo-${current.id}` ? null : `combo-${current.id}`)}
-                                            className={`absolute -top-2 ${isOwnMessage ? '-right-2' : '-left-2'} z-30 p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 transition-opacity`}
-                                            title={t('chat.menu.options')}
-                                            aria-label={t('chat.menu.messageOptionsAria')}
+                                            onClick={() => onRecallGroup(group, 'all')}
+                                            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                                           >
-                                            <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                            {t('chat.menu.recall.all')}
                                           </button>
-                                          {menuOpenKey === `combo-${current.id}` && (
-                                            <div
-                                              className={`absolute z-[60] ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
-                                              onMouseLeave={() => onMenuToggle(null)}
-                                            >
-                                              <button
-                                                onClick={() => {
-                                                  attachments.forEach((m: any) => { if (!m.isDeletedForAll) onRecallMessage(m, 'self'); });
-                                                  if (textMsg && !textMsg.isDeletedForAll) onRecallMessage(textMsg, 'self');
-                                                }}
-                                                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                                              >
-                                                {t('chat.menu.recall.self')}
-                                              </button>
-                                              {isOwnMessage && (
-                                                <button
-                                                  onClick={() => {
-                                                    attachments.forEach((m: any) => { if (!m.isDeletedForAll) onRecallMessage(m, 'all'); });
-                                                    if (textMsg && !textMsg.isDeletedForAll) onRecallMessage(textMsg, 'all');
-                                                  }}
-                                                  className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                                >
-                                                  {t('chat.menu.recall.all')}
-                                                </button>
-                                              )}
-                                            </div>
-                                          )}
-                                          <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
-                                            <div className={`px-3 py-2 rounded-2xl text-sm break-words whitespace-pre-wrap w-fit ${isOwnMessage ? 'bg-blue-600 text-white rounded-br-md' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'}`}>
-                                          {imgs.length > 0 && (
-                                            <div className={`grid gap-1 ${imgs.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                                              {imgs.map((img) => (
-                                                <div key={img.id} className="relative">
-                                                  <img
-                                                    src={img.content}
-                                                    alt={t('chat.message.imageAlt')}
-                                                    onClick={() => onPreviewImage && onPreviewImage(img.content)}
-                                                    className="w-40 h-40 cursor-zoom-in rounded-xl object-cover"
-                                                  />
-                                                </div>
-                                              ))}
-                                            </div>
-                                          )}
-                                          {files.length > 0 && (
-                                            <div className={`${imgs.length > 0 ? 'mt-2' : ''} space-y-1`}>
-                                              {files.map((f) => (
-                                                <button
-                                                  key={f.id}
-                                                  type="button"
-                                                  onClick={() => onDownloadAttachment && onDownloadAttachment(f.content)}
-                                                  className="w-full flex items-center gap-2 px-2 py-1 rounded-md bg-transparent text-current text-left"
-                                                  title={t('chat.attachment.downloadFileTitle')}
-                                                  aria-label={t('chat.attachment.downloadFileAria')}
-                                                >
-                                                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M8 2a1 1 0 00-1 1v2H5a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2V3a1 1 0 10-2 0v2H9V3a1 1 0 00-1-1z" />
-                                                  </svg>
-                                                  <span className="truncate max-w-[220px]">{(() => { try { const u = new URL(f.content); return decodeURIComponent(u.pathname.split('/').pop() || t('chat.attachment.fileFallback')); } catch { return f.content; } })()}</span>
-                                                </button>
-                                              ))}
-                                            </div>
-                                          )}
-                                          {textMsg && !textMsg.isDeletedForAll && (
-                                            <div className={`${(imgs.length > 0 || files.length > 0) ? 'mt-2' : ''}`}>{textMsg.content}</div>
-                                          )}
-                                            </div>
-                                          </div>
-                                        </div>
+                                        )}
                                       </div>
-                                    );
-                                    i = j;
-                                  } else {
-                                    result.push(
-                                      <MessageBubble
-                                        key={current.id}
-                                        message={current}
-                                        isOwnMessage={isOwnMessage}
-                                        isRecalled={current.isDeletedForAll}
-                                        menuOpenKey={menuOpenKey}
-                                        messageKey={`item-${current.id}`}
-                                        showMenu={showPerMessageTextMenu || !!current.isDeletedForAll}
-                                        currentUserId={currentUserId}
-                                        allMessages={messages}
-                                        onMenuToggle={onMenuToggle}
-                                        onRecallMessage={onRecallMessage}
-                                        onEditMessage={onEditMessage}
-                                        onDownloadAttachment={onDownloadAttachment}
-                                        onPreviewImage={onPreviewImage}
-                                        pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
-                                        onTogglePinMessage={handleTogglePinMessage}
-                                        onOpenProfile={handleOpenProfile}
-                                        disableReactions={!isGroup && !!blocked}
-                                        onReplyMessage={handleReplyMessage}
-                                        onJumpToMessage={scrollToMessage}
-                                      />
-                                    );
-                                    i++;
-                                  }
-                                }
-                                return result;
-                              })()}
+                                    )}
+                                  </>
+                                )}
+                                {/* Content */}
+                                {allRecalled ? (
+                                  <>
+                                    <div className="flex flex-col gap-0">
+                                      {(() => {
+                                        // When every item in this sender-time group was recalled,
+                                        // compress sequences of image/file (+ optional following text)
+                                        // into a single recalled placeholder to avoid duplicates.
+                                        const sortedItems = group.items
+                                          .slice()
+                                          .sort((a, b) => {
+                                            const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                                            const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                                            return timeA - timeB;
+                                          });
+                                        const result: any[] = [];
+                                        let i = 0;
+                                        while (i < sortedItems.length) {
+                                          const current = sortedItems[i];
+                                          if (current.messageType === 'image' || current.messageType === 'file') {
+                                            // Collapse consecutive attachments and an optional trailing text into one placeholder
+                                            let j = i;
+                                            while (j < sortedItems.length && (sortedItems[j].messageType === 'image' || sortedItems[j].messageType === 'file')) {
+                                              j++;
+                                            }
+                                            if (j < sortedItems.length && sortedItems[j].messageType === 'text') {
+                                              j++;
+                                            }
+                                            const placeholderMsg = current; // Use first item as representative
+                                            result.push(
+                                              <MessageBubble
+                                                key={`recalled-combo-${placeholderMsg.id}`}
+                                                message={placeholderMsg}
+                                                isOwnMessage={isOwnMessage}
+                                                isRecalled={true}
+                                                menuOpenKey={menuOpenKey}
+                                                messageKey={`item-${placeholderMsg.id}`}
+                                                showMenu={true}
+                                                currentUserId={currentUserId}
+                                                allMessages={messages}
+                                                onMenuToggle={onMenuToggle}
+                                                onRecallMessage={onRecallMessage}
+                                                onEditMessage={onEditMessage}
+                                                onDownloadAttachment={onDownloadAttachment}
+                                                onPreviewImage={onPreviewImage}
+                                                pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
+                                                onTogglePinMessage={handleTogglePinMessage}
+                                                onOpenProfile={handleOpenProfile}
+                                                disableReactions={!isGroup && !!blocked}
+                                                onReplyMessage={handleReplyMessage}
+                                                onJumpToMessage={scrollToMessage}
+                                              />
+                                            );
+                                            i = j;
+                                          } else {
+                                            // Text-only item (not part of an attachment combo) -> single placeholder
+                                            result.push(
+                                              <MessageBubble
+                                                key={`recalled-${current.id}`}
+                                                message={current}
+                                                isOwnMessage={isOwnMessage}
+                                                isRecalled={true}
+                                                menuOpenKey={menuOpenKey}
+                                                messageKey={`item-${current.id}`}
+                                                showMenu={true}
+                                                currentUserId={currentUserId}
+                                                allMessages={messages}
+                                                onMenuToggle={onMenuToggle}
+                                                onRecallMessage={onRecallMessage}
+                                                onEditMessage={onEditMessage}
+                                                onDownloadAttachment={onDownloadAttachment}
+                                                onPreviewImage={onPreviewImage}
+                                                pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
+                                                onTogglePinMessage={handleTogglePinMessage}
+                                                onOpenProfile={handleOpenProfile}
+                                                disableReactions={!isGroup && !!blocked}
+                                                onReplyMessage={handleReplyMessage}
+                                                onJumpToMessage={scrollToMessage}
+                                              />
+                                            );
+                                            i++;
+                                          }
+                                        }
+                                        return result;
+                                      })()}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="flex flex-col gap-0">
+                                      {(() => {
+                                        const sortedItems = group.items.sort((a, b) => {
+                                          const timeA = typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : (a.createdAt as any as number);
+                                          const timeB = typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : (b.createdAt as any as number);
+                                          return timeA - timeB;
+                                        });
+                                        const result: any[] = [];
+                                        let i = 0;
+                                        while (i < sortedItems.length) {
+                                          const current = sortedItems[i];
+                                          // Gom ảnh/file liền kề và (nếu có) text ngay sau đó vào CÙNG một bubble
+                                          if (current.messageType === 'image' || current.messageType === 'file') {
+                                            const attachments: any[] = [];
+                                            let j = i;
+                                            while (j < sortedItems.length && (sortedItems[j].messageType === 'image' || sortedItems[j].messageType === 'file')) {
+                                              attachments.push(sortedItems[j]);
+                                              j++;
+                                            }
+                                            let textMsg: any | null = null;
+                                            if (j < sortedItems.length && sortedItems[j].messageType === 'text') {
+                                              textMsg = sortedItems[j];
+                                              j++;
+                                            }
+                                            const imgs = attachments.filter((a) => a.messageType === 'image' && !a.isDeletedForAll);
+                                            const files = attachments.filter((a) => a.messageType === 'file' && !a.isDeletedForAll);
+                                            result.push(
+                                              <div key={`combo-${current.id}`} className={`relative group ${isOwnMessage ? 'flex justify-end' : 'flex justify-start'} mb-1.5`}>
+                                                <div className="relative">
+                                                  {/* Menu ba chấm cho combo bubble */}
+                                                  <button
+                                                    onClick={() => onMenuToggle(menuOpenKey === `combo-${current.id}` ? null : `combo-${current.id}`)}
+                                                    className={`absolute -top-2 ${isOwnMessage ? '-right-2' : '-left-2'} z-30 p-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 transition-opacity`}
+                                                    title={t('chat.menu.options')}
+                                                    aria-label={t('chat.menu.messageOptionsAria')}
+                                                  >
+                                                    <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                                  </button>
+                                                  {menuOpenKey === `combo-${current.id}` && (
+                                                    <div
+                                                      className={`absolute z-[60] ${isOwnMessage ? 'right-0' : 'left-0'} top-4 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1`}
+                                                      onMouseLeave={() => onMenuToggle(null)}
+                                                    >
+                                                      <button
+                                                        onClick={() => {
+                                                          attachments.forEach((m: any) => { if (!m.isDeletedForAll) onRecallMessage(m, 'self'); });
+                                                          if (textMsg && !textMsg.isDeletedForAll) onRecallMessage(textMsg, 'self');
+                                                        }}
+                                                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                      >
+                                                        {t('chat.menu.recall.self')}
+                                                      </button>
+                                                      {isOwnMessage && (
+                                                        <button
+                                                          onClick={() => {
+                                                            attachments.forEach((m: any) => { if (!m.isDeletedForAll) onRecallMessage(m, 'all'); });
+                                                            if (textMsg && !textMsg.isDeletedForAll) onRecallMessage(textMsg, 'all');
+                                                          }}
+                                                          className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                        >
+                                                          {t('chat.menu.recall.all')}
+                                                        </button>
+                                                      )}
+                                                    </div>
+                                                  )}
+                                                  <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
+                                                    <div className={`px-3 py-2 rounded-2xl text-sm break-words whitespace-pre-wrap w-fit ${isOwnMessage ? 'bg-blue-600 text-white rounded-br-md' : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'}`}>
+                                                      {imgs.length > 0 && (
+                                                        <div className={`grid gap-1 ${imgs.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                                                          {imgs.map((img) => (
+                                                            <div key={img.id} className="relative">
+                                                              <img
+                                                                src={img.content}
+                                                                alt={t('chat.message.imageAlt')}
+                                                                onClick={() => onPreviewImage && onPreviewImage(img.content)}
+                                                                className="w-40 h-40 cursor-zoom-in rounded-xl object-cover"
+                                                              />
+                                                            </div>
+                                                          ))}
+                                                        </div>
+                                                      )}
+                                                      {files.length > 0 && (
+                                                        <div className={`${imgs.length > 0 ? 'mt-2' : ''} space-y-1`}>
+                                                          {files.map((f) => (
+                                                            <button
+                                                              key={f.id}
+                                                              type="button"
+                                                              onClick={() => onDownloadAttachment && onDownloadAttachment(f.content)}
+                                                              className="w-full flex items-center gap-2 px-2 py-1 rounded-md bg-transparent text-current text-left"
+                                                              title={t('chat.attachment.downloadFileTitle')}
+                                                              aria-label={t('chat.attachment.downloadFileAria')}
+                                                            >
+                                                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M8 2a1 1 0 00-1 1v2H5a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2V3a1 1 0 10-2 0v2H9V3a1 1 0 00-1-1z" />
+                                                              </svg>
+                                                              <span className="truncate max-w-[220px]">{(() => { try { const u = new URL(f.content); return decodeURIComponent(u.pathname.split('/').pop() || t('chat.attachment.fileFallback')); } catch { return f.content; } })()}</span>
+                                                            </button>
+                                                          ))}
+                                                        </div>
+                                                      )}
+                                                      {textMsg && !textMsg.isDeletedForAll && (
+                                                        <div className={`${(imgs.length > 0 || files.length > 0) ? 'mt-2' : ''}`}>{textMsg.content}</div>
+                                                      )}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            );
+                                            i = j;
+                                          } else {
+                                            result.push(
+                                              <MessageBubble
+                                                key={current.id}
+                                                message={current}
+                                                isOwnMessage={isOwnMessage}
+                                                isRecalled={current.isDeletedForAll}
+                                                menuOpenKey={menuOpenKey}
+                                                messageKey={`item-${current.id}`}
+                                                showMenu={showPerMessageTextMenu || !!current.isDeletedForAll}
+                                                currentUserId={currentUserId}
+                                                allMessages={messages}
+                                                onMenuToggle={onMenuToggle}
+                                                onRecallMessage={onRecallMessage}
+                                                onEditMessage={onEditMessage}
+                                                onDownloadAttachment={onDownloadAttachment}
+                                                onPreviewImage={onPreviewImage}
+                                                pinnedIdSet={new Set(pinnedMessages.map((p) => p.id))}
+                                                onTogglePinMessage={handleTogglePinMessage}
+                                                onOpenProfile={handleOpenProfile}
+                                                disableReactions={!isGroup && !!blocked}
+                                                onReplyMessage={handleReplyMessage}
+                                                onJumpToMessage={scrollToMessage}
+                                              />
+                                            );
+                                            i++;
+                                          }
+                                        }
+                                        return result;
+                                      })()}
+                                    </div>
+                                  </>
+                                )}
+                                <p className={`text-[11px] leading-none text-gray-500 dark:text-gray-400 ${tsMtClass} mb-2 px-0 ${isOwnMessage ? 'self-end' : 'self-start'}`}>
+                                  {new Date(group.end).toLocaleTimeString(i18n.language || undefined, { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
                             </div>
                           </>
-                        )}
-                        <p className={`text-[11px] leading-none text-gray-500 dark:text-gray-400 ${tsMtClass} mb-2 px-0 ${isOwnMessage ? 'self-end' : 'self-start'}`}>
-                          {new Date(group.end).toLocaleTimeString(i18n.language || undefined, { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
+                        );
+                      })()
+                    );
+                  });
+                })()}
+              </div>
+            )}
+            {!isGroup && isPartnerTyping && !maskMessages && (
+              <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
+                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-blue-500/30 dark:ring-blue-400/30 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto shadow">
+                  {selectedChat.avatar ? (
+                    <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
+                  ) : (
+                    selectedChat.name.charAt(0)
+                  )}
+                </div>
+                <div className="max-w-[70%] flex flex-col items-start">
+                  <div className="px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-gray-800/80 border border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm shadow-md">
+                    <div className="flex items-center gap-1 py-0.5">
+                      <span className="w-2 h-2 bg-blue-500/80 dark:bg-blue-400/80 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                      <span className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                      <span className="w-2 h-2 bg-blue-500/40 dark:bg-blue-400/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                     </div>
-                  </>
-                );
-                  })()
-                );
-              });
-            })()}
-          </div>
-        )}
-        {!isGroup && isPartnerTyping && !maskMessages && (
-          <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
-            <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-blue-500/30 dark:ring-blue-400/30 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto shadow">
-              {selectedChat.avatar ? (
-                <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
-              ) : (
-                selectedChat.name.charAt(0)
-              )}
-            </div>
-            <div className="max-w-[70%] flex flex-col items-start">
-              <div className="px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-gray-800/80 border border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm shadow-md">
-                <div className="flex items-center gap-1 py-0.5">
-                  <span className="w-2 h-2 bg-blue-500/80 dark:bg-blue-400/80 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-2 h-2 bg-blue-500/40 dark:bg-blue-400/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-        {isGroup && typingUsers && typingUsers.length > 0 && !maskMessages && (
-          <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
-            <div className="flex -space-x-2 mt-auto">
-              {(() => {
-                const list = ((typingUsers ?? []) as any[]).slice(0, 2);
-                return list.map((u: any, idx: number) => {
-                  const name = String(u?.name || '').trim() || 'U';
-                  const avatar = (u as any)?.avatar || null;
-                  return (
-                    <div key={u?.id ?? idx} className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white dark:ring-gray-900 shadow">
-                      {avatar ? (
-                        <img src={avatar} alt={name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-semibold">{name.charAt(0)}</div>
-                      )}
+            )}
+            {isGroup && typingUsers && typingUsers.length > 0 && !maskMessages && (
+              <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
+                <div className="flex -space-x-2 mt-auto">
+                  {(() => {
+                    const list = ((typingUsers ?? []) as any[]).slice(0, 2);
+                    return list.map((u: any, idx: number) => {
+                      const name = String(u?.name || '').trim() || 'U';
+                      const avatar = (u as any)?.avatar || null;
+                      return (
+                        <div key={u?.id ?? idx} className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white dark:ring-gray-900 shadow">
+                          {avatar ? (
+                            <img src={avatar} alt={name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-semibold">{name.charAt(0)}</div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+                <div className="flex flex-col items-start gap-0.5">
+                  {/* Bubble: không chứa chữ 'Đang nhập...' chỉ hiển thị chấm */}
+                  <div className="px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-gray-800/80 border border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm shadow-md">
+                    <div className="flex items-center gap-1 py-0.5">
+                      <span className="w-2 h-2 bg-blue-500/80 dark:bg-blue-400/80 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                      <span className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                      <span className="w-2 h-2 bg-blue-500/40 dark:bg-blue-400/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                     </div>
-                  );
-                });
-              })()}
-            </div>
-            <div className="flex flex-col items-start gap-0.5">
-              {/* Bubble: không chứa chữ 'Đang nhập...' chỉ hiển thị chấm */}
-              <div className="px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-gray-800/80 border border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm shadow-md">
-                <div className="flex items-center gap-1 py-0.5">
-                  <span className="w-2 h-2 bg-blue-500/80 dark:bg-blue-400/80 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-2 h-2 bg-blue-500/40 dark:bg-blue-400/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                  {/* Tên người đang nhập (nhẹ, nhỏ) */}
+                  <div className="text-[11px] leading-none text-gray-500 dark:text-gray-400 px-1">
+                    {(typingUsers ?? []).map((u) => u.name).join(', ')}
+                  </div>
                 </div>
               </div>
-              {/* Tên người đang nhập (nhẹ, nhỏ) */}
-              <div className="text-[11px] leading-none text-gray-500 dark:text-gray-400 px-1">
-                {(typingUsers ?? []).map((u) => u.name).join(', ')}
+            )}
+            {showBackToBottom && (
+              <div className="sticky bottom-4 z-20 w-full flex justify-center pointer-events-none">
+                <button
+                  onClick={scrollToBottom}
+                  className="px-3 py-2 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus:outline-none pointer-events-auto"
+                  aria-label={t('chat.chatView.backToBottom', 'Xuống cuối')}
+                  title={t('chat.chatView.backToBottom', 'Xuống cuối')}
+                >
+                  <ChevronDown className="w-5 h-5" />
+                </button>
               </div>
-            </div>
-          </div>
-        )}
-        {showBackToBottom && (
-          <div className="sticky bottom-4 z-20 w-full flex justify-center pointer-events-none">
-            <button
-              onClick={scrollToBottom}
-              className="px-3 py-2 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus:outline-none pointer-events-auto"
-              aria-label={t('chat.chatView.backToBottom', 'Xuống cuối')}
-              title={t('chat.chatView.backToBottom', 'Xuống cuối')}
-            >
-              <ChevronDown className="w-5 h-5" />
-            </button>
-          </div>
-        )}
-        <div ref={messagesEndRef} className="relative z-10" />
+            )}
+            <div ref={messagesEndRef} className="relative z-10" />
           </>
         )}
       </div>
@@ -1883,7 +1883,7 @@ const ChatView = memo(({
       {profileUser && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center" role="dialog" aria-modal="true">
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={() => setProfileUser(null)} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
 
           {/* Modal panel */}
           <div className="relative mx-4 w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">

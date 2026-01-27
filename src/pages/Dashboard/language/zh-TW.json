@@ -1,0 +1,972 @@
+{
+  "title": "儀表板",
+  "welcome": "歡迎來到您的儀表板",
+  "stats": {
+    "total": "總筆記",
+    "active": "活躍",
+    "archived": "已封存",
+    "folders": "資料夾",
+    "notesInFolders": "資料夾中的筆記",
+    "uptime": "運行時間"
+  },
+  "view": {
+    "active": "活躍",
+    "archived": "已封存",
+    "folders": "資料夾"
+  },
+  "search": {
+    "placeholder": "搜尋筆記...",
+    "today": "今天",
+    "yesterday": "昨天",
+    "daysAgo": "天前",
+    "matchInTitle": "標題",
+    "matchInContent": "內容",
+    "found": "找到",
+    "results": "結果",
+    "pressEnter": "按 Enter 鍵完全搜尋",
+    "noResults": "未找到結果",
+    "tryDifferent": "嘗試不同的關鍵字搜尋",
+    "foundResults": "找到 {{count}} 個結果",
+    "tryDifferentKeywords": "嘗試不同的關鍵字搜尋"
+  },
+  "categories": {
+    "work": "工作",
+    "personal": "個人",
+    "general": "一般",
+    "shopping": "購物",
+    "health": "健康"
+  },
+  "filters": {
+    "title": "搜尋 & 篩選",
+    "subtitle": "快速查找您的筆記",
+    "categoryLabel": "類別",
+    "priorityLabel": "優先級",
+    "selectCategory": "選擇類別",
+    "selectPriority": "選擇優先級",
+    "activeFilters": "活躍",
+    "clearAll": "清除",
+    "quickFilters": "快速:",
+    "showFilters": "篩選",
+    "hideFilters": "隱藏",
+    "allCategories": "所有類別",
+    "category": {
+      "work": "工作",
+      "personal": "個人",
+      "general": "一般"
+    },
+    "allPriorities": "所有優先級",
+    "priority": {
+      "high": "高",
+      "highDesc": "緊急任務",
+      "medium": "中",
+      "mediumDesc": "重要任務",
+      "low": "低",
+      "lowDesc": "稍後處理"
+    }
+  },
+  "actions": {
+    "createNote": "建立筆記",
+    "createNoteFor": "為 {{name}} 建立",
+    "createNoteShared": "為 {{name}} 建立筆記",
+    "save": "儲存",
+    "saving": "儲存中...",
+    "cancel": "取消",
+    "confirm": "確認",
+    "delete": "刪除",
+    "clearSelection": "清除選擇",
+    "deleteSelected": "刪除所選",
+    "selectNote": "選擇筆記",
+    "restore": "還原",
+    "archive": "封存",
+    "edit": "編輯",
+    "view": "檢視",
+    "update": "更新",
+    "reminderDue": "提醒到期",
+    "close": "關閉",
+    "viewDetails": "檢視詳情",
+    "share": "分享",
+    "sharing": "分享中...",
+    "back": "返回",
+    "pin": "置頂",
+    "unpin": "取消置頂"
+  },
+  "confirm": {
+    "removeFriend": "移除好友 {{name}}？",
+    "blockUser": "封鎖 {{name}}？",
+    "blockUserHint": "您和該用戶將無法互相傳送訊息。",
+    "unblockUser": "取消封鎖 {{name}}？"
+  },
+  "messages": {
+    "selectedCount": "選擇了 {{count}} 項",
+    "noNotes": "暫無筆記",
+    "selectedNotes": "選擇了 {{count}} 則筆記",
+    "confirmBulkRemove": "確定要從資料夾中移除 {{count}} 則筆記嗎？",
+    "noContent": "無內容",
+    "videoNotSupported": "您的瀏覽器不支援影片",
+    "noArchived": "無封存筆記",
+    "switchToActive": "切換到活躍頁籤以查看當前筆記",
+    "createFirst": "建立您的第一則筆記以開始"
+  },
+  "category": {
+    "none": "無",
+    "searchPlaceholder": "搜尋類別...",
+    "noResults": "未找到類別",
+    "general": "一般",
+    "work": "工作",
+    "personal": "個人"
+  },
+  "priority": {
+    "low": "低",
+    "medium": "中",
+    "high": "高"
+  },
+  "common": {
+    "notProvided": "未提供",
+    "selectAll": "全選",
+    "unselectAll": "取消全選",
+    "pleaseWait": "請稍候...",
+    "cancel": "取消",
+    "close": "關閉"
+  },
+  "gender": {
+    "male": "男",
+    "female": "女",
+    "other": "其他",
+    "unspecified": "不詳"
+  },
+  "toasts": {
+    "archiveSuccess": "筆記封存成功",
+    "noteCreated": "筆記建立成功",
+    "noteUpdated": "筆記更新成功",
+    "noteDeleted": "筆記刪除成功",
+    "noteCreateFailed": "建立筆記失敗",
+    "noteUpdateFailed": "更新筆記失敗",
+    "noteDeleteFailed": "刪除筆記失敗",
+    "noteActionFailed": "操作失敗"
+  },
+  "editor": {
+    "loading": "載入編輯器...",
+    "link": {
+      "placeholder": "https://...",
+      "add": "新增",
+      "cancel": "取消",
+      "invalidUrl": "無效的網址",
+      "inserted": "連結已插入",
+      "addTitle": "新增連結"
+    },
+    "toolbar": {
+      "bold": "粗體 (Ctrl+B)",
+      "italic": "斜體 (Ctrl+I)",
+      "underline": "底線 (Ctrl+U)",
+      "strike": "刪除線",
+      "code": "程式碼",
+      "h1": "標題 1",
+      "h2": "標題 2",
+      "h3": "標題 3",
+      "bulletList": "符號清單",
+      "orderedList": "編號清單",
+      "alignLeft": "置左",
+      "alignCenter": "置中",
+      "alignRight": "置右",
+      "alignJustify": "左右對齊",
+      "blockquote": "引言",
+      "horizontalRule": "分隔線",
+      "undo": "復原 (Ctrl+Z)",
+      "redo": "重做 (Ctrl+Y)"
+    }
+  },
+  "modals": {
+    "confirm": {
+      "deleteTitle": "刪除筆記？",
+      "bulkDeleteTitle": "刪除所選筆記？",
+      "irreversible": "此操作無法復原。",
+      "archiveTitle": "封存筆記？",
+      "archiveMessage": "筆記將被移至封存。"
+    },
+    "create": {
+      "title": "新建筆記",
+      "fields": {
+        "title": "標題",
+        "titlePlaceholder": "輸入筆記標題",
+        "content": "內容",
+        "contentPlaceholder": "輸入筆記內容",
+        "image": "圖片",
+        "media": "媒體",
+        "video": "影片",
+        "youtube": "YouTube 網址",
+        "youtubePlaceholder": "輸入 YouTube 影片網址",
+        "category": "類別",
+        "selectCategory": "選擇類別",
+        "priority": "優先級",
+        "reminderAt": "提醒時間",
+        "reminderHint": "可選 — 到期時會顯示鈴鐺圖示"
+      }
+    },
+    "callLog": {
+      "incomingVideo": "來電影片",
+      "incomingAudio": "來電語音",
+      "outgoingVideo": "去電影片",
+      "outgoingAudio": "去電語音",
+      "missedYou": "未接來電",
+      "youCancelled": "您取消了通話",
+      "cancelled": "通話已取消",
+      "video": "視訊通話",
+      "audio": "語音通話",
+      "redial": "重撥",
+      "duration": "{{m}} 分 {{s}} 秒"
+    },
+    "edit": {
+      "title": "編輯筆記"
+    },
+    "view": {
+      "title": "筆記詳情",
+      "share": {
+        "title": "分享到聊天",
+        "modeUser": "私訊",
+        "modeGroup": "群組",
+        "selectFriend": "選擇好友",
+        "selectGroup": "選擇群組",
+        "shareButton": "分享",
+        "hint": "內容將以文字形式發送，包括標題、內容、圖片網址（如有）和基本資訊。"
+      }
+    }
+  },
+  "success": {
+    "reminderAcknowledged": "已確認提醒"
+  },
+  "notes": {
+    "title": "筆記",
+    "inFolders": "資料夾中的筆記",
+    "noContent": "無內容",
+    "pinSuccess": "筆記置頂成功",
+    "editSuccess": "正在開啟筆記進行編輯",
+    "editError": "無法編輯筆記",
+    "createdAt": "建立於",
+    "confirmDelete": "確定要刪除這條筆記嗎？",
+    "deleteSuccess": "筆記刪除成功",
+    "deleteError": "無法刪除筆記",
+    "pinAction": "置頂筆記",
+    "unpinAction": "取消置頂",
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "category": {
+      "general": "一般",
+      "work": "工作",
+      "personal": "個人"
+    },
+    "share": {
+      "title": "分享筆記",
+      "users": "用戶",
+      "groups": "群組",
+      "selectUser": "選擇接收者",
+      "selectGroup": "選擇群組",
+      "searchPlaceholderUsers": "搜尋用戶...",
+      "searchPlaceholderGroups": "搜尋群組...",
+      "availableUsers": "個可用用戶",
+      "availableGroups": "個可用群組",
+      "noResults": "未找到用戶",
+      "noGroupResults": "未找到群組",
+      "noUsers": "無用戶",
+      "noGroups": "無群組",
+      "permissions": "權限",
+      "permissionsUpdated": "權限更新成功",
+      "permissionsUpdateFailed": "權限更新失敗",
+      "canEdit": "允許編輯",
+      "canDelete": "允許刪除",
+      "canCreate": "允許建立新筆記",
+      "message": "留言（可選）",
+      "groupMessage": "群留言（可選）",
+      "messagePlaceholder": "新增留言...",
+      "groupMessagePlaceholder": "為群組新增留言...",
+      "description": "與他人分享此筆記並設定相應權限。",
+      "success": "筆記分享成功",
+      "successGroup": "分享至群組成功",
+      "error": "無法分享筆記"
+    },
+    "modal": {
+      "title": "編輯共享筆記",
+      "titleLabel": "標題",
+      "titlePlaceholder": "輸入筆記標題...",
+      "contentLabel": "內容",
+      "contentPlaceholder": "輸入筆記內容...",
+      "imageUrlLabel": "圖片網址",
+      "imageUrlPlaceholder": "https://example.com/image.jpg",
+      "categoryLabel": "類別",
+      "category": {
+        "personal": "個人",
+        "work": "工作"
+      },
+      "priorityLabel": "優先級",
+      "priority": {
+        "low": "低",
+        "medium": "中",
+        "high": "高"
+      },
+      "cancel": "取消",
+      "save": "儲存",
+      "titleRequired": "標題必填",
+      "updateSuccess": "筆記更新成功",
+      "updateError": "無法更新筆記",
+      "imageUpload": "上傳圖片",
+      "imageUploading": "上傳中...",
+      "imageRemove": "移除圖片",
+      "imagePreviewAlt": "圖片",
+      "imageUploadError": "上傳圖片失敗",
+      "close": "關閉"
+    },
+    "background": {
+      "title": "背景選項",
+      "change": "更改背景",
+      "colors": "顏色",
+      "images": "圖片",
+      "searchPlaceholder": "搜尋背景...",
+      "noColorsFound": "未找到顏色",
+      "noImagesFound": "未找到圖片",
+      "updateSuccess": "背景更新成功",
+      "updateError": "更新背景失敗"
+    }
+  },
+  "errors": {
+    "reminderAcknowledgeFailed": "確認提醒失敗",
+    "loadUsers": "載入用戶失敗",
+    "loadGroups": "載入群組失敗"
+  },
+  "chat": {
+    "errors": {
+      "downloadFile": "無法下載檔案",
+      "recall": "無法收回訊息",
+      "generic": "出錯了",
+      "sendMessage": "發送訊息失敗",
+      "oversizedFiles": "部分檔案超出大小限制被跳過",
+      "settingsUpdateFailed": "更新設定失敗",
+      "pinUpdateFailed": "更新 PIN 失敗",
+      "encryptionEnableFailed": "啟用加密失敗",
+      "block": "封鎖用戶失敗",
+      "unblock": "取消封鎖失敗",
+      "loadUsersFailed": "載入用戶失敗",
+      "messageBlocked": "由於該用戶已被封鎖，訊息未發送。",
+      "messageBlockedCurrent": "訊息未發送。由於您和該用戶之間的封鎖關係。",
+      "shareForbidden": "由於被封鎖或權限不足，無法發送",
+      "shareFailed": "分享失敗，請重試",
+      "callBlocked": "無法通話，因為雙方已被封鎖"
+    },
+    "success": {
+      "recallSelf": "已為您收回訊息",
+      "recallAll": "已為所有人收回訊息",
+      "sentFriendRequest": "好友請求已發送",
+      "acceptedFriendRequest": "已接受好友請求",
+      "rejectedFriendRequest": "已拒絕好友請求",
+      "pinUpdated": "PIN 已更新",
+      "friendRemoved": "已移除好友 {{name}}",
+      "messagesDeletedForMe": "已為您刪除與 {{name}} 的所有訊息",
+      "sharedToUser": "已分享筆記給好友",
+      "sharedToGroup": "已分享筆記到群組",
+      "edit": "訊息已更新"
+    },
+    "notifications": {
+      "newFriendRequest": "{{name}} 發送了好友請求",
+      "friendAccepted": "{{name}} 接受了您的好友請求",
+      "friendRejected": "{{name}} 拒絕了您的好友請求",
+      "youBlocked": "您封鎖了 {{name}}",
+      "youWereBlocked": "您被 {{name}} 封鎖了",
+      "youUnblocked": "您取消封鎖了 {{name}}",
+      "unblockedYou": "{{name}} 取消了對您的封鎖"
+    },
+    "notificationsBell": {
+      "bellAria": "訊息通知",
+      "title": "通知",
+      "markAllRead": "全部標記為已讀",
+      "empty": "暫無通知",
+      "loading": "載入中...",
+      "loadMore": "載入更多 ({{remaining}})",
+      "newMessagesCount": "{{count}} 則新訊息",
+      "deleteItem": "刪除通知",
+      "friendRequests": "好友請求",
+      "groupInvites": "群組邀請",
+      "friendRequestsCount": "{{count}} 個好友請求",
+      "friendRequestsCount_plural": "{{count}} 個好友請求",
+      "groupInvitesCount": "{{count}} 個群組邀請",
+      "groupInvitesCount_plural": "{{count}} 個群組邀請"
+    },
+    "fallback": {
+      "user": "用戶 {{id}}"
+    },
+    "system": {
+      "joined": "{{name}} 加入了群組",
+      "left": "{{name}} 離開了群組"
+    },
+    "header": {
+      "title": "信使",
+      "searchPlaceholder": "搜尋...",
+      "tabs": {
+        "all": "全部",
+        "unread": "未讀",
+        "users": "用戶",
+        "groups": "群組"
+      }
+    },
+    "usersList": {
+      "friendRequests": "好友請求",
+      "users": "用戶",
+      "sendRequest": "新增好友",
+      "message": "發訊息",
+      "actions": {
+        "accept": "接受",
+        "acceptRequest": "接受好友請求",
+        "reject": "拒絕",
+        "rejectRequest": "拒絕好友請求",
+        "message": "發訊息"
+      },
+      "empty": {
+        "noResults": "未找到匹配用戶",
+        "tryAnother": "嘗試其他姓名或電子郵件"
+      }
+    },
+    "groups": {
+      "title": "群組",
+      "create": "建立群組",
+      "searchPlaceholder": "搜尋群組...",
+      "createModal": {
+        "title": "新建群組",
+        "nameLabel": "群名稱",
+        "namePlaceholder": "輸入群名稱",
+        "membersLabel": "成員",
+        "invitePlaceholder": "輸入姓名或電子郵件邀請",
+        "createButton": "建立",
+        "cancel": "取消"
+      },
+      "invite": {
+        "title": "邀請成員",
+        "subtitle": "邀請成員加入 {{groupName}}",
+        "searchLabel": "搜尋用戶",
+        "placeholder": "透過姓名或電子郵件搜尋",
+        "addButton": "新增",
+        "selected": "已選",
+        "availableUsers": "可用用戶",
+        "loading": "載入用戶中...",
+        "noUsers": "未找到用戶",
+        "tryDifferent": "嘗試不同的關鍵字搜尋",
+        "inviting": "邀請中..."
+      },
+      "actions": {
+        "edit": "編輯群組",
+        "leave": "退出群組",
+        "delete": "解散群組",
+        "removeMember": "移除成員",
+        "removeCount": "移除 ({{count}})",
+        "addMembers": "新增成員",
+        "viewMembers": "查看成員",
+        "adminsOnlyEnable": "僅管理員可發言",
+        "adminsOnlyDisable": "允許所有人發言",
+        "deleteAllMessages": "刪除所有訊息",
+        "promoteToAdmin": "提升為管理員",
+        "demoteToMember": "降級為成員"
+      },
+      "remove": {
+        "subtitle": "選擇要移除的成員",
+        "searchLabel": "搜尋成員",
+        "searchPlaceholder": "搜尋成員...",
+        "selected": "已選",
+        "listTitle": "清單 ({{count}})",
+        "warning": "被移除的成員將無法再訪問此群組"
+      },
+      "editor": {
+        "titleEdit": "編輯群組",
+        "titleCreate": "建立群組",
+        "fields": {
+          "name": "群名稱",
+          "avatar": "群頭像",
+          "background": "群背景"
+        },
+        "placeholders": {
+          "name": "輸入群名稱",
+          "avatar": "未選擇頭像",
+          "background": "未選擇背景"
+        },
+        "actions": {
+          "chooseImage": "選擇圖片",
+          "cancel": "取消",
+          "save": "儲存",
+          "create": "建立"
+        },
+        "errors": {
+          "nameRequired": "群名稱必填",
+          "invalid": "無效的群數據"
+        }
+      },
+      "empty": {
+        "noGroups": "暫無群組",
+        "createFirst": "建立您的第一個群組",
+        "noResults": "未找到群組",
+        "tryDifferent": "嘗試不同的關鍵字"
+      },
+      "pendingInvites": {
+        "title": "群組邀請"
+      },
+      "status": {
+        "membersCount": "{{count}} 成員",
+        "you": "您"
+      },
+      "errors": {
+        "createFailed": "建立群組失敗",
+        "inviteFailed": "邀請成員失敗",
+        "leaveFailed": "退出群組失敗",
+        "deleteFailed": "解散群組失敗",
+        "removeFailed": "移除成員失敗",
+        "loadFailed": "無法載入群組",
+        "updateFailed": "更新群組失敗"
+      },
+      "confirm": {
+        "leave": "退出群組？",
+        "delete": "解散群組？",
+        "deleteAllMessages": "刪除群組內所有訊息？"
+      },
+      "success": {
+        "created": "群組已建立",
+        "invited": "邀請已發送",
+        "left": "已退出群組",
+        "deleted": "群組已解散",
+        "removed": "成員已移除",
+        "updated": "群組已更新",
+        "roleUpdated": "角色已更新",
+        "messagesDeleted": "已刪除所有群訊息",
+        "membersAdded": "成員已新增",
+        "inviteSent": "邀請已發送"
+      },
+      "members": {
+        "title": "群組成員",
+        "empty": "暫無成員"
+      },
+      "roles": {
+        "owner": "群主",
+        "admin": "管理員",
+        "member": "成員"
+      },
+      "adminsOnly": {
+        "inputHidden": "僅群主/管理員可在此群組發言。"
+      },
+      "notifications": {
+        "promoted": "您已被提升為管理員",
+        "demoted": "您已被降級為成員"
+      }
+    },
+    "chatList": {
+      "empty": {
+        "noChats": "暫無對話",
+        "addFriends": "新增好友開始聊天"
+      }
+    },
+    "preview": {
+      "recalled": "已收回訊息",
+      "image": "圖片",
+      "file": "檔案",
+      "youPrefix": "您: ",
+      "noteShare": "分享了筆記"
+    },
+    "chatView": {
+      "status": {
+        "online": "線上",
+        "offline": "離線"
+      },
+      "empty": {
+        "youAreFriends": "您和 {{name}} 現在是好友了",
+        "inGroup": "您在群組 {{name}} 中"
+      },
+      "viewProfile": "查看資料",
+      "actions": {
+        "voiceCall": "語音通話",
+        "videoCall": "視訊通話"
+      },
+      "backToBottom": "回到底部",
+      "daySeparator": {
+        "today": "今天",
+        "yesterday": "昨天"
+      },
+      "profile": {
+        "title": "用戶資訊",
+        "close": "關閉資料",
+        "email": "電子郵件",
+        "phone": "電話",
+        "phoneHiddenMask": ".....",
+        "birthDate": "生日",
+        "birthDateHiddenMask": "../..",
+        "gender": "性別",
+        "lastSeen": "最後上線",
+        "privacy": "如果用戶未分享，部分資訊可能不可見。"
+      }
+    },
+    "loadingHistory": "載入歷史記錄...",
+    "loadingOlder": "載入更早的訊息...",
+    "commonGroups": {
+      "title": "共同群組",
+      "tabs": {
+        "all": "全部",
+        "my": "我的群組"
+      },
+      "empty": {
+        "all": "該用戶未加入任何群組",
+        "my": "暫無共同群組"
+      }
+    },
+    "menu": {
+      "options": "選項",
+      "messageOptionsAria": "訊息選項",
+      "chatOptionsAria": "聊天選項",
+      "searchMessages": "搜尋訊息",
+      "changeBackground": "更改背景",
+      "changeBackgroundForBoth": "為雙方更改背景",
+      "resetBackground": "重置為預設背景",
+      "recall": {
+        "self": "為自己收回",
+        "all": "為所有人收回"
+      },
+      "edit": "編輯訊息",
+      "save": "儲存",
+      "cancel": "取消",
+      "pinMessage": "置頂訊息",
+      "unpinMessage": "取消置頂",
+      "pinned": "已置頂",
+      "unpinned": "已取消置頂",
+      "pinnedMessages": "置頂訊息"
+    },
+    "search": {
+      "placeholder": "搜尋訊息...",
+      "searching": "搜尋中...",
+      "hint": "輸入以搜尋訊息",
+      "noResults": "無匹配訊息"
+    },
+    "actions": {
+      "deleteMessages": "刪除訊息",
+      "removeFriend": "解除好友",
+      "block": "封鎖",
+      "unblock": "取消封鎖",
+      "addFriend": "新增好友"
+    },
+    "recalled": {
+      "text": "訊息已收回",
+      "image": "圖片已收回",
+      "file": "檔案已收回"
+    },
+    "input": {
+      "attachmentAlt": "附件",
+      "removeImageAria": "移除圖片",
+      "removeFileAria": "移除檔案",
+      "attachFileAria": "新增檔案",
+      "placeholder": "Aa",
+      "recipientBanned": "帳戶因違反政策已被停用"
+    },
+    "blocked": {
+      "inputHidden": "由於您或對方已封鎖彼此，無法傳送訊息或上傳檔案。"
+    },
+    "toast": {
+      "blocked": "已封鎖 {{name}}。",
+      "unblocked": "已取消封鎖 {{name}}"
+    },
+    "imagePreview": {
+      "close": "關閉",
+      "imageAlt": "預覽圖片"
+    },
+    "callLog": {
+      "incomingVideo": "來電影片",
+      "incomingAudio": "來電語音",
+      "outgoingVideo": "去電影片",
+      "outgoingAudio": "去電語音",
+      "missedYou": "未接來電",
+      "youCancelled": "您取消了通話",
+      "cancelled": "通話已取消",
+      "video": "視訊通話",
+      "audio": "語音通話",
+      "redial": "重撥",
+      "duration": "{{m}} 分 {{s}} 秒"
+    },
+    "call": {
+      "title": {
+        "incoming": "來電",
+        "outgoing": "呼叫中...",
+        "active": "通話中"
+      },
+      "actions": {
+        "accept": "接聽",
+        "reject": "拒絕",
+        "cancel": "取消",
+        "end": "結束"
+      },
+      "hint": {
+        "autoCancelIn": "{{seconds}}秒後自動取消"
+      },
+      "toast": {
+        "cannotConnect": "無法建立通話，請重試。",
+        "micDenied": "您拒絕了麥克風權限",
+        "micUnavailable": "麥克風不可用",
+        "serverDisconnected": "伺服器已斷開連接",
+        "alreadyInCall": "您已在通話中",
+        "calleeNoAnswer": "對方未接聽",
+        "rejected": "通話被拒絕",
+        "busy": "對方忙",
+        "offline": "對方離線",
+        "blocked": "無法通話，因為雙方已被封鎖",
+        "ended": "通話結束",
+        "cancelled": "通話已取消",
+        "toggleCameraError": "無法切換鏡頭",
+        "toggleMicError": "無法切換麥克風"
+      }
+    },
+    "message": {
+      "imageAlt": "圖片"
+    },
+    "attachment": {
+      "downloadImageAria": "下載圖片",
+      "downloadImageTitle": "下載圖片",
+      "downloadFileTitle": "下載",
+      "downloadFileAria": "下載檔案",
+      "fileFallback": "檔案",
+      "downloadLabel": "下載"
+    },
+    "readBy": {
+      "title": "{{name}} 於 {{time}} 查看",
+      "more": "+{{count}} 人查看"
+    },
+    "reactions": {
+      "modal": {
+        "title": "回應",
+        "empty": "暫無回應",
+        "tabs": {
+          "all": "全部"
+        }
+      },
+      "types": {
+        "like": "讚",
+        "love": "愛心",
+        "haha": "哈哈",
+        "wow": "哇",
+        "sad": "難過",
+        "angry": "生氣"
+      },
+      "tooltip": {
+        "reactedBy": "{{names}} 回應了",
+        "default": "已回應"
+      },
+      "removeType": "移除 {{type}}"
+    },
+    "locked": {
+      "notice": "訊息已加密",
+      "hint": "輸入 PIN 碼以解鎖並查看對話歷史。您仍可繼續發送訊息。",
+      "unlockCta": "輸入 PIN 解鎖"
+    },
+    "encryption": {
+      "chatLocked": "訊息已加密",
+      "groupLocked": "群組內容已加密",
+      "previewLocked": "🔒 已加密 — 解鎖以預覽"
+    },
+    "nickname": {
+      "title": "設定暱稱",
+      "description": "為 {{name}} 設定一個易記的名稱。注意：暱稱僅您可見。",
+      "inputPlaceholder": "輸入暱稱",
+      "confirm": "確認",
+      "setButton": "設定暱稱",
+      "saved": "暱稱已儲存"
+    },
+    "settings": {
+      "title": "聊天設定",
+      "back": "返回",
+      "encryption": {
+        "title": "端對端加密",
+        "description": "使用 PIN 保護此帳戶的訊息",
+        "enabled": "加密已開啟。每次登入查看訊息需要輸入 PIN。",
+        "disabled": "加密已關閉。"
+      },
+      "readStatus": {
+        "title": "已讀狀態",
+        "description": "顯示訊息何時被接收者閱讀",
+        "enabled": "已讀回執已開啟。僅當雙方都開啟此設定時生效。",
+        "disabled": "已讀回執已關閉。"
+      },
+      "messagingFromNonFriends": {
+        "title": "允許非好友發送訊息",
+        "description": "如果開啟，非好友也可以給您發送訊息。",
+        "enabled": "您允許來自非好友的訊息",
+        "disabled": "您不允許來自非好友的訊息"
+      },
+      "privacy": {
+        "hidePhone": {
+          "title": "隱藏手機號",
+          "description": "向他人隱藏您的手機號",
+          "enabled": "手機號將隱藏",
+          "disabled": "手機號將可見"
+        },
+        "hideBirthDate": {
+          "title": "隱藏生日",
+          "description": "向他人隱藏您的生日",
+          "enabled": "生日將隱藏",
+          "disabled": "生日將可見"
+        }
+      },
+      "blocked": {
+        "title": "已封鎖的使用者",
+        "subtitle": "已封鎖 {{count}} 人",
+        "description": "管理您已封鎖的人員。您可以隨時解鎖任何人。",
+        "searchLabel": "搜尋已封鎖的使用者",
+        "listTitle": "列表 ({{count}})",
+        "unblock": "解除封鎖",
+        "unblocking": "正在解除封鎖...",
+        "empty": "您尚未封鎖任何使用者",
+        "viewList": "查看列表",
+        "notice": "解除封鎖後，您將可以再次與此人互傳訊息"
+      },
+      "pin": {
+        "title": "PIN 碼",
+        "change": "更改您的 PIN 碼。",
+        "set": "設定 PIN 碼以啟用加密。",
+        "changeButton": "更改 PIN 碼",
+        "setButton": "設定 PIN 碼"
+      }
+    }
+  },
+  "sharedNotes": {
+    "title": "共用筆記",
+    "received": "收到的共用",
+    "sent": "發出的共用",
+    "groups": "群組共用",
+    "sharedBy": "共用者",
+    "sharedWith": "共用給",
+    "editPermissions": "編輯權限",
+    "permissionsUpdated": "權限更新成功",
+    "permissionsUpdateFailed": "權限更新失敗",
+    "confirmRemoveGroup": "確定要從群組中移除此共用筆記嗎？",
+    "viewNote": "查看筆記",
+    "editNote": "編輯筆記",
+    "addNote": "新增筆記",
+    "createFromNote": "以此建立新筆記",
+    "remove": "移除",
+    "refresh": "重新整理",
+    "loading": "載入中...",
+    "loadingMore": "載入更多...",
+    "loadMore": "載入更多",
+    "canEdit": "可編輯",
+    "viewOnly": "僅查看",
+    "noReceivedNotes": "暫無收到的共用筆記",
+    "noReceivedNotesDesc": "他人與您共用的筆記將顯示在這裡",
+    "noSentNotes": "暫無發出的共用筆記",
+    "noSentNotesDesc": "您與他人共用的筆記將顯示在這裡",
+    "noGroupNotes": "暫無群組共用筆記",
+    "noGroupNotesDesc": "群組內共用的筆記將顯示在這裡",
+    "confirmRemoveReceived": "確定要移除此共用筆記嗎？",
+    "confirmRemoveSent": "確定要取消共用此筆記嗎？",
+    "removeSuccess": "成功移除共用筆記",
+    "modal": {
+      "title": "標題",
+      "content": "內容",
+      "image": "圖片",
+      "video": "影片",
+      "youtube": "YouTube"
+    },
+    "errors": {
+      "fetchFailed": "無法載入共用筆記列表",
+      "removeFailed": "無法移除共用筆記"
+    }
+  },
+  "folders": {
+    "title": "資料夾",
+    "createFolder": "建立資料夾",
+    "editFolder": "編輯資料夾",
+    "deleteFolder": "刪除資料夾",
+    "folderName": "資料夾名稱",
+    "folderNamePlaceholder": "輸入資料夾名稱...",
+    "folderColor": "顏色",
+    "folderIcon": "圖示",
+    "notesCount": "{{count}} 個筆記",
+    "inFolder": "在資料夾中",
+    "noFolders": "暫無資料夾",
+    "noFoldersDesc": "建立資料夾以按主題整理您的筆記",
+    "confirmDelete": "確定要刪除此資料夾嗎？",
+    "confirmDeleteDesc": "資料夾中的筆記不會被刪除，只會移出資料夾。",
+    "createSuccess": "資料夾建立成功",
+    "updateSuccess": "資料夾更新成功",
+    "deleteSuccess": "資料夾刪除成功",
+    "pinSuccess": "資料夾置頂成功",
+    "unpinSuccess": "取消置頂成功",
+    "createError": "建立資料夾失敗",
+    "updateError": "更新資料夾失敗",
+    "deleteError": "刪除資料夾失敗",
+    "pinError": "置頂資料夾失敗",
+    "unpinError": "取消置頂失敗",
+    "loadError": "載入資料夾列表失敗",
+    "viewFolder": "查看資料夾",
+    "moveToFolder": "移至資料夾",
+    "moveOutOfFolder": "移出資料夾",
+    "removeFromFolder": "從資料夾中移除",
+    "selectDestination": "選擇移動目標：",
+    "moveToActive": "移至活動列表",
+    "moveToActiveDesc": "筆記將顯示在活動筆記列表中",
+    "moveToArchived": "移至封存列表",
+    "moveToArchivedDesc": "筆記將被封存並從主列表中隱藏",
+    "selectFolder": "選擇資料夾",
+    "noFolder": "無資料夾",
+    "moveSuccess": "筆記已移至資料夾",
+    "moveError": "移動筆記失敗",
+    "searchPlaceholder": "搜尋資料夾...",
+    "noFoldersFound": "未找到資料夾",
+    "moveButton": "移動",
+    "notes": "筆記",
+    "colors": {
+      "blue": "藍色",
+      "green": "綠色",
+      "red": "紅色",
+      "yellow": "黃色",
+      "purple": "紫色",
+      "pink": "粉色",
+      "orange": "橙色",
+      "gray": "灰色"
+    }
+  },
+  "tags": {
+    "title": "標籤",
+    "searchByTags": "按標籤搜尋",
+    "searchTags": "搜尋標籤...",
+    "searchNotes": "搜尋筆記...",
+    "selectTags": "選擇標籤",
+    "noTags": "暫無標籤",
+    "noTagsFound": "未找到標籤",
+    "noNotesWithTag": "暫無帶有此標籤的筆記",
+    "noNotesFound": "未找到筆記",
+    "notesCount": "{{count}} 個筆記",
+    "backToTags": "返回",
+    "manage": "管理標籤",
+    "create": "建立新標籤",
+    "edit": "編輯標籤",
+    "delete": "刪除標籤",
+    "deleteTag": "刪除標籤",
+    "name": "標籤名稱",
+    "color": "顏色",
+    "namePlaceholder": "輸入標籤名稱...",
+    "selectColor": "選擇顏色",
+    "save": "儲存",
+    "cancel": "取消",
+    "addTag": "新增標籤",
+    "addToNote": "新增到筆記",
+    "removeFromNote": "從筆記中移除",
+    "createSuccess": "標籤建立成功",
+    "updateSuccess": "標籤更新成功",
+    "deleteSuccess": "標籤刪除成功",
+    "addSuccess": "已新增標籤到筆記",
+    "removeSuccess": "已從筆記中移除標籤",
+    "createError": "建立標籤失敗",
+    "updateError": "更新標籤失敗",
+    "deleteError": "刪除標籤失敗",
+    "addError": "新增標籤失敗",
+    "removeError": "移除標籤失敗",
+    "confirmDelete": "確定要刪除此標籤嗎？",
+    "confirmDeleteDesc": "此標籤將從所有筆記中移除。",
+    "alreadyAdded": "標籤已新增",
+    "searchToAdd": "搜尋以新增標籤...",
+    "pin": "置頂標籤",
+    "unpin": "取消置頂",
+    "pinError": "置頂/取消置頂失敗",
+    "maxLimit": "每個筆記最多只能新增 {{max}} 個標籤",
+    "loading": "載入中...",
+    "loadMore": "載入更多"
+  }
+}

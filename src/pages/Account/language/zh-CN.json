@@ -1,0 +1,46 @@
+{
+  "title": "账户详情",
+  "profile": "个人资料",
+  "settings": "设置",
+  "description": "查看和编辑您的账户信息。注意：电子邮箱不可更改。",
+  "edit": "编辑",
+  "titleEdit": "编辑资料",
+  "back": "返回",
+  "backToHome": "返回首页",
+  "avatar": {
+    "label": "头像",
+    "upload": "选择图片",
+    "uploading": "上传中...",
+    "remove": "移除图片",
+    "info": "支持 JPG, PNG, WebP。最大 5MB。",
+    "preview": "预览图片",
+    "closePreview": "关闭",
+    "maxSizeError": "图片大小最大为 5MB",
+    "uploadError": "上传图片失败"
+  },
+  "form": {
+    "name": "全名",
+    "namePlaceholder": "输入全名",
+    "email": "电子邮箱",
+    "emailNote": "电子邮箱不可更改。",
+    "save": "保存更改",
+    "phone": "电话",
+    "phonePlaceholder": "+86 1XX XXXX XXXX",
+    "birthDate": "出生日期",
+    "gender": "性别",
+    "gender.unspecified": "不愿透露",
+    "gender.male": "男",
+    "gender.female": "女",
+    "gender.other": "其他"
+  },
+  "actions": {
+    "cancel": "取消"
+  },
+  "errors": {
+    "nameRequired": "请输入您的姓名",
+    "updateFailed": "更新失败"
+  },
+  "success": {
+    "updated": "更新成功"
+  }
+}

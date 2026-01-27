@@ -28,6 +28,23 @@ import categoriesEn from '@/pages/Categories/language/en.json';
 import categoriesVi from '@/pages/Categories/language/vi.json';
 import categoriesKo from '@/pages/Categories/language/ko.json';
 
+import layoutZhCn from '@/pages/layouts/language/zh-CN.json';
+import layoutZhTw from '@/pages/layouts/language/zh-TW.json';
+import homeZhCn from '@/pages/Home/language/zh-CN.json';
+import homeZhTw from '@/pages/Home/language/zh-TW.json';
+import dashboardZhCn from '@/pages/Dashboard/language/zh-CN.json';
+import dashboardZhTw from '@/pages/Dashboard/language/zh-TW.json';
+import aboutZhCn from '@/pages/About/language/zh-CN.json';
+import aboutZhTw from '@/pages/About/language/zh-TW.json';
+import accountZhCn from '@/pages/Account/language/zh-CN.json';
+import accountZhTw from '@/pages/Account/language/zh-TW.json';
+import authZhCn from '@/pages/auth/language/zh-CN.json';
+import authZhTw from '@/pages/auth/language/zh-TW.json';
+import contactZhCn from '@/pages/Contact/language/zh-CN.json';
+import contactZhTw from '@/pages/Contact/language/zh-TW.json';
+import categoriesZhCn from '@/pages/Categories/language/zh-CN.json';
+import categoriesZhTw from '@/pages/Categories/language/zh-TW.json';
+
 const resources = {
   en: {
     layout: layoutEn,
@@ -59,6 +76,26 @@ const resources = {
     auth: authKo,
     categories: categoriesKo,
   },
+  'zh-CN': {
+    layout: layoutZhCn,
+    home: homeZhCn,
+    dashboard: dashboardZhCn,
+    about: aboutZhCn,
+    contact: contactZhCn,
+    account: accountZhCn,
+    auth: authZhCn,
+    categories: categoriesZhCn,
+  },
+  'zh-TW': {
+    layout: layoutZhTw,
+    home: homeZhTw,
+    dashboard: dashboardZhTw,
+    about: aboutZhTw,
+    contact: contactZhTw,
+    account: accountZhTw,
+    auth: authZhTw,
+    categories: categoriesZhTw,
+  },
 };
 
 i18n
@@ -70,11 +107,12 @@ i18n
     lng: 'en',
     defaultNS: 'layout',
     ns: ['layout', 'home', 'dashboard', 'about', 'contact', 'account', 'auth', 'categories'],
-    
+
     detection: {
-      // Disable frontend-based detection; rely on default 'en' unless app changes via backend/user action.
-      order: [],
-      caches: [],
+      order: ['cookie', 'localStorage', 'navigator'],
+      caches: ['cookie', 'localStorage'],
+      lookupCookie: 'lang',
+      lookupLocalStorage: 'i18nextLng',
     },
 
     interpolation: {

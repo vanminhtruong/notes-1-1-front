@@ -1,0 +1,79 @@
+{
+  "hero": {
+    "title": "关于我们",
+    "subtitle": "一个现代、直观的笔记应用，旨在提高您的生产力并无缝组织您的想法。",
+    "rating": "4.9/5 来自 10,000+ 用户"
+  },
+  "stats": {
+    "users": "活跃用户",
+    "notes": "已创建笔记",
+    "uptime": "正常运行时间",
+    "support": "支持"
+  },
+  "mission": {
+    "title": "我们的使命",
+    "description": "我们相信伟大的想法值得一个伟大的平台。我们的使命是提供最直观、最强大的笔记体验，使用户能够轻松捕捉、组织和分享他们的想法。"
+  },
+  "features": {
+    "notes": {
+      "title": "智能笔记管理",
+      "description": "通过高级分类、优先级和强大的搜索功能创建、编辑和组织您的笔记。"
+    },
+    "collaboration": {
+      "title": "实时协作",
+      "description": "通过内置的聊天和消息功能与您的团队实时分享和协作笔记。"
+    },
+    "security": {
+      "title": "企业级安全",
+      "description": "您的数据受端到端加密、安全认证和定期安全审计保护。"
+    },
+    "performance": {
+      "title": "极速体验",
+      "description": "通过我们优化的架构和智能缓存系统体验极速性能。"
+    }
+  },
+  "values": {
+    "title": "核心价值观",
+    "subtitle": "指导我们所做一切并推动我们需要卓越的原则。",
+    "passion": {
+      "title": "追求卓越",
+      "description": "我们热衷于创造最佳的用户体验并不断改进我们的平台。"
+    },
+    "innovation": {
+      "title": "创新优先",
+      "description": "我们拥抱尖端技术和创新解决方案以保持领先。"
+    },
+    "accessibility": {
+      "title": "普遍访问",
+      "description": "我们相信伟大的工具应该对每个人都可访问，无论其技术背景如何。"
+    }
+  },
+  "whyChoose": {
+    "title": "为什么选择我们？",
+    "subtitle": "发现为什么成千上万的用户选择我们。",
+    "items": {
+      "easy": "易于使用的界面",
+      "fast": "极速性能",
+      "secure": "银行级安全",
+      "reliable": "99.9% 正常运行保证",
+      "support": "24/7 客户支持",
+      "updates": "定期功能更新"
+    }
+  },
+  "team": {
+    "title": "我们的团队",
+    "description": "由热情的开发人员、设计师和产品专家组成的团队，致力于提供卓越的用户体验。",
+    "award": {
+      "title": "屡获殊荣的开发团队",
+      "description": "因在软件开发和用户体验设计方面的卓越表现而受到行业领导者的认可。"
+    }
+  },
+  "contact": {
+    "title": "联系我们",
+    "description": "有疑问或建议？我们很乐意听到您的声音。",
+    "button": {
+      "primary": "联系支持",
+      "secondary": "查看文档"
+    }
+  }
+}

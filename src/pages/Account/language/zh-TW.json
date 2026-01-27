@@ -1,0 +1,46 @@
+{
+  "title": "帳戶詳情",
+  "profile": "個人資料",
+  "settings": "設定",
+  "description": "檢視和編輯您的帳戶資訊。注意：電子郵件不可更改。",
+  "edit": "編輯",
+  "titleEdit": "編輯資料",
+  "back": "返回",
+  "backToHome": "返回首頁",
+  "avatar": {
+    "label": "頭像",
+    "upload": "選擇圖片",
+    "uploading": "上傳中...",
+    "remove": "移除圖片",
+    "info": "支援 JPG, PNG, WebP。最大 5MB。",
+    "preview": "預覽圖片",
+    "closePreview": "關閉",
+    "maxSizeError": "圖片大小最大為 5MB",
+    "uploadError": "上傳圖片失敗"
+  },
+  "form": {
+    "name": "全名",
+    "namePlaceholder": "輸入全名",
+    "email": "電子郵件",
+    "emailNote": "電子郵件不可更改。",
+    "save": "儲存變更",
+    "phone": "電話",
+    "phonePlaceholder": "+886 9XX XXX XXX",
+    "birthDate": "出生日期",
+    "gender": "性別",
+    "gender.unspecified": "不願透露",
+    "gender.male": "男",
+    "gender.female": "女",
+    "gender.other": "其他"
+  },
+  "actions": {
+    "cancel": "取消"
+  },
+  "errors": {
+    "nameRequired": "請輸入您的姓名",
+    "updateFailed": "更新失敗"
+  },
+  "success": {
+    "updated": "更新成功"
+  }
+}

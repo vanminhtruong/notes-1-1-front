@@ -1,0 +1,79 @@
+{
+  "hero": {
+    "title": "關於我們",
+    "subtitle": "一個現代、直觀的筆記應用，旨在提高您的生產力並無縫組織您的想法。",
+    "rating": "4.9/5 來自 10,000+ 用戶"
+  },
+  "stats": {
+    "users": "活躍用戶",
+    "notes": "已建立筆記",
+    "uptime": "正常運行時間",
+    "support": "支援"
+  },
+  "mission": {
+    "title": "我們的使命",
+    "description": "我們相信偉大的想法值得一個偉大的平台。我們的使命是提供最直觀、最強大的筆記體驗，使用戶能夠輕鬆捕捉、組織和分享他們的想法。"
+  },
+  "features": {
+    "notes": {
+      "title": "智能筆記管理",
+      "description": "透過高級類別、優先級和強大的搜尋功能建立、編輯和組織您的筆記。"
+    },
+    "collaboration": {
+      "title": "即時協作",
+      "description": "透過內建的聊天和訊息功能與您的團隊即時分享和協作筆記。"
+    },
+    "security": {
+      "title": "企業級安全",
+      "description": "您的資料受端對端加密、安全認證和定期安全審計保護。"
+    },
+    "performance": {
+      "title": "極速體驗",
+      "description": "透過我們優化的架構和智能快取系統體驗極速效能。"
+    }
+  },
+  "values": {
+    "title": "核心價值觀",
+    "subtitle": "指導我們所做一切並推動我們追求卓越的原則。",
+    "passion": {
+      "title": "追求卓越",
+      "description": "我們熱衷於創造最佳的用戶體驗並不斷改進我們的平台。"
+    },
+    "innovation": {
+      "title": "創新優先",
+      "description": "我們擁抱尖端技術和創新解決方案以保持領先。"
+    },
+    "accessibility": {
+      "title": "普遍訪問",
+      "description": "我們相信偉大的工具應該對每個人都可訪問，無論其技術背景如何。"
+    }
+  },
+  "whyChoose": {
+    "title": "為什麼選擇我們？",
+    "subtitle": "發現為什麼成千上萬的用戶選擇我們。",
+    "items": {
+      "easy": "易於使用的介面",
+      "fast": "極速效能",
+      "secure": "銀行級安全",
+      "reliable": "99.9% 正常運行保證",
+      "support": "24/7 客戶支援",
+      "updates": "定期功能更新"
+    }
+  },
+  "team": {
+    "title": "我們的團隊",
+    "description": "由熱情的開發人員、設計師和產品專家組成的團隊，致力於提供卓越的用戶體驗。",
+    "award": {
+      "title": "屢獲殊榮的開發團隊",
+      "description": "因在軟體開發和用戶體驗設計方面的卓越表現而受到行業領導者的認可。"
+    }
+  },
+  "contact": {
+    "title": "聯絡我們",
+    "description": "有疑問或建議？我們很樂意聽到您的聲音。",
+    "button": {
+      "primary": "聯絡支援",
+      "secondary": "查看文檔"
+    }
+  }
+}

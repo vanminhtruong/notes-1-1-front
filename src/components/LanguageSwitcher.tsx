@@ -1,20 +1,32 @@
 import { useState, useRef, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Globe, ChevronDown } from 'lucide-react';
-import type { ComponentType, SVGProps } from 'react';
+import { Globe, ChevronDown, ChevronRight } from 'lucide-react';
+
 import { VN, US, KR } from 'country-flag-icons/react/3x2';
+import CN from 'country-flag-icons/react/3x2/CN';
+import TW from 'country-flag-icons/react/3x2/TW';
 
 interface Language {
   code: string;
   name: string;
-  Flag: ComponentType<SVGProps<SVGSVGElement>>;
+  Flag: any;
+  children?: Language[];
 }
 
 const languages: Language[] = [
   { code: 'en', name: 'English', Flag: US },
   { code: 'ko', name: '한국어', Flag: KR },
   { code: 'vi', name: 'Tiếng Việt', Flag: VN },
+  {
+    code: 'zh',
+    name: 'Tiếng Trung',
+    Flag: CN,
+    children: [
+      { code: 'zh-CN', name: '简体中文 (Giản thể)', Flag: CN },
+      { code: 'zh-TW', name: '繁體中文 (Phồn thể)', Flag: TW },
+    ]
+  },
 ];
 
 interface LanguageSwitcherProps {
@@ -26,14 +38,20 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [previewLang, setPreviewLang] = useState<Language | null>(null);
+  const [expandedLang, setExpandedLang] = useState<string | null>(null);
+
+  // Flatten languages for easy lookup
+  const allLanguages = languages.flatMap(l => l.children ? l.children : [l]);
 
   const defaultLang = languages.find((l) => l.code === 'vi') || languages[0];
-  const currentLanguage = languages.find((lang) => lang.code === i18n.language) || defaultLang;
+  const currentLanguage = allLanguages.find((lang) => lang.code === i18n.language) || defaultLang;
 
   const handleLanguageChange = async (langCode: string) => {
     i18n.changeLanguage(langCode);
+    localStorage.setItem('i18nextLng', langCode); // Explicit fallback
     setIsOpen(false);
-    
+    setExpandedLang(null);
+
     // Persist to backend if authenticated
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -43,7 +61,7 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
           // Silent fail for UX
         });
       }
-    } catch {}
+    } catch { }
   };
 
   // Close dropdown on outside click or Escape
@@ -51,12 +69,14 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setExpandedLang(null);
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsOpen(false);
+        setExpandedLang(null);
       }
     };
 
@@ -79,6 +99,39 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
     return () => document.removeEventListener('keydown', onEsc);
   }, [previewLang]);
 
+  const renderLanguageItem = (language: Language) => {
+    const isActive = currentLanguage.code === language.code;
+
+    return (
+      <button
+        key={language.code}
+        onClick={() => handleLanguageChange(language.code)}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive
+          ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium'
+          : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70'
+          }`}
+        role="menuitem"
+      >
+        <span
+          className="leading-none inline-flex items-center cursor-zoom-in"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setPreviewLang(language);
+          }}
+          title={language.name}
+          aria-label={`Preview ${language.name} flag`}
+        >
+          <language.Flag className="h-4 w-auto rounded-[2px] shadow-sm" />
+        </span>
+        <span className="flex-1 text-left">{language.name}</span>
+        {isActive && (
+          <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full" />
+        )}
+      </button>
+    );
+  };
+
   return (
     <div ref={dropdownRef} className="relative">
       <button
@@ -95,19 +148,17 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
             {currentLanguage.code.toUpperCase()}
           </span>
         </div>
-        <ChevronDown 
-          className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : ''
-          }`} 
+        <ChevronDown
+          className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
+            }`}
         />
       </button>
 
       {isOpen && (
         <div
           role="menu"
-          className={`absolute right-0 w-56 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl overflow-hidden z-50 transition-all duration-200 ${
-            direction === 'up' ? 'bottom-full mb-2 origin-bottom' : 'mt-2 origin-top'
-          }`}
+          className={`absolute right-0 w-64 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl z-50 transition-all duration-200 ${direction === 'up' ? 'bottom-full mb-2 origin-bottom' : 'mt-2 origin-top'
+            }`}
         >
           <div className="p-2">
             <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
@@ -115,35 +166,43 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
               Ngôn ngữ / Language
             </div>
             <div className="my-1 h-px bg-white/30 dark:bg-gray-700/50" />
-            {languages.map((language) => (
-              <button
-                key={language.code}
-                onClick={() => handleLanguageChange(language.code)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  currentLanguage.code === language.code
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium'
-                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70'
-                }`}
-                role="menuitem"
-              >
-                <span
-                  className="leading-none inline-flex items-center cursor-zoom-in"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setPreviewLang(language);
-                  }}
-                  title={language.name}
-                  aria-label={`Preview ${language.name} flag`}
-                >
-                  <language.Flag className="h-4 w-auto rounded-[2px] shadow-sm" />
-                </span>
-                <span className="flex-1 text-left">{language.name}</span>
-                {currentLanguage.code === language.code && (
-                  <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full" />
-                )}
-              </button>
-            ))}
+
+            {languages.map((language) => {
+              if (language.children) {
+                const isExpanded = expandedLang === language.code;
+
+                return (
+                  <div key={language.code} className="relative">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setExpandedLang(isExpanded ? null : language.code);
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isExpanded
+                        ? 'bg-blue-50/50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70'
+                        }`}
+                    >
+                      <span className="leading-none inline-flex items-center">
+                        <language.Flag className="h-4 w-auto rounded-[2px] shadow-sm" />
+                      </span>
+                      <span className="flex-1 text-left">{language.name}</span>
+                      <ChevronRight className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                    </button>
+
+                    {isExpanded && (
+                      <div className="absolute left-full top-0 ml-4 w-64 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl overflow-hidden z-[60] animate-in fade-in slide-in-from-left-1 duration-200">
+                        <div className="p-2 space-y-1">
+                          {language.children.map(child => renderLanguageItem(child))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return renderLanguageItem(language);
+            })}
           </div>
         </div>
       )}
