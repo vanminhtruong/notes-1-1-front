@@ -72,6 +72,10 @@
     "disabled": "Turn on to select animated background theme"
   },
   "footer": {
+    "description": "A home for your ideas. Capture notes, organize what matters, and keep your inspiration growing.",
+    "explore": "Explore",
+    "connect": "Connect",
+    "tagline": "A little more organized. A little more inspired.",
     "copyright": "All rights reserved",
     "privacy": "Privacy",
     "terms": "Terms"

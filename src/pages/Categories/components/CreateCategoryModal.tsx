@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   X, Tag, Hash, Bookmark, Star, Heart, Zap, Flag, Award, Target,
@@ -60,17 +60,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
   const [icon, setIcon] = useState('Tag');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

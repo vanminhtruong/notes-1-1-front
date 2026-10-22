@@ -72,6 +72,10 @@
     "disabled": "開啟以選擇動態背景主題"
   },
   "footer": {
+    "description": "讓靈感成長的空間。記錄想法，整理重要事項，留住每一天的靈感。",
+    "explore": "探索",
+    "connect": "聯繫",
+    "tagline": "讓生活更有條理，讓靈感持續成長。",
     "copyright": "版權所有",
     "privacy": "隱私",
     "terms": "條款"

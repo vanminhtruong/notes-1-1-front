@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Tag, Plus } from 'lucide-react';
@@ -18,6 +19,23 @@ export default function Categories() {
   const { categories, isLoading } = state;
 
   const modalsState = CategoriesHooks.useCategoriesModalsState();
+  const isModalOpen = modalsState.createModalOpen || modalsState.editModalOpen
+    || modalsState.deleteModalOpen || modalsState.viewNotesModalOpen;
+
+  // One owner for the page lock: closed sibling modals must not release it.
+  useLayoutEffect(() => {
+    if (!isModalOpen) return;
+
+    const elements = [document.documentElement, document.body];
+    const previousOverflow = elements.map((element) => element.style.overflow);
+    elements.forEach((element) => { element.style.setProperty('overflow', 'hidden'); });
+
+    return () => {
+      elements.forEach((element, index) => {
+        element.style.setProperty('overflow', previousOverflow[index]);
+      });
+    };
+  }, [isModalOpen]);
 
   // Handlers
   const handlers = CategoriesHooks.useCategoriesHandler({

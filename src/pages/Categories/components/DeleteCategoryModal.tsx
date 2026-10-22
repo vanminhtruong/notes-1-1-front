@@ -14,17 +14,8 @@ const DeleteCategoryModal = ({ isOpen, category, onClose, onConfirm }: DeleteCat
   const { t } = useTranslation('categories');
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      setIsDeleting(false);
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
+    if (isOpen) setIsDeleting(false);
   }, [isOpen]);
 
   const handleConfirm = async () => {

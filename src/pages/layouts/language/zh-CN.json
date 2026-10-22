@@ -72,6 +72,10 @@
     "disabled": "开启以选择动态背景主题"
   },
   "footer": {
+    "description": "让灵感生长的空间。记录想法，整理重要事项，留住每一天的灵感。",
+    "explore": "探索",
+    "connect": "联系",
+    "tagline": "让生活更有条理，让灵感不断生长。",
     "copyright": "版权所有",
     "privacy": "隐私",
     "terms": "条款"

@@ -62,17 +62,8 @@ const EditCategoryModal = ({ isOpen, category, onClose, onSubmit }: EditCategory
   const [icon, setIcon] = useState('Tag');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      setIsSubmitting(false);
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
+    if (isOpen) setIsSubmitting(false);
   }, [isOpen]);
 
   useEffect(() => {
