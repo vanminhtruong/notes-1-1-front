@@ -158,11 +158,11 @@ const MessageInput = memo(({
           ))}
         </div>
       )}
-      <div className="flex items-end gap-3 md-down:gap-2">
+      <div className="flex items-center gap-3 md-down:gap-2">
         <button
           type="button"
           onClick={handlePlusClick}
-          className="relative z-10 flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 cursor-pointer md-down:p-1.5"
+          className="relative z-10 flex h-12 w-12 items-center justify-center bg-gray-100 dark:bg-gray-800 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 md-down:h-11 md-down:w-11"
           aria-label={t('chat.input.attachFileAria')}
         >
           <svg className="w-5 h-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
@@ -170,7 +170,7 @@ const MessageInput = memo(({
           </svg>
         </button>
         <input ref={fileInputRef} type="file" multiple onChange={onFileChange} className="hidden" />
-        <div className="flex-1 relative">
+        <div className="flex-1 min-w-0 relative">
           <input
             type="text"
             value={draft}
@@ -178,13 +178,13 @@ const MessageInput = memo(({
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend(); } }}
             onBlur={onTypingStop}
             placeholder={t('chat.input.placeholder')}
-            className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 pr-12 md-down:px-3 md-down:py-2.5 md-down:pr-10 sm-down:px-3 sm-down:py-2 sm-down:pr-9"
+            className="block h-12 w-full px-4 py-0 bg-gray-100 dark:bg-gray-800 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none text-base leading-6 text-gray-900 dark:text-white placeholder-gray-500 pr-12 md-down:h-11 md-down:px-3 md-down:pr-11"
           />
           <button
             type="button"
             onClick={() => setShowEmoji((s) => !s)}
             aria-label={t('chat.input.chooseEmoji', 'Choose emoji')}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 md-down:right-2 md-down:p-0.5"
+            className="absolute right-1.5 top-1/2 flex h-9 w-9 items-center justify-center transform -translate-y-1/2 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 md-down:right-1"
           >
             <svg className="w-5 h-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zM9 9a1 1 0 11-2 0 1 1 0 012 0zm4 0a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
@@ -209,7 +209,7 @@ const MessageInput = memo(({
           type="button"
           onClick={handleSend}
           disabled={!draft.trim() && pendingImages.length === 0 && pendingFiles.length === 0}
-          className="relative z-10 flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed md-down:p-1.5"
+          className="relative z-10 flex h-12 w-12 items-center justify-center bg-blue-600 text-white hover:bg-blue-700 rounded-full transition-colors flex-shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 md-down:h-11 md-down:w-11"
           aria-label={t('chat.input.send', 'Gửi')}
           title={t('chat.input.send', 'Gửi')}
         >
