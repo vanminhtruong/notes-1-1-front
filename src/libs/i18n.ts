@@ -98,19 +98,27 @@ const resources = {
   },
 };
 
+// Get saved language from localStorage first, fallback to 'en'
+const getSavedLanguage = (): string | undefined => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('i18nextLng') || undefined;
+  }
+  return undefined;
+};
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
     fallbackLng: 'en',
-    lng: 'en',
+    lng: getSavedLanguage(), // Use saved language or let detector decide
     defaultNS: 'layout',
     ns: ['layout', 'home', 'dashboard', 'about', 'contact', 'account', 'auth', 'categories'],
 
     detection: {
-      order: ['cookie', 'localStorage', 'navigator'],
-      caches: ['cookie', 'localStorage'],
+      order: ['localStorage', 'cookie', 'navigator'], // localStorage first!
+      caches: ['localStorage', 'cookie'],
       lookupCookie: 'lang',
       lookupLocalStorage: 'i18nextLng',
     },

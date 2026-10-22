@@ -65,10 +65,14 @@ export default function MainLayout() {
   }, [isAuthenticated, token, dispatch]);
 
   // Sync i18n with user language preference from profile
+  // Only sync from backend if localStorage doesn't have a saved preference (first login)
   useEffect(() => {
-    if (user?.language && user.language !== i18n.language) {
-      console.log('Syncing language from user profile:', user.language);
+    const savedLang = localStorage.getItem('i18nextLng');
+    // Only use user profile language if no local preference saved
+    if (!savedLang && user?.language && user.language !== i18n.language) {
+      console.log('Syncing language from user profile (first login):', user.language);
       i18n.changeLanguage(user.language);
+      localStorage.setItem('i18nextLng', user.language);
     }
   }, [user?.language, i18n]);
 

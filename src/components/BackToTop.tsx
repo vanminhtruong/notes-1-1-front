@@ -36,8 +36,19 @@ const BackToTop = memo(({ threshold = 300, bottomOffset = '1rem', rightOffset = 
 
   return (
     <div
-      style={{ position: 'fixed', bottom: bottomOffset, right: rightOffset, zIndex: 50 }}
+      style={{
+        position: 'fixed',
+        bottom: bottomOffset,
+        right: rightOffset,
+        // Stay below the chat panel (z-50) so this floating button can never
+        // cover the chat composer's send button.
+        zIndex: 40,
+        // While hidden the wrapper must not swallow clicks: an invisible
+        // fixed overlay used to block the chat send button entirely.
+        pointerEvents: shouldShow ? 'auto' : 'none',
+      }}
       aria-hidden={!shouldShow}
+      className={shouldShow ? '' : 'pointer-events-none'}
     >
       <button
         type="button"

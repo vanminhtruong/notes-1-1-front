@@ -5,7 +5,7 @@ export interface MessageInputProps {
   pendingImages: Array<{ id: string; file: File; preview: string }>;
   pendingFiles: Array<{ id: string; file: File }>;
   onMessageChange: (value: string) => void;
-  onSendMessage: () => void;
+  onSendMessage: (text?: string) => void;
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onRemoveImage: (id: string) => void;
   onRemoveFile: (id: string) => void;

@@ -10,6 +10,8 @@ export interface ChatListProps {
   onDeleteMessages?: (friendId: number, friendName: string) => void;
   onRefreshChatList?: () => void;
   onRefreshBlockedUsers?: () => void;
+  onBulkRemoveFriends?: (friendshipIds: number[]) => Promise<void>;
+  onBulkBlock?: (userIds: number[]) => Promise<void>;
   e2eeEnabled?: boolean;
   e2eeUnlocked?: boolean;
   lockedPlaceholder?: string;

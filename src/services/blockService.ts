@@ -12,6 +12,10 @@ export const blockService = {
     const res = await api.post('/blocks', { targetId });
     return res.data as { success: boolean; data: any };
   },
+  async bulkBlock(targetIds: number[]) {
+    const res = await api.post('/blocks/bulk', { targetIds });
+    return res.data as { success: boolean; data: { blockedCount: number; blockedIds: number[]; failedIds: number[] } };
+  },
   async unblock(targetId: number) {
     const res = await api.delete(`/blocks/${targetId}`);
     return res.data as { success: boolean; data: { deleted: number } };

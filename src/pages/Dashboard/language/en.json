@@ -559,6 +559,23 @@
         "addFriends": "Add friends to start chatting"
       }
     },
+    "bulk": {
+      "select": "Select",
+      "cancel": "Cancel",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "selected": "{{count}} selected",
+      "unfriend": "Unfriend",
+      "block": "Block",
+      "confirmUnfriend": "Unfriend {{count}} friend(s)?",
+      "unfriendHint": "This action cannot be undone.",
+      "unfriendSuccess": "Successfully unfriended {{count}} friend(s)",
+      "unfriendFailed": "Failed to remove friends",
+      "confirmBlock": "Block {{count}} user(s)?",
+      "blockHint": "Blocked users cannot message you.",
+      "blockSuccess": "Successfully blocked {{count}} user(s)",
+      "blockFailed": "Failed to block users"
+    },
     "preview": {
       "recalled": "Recalled message",
       "image": "Image",

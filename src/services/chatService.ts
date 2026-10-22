@@ -101,7 +101,7 @@ export const chatService = {
     params.append('q', q);
     params.append('limit', String(limit));
     const response = await api.get(`/chat/${userId}/search?${params.toString()}`);
-    return response.data as { success: boolean; data: Array<{ id: number; senderId: number; receiverId: number; content: string; messageType: 'text'|'image'|'file'; createdAt: string }>; };
+    return response.data as { success: boolean; data: Array<{ id: number; senderId: number; receiverId: number; content: string; messageType: 'text' | 'image' | 'file'; createdAt: string }>; };
   },
 
   // Send message
@@ -159,6 +159,12 @@ export const chatService = {
   async removeFriend(friendshipId: number) {
     const response = await api.delete(`/friends/${friendshipId}`);
     return response.data;
+  },
+
+  // Bulk remove friends
+  async bulkRemoveFriends(friendshipIds: number[]) {
+    const response = await api.delete('/friends/bulk', { data: { friendshipIds } });
+    return response.data as { success: boolean; data: { removedCount: number; removedIds: number[]; affectedUserIds: number[] } };
   },
 
   // Delete all messages with a user

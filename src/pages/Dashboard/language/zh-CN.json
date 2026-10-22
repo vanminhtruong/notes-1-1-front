@@ -559,6 +559,23 @@
         "addFriends": "添加好友开始聊天"
       }
     },
+    "bulk": {
+      "select": "选择",
+      "cancel": "取消",
+      "selectAll": "全选",
+      "deselectAll": "取消全选",
+      "selected": "已选 {{count}} 项",
+      "unfriend": "解除好友",
+      "block": "拉黑",
+      "confirmUnfriend": "确定解除 {{count}} 位好友？",
+      "unfriendHint": "此操作无法撤销。",
+      "unfriendSuccess": "已解除 {{count}} 位好友",
+      "unfriendFailed": "解除好友失败",
+      "confirmBlock": "确定拉黑 {{count}} 人？",
+      "blockHint": "被拉黑的用户无法给您发消息。",
+      "blockSuccess": "已拉黑 {{count}} 人",
+      "blockFailed": "拉黑失败"
+    },
     "preview": {
       "recalled": "已撤回消息",
       "image": "图片",

@@ -85,8 +85,9 @@ export function useMessageComposer({
     }
   };
 
-  const sendMessage = async () => {
-    if ((!newMessage.trim() && pendingImages.length === 0 && pendingFiles.length === 0) || !selectedChat) return;
+  const sendMessage = async (overrideText?: string) => {
+    const messageText = (overrideText ?? newMessage) || '';
+    if ((!messageText.trim() && pendingImages.length === 0 && pendingFiles.length === 0) || !selectedChat) return;
 
     try {
       let sentSomething = false;
@@ -102,7 +103,7 @@ export function useMessageComposer({
               url,
               'image',
               // Only attach reply to attachments if there is no text to send
-              newMessage.trim() ? undefined : replyId
+              messageText.trim() ? undefined : replyId
             );
             if (resp.success) {
               setMessages((prev) => {
@@ -130,7 +131,7 @@ export function useMessageComposer({
             selectedChat.id,
             url,
             'file',
-            newMessage.trim() ? undefined : replyId
+            messageText.trim() ? undefined : replyId
           );
           if (resp.success) {
             setMessages((prev) => {
@@ -147,22 +148,36 @@ export function useMessageComposer({
       }
 
       // If there is text, send it too
-      if (newMessage.trim()) {
-        const textToSend = newMessage.trim();
-        
+      if (messageText.trim()) {
+        const textToSend = messageText.trim();
+
         // Clear input immediately for better UX
         setNewMessage('');
         sentSomething = true;
-        
-        // Send message in background, socket will auto-add it to list
-        chatService.sendMessage(selectedChat.id, textToSend, 'text', replyId).catch((error: any) => {
+
+        try {
+          const resp = await chatService.sendMessage(selectedChat.id, textToSend, 'text', replyId);
+          // Append the created message right away instead of relying only on the
+          // socket echo. The socket may also deliver it; setMessages dedupes by id
+          // so the message is never shown twice.
+          if (resp?.success && resp?.data) {
+            setMessages((prev) => {
+              const exists = prev.some((m: any) => m.id === resp.data.id);
+              const messageWithStatus = { ...resp.data, status: resp.data.status || 'sent' };
+              return exists ? prev : [...prev, messageWithStatus];
+            });
+            upsertChatListWithMessage(selectedChat.id, resp.data as Message);
+          }
+        } catch (error: any) {
           const status = error?.response?.status;
           if (status === 403) {
             toast.error(error?.response?.data?.message || t('chat.errors.messageBlockedCurrent', 'Message not sent. Messaging between you and this user is blocked.'));
           } else {
             toast.error(error?.response?.data?.message || t('chat.errors.sendMessage'));
           }
-        });
+          // Give the text back to the user if it could not be sent
+          setNewMessage((prev) => (prev ? prev : textToSend));
+        }
       }
 
       if (sentSomething) {
@@ -192,8 +207,9 @@ export function useMessageComposer({
     }
   };
 
-  const sendGroupMessage = async () => {
-    if ((!newMessage.trim() && pendingImages.length === 0 && pendingFiles.length === 0) || !selectedGroup) return;
+  const sendGroupMessage = async (overrideText?: string) => {
+    const messageText = (overrideText ?? newMessage) || '';
+    if ((!messageText.trim() && pendingImages.length === 0 && pendingFiles.length === 0) || !selectedGroup) return;
 
     try {
       let sentSomething = false;
@@ -208,7 +224,7 @@ export function useMessageComposer({
               selectedGroup.id,
               url,
               'image',
-              newMessage.trim() ? undefined : replyId
+              messageText.trim() ? undefined : replyId
             );
             if (resp.success) {
               setMessages((prev: any[]) => {
@@ -233,7 +249,7 @@ export function useMessageComposer({
             selectedGroup.id,
             url,
             'file',
-            newMessage.trim() ? undefined : replyId
+            messageText.trim() ? undefined : replyId
           );
           if (resp.success) {
             setMessages((prev: any[]) => {
@@ -248,22 +264,31 @@ export function useMessageComposer({
       }
 
       // If there is text, send it too
-      if (newMessage.trim()) {
-        const textToSend = newMessage.trim();
-        
+      if (messageText.trim()) {
+        const textToSend = messageText.trim();
+
         // Clear input immediately for better UX
         setNewMessage('');
         sentSomething = true;
-        
-        // Send message in background, socket will auto-add it to list
-        groupService.sendGroupMessage(selectedGroup.id, textToSend, 'text', replyId).catch((error: any) => {
+
+        try {
+          const resp = await groupService.sendGroupMessage(selectedGroup.id, textToSend, 'text', replyId);
+          if (resp?.success && resp?.data) {
+            setMessages((prev: any[]) => {
+              const exists = prev.some((m: any) => m.id === resp.data.id);
+              const messageWithStatus = { ...resp.data, status: resp.data.status || 'sent' };
+              return exists ? prev : [...prev, messageWithStatus];
+            });
+          }
+        } catch (error: any) {
           const status = error?.response?.status;
           if (status === 403) {
             toast.error(error?.response?.data?.message || t('chat.groups.adminsOnly.inputHidden', 'Chỉ quản trị viên mới được gửi tin nhắn vào nhóm.'));
           } else {
             toast.error(error?.response?.data?.message || t('chat.errors.sendMessage'));
           }
-        });
+          setNewMessage((prev) => (prev ? prev : textToSend));
+        }
       }
 
       if (sentSomething) {

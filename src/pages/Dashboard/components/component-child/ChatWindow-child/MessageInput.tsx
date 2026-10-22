@@ -22,6 +22,13 @@ const MessageInput = memo(({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showEmoji, setShowEmoji] = useState(false);
+  // Local draft so the input + send button never depend on the parent state
+  // being in sync. It is still mirrored to the parent via onMessageChange.
+  const [draft, setDraft] = useState(newMessage);
+
+  useEffect(() => {
+    setDraft(newMessage);
+  }, [newMessage]);
 
   // A compact but rich emoji set (can be expanded easily)
   const emojis = (
@@ -45,10 +52,20 @@ const MessageInput = memo(({
   };
 
   const handleEmojiClick = (emoji: string) => {
-    const next = `${newMessage}${emoji}`;
+    const next = `${draft}${emoji}`;
+    setDraft(next);
     onMessageChange(next);
     // Notify typing to keep UX consistent
     onTyping();
+  };
+
+  const handleSend = () => {
+    const value = draft;
+    if (!value.trim() && pendingImages.length === 0 && pendingFiles.length === 0) return;
+    // Clear the local draft right away for instant feedback. The parent will
+    // also clear; if the send fails the composer restores the text.
+    setDraft('');
+    onSendMessage(value);
   };
 
   // If recipient is banned, show warning instead of input
@@ -143,11 +160,12 @@ const MessageInput = memo(({
       )}
       <div className="flex items-end gap-3 md-down:gap-2">
         <button
+          type="button"
           onClick={handlePlusClick}
-          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 md-down:p-1.5"
+          className="relative z-10 flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 cursor-pointer md-down:p-1.5"
           aria-label={t('chat.input.attachFileAria')}
         >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-5 h-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
         </button>
@@ -155,9 +173,9 @@ const MessageInput = memo(({
         <div className="flex-1 relative">
           <input
             type="text"
-            value={newMessage}
-            onChange={(e) => { onMessageChange(e.target.value); onTyping(); }}
-            onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
+            value={draft}
+            onChange={(e) => { setDraft(e.target.value); onMessageChange(e.target.value); onTyping(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSend(); } }}
             onBlur={onTypingStop}
             placeholder={t('chat.input.placeholder')}
             className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 border-0 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 dark:text-white placeholder-gray-500 pr-12 md-down:px-3 md-down:py-2.5 md-down:pr-10 sm-down:px-3 sm-down:py-2 sm-down:pr-9"
@@ -168,7 +186,7 @@ const MessageInput = memo(({
             aria-label={t('chat.input.chooseEmoji', 'Choose emoji')}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 md-down:right-2 md-down:p-0.5"
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zM9 9a1 1 0 11-2 0 1 1 0 012 0zm4 0a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
             </svg>
           </button>
@@ -188,11 +206,18 @@ const MessageInput = memo(({
           )}
         </div>
         <button
-          onClick={onSendMessage}
-          disabled={!newMessage.trim() && pendingImages.length === 0 && pendingFiles.length === 0}
-          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed md-down:p-1.5"
+          type="button"
+          onClick={handleSend}
+          disabled={!draft.trim() && pendingImages.length === 0 && pendingFiles.length === 0}
+          className="relative z-10 flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors flex-shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed md-down:p-1.5"
+          aria-label={t('chat.input.send', 'Gửi')}
+          title={t('chat.input.send', 'Gửi')}
         >
-          <Send className="w-5 h-5" />
+          {/* Full-size click layer: guarantees the whole button rect (including
+              the icon centre) triggers onClick, regardless of how the SVG is
+              hit-tested by the browser. */}
+          <span aria-hidden="true" className="absolute inset-0 rounded-full" />
+          <Send className="w-5 h-5 pointer-events-none" />
         </button>
       </div>
     </div>

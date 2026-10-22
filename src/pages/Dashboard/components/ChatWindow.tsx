@@ -5,7 +5,7 @@ import * as DashboardHooks from '../hooks';
 const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   const { t } = useTranslation('dashboard');
   const currentUser = getCachedUser();
-  
+
   // State hooks
   const chatWindowState = DashboardHooks.useChatWindowState();
   const messageInputState = DashboardHooks.useMessageInputState();
@@ -13,7 +13,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   const groupModalsState = DashboardHooks.useGroupModalsState();
   const blockStatusState = DashboardHooks.useBlockStatusState();
   const bellNotificationState = DashboardHooks.useBellNotificationState();
-  
+
   // Chat settings - split into 3 hooks
   const chatSettingsState = useChatSettingsStateOnly();
 
@@ -53,7 +53,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   const groupedMessages = useGroupedMessages(chatWindowState.messages);
   const isSelectedGroupOnline = useGroupOnline(chatWindowState.selectedGroup, chatWindowState.onlineIds, currentUser?.id);
   const removableMembers = useRemovableMembers(chatWindowState.selectedGroup, chatWindowState.friends, chatWindowState.users, currentUser, t);
-  const scrollToBottom = () => {};
+  const scrollToBottom = () => { };
 
   // Load per-chat background (1-1 only)
   const chatBackgroundState = useChatBackgroundState();
@@ -349,6 +349,29 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   // Use handleRemoveFriend from chatListHandler
   const handleRemoveFriend = chatListHandler.handleRemoveFriend;
 
+  // Bulk actions handlers
+  const handleBulkRemoveFriends = useCallback(async (friendshipIds: number[]) => {
+    try {
+      const { chatService } = await import('@/services/chatService');
+      await chatService.bulkRemoveFriends(friendshipIds);
+      await loadChatList();
+      await loadFriends();
+    } catch (e: any) {
+      throw e;
+    }
+  }, [loadChatList, loadFriends]);
+
+  const handleBulkBlock = useCallback(async (userIds: number[]) => {
+    try {
+      const { blockService } = await import('@/services/blockService');
+      await blockService.bulkBlock(userIds);
+      await loadChatList();
+      chatSettingsHandler.refreshBlockedUsers();
+    } catch (e: any) {
+      throw e;
+    }
+  }, [loadChatList, chatSettingsHandler]);
+
   // Search and notification handler
   const searchAndNotificationHandler = DashboardHooks.useSearchAndNotificationHandler({
     setSearchTerm: chatWindowState.setSearchTerm,
@@ -437,194 +460,198 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
           />
         ) : (
           <>
-        {chatWindowState.activeTab === 'users' && (
-          <UsersList
-            friendRequests={chatWindowState.friendRequests}
-            filteredUsers={filteredUsers}
-            onAcceptFriendRequest={acceptFriendRequest}
-            onRejectFriendRequest={rejectFriendRequest}
-            onSendFriendRequest={sendFriendRequest}
-            onStartChat={startChat}
-            onBlockUser={handleBlockUser}
-          />
-        )}
-
-        {chatWindowState.activeTab === 'chats' && (
-          <div className="h-full flex flex-col">
-            {chatWindowState.selectedChat ? (
-              <>
-                <ChatView
-                  selectedChat={chatWindowState.selectedChat}
-                  messages={chatWindowState.messages}
-                  groupedMessages={groupedMessages}
-                  isPartnerTyping={messageInputState.isPartnerTyping}
-                  menuOpenKey={attachmentState.menuOpenKey}
-                  currentUserId={currentUser?.id}
-                  initialAlias={(chatWindowState.chatList.find((c) => c.friend.id === chatWindowState.selectedChat!.id) as any)?.nickname ?? null}
-                  onBack={chatWindowCallbacksHandler.handleBackToChats}
-                  onMenuToggle={attachmentState.setMenuOpenKey}
-                  onRecallMessage={recallMessage}
-                  onRecallGroup={recallGroup}
-                  onEditMessage={editMessage}
-                  onDownloadAttachment={downloadAttachment}
-                  onPreviewImage={chatWindowCallbacksHandler.handlePreviewImage}
-                  initialLoading={chatWindowState.historyLoading}
-                  onPrependMessages={messageActionsHandler.handlePrependMessages}
-                  onRemoveMessages={messageActionsHandler.handleRemoveMessages}
-                  maskMessages={chatSettingsState.e2eeEnabled && !chatSettingsState.e2eeUnlocked}
-                  lockedNotice={t('chat.encryption.chatLocked')}
-                  onUnlock={chatWindowCallbacksHandler.handleUnlock}
-                  backgroundUrl={chatBackgroundState.chatBackgroundUrl}
-                  onChangeBackground={chatWindowCallbacksHandler.handleChangeBackground}
-                  onChangeBackgroundForBoth={chatWindowCallbacksHandler.handleChangeBackgroundForBoth}
-                  onResetBackground={chatWindowCallbacksHandler.handleResetBackground}
-                  blocked={blockStatusState.blockStatus ? !!blockStatusState.blockStatus.isEitherBlocked : true}
-                  onReplyRequested={chatWindowCallbacksHandler.handleSetReplyingToMessage}
-                  onUpdateRecipientStatus={chatWindowCallbacksHandler.handleUpdateRecipientStatus}
-                />
-                {!(blockStatusState.blockStatus?.isEitherBlocked) ? (
-                  <MessageInput
-                    newMessage={messageInputState.newMessage}
-                    pendingImages={attachmentState.pendingImages}
-                    pendingFiles={attachmentState.pendingFiles}
-                    onMessageChange={messageInputState.setNewMessage}
-                    onSendMessage={sendMessage}
-                    onFileChange={handleFileChange}
-                    onRemoveImage={chatWindowCallbacksHandler.handleRemoveImage}
-                    onRemoveFile={chatWindowCallbacksHandler.handleRemoveFile}
-                    onTyping={handleTyping}
-                    onTypingStop={chatWindowCallbacksHandler.handleTypingStop}
-                    replyingToMessage={messageInputState.replyingToMessage as any}
-                    onClearReply={chatWindowCallbacksHandler.handleClearReply}
-                    recipientIsActive={chatWindowState.selectedChat?.isActive !== false}
-                  />
-                ) : (
-                  <div className="p-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                    {t('chat.blocked.inputHidden', 'You cannot send messages or upload files in this conversation because one of you has blocked the other.')}
-                  </div>
-                )}
-              </>
-            ) : (
-              <ChatList
-                chatList={chatWindowState.chatList}
-                friends={chatWindowState.friends}
-                unreadMap={unreadMap}
-                currentUserId={currentUser?.id}
+            {chatWindowState.activeTab === 'users' && (
+              <UsersList
+                friendRequests={chatWindowState.friendRequests}
+                filteredUsers={filteredUsers}
+                onAcceptFriendRequest={acceptFriendRequest}
+                onRejectFriendRequest={rejectFriendRequest}
+                onSendFriendRequest={sendFriendRequest}
                 onStartChat={startChat}
-                onRemoveFriend={handleRemoveFriend}
-                onDeleteMessages={handleDeleteMessages}
-                onRefreshChatList={loadChatList}
-                onRefreshBlockedUsers={chatSettingsHandler.refreshBlockedUsers}
-                e2eeEnabled={chatSettingsState.e2eeEnabled}
-                e2eeUnlocked={chatSettingsState.e2eeUnlocked}
-                lockedPlaceholder={t('chat.encryption.previewLocked')}
+                onBlockUser={handleBlockUser}
               />
             )}
-          </div>
-        )}
 
-        {chatWindowState.activeTab === 'unread' && (
-          <div className="h-full flex flex-col">
-            <ChatList
-              chatList={unreadChats}
-              friends={chatWindowState.friends}
-              unreadMap={unreadMap}
-              currentUserId={currentUser?.id}
-              onStartChat={startChat}
-              onRemoveFriend={handleRemoveFriend}
-              onDeleteMessages={handleDeleteMessages}
-              onRefreshChatList={loadChatList}
-              onRefreshBlockedUsers={chatSettingsHandler.refreshBlockedUsers}
-              e2eeEnabled={chatSettingsState.e2eeEnabled}
-              e2eeUnlocked={chatSettingsState.e2eeUnlocked}
-              lockedPlaceholder="🔒 Encrypted — unlock to preview"
-            />
-          </div>
-        )}
-
-        {chatWindowState.activeTab === 'groups' && (
-          <div className="h-full flex flex-col">
-            {chatWindowState.selectedGroup ? (
-              <>
-                <ChatView
-                  selectedChat={chatWindowState.selectedGroup as any}
-                  messages={chatWindowState.messages}
-                  groupedMessages={groupedMessages}
-                  isPartnerTyping={false}
-                  typingUsers={messageInputState.groupTypingUsers}
-                  menuOpenKey={attachmentState.menuOpenKey}
-                  currentUserId={currentUser?.id}
-                  onBack={chatWindowCallbacksHandler.handleBackToGroups}
-                  onMenuToggle={attachmentState.setMenuOpenKey}
-                  onRecallMessage={recallMessage}
-                  onRecallGroup={recallGroup}
-                  onEditMessage={editMessage}
-                  onDownloadAttachment={downloadAttachment}
-                  onPreviewImage={chatWindowCallbacksHandler.handlePreviewImage}
-                  initialLoading={chatWindowState.historyLoading}
-                  onPrependMessages={messageActionsHandler.handlePrependMessages}
-                  onRemoveMessages={messageActionsHandler.handleRemoveMessages}
-                  isGroup
-                  groupOnline={isSelectedGroupOnline}
-                  isGroupOwner={!!currentUser && currentUser.id === chatWindowState.selectedGroup.ownerId}
-                  onEditGroup={chatWindowCallbacksHandler.handleEditGroup}
-                  onRemoveMembers={chatWindowCallbacksHandler.handleRemoveMembersOpen}
-                  onLeaveGroup={groupActionsHandler.handleLeaveGroup}
-                  onDeleteGroup={groupActionsHandler.handleDeleteGroup}
-                  maskMessages={chatSettingsState.e2eeEnabled && !chatSettingsState.e2eeUnlocked}
-                  lockedNotice={t('chat.encryption.groupLocked')}
-                  onUnlock={chatWindowCallbacksHandler.handleUnlock}
-                  onReplyRequested={chatWindowCallbacksHandler.handleSetReplyingToMessage}
-                />
-                <RemoveMembersModal
-                  isOpen={groupModalsState.showRemoveMembers}
-                  onClose={chatWindowCallbacksHandler.handleCloseRemoveMembers}
-                  members={removableMembers}
-                  onConfirm={groupActionsHandler.handleRemoveMembersConfirm}
-                />
-                {(() => {
-                  const isOwner = !!currentUser && chatWindowState.selectedGroup!.ownerId === currentUser.id;
-                  const myRole = (chatWindowState.selectedGroup as any)?.myRole as ('member'|'admin'|'owner'|undefined);
-                  const isAdmin = myRole === 'admin' || myRole === 'owner' || isOwner;
-                  const adminsOnly = !!(chatWindowState.selectedGroup as any)?.adminsOnly;
-                  const canSendGroup = !adminsOnly || isAdmin;
-                  if (canSendGroup) {
-                    return (
+            {chatWindowState.activeTab === 'chats' && (
+              <div className="h-full flex flex-col">
+                {chatWindowState.selectedChat ? (
+                  <>
+                    <ChatView
+                      selectedChat={chatWindowState.selectedChat}
+                      messages={chatWindowState.messages}
+                      groupedMessages={groupedMessages}
+                      isPartnerTyping={messageInputState.isPartnerTyping}
+                      menuOpenKey={attachmentState.menuOpenKey}
+                      currentUserId={currentUser?.id}
+                      initialAlias={(chatWindowState.chatList.find((c) => c.friend.id === chatWindowState.selectedChat!.id) as any)?.nickname ?? null}
+                      onBack={chatWindowCallbacksHandler.handleBackToChats}
+                      onMenuToggle={attachmentState.setMenuOpenKey}
+                      onRecallMessage={recallMessage}
+                      onRecallGroup={recallGroup}
+                      onEditMessage={editMessage}
+                      onDownloadAttachment={downloadAttachment}
+                      onPreviewImage={chatWindowCallbacksHandler.handlePreviewImage}
+                      initialLoading={chatWindowState.historyLoading}
+                      onPrependMessages={messageActionsHandler.handlePrependMessages}
+                      onRemoveMessages={messageActionsHandler.handleRemoveMessages}
+                      maskMessages={chatSettingsState.e2eeEnabled && !chatSettingsState.e2eeUnlocked}
+                      lockedNotice={t('chat.encryption.chatLocked')}
+                      onUnlock={chatWindowCallbacksHandler.handleUnlock}
+                      backgroundUrl={chatBackgroundState.chatBackgroundUrl}
+                      onChangeBackground={chatWindowCallbacksHandler.handleChangeBackground}
+                      onChangeBackgroundForBoth={chatWindowCallbacksHandler.handleChangeBackgroundForBoth}
+                      onResetBackground={chatWindowCallbacksHandler.handleResetBackground}
+                      blocked={blockStatusState.blockStatus ? !!blockStatusState.blockStatus.isEitherBlocked : true}
+                      onReplyRequested={chatWindowCallbacksHandler.handleSetReplyingToMessage}
+                      onUpdateRecipientStatus={chatWindowCallbacksHandler.handleUpdateRecipientStatus}
+                    />
+                    {!(blockStatusState.blockStatus?.isEitherBlocked) ? (
                       <MessageInput
                         newMessage={messageInputState.newMessage}
                         pendingImages={attachmentState.pendingImages}
                         pendingFiles={attachmentState.pendingFiles}
                         onMessageChange={messageInputState.setNewMessage}
-                        onSendMessage={sendGroupMessage}
+                        onSendMessage={sendMessage}
                         onFileChange={handleFileChange}
                         onRemoveImage={chatWindowCallbacksHandler.handleRemoveImage}
                         onRemoveFile={chatWindowCallbacksHandler.handleRemoveFile}
-                        onTyping={handleGroupTyping}
-                        onTypingStop={chatWindowCallbacksHandler.handleGroupTypingStop}
+                        onTyping={handleTyping}
+                        onTypingStop={chatWindowCallbacksHandler.handleTypingStop}
                         replyingToMessage={messageInputState.replyingToMessage as any}
                         onClearReply={chatWindowCallbacksHandler.handleClearReply}
+                        recipientIsActive={chatWindowState.selectedChat?.isActive !== false}
                       />
-                    );
-                  }
-                  return (
-                    <div className="p-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                      {t('chat.groups.adminsOnly.inputHidden', 'Chỉ quản trị viên mới được gửi tin nhắn vào nhóm. Tìm hiểu thêm')}
-                    </div>
-                  );
-                })()}
-              </>
-            ) : (
-              <GroupsTab onSelectGroup={startGroupChat} />
+                    ) : (
+                      <div className="p-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                        {t('chat.blocked.inputHidden', 'You cannot send messages or upload files in this conversation because one of you has blocked the other.')}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <ChatList
+                    chatList={chatWindowState.chatList}
+                    friends={chatWindowState.friends}
+                    unreadMap={unreadMap}
+                    currentUserId={currentUser?.id}
+                    onStartChat={startChat}
+                    onRemoveFriend={handleRemoveFriend}
+                    onDeleteMessages={handleDeleteMessages}
+                    onRefreshChatList={loadChatList}
+                    onRefreshBlockedUsers={chatSettingsHandler.refreshBlockedUsers}
+                    onBulkRemoveFriends={handleBulkRemoveFriends}
+                    onBulkBlock={handleBulkBlock}
+                    e2eeEnabled={chatSettingsState.e2eeEnabled}
+                    e2eeUnlocked={chatSettingsState.e2eeUnlocked}
+                    lockedPlaceholder={t('chat.encryption.previewLocked')}
+                  />
+                )}
+              </div>
             )}
-          </div>
-        )}
 
-        {chatWindowState.activeTab === 'sharedNotes' && (
-          <SharedNotesTab 
-            searchTerm={chatWindowState.searchTerm}
-            currentUserId={currentUser?.id}
-          />
-        )}
+            {chatWindowState.activeTab === 'unread' && (
+              <div className="h-full flex flex-col">
+                <ChatList
+                  chatList={unreadChats}
+                  friends={chatWindowState.friends}
+                  unreadMap={unreadMap}
+                  currentUserId={currentUser?.id}
+                  onStartChat={startChat}
+                  onRemoveFriend={handleRemoveFriend}
+                  onDeleteMessages={handleDeleteMessages}
+                  onRefreshChatList={loadChatList}
+                  onRefreshBlockedUsers={chatSettingsHandler.refreshBlockedUsers}
+                  onBulkRemoveFriends={handleBulkRemoveFriends}
+                  onBulkBlock={handleBulkBlock}
+                  e2eeEnabled={chatSettingsState.e2eeEnabled}
+                  e2eeUnlocked={chatSettingsState.e2eeUnlocked}
+                  lockedPlaceholder="🔒 Encrypted — unlock to preview"
+                />
+              </div>
+            )}
+
+            {chatWindowState.activeTab === 'groups' && (
+              <div className="h-full flex flex-col">
+                {chatWindowState.selectedGroup ? (
+                  <>
+                    <ChatView
+                      selectedChat={chatWindowState.selectedGroup as any}
+                      messages={chatWindowState.messages}
+                      groupedMessages={groupedMessages}
+                      isPartnerTyping={false}
+                      typingUsers={messageInputState.groupTypingUsers}
+                      menuOpenKey={attachmentState.menuOpenKey}
+                      currentUserId={currentUser?.id}
+                      onBack={chatWindowCallbacksHandler.handleBackToGroups}
+                      onMenuToggle={attachmentState.setMenuOpenKey}
+                      onRecallMessage={recallMessage}
+                      onRecallGroup={recallGroup}
+                      onEditMessage={editMessage}
+                      onDownloadAttachment={downloadAttachment}
+                      onPreviewImage={chatWindowCallbacksHandler.handlePreviewImage}
+                      initialLoading={chatWindowState.historyLoading}
+                      onPrependMessages={messageActionsHandler.handlePrependMessages}
+                      onRemoveMessages={messageActionsHandler.handleRemoveMessages}
+                      isGroup
+                      groupOnline={isSelectedGroupOnline}
+                      isGroupOwner={!!currentUser && currentUser.id === chatWindowState.selectedGroup.ownerId}
+                      onEditGroup={chatWindowCallbacksHandler.handleEditGroup}
+                      onRemoveMembers={chatWindowCallbacksHandler.handleRemoveMembersOpen}
+                      onLeaveGroup={groupActionsHandler.handleLeaveGroup}
+                      onDeleteGroup={groupActionsHandler.handleDeleteGroup}
+                      maskMessages={chatSettingsState.e2eeEnabled && !chatSettingsState.e2eeUnlocked}
+                      lockedNotice={t('chat.encryption.groupLocked')}
+                      onUnlock={chatWindowCallbacksHandler.handleUnlock}
+                      onReplyRequested={chatWindowCallbacksHandler.handleSetReplyingToMessage}
+                    />
+                    <RemoveMembersModal
+                      isOpen={groupModalsState.showRemoveMembers}
+                      onClose={chatWindowCallbacksHandler.handleCloseRemoveMembers}
+                      members={removableMembers}
+                      onConfirm={groupActionsHandler.handleRemoveMembersConfirm}
+                    />
+                    {(() => {
+                      const isOwner = !!currentUser && chatWindowState.selectedGroup!.ownerId === currentUser.id;
+                      const myRole = (chatWindowState.selectedGroup as any)?.myRole as ('member' | 'admin' | 'owner' | undefined);
+                      const isAdmin = myRole === 'admin' || myRole === 'owner' || isOwner;
+                      const adminsOnly = !!(chatWindowState.selectedGroup as any)?.adminsOnly;
+                      const canSendGroup = !adminsOnly || isAdmin;
+                      if (canSendGroup) {
+                        return (
+                          <MessageInput
+                            newMessage={messageInputState.newMessage}
+                            pendingImages={attachmentState.pendingImages}
+                            pendingFiles={attachmentState.pendingFiles}
+                            onMessageChange={messageInputState.setNewMessage}
+                            onSendMessage={sendGroupMessage}
+                            onFileChange={handleFileChange}
+                            onRemoveImage={chatWindowCallbacksHandler.handleRemoveImage}
+                            onRemoveFile={chatWindowCallbacksHandler.handleRemoveFile}
+                            onTyping={handleGroupTyping}
+                            onTypingStop={chatWindowCallbacksHandler.handleGroupTypingStop}
+                            replyingToMessage={messageInputState.replyingToMessage as any}
+                            onClearReply={chatWindowCallbacksHandler.handleClearReply}
+                          />
+                        );
+                      }
+                      return (
+                        <div className="p-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                          {t('chat.groups.adminsOnly.inputHidden', 'Chỉ quản trị viên mới được gửi tin nhắn vào nhóm. Tìm hiểu thêm')}
+                        </div>
+                      );
+                    })()}
+                  </>
+                ) : (
+                  <GroupsTab onSelectGroup={startGroupChat} />
+                )}
+              </div>
+            )}
+
+            {chatWindowState.activeTab === 'sharedNotes' && (
+              <SharedNotesTab
+                searchTerm={chatWindowState.searchTerm}
+                currentUserId={currentUser?.id}
+              />
+            )}
           </>
         )}
       </div>

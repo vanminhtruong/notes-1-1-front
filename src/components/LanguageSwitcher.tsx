@@ -40,11 +40,31 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
   const [previewLang, setPreviewLang] = useState<Language | null>(null);
   const [expandedLang, setExpandedLang] = useState<string | null>(null);
 
+  // Track current language to ensure re-render when i18n language changes
+  const [currentLangCode, setCurrentLangCode] = useState(i18n.language);
+
+  // Sync with i18n language changes (including initial load from localStorage/cookie)
+  useEffect(() => {
+    const handleLanguageChanged = (lng: string) => {
+      setCurrentLangCode(lng);
+    };
+
+    // Set initial language
+    setCurrentLangCode(i18n.language);
+
+    // Listen for language changes
+    i18n.on('languageChanged', handleLanguageChanged);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
+
   // Flatten languages for easy lookup
   const allLanguages = languages.flatMap(l => l.children ? l.children : [l]);
 
-  const defaultLang = languages.find((l) => l.code === 'vi') || languages[0];
-  const currentLanguage = allLanguages.find((lang) => lang.code === i18n.language) || defaultLang;
+  const defaultLang = languages.find((l) => l.code === 'en') || languages[0];
+  const currentLanguage = allLanguages.find((lang) => lang.code === currentLangCode) || defaultLang;
 
   const handleLanguageChange = async (langCode: string) => {
     i18n.changeLanguage(langCode);

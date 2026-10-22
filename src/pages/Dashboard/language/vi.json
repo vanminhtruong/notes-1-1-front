@@ -561,6 +561,23 @@
         "addFriends": "Thêm bạn để bắt đầu trò chuyện"
       }
     },
+    "bulk": {
+      "select": "Chọn",
+      "cancel": "Hủy",
+      "selectAll": "Chọn tất cả",
+      "deselectAll": "Bỏ chọn tất cả",
+      "selected": "Đã chọn {{count}}",
+      "unfriend": "Hủy kết bạn",
+      "block": "Chặn",
+      "confirmUnfriend": "Hủy kết bạn với {{count}} người?",
+      "unfriendHint": "Hành động này không thể hoàn tác.",
+      "unfriendSuccess": "Đã hủy kết bạn với {{count}} người",
+      "unfriendFailed": "Không thể hủy kết bạn",
+      "confirmBlock": "Chặn {{count}} người?",
+      "blockHint": "Người bị chặn không thể nhắn tin cho bạn.",
+      "blockSuccess": "Đã chặn {{count}} người",
+      "blockFailed": "Không thể chặn người dùng"
+    },
     "preview": {
       "recalled": "Đã thu hồi",
       "image": "Ảnh",
