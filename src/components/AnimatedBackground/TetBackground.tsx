@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, memo } from 'react';
-import Particles from '@tsparticles/react';
+import Particles from './ManagedParticles';
 import type { Container } from '@tsparticles/engine';
 import { ensureParticlesEngine } from '../../utils/particlesEngine';
 

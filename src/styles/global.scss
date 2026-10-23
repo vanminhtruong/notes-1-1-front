@@ -166,27 +166,19 @@ input:-webkit-autofill:active {
 /* Animated Background Optimizations */
 /* Hardware acceleration and smooth transitions */
 .animated-background-container {
-  will-change: opacity, transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  // Do not force an opacity render surface for the entire animated scene.
+  // An opacity surface must be rebuilt each frame beneath glass panels.
+  contain: layout paint style;
 }
 
-/* Optimize canvas and particle rendering */
-canvas {
-  will-change: transform;
-  transform: translateZ(0);
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+/* Let the browser upload changing canvases without forcing another full
+   viewport compositor texture. Keep the original antialiased rendering. */
+.animated-background-container canvas {
+  pointer-events: none;
 }
 
-/* Optimize SVG rendering */
-svg {
-  will-change: transform;
-  transform: translateZ(0);
-}
+/* Static SVGs keep their normal paint layer; promoting every icon and tree
+   allocates hundreds of unnecessary compositor surfaces. */
 
 /* Smooth fade transitions */
 @keyframes bg-fade-in {
@@ -227,5 +219,3 @@ svg {
     to { opacity: 0; }
   }
 }
-
-

@@ -26,8 +26,9 @@ const ForgotPassword = () => {
     try {
       setLoading(true);
       if (method === 'email') {
-        await authService.requestPasswordReset({ email: String(data.email) });
-        setIdentifier({ type: 'email', value: String(data.email) });
+        const email = String(data.email || '').trim().toLowerCase();
+        await authService.requestPasswordReset({ email });
+        setIdentifier({ type: 'email', value: email });
       } else {
         await authService.requestPasswordReset({ phone: String(data.phone) });
         setIdentifier({ type: 'phone', value: String(data.phone) });

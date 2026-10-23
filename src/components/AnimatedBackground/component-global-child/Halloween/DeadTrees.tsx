@@ -1,3 +1,4 @@
+import StaticTreeSvg from './StaticTreeSvg';
 import React from 'react';
 
 const DeadTrees: React.FC = () => {
@@ -13,6 +14,7 @@ const DeadTrees: React.FC = () => {
           .spooky-tree {
             animation: treeSway 10s ease-in-out infinite;
             transform-origin: bottom center;
+            will-change: transform;
             filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, 0.5));
           }
         `}
@@ -20,7 +22,7 @@ const DeadTrees: React.FC = () => {
 
       {/* Left Dead Tree - Complex detailed branches */}
       <div className="absolute left-[5%] spooky-tree" style={{ width: '200px', height: '550px', bottom: '80px', zIndex: 10 }}>
-        <svg viewBox="0 0 200 550" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <StaticTreeSvg viewBox="0 0 200 550" fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* Main trunk - twisted, curved and gnarled */}
           <path d="M100 550 Q95 520 92 490 Q88 460 86 430 Q83 400 82 370 Q80 340 81 310 Q83 280 86 250 Q88 220 87 190 Q85 160 82 130 Q78 100 75 70 Q72 40 70 20" fill="#0a0a0a" stroke="#000" strokeWidth="1.5" />
           <path d="M100 550 Q105 520 108 490 Q112 460 114 430 Q117 400 118 370 Q120 340 119 310 Q117 280 114 250 Q112 220 113 190 Q115 160 118 130 Q122 100 125 70 Q128 40 130 20" fill="#0a0a0a" stroke="#000" strokeWidth="1.5" />
@@ -226,12 +228,12 @@ const DeadTrees: React.FC = () => {
 
           <path d="M114 420 Q119 418 124 417" stroke="#000" strokeWidth="3.2" fill="none" strokeLinecap="round" />
           <path d="M124 417 L128 416" stroke="#000" strokeWidth="1.8" fill="none" />
-        </svg>
+        </StaticTreeSvg>
       </div>
 
       {/* Right Dead Tree - Complex detailed branches */}
       <div className="absolute right-[8%] spooky-tree" style={{ width: '220px', height: '580px', bottom: '80px', animationDelay: '1s', zIndex: 10 }}>
-        <svg viewBox="0 0 220 580" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <StaticTreeSvg viewBox="0 0 220 580" fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* Main trunk - twisted, curved and gnarled */}
           <path d="M110 580 Q115 550 118 520 Q122 490 124 460 Q127 430 128 400 Q130 370 129 340 Q127 310 124 280 Q122 250 123 220 Q125 190 128 160 Q132 130 135 100 Q138 70 140 40 Q142 20 143 10" fill="#0a0a0a" stroke="#000" strokeWidth="1.5" />
           <path d="M110 580 Q105 550 102 520 Q98 490 96 460 Q93 430 92 400 Q90 370 91 340 Q93 310 96 280 Q98 250 97 220 Q95 190 92 160 Q88 130 85 100 Q82 70 80 40 Q78 20 77 10" fill="#0a0a0a" stroke="#000" strokeWidth="1.5" />
@@ -345,12 +347,12 @@ const DeadTrees: React.FC = () => {
           <path d="M79 94 L75 91" stroke="#000" strokeWidth="1.2" fill="none" />
           <path d="M128 90 Q134 86 140 84" stroke="#000" strokeWidth="3" fill="none" strokeLinecap="round" />
           <path d="M140 84 L144 81" stroke="#000" strokeWidth="1.2" fill="none" />
-        </svg>
+        </StaticTreeSvg>
       </div>
 
       {/* Center Background Tree */}
       <div className="absolute left-[45%] spooky-tree" style={{ width: '180px', height: '500px', bottom: '80px', opacity: 0.6, animationDelay: '2s', zIndex: 8 }}>
-        <svg viewBox="0 0 180 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <StaticTreeSvg viewBox="0 0 180 500" fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* Main trunk - twisted and curved */}
           <path d="M90 500 Q85 470 82 440 Q78 410 76 380 Q73 350 74 320 Q76 290 79 260 Q81 230 80 200 Q78 170 75 140 Q72 110 70 80 Q68 50 67 30" fill="#0a0a0a" stroke="#000" strokeWidth="1" />
           <path d="M90 500 Q95 470 98 440 Q102 410 104 380 Q107 350 106 320 Q104 290 101 260 Q99 230 100 200 Q102 170 105 140 Q108 110 110 80 Q112 50 113 30" fill="#0a0a0a" stroke="#000" strokeWidth="1" />
@@ -424,7 +426,7 @@ const DeadTrees: React.FC = () => {
           
           <path d="M104 300 Q110 296 116 294" stroke="#000" strokeWidth="2.8" fill="none" strokeLinecap="round" />
           <path d="M116 294 L120 291" stroke="#000" strokeWidth="1.3" fill="none" />
-        </svg>
+        </StaticTreeSvg>
       </div>
     </>
   );

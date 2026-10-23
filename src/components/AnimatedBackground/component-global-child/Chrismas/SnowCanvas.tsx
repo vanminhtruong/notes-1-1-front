@@ -27,6 +27,38 @@ const SnowCanvas = memo(() => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    // Render each snow shape and its glow once, then reuse the bitmap.
+    const sprites = new Map<string, HTMLCanvasElement>();
+    const getSprite = (radius: number, crystal: boolean, glow: boolean) => {
+      const r = Math.round(radius * 4) / 4;
+      const key = [r, crystal, glow].join(':');
+      const cached = sprites.get(key);
+      if (cached) return cached;
+      const sprite = document.createElement('canvas');
+      const size = Math.ceil((r + 16) * 2);
+      sprite.width = sprite.height = Math.ceil(size * dpr);
+      const brush = sprite.getContext('2d')!;
+      brush.scale(dpr, dpr);
+      brush.translate(size / 2, size / 2);
+      brush.fillStyle = '#ffffff';
+      if (glow) {
+        brush.shadowBlur = 8;
+        brush.shadowColor = 'rgba(255,255,255,0.9)';
+      }
+      if (crystal && r > 1.4) {
+        for (let i = 0; i < 6; i++) {
+          brush.rotate(Math.PI / 3);
+          brush.fillRect(r * 0.1, -0.5, r, 1);
+        }
+      } else {
+        brush.beginPath();
+        brush.arc(0, 0, r, 0, Math.PI * 2);
+        brush.fill();
+      }
+      sprites.set(key, sprite);
+      return sprite;
+    };
+
     class Snowflake {
       x: number;
       y: number;
@@ -71,40 +103,23 @@ const SnowCanvas = memo(() => {
         this.crystal = Math.random() < 0.15;
       }
 
-      update(wind: number) {
+      update(wind: number, step: number) {
         const w = canvas.width / dpr;
         const h = canvas.height / dpr;
-        this.angle += this.swaySpeed;
-        this.y += this.baseSpeed;
-        this.x += wind * this.depth + this.personalWind + Math.cos(this.angle) * this.swayAmp;
+        this.angle += this.swaySpeed * step;
+        this.y += this.baseSpeed * step;
+        this.x += (wind * this.depth + this.personalWind + Math.cos(this.angle) * this.swayAmp) * step;
         if (this.y > h + 12) this.reset();
         if (this.x > w + 10) this.x = -10;
         if (this.x < -10) this.x = w + 10;
       }
 
       draw() {
-        ctx.save();
+        const sprite = getSprite(this.radius, this.crystal, this.depth > 0.8);
+        const size = sprite.width / dpr;
         ctx.globalAlpha = this.opacity;
-        if (this.depth > 0.8) {
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = 'rgba(255,255,255,0.9)';
-        } else {
-          ctx.shadowBlur = 0;
-        }
-        ctx.fillStyle = '#ffffff';
-        if (this.crystal && this.radius > 1.4) {
-          const r = this.radius;
-          ctx.translate(this.x, this.y);
-          for (let i = 0; i < 6; i++) {
-            ctx.rotate(Math.PI / 3);
-            ctx.fillRect(r * 0.1, -0.5, r, 1);
-          }
-        } else {
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.restore();
+        ctx.drawImage(sprite, this.x - size / 2, this.y - size / 2, size, size);
+        ctx.globalAlpha = 1;
       }
     }
 
@@ -115,8 +130,8 @@ const SnowCanvas = memo(() => {
     for (let i = 0; i < flakeCount; i++) snowflakes.push(new Snowflake());
 
     const shootingStars: ShootingStar[] = [];
-    const trySpawnStar = () => {
-      if (Math.random() < 0.006) {
+    const trySpawnStar = (step: number) => {
+      if (Math.random() < 1 - Math.pow(1 - 0.006, step)) {
         const w = canvas.width / dpr;
         const y = rand(20, (canvas.height / dpr) * 0.3);
         const x = rand(w * 0.6, w);
@@ -124,12 +139,12 @@ const SnowCanvas = memo(() => {
       }
     };
 
-    const drawShootingStars = () => {
+    const drawShootingStars = (step: number) => {
       for (let i = shootingStars.length - 1; i >= 0; i--) {
         const s = shootingStars[i];
-        s.x += s.vx;
-        s.y += s.vy;
-        s.life++;
+        s.x += s.vx * step;
+        s.y += s.vy * step;
+        s.life += step;
         const alpha = Math.max(0, 1 - s.life / s.maxLife);
         ctx.save();
         ctx.globalAlpha = alpha;
@@ -170,8 +185,14 @@ const SnowCanvas = memo(() => {
       ctx.restore();
     };
 
-    const animate = () => {
-      t++;
+    let lastTime = 0;
+    const animate = (now: number) => {
+      animationId = requestAnimationFrame(animate);
+      const elapsed = now - lastTime;
+      if (lastTime && elapsed < 1000 / 60 - 0.5) return;
+      const step = lastTime ? Math.min(elapsed / (1000 / 60), 3) : 1;
+      lastTime = now;
+      t += step;
       const w = canvas.width / dpr;
       const h = canvas.height / dpr;
       ctx.clearRect(0, 0, w, h);
@@ -179,14 +200,14 @@ const SnowCanvas = memo(() => {
       const wind = Math.sin(t / 180) * 0.3 + Math.sin(t / 97) * 0.2;
 
       for (let i = 0; i < snowflakes.length; i++) {
-        snowflakes[i].update(wind);
+        snowflakes[i].update(wind, step);
         snowflakes[i].draw();
       }
 
-      trySpawnStar();
-      drawShootingStars();
+      trySpawnStar(step);
+      drawShootingStars(step);
 
-      santa.x -= santa.speed;
+      santa.x -= santa.speed * step;
       if (santa.x < -140) {
         santa.x = w + 140;
         santa.y = 60 + Math.random() * 80;
@@ -194,12 +215,19 @@ const SnowCanvas = memo(() => {
       }
       drawSanta();
 
-      animationId = requestAnimationFrame(animate);
     };
 
-    animate();
+    const onVisibilityChange = () => {
+      cancelAnimationFrame(animationId);
+      lastTime = 0;
+      if (!document.hidden) animationId = requestAnimationFrame(animate);
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    onVisibilityChange();
 
     return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      sprites.clear();
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationId);
     };

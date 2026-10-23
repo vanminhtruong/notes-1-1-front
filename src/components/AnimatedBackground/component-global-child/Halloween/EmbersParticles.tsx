@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import Particles from '@tsparticles/react';
+import Particles from '../../ManagedParticles';
 import type { Container, ISourceOptions } from '@tsparticles/engine';
 
 interface Props {

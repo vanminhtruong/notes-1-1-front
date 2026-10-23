@@ -18,6 +18,10 @@ import { preloadAnimatedBackgrounds } from '~/utils/preload'
 // Prepare audio unlock on first user interaction (autoplay policy)
 unlockAudioOnce()
 
+if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('backgroundPerf')) {
+  void import('./dev/backgroundPerformance').then(({ mountBackgroundPerformance }) => mountBackgroundPerformance());
+}
+
 const currentUser = getCachedUser();
 
 // Preload animated background bundles if user is already in dark-black theme
