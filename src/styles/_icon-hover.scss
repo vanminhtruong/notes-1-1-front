@@ -1,0 +1,148 @@
+// Semantic motions shared by Lucide icons on every route, including portals.
+// Variables live on the SVG so an icon never inherits another icon's motion.
+.lucide {
+  --icon-hover-motion: icon-hover-pop;
+  --icon-hover-origin: center;
+  --icon-hover-duration: 600ms;
+
+  &:where(.lucide-arrow-left, .lucide-chevron-left, .lucide-chevrons-left, .lucide-undo, .lucide-reply) { --icon-hover-motion: icon-hover-left; }
+  &:where(.lucide-arrow-right, .lucide-chevron-right, .lucide-chevrons-right, .lucide-log-in, .lucide-log-out, .lucide-redo) { --icon-hover-motion: icon-hover-right; }
+  &:where(.lucide-arrow-up, .lucide-chevron-up, .lucide-upload) { --icon-hover-motion: icon-hover-up; }
+  &:where(.lucide-arrow-down, .lucide-chevron-down, .lucide-download) { --icon-hover-motion: icon-hover-down; }
+  &:where(.lucide-send, .lucide-arrow-up-right) { --icon-hover-motion: icon-hover-send; }
+  &:where(.lucide-mail, .lucide-mail-open) { --icon-hover-motion: icon-hover-mail; }
+  &:where(.lucide-bell, .lucide-bell-off, .lucide-phone, .lucide-phone-incoming, .lucide-phone-outgoing) {
+    --icon-hover-motion: icon-hover-ring;
+    --icon-hover-origin: 50% 15%;
+    --icon-hover-duration: 800ms;
+  }
+  &:where(.lucide-tag, .lucide-tags, .lucide-bookmark, .lucide-palette, .lucide-key, .lucide-key-round, .lucide-heart-handshake, .lucide-sprout) {
+    --icon-hover-motion: icon-hover-swing;
+    --icon-hover-origin: 30% 30%;
+    --icon-hover-duration: 850ms;
+  }
+  &:where(.lucide-pencil, .lucide-pen, .lucide-edit, .lucide-edit-2, .lucide-square-pen) {
+    --icon-hover-motion: icon-hover-write;
+    --icon-hover-origin: 20% 80%;
+  }
+  &:where(.lucide-trash, .lucide-trash-2) {
+    --icon-hover-motion: icon-hover-shake;
+    --icon-hover-origin: 50% 15%;
+  }
+  &:where(.lucide-pin, .lucide-pin-off, .lucide-map-pin) {
+    --icon-hover-motion: icon-hover-pin;
+    --icon-hover-origin: 50% 10%;
+  }
+  &:where(.lucide-eye, .lucide-eye-off, .lucide-search) { --icon-hover-motion: icon-hover-look; }
+  &:where(.lucide-plus, .lucide-circle-plus, .lucide-x) { --icon-hover-motion: icon-hover-plus; }
+  &:where(.lucide-settings, .lucide-settings-2, .lucide-refresh-cw, .lucide-refresh-ccw, .lucide-sun) { --icon-hover-motion: icon-hover-turn; }
+  &:where(.lucide-heart, .lucide-activity) { --icon-hover-motion: icon-hover-heart; }
+  &:where(.lucide-star, .lucide-sparkles, .lucide-wand, .lucide-wand-sparkles, .lucide-zap, .lucide-award) { --icon-hover-motion: icon-hover-sparkle; }
+  &:where(.lucide-shield, .lucide-shield-check, .lucide-lock, .lucide-lock-keyhole) { --icon-hover-motion: icon-hover-secure; }
+  &:where(.lucide-file, .lucide-file-text, .lucide-sticky-note, .lucide-book-open, .lucide-moon, .lucide-message-circle, .lucide-message-square) { --icon-hover-motion: icon-hover-float; }
+  &:where(.lucide-folder, .lucide-folder-open, .lucide-folder-input, .lucide-folder-output) {
+    --icon-hover-motion: icon-hover-folder;
+    --icon-hover-origin: 50% 85%;
+  }
+  &:where(.lucide-archive, .lucide-archive-x, .lucide-archive-restore, .lucide-inbox, .lucide-save) { --icon-hover-motion: icon-hover-store; }
+  &:where(.lucide-globe, .lucide-clock, .lucide-calendar, .lucide-target) { --icon-hover-motion: icon-hover-tilt; }
+  &:where(.lucide-check, .lucide-check-check, .lucide-circle-check, .lucide-check-circle, .lucide-circle-check-big) { --icon-hover-motion: icon-hover-check; }
+  &:where(.lucide-filter, .lucide-sliders-horizontal, .lucide-list-filter, .lucide-menu, .lucide-more-horizontal, .lucide-more-vertical) { --icon-hover-motion: icon-hover-shift; }
+}
+
+// Low specificity lets bespoke Categories/notification animations keep priority.
+// Opt cards in explicitly; hovering a whole page must never animate all its icons.
+@mixin icon-hover-trigger {
+  :where(
+    .lucide:hover,
+    :is(button, a, [role='button'], label, h1, h2, h3, [data-icon-hover]):is(:hover, :focus-visible) .lucide,
+    :has(> :is(input, textarea):not(:disabled):is(:hover, :focus-visible)) > .lucide,
+    :has(> :is(input, textarea):not(:disabled):is(:hover, :focus-visible)) > .pointer-events-none .lucide
+  ):not(:where(
+    [class*='cat-icon-'], .manage-tags-icon,
+    .animate-spin, .animate-pulse, .animate-bounce, .animate-ping,
+    .bell-shake, .bell-strong, .bell-ring-strong,
+    .lucide-loader, .lucide-loader-circle, .lucide-loader-2,
+    :is(:disabled, [aria-disabled='true'], [aria-busy='true'], [data-icon-hover='off'], .bell-shake) .lucide
+  )) {
+    @content;
+  }
+}
+
+// Individual transform properties preserve positioning and open-state transforms.
+// A single finite animation per hover/focus; no JS listeners or idle animation.
+@media (prefers-reduced-motion: no-preference) {
+  @include icon-hover-trigger {
+    transform-box: fill-box;
+    transform-origin: var(--icon-hover-origin);
+    animation: var(--icon-hover-motion) var(--icon-hover-duration) ease-in-out;
+  }
+}
+
+@keyframes icon-hover-pop {
+  0%, 100% { scale: 1; }
+  45% { scale: 1.16; }
+  70% { scale: 0.97; }
+}
+@keyframes icon-hover-left { 0%, 100% { translate: 0 0; } 45% { translate: -4px 0; } }
+@keyframes icon-hover-right { 0%, 100% { translate: 0 0; } 45% { translate: 4px 0; } }
+@keyframes icon-hover-up { 0%, 100% { translate: 0 0; } 45% { translate: 0 -4px; } }
+@keyframes icon-hover-down { 0%, 100% { translate: 0 0; } 45% { translate: 0 4px; } }
+@keyframes icon-hover-send { 0%, 100% { translate: 0 0; } 45% { translate: 3px -3px; } }
+@keyframes icon-hover-ring {
+  0%, 100% { rotate: 0deg; }
+  15% { rotate: 16deg; }
+  30% { rotate: -13deg; }
+  45% { rotate: 10deg; }
+  60% { rotate: -6deg; }
+  80% { rotate: 3deg; }
+}
+@keyframes icon-hover-swing {
+  0%, 100% { rotate: 0deg; }
+  20% { rotate: -16deg; }
+  45% { rotate: 12deg; }
+  70% { rotate: -6deg; }
+  88% { rotate: 3deg; }
+}
+@keyframes icon-hover-write {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -14deg; translate: -1px 1px; }
+  55% { rotate: 10deg; translate: 1px -1px; }
+  80% { rotate: -5deg; }
+}
+@keyframes icon-hover-shake {
+  0%, 100% { rotate: 0deg; }
+  20% { rotate: -10deg; }
+  45% { rotate: 9deg; }
+  70% { rotate: -5deg; }
+}
+@keyframes icon-hover-pin {
+  0%, 100% { rotate: 0deg; translate: 0 0; }
+  30% { rotate: -20deg; translate: 0 -3px; }
+  60% { rotate: 10deg; translate: 0 1px; }
+}
+@keyframes icon-hover-look {
+  0%, 100% { scale: 1; }
+  30% { scale: 1.15; translate: 1px 0; }
+  65% { scale: 1.08; translate: -1px 0; }
+}
+@keyframes icon-hover-plus { 0%, 100% { rotate: 0deg; scale: 1; } 50% { rotate: 90deg; scale: 1.15; } }
+@keyframes icon-hover-turn { from { rotate: 0deg; } to { rotate: 360deg; } }
+@keyframes icon-hover-mail { 0%, 100% { rotate: x 0deg; translate: 0 0; } 45% { rotate: x 20deg; translate: 0 -2px; } }
+@keyframes icon-hover-heart {
+  0%, 100% { scale: 1; }
+  25%, 65% { scale: 1.18; }
+  45% { scale: 1; }
+}
+@keyframes icon-hover-sparkle {
+  0%, 100% { scale: 1; rotate: 0deg; }
+  35% { scale: 1.2; rotate: -12deg; }
+  70% { scale: 1.06; rotate: 8deg; }
+}
+@keyframes icon-hover-secure { 0%, 100% { scale: 1; } 35% { scale: 0.92; } 65% { scale: 1.12; } }
+@keyframes icon-hover-float { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -3px; rotate: -5deg; } }
+@keyframes icon-hover-folder { 0%, 100% { rotate: 0deg; scale: 1 1; } 45% { rotate: -6deg; scale: 1 0.9; } 70% { rotate: 2deg; scale: 1 1.03; } }
+@keyframes icon-hover-store { 0%, 100% { translate: 0 0; } 30% { translate: 0 -3px; } 65% { translate: 0 2px; } }
+@keyframes icon-hover-tilt { 0%, 100% { rotate: 0deg; } 35% { rotate: 15deg; } 70% { rotate: -8deg; } }
+@keyframes icon-hover-check { 0%, 100% { scale: 1; rotate: 0deg; } 45% { scale: 1.15; rotate: -8deg; } }
+@keyframes icon-hover-shift { 0%, 100% { translate: 0 0; } 30% { translate: -2px 0; } 65% { translate: 2px 0; } }

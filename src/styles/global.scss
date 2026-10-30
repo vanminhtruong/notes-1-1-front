@@ -1,4 +1,5 @@
 @use './theme-variants' as theme-variants;
+@use './icon-hover';
 
 @tailwind base;
 @tailwind components;
@@ -217,5 +218,44 @@ input:-webkit-autofill:active {
   @keyframes bg-fade-out {
     from { opacity: 1; }
     to { opacity: 0; }
+  }
+}
+
+/* ========================================
+   Manage Tags button - tag icon animation
+   The tag swings like a hanging label
+   ======================================== */
+.manage-tags-icon {
+  transform-origin: 30% 30%;
+}
+
+button:hover .manage-tags-icon {
+  animation: manage-tag-swing 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes manage-tag-swing {
+  0% {
+    transform: rotate(0deg) translateY(0);
+  }
+  20% {
+    transform: rotate(-16deg) translateY(-1px);
+  }
+  45% {
+    transform: rotate(12deg) translateY(-1px);
+  }
+  70% {
+    transform: rotate(-6deg);
+  }
+  88% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:hover .manage-tags-icon {
+    animation: none;
   }
 }

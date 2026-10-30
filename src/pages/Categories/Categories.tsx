@@ -9,6 +9,7 @@ import CreateCategoryModal from '@/pages/Categories/components/CreateCategoryMod
 import EditCategoryModal from '@/pages/Categories/components/EditCategoryModal';
 import DeleteCategoryModal from '@/pages/Categories/components/DeleteCategoryModal';
 import CategoryNotesModal from '@/pages/Categories/components/CategoryNotesModal';
+import '@/styles/categories-icons.scss';
 
 export default function Categories() {
   const { t } = useTranslation('categories');
@@ -74,10 +75,10 @@ export default function Categories() {
                   aria-label={t('back')}
                   title={t('backToDashboard')}
                 >
-                  <ArrowLeft className="w-5 h-5 lg-down:w-4 lg-down:h-4 sm-down:w-3.5 sm-down:h-3.5" />
+                  <ArrowLeft className="cat-icon-back w-5 h-5 lg-down:w-4 lg-down:h-4 sm-down:w-3.5 sm-down:h-3.5" />
                 </button>
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 lg-down:text-base md-down:text-sm sm-down:gap-1.5">
-                  <Tag className="w-5 h-5 lg-down:w-4 lg-down:h-4 sm-down:w-3.5 sm-down:h-3.5" />
+                  <Tag className="cat-icon-title w-5 h-5 lg-down:w-4 lg-down:h-4 sm-down:w-3.5 sm-down:h-3.5" />
                   {t('title')}
                 </h2>
               </div>
@@ -86,7 +87,7 @@ export default function Categories() {
                 onClick={modalsHandler.handleCreateCategory}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm lg-down:px-3 lg-down:py-1.5 lg-down:text-sm md-down:px-2.5 md-down:py-1.5 md-down:text-xs sm-down:gap-1.5"
               >
-                <Plus className="w-4 h-4 lg-down:w-3.5 lg-down:h-3.5 sm-down:w-3 sm-down:h-3" />
+                <Plus className="cat-icon-plus w-4 h-4 lg-down:w-3.5 lg-down:h-3.5 sm-down:w-3 sm-down:h-3" />
                 {t('createCategory')}
               </button>
             </div>

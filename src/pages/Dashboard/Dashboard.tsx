@@ -205,7 +205,7 @@ const Dashboard = () => {
               onClick={() => dashboardState.setShowTagManagementModal(true)}
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg xl-down:px-3.5 xl-down:py-1.5 lg-down:px-3 lg-down:py-1.5 md-down:px-2.5 md-down:py-1 sm-down:text-sm sm-down:px-2 sm-down:py-1 xs-down:text-xs xs-down:px-1.5 xs-down:py-0.5 xs-down:gap-1 mt-0 xl-down:mt-2 md-down:mt-1"
             >
-              <svg className="w-5 h-5 xl-down:w-4.5 xl-down:h-4.5 md-down:w-4 md-down:h-4 sm-down:w-3.5 sm-down:h-3.5 xs-down:w-3 xs-down:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="manage-tags-icon w-5 h-5 xl-down:w-4.5 xl-down:h-4.5 md-down:w-4 md-down:h-4 sm-down:w-3.5 sm-down:h-3.5 xs-down:w-3 xs-down:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
               <span>{t('tags.manage')}</span>

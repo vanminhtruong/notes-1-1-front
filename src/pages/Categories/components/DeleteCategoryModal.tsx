@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, X } from 'lucide-react';
 import { type NoteCategory } from '@/services/notesService';
+import '@/styles/categories-icons.scss';
 
 interface DeleteCategoryModalProps {
   isOpen: boolean;
@@ -44,7 +45,7 @@ const DeleteCategoryModal = ({ isOpen, category, onClose, onConfirm }: DeleteCat
         {/* Header */}
         <div className="flex items-center justify-between p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl md-down:text-lg sm-down:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 md-down:w-4.5 md-down:h-4.5 sm-down:w-4 sm-down:h-4 text-red-500" />
+            <AlertTriangle className="cat-icon-alert w-5 h-5 md-down:w-4.5 md-down:h-4.5 sm-down:w-4 sm-down:h-4 text-red-500" />
             {t('deleteCategory')}
           </h2>
           <button
@@ -52,15 +53,15 @@ const DeleteCategoryModal = ({ isOpen, category, onClose, onConfirm }: DeleteCat
             className="p-2 md-down:p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             disabled={isDeleting}
           >
-            <X className="w-5 h-5 md-down:w-4 md-down:h-4 text-gray-500" />
+            <X className="cat-icon-close w-5 h-5 md-down:w-4 md-down:h-4 text-gray-500" />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
           <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
-              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-500" />
+            <div className="cat-icon-alert-box mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
+              <AlertTriangle className="cat-icon-alert h-6 w-6 text-red-600 dark:text-red-500" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2 md-down:text-base sm-down:text-sm">
               {t('deleteConfirmTitle')}

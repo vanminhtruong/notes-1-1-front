@@ -8,6 +8,7 @@ import { useCategoryNotesHandler } from '@/pages/Categories/hooks/Manager-handle
 import { useCategoryNotesEffects } from '@/pages/Categories/hooks/Manager-Effects/useCategoryNotesEffects';
 import type { NoteCategory } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
+import '@/styles/categories-icons.scss';
 
 interface CategoryNotesModalProps {
   isOpen: boolean;
@@ -100,7 +101,7 @@ const CategoryNotesModal = ({ isOpen, onClose, category }: CategoryNotesModalPro
         >
           <div className="flex items-center gap-3 flex-1 min-w-0 sm-down:gap-2">
             <CategoryIcon
-              className="w-8 h-8 flex-shrink-0 lg-down:w-7 lg-down:h-7 md-down:w-6 md-down:h-6"
+              className="cat-icon-modal-category w-8 h-8 flex-shrink-0 lg-down:w-7 lg-down:h-7 md-down:w-6 md-down:h-6"
               style={{ color: category.color }}
               strokeWidth={1.5}
             />
@@ -118,7 +119,7 @@ const CategoryNotesModal = ({ isOpen, onClose, category }: CategoryNotesModalPro
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors flex-shrink-0 lg-down:p-1.5"
             aria-label={t('close')}
           >
-            <X className="w-5 h-5 lg-down:w-4 lg-down:h-4" />
+            <X className="cat-icon-close w-5 h-5 lg-down:w-4 lg-down:h-4" />
           </button>
         </div>
 
@@ -130,7 +131,7 @@ const CategoryNotesModal = ({ isOpen, onClose, category }: CategoryNotesModalPro
             </div>
           ) : notes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <FileText className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4 lg-down:w-14 lg-down:h-14 md-down:w-12 md-down:h-12" />
+              <FileText className="cat-icon-empty w-16 h-16 text-gray-300 dark:text-gray-600 mb-4 lg-down:w-14 lg-down:h-14 md-down:w-12 md-down:h-12" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 lg-down:text-base md-down:text-sm">
                 {t('noNotesInCategory')}
               </h3>

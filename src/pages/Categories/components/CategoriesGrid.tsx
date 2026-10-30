@@ -4,6 +4,7 @@ import { Tag, Edit2, Trash2, Eye, Pin, PinOff } from 'lucide-react';
 import Pagination from '@/components/Pagination';
 import { type NoteCategory } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
+import '@/styles/categories-icons.scss';
 
 interface CategoriesGridProps {
   categories: NoteCategory[];
@@ -76,7 +77,7 @@ const CategoriesGrid = memo(({
   if (categories.length === 0 && !searchTerm) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <Tag className="w-20 h-20 text-gray-300 dark:text-gray-600 mb-4" />
+        <Tag className="cat-icon-empty w-20 h-20 text-gray-300 dark:text-gray-600 mb-4" />
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           {t('noCategories')}
         </h3>
@@ -132,19 +133,19 @@ const CategoriesGrid = memo(({
                   title={category.isPinned ? t('unpin') : t('pin')}
                 >
                   {category.isPinned ? (
-                    <Pin className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 fill-current" />
+                    <Pin className="cat-icon-pin w-4 h-4 md-down:w-3.5 md-down:h-3.5 fill-current" />
                   ) : (
-                    <PinOff className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                    <PinOff className="cat-icon-pin-off w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                   )}
                 </button>
 
                 {/* Category Icon - Centered */}
                 <div 
-                  className="p-6 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-4 xs-down:p-3 flex items-center justify-center border-b border-gray-100 dark:border-gray-700"
+                  className="cat-icon-box p-6 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-4 xs-down:p-3 flex items-center justify-center border-b border-gray-100 dark:border-gray-700"
                   style={{ backgroundColor: `${category.color}15` }}
                 >
                   <IconComponent 
-                    className="w-16 h-16 xl-down:w-14 xl-down:h-14 lg-down:w-12 lg-down:h-12 md-down:w-10 md-down:h-10 sm-down:w-10 sm-down:h-10" 
+                    className="cat-icon-category w-16 h-16 xl-down:w-14 xl-down:h-14 lg-down:w-12 lg-down:h-12 md-down:w-10 md-down:h-10 sm-down:w-10 sm-down:h-10" 
                     style={{ color: category.color }}
                     strokeWidth={1.5} 
                   />
@@ -166,20 +167,20 @@ const CategoriesGrid = memo(({
                       className="flex items-center justify-center px-3 py-2 md-down:px-2.5 md-down:py-1.5 sm-down:px-2 sm-down:py-1.5 xs-down:px-2 xs-down:py-1.5 border border-blue-300 dark:border-blue-600 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                       title={t('viewNotes')}
                     >
-                      <Eye className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                      <Eye className="cat-icon-eye w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                     </button>
                     <button
                       onClick={() => onEdit(category)}
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2 md-down:px-2.5 md-down:py-1.5 sm-down:px-2 sm-down:py-1.5 xs-down:px-2 xs-down:py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm md-down:text-xs"
                     >
-                      <Edit2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                      <Edit2 className="cat-icon-edit w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                       <span className="text-sm md-down:text-xs">{t('edit')}</span>
                     </button>
                     <button
                       onClick={() => onDelete(category)}
                       className="flex items-center justify-center px-3 py-2 md-down:px-2.5 md-down:py-1.5 sm-down:px-2 sm-down:py-1.5 xs-down:px-2 xs-down:py-1.5 border border-red-300 dark:border-red-600 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     >
-                      <Trash2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                      <Trash2 className="cat-icon-trash w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -189,7 +190,7 @@ const CategoriesGrid = memo(({
         </div>
       ) : searchTerm ? (
         <div className="flex flex-col items-center justify-center py-20">
-          <Tag className="w-20 h-20 text-gray-300 dark:text-gray-600 mb-4" />
+          <Tag className="cat-icon-empty w-20 h-20 text-gray-300 dark:text-gray-600 mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             {t('noResults')}
           </h3>

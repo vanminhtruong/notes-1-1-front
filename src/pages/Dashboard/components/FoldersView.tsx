@@ -168,7 +168,7 @@ const FoldersView = ({
             onClick={() => onViewFolder(folder)}
           >
             {/* Folder Icon - Centered */}
-            <div className="p-6 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-4 xs-down:p-3 flex items-center justify-center border-b border-gray-100 dark:border-gray-700">
+            <div data-icon-hover className="p-6 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-4 xs-down:p-3 flex items-center justify-center border-b border-gray-100 dark:border-gray-700">
               {(() => {
                 const IconComponent = getFolderIcon(folder.icon || 'folder');
                 const colorClass = getFolderColorClass(folder.color);

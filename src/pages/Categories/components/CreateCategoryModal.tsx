@@ -6,6 +6,7 @@ import {
   TrendingUp, Activity, AlertCircle, CheckCircle, Info, Lightbulb,
   Sparkles, Crown, Gift, Bell, Calendar, Clock, MapPin, Globe
 } from 'lucide-react';
+import '@/styles/categories-icons.scss';
 
 interface CreateCategoryModalProps {
   isOpen: boolean;
@@ -93,14 +94,14 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl md-down:text-lg sm-down:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <Tag className="w-5 h-5 md-down:w-4.5 md-down:h-4.5 sm-down:w-4 sm-down:h-4" />
+            <Tag className="cat-icon-modal-tag w-5 h-5 md-down:w-4.5 md-down:h-4.5 sm-down:w-4 sm-down:h-4" />
             {t('createCategory')}
           </h2>
           <button
             onClick={onClose}
             className="p-2 md-down:p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <X className="w-5 h-5 md-down:w-4 md-down:h-4 text-gray-500" />
+            <X className="cat-icon-close w-5 h-5 md-down:w-4 md-down:h-4 text-gray-500" />
           </button>
         </div>
 
@@ -166,7 +167,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
                       }`}
                     >
                       <IconComponent 
-                        className="w-6 h-6 md-down:w-5 md-down:h-5 sm-down:w-4.5 sm-down:h-4.5" 
+                        className="cat-icon-picker w-6 h-6 md-down:w-5 md-down:h-5 sm-down:w-4.5 sm-down:h-4.5" 
                         strokeWidth={2}
                         style={{ 
                           color: icon === iconOption.name ? color : undefined 

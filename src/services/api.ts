@@ -8,6 +8,7 @@ const API_BASE_URL = `${baseOrigin.replace(/\/$/, '')}/api/v1`;
 
 // Create axios instance
 const api = axios.create({
+  timeout: 20000,
   baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {

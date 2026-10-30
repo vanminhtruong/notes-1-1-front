@@ -1,4 +1,5 @@
-import { io, Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
+import { getSocket, disconnectSocket } from './socket';
 import { store } from '@/store';
 import { resetAuth } from '@/store/slices/authSlice';
 import toast from 'react-hot-toast';
@@ -13,41 +14,20 @@ import {
 class SocketService {
   private socket: Socket | null = null;
   private isConnected = false;
-  private isConnecting = false;
 
   connect() {
-    // Prevent multiple connections
-    if (this.isConnected || this.isConnecting) {
-      console.log('Socket already connected, skipping...');
-      return;
-    }
-
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    // Disconnect existing socket if any
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
-    }
-
-    this.isConnecting = true;
-    this.socket = io('http://localhost:3000', {
-      auth: {
-        token: token
-      },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      timeout: 20000,
-    });
+    const shared = getSocket();
+    if (!shared) return;
+    if (this.socket === shared) return;
+    this.socket = shared;
+    this.isConnected = shared.connected;
 
     this.socket.on('connect', () => {
       console.log('WebSocket connected');
       this.isConnected = true;
-      this.isConnecting = false;
     });
 
     this.socket.on('connected', (data) => {
@@ -57,21 +37,18 @@ class SocketService {
     this.socket.on('disconnect', (reason) => {
       console.log('WebSocket disconnected:', reason);
       this.isConnected = false;
-      this.isConnecting = false;
     });
 
-    this.socket.on('reconnect_attempt', (attempt) => {
+    this.socket.io.on('reconnect_attempt', (attempt) => {
       console.log(`Reconnection attempt ${attempt}...`);
     });
 
-    this.socket.on('reconnect_failed', () => {
+    this.socket.io.on('reconnect_failed', () => {
       console.error('Failed to reconnect after maximum attempts');
-      this.isConnecting = false;
     });
 
     this.socket.on('connect_error', (error) => {
       console.error('WebSocket connection error:', error.message);
-      this.isConnecting = false;
     });
 
     // Global account deletion => logout across tabs
@@ -257,8 +234,7 @@ class SocketService {
       console.log('Disconnecting socket...');
       // Set flag immediately to prevent new connections
       this.isConnected = false;
-      this.isConnecting = false;
-      this.socket.disconnect();
+      disconnectSocket();
       this.socket = null;
     }
   }

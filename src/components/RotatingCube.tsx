@@ -28,6 +28,7 @@ const RotatingCube = memo(({ size = 32, className = '' }: RotatingCubeProps) => 
 
   return (
     <div 
+      data-icon-hover="off"
       className={`relative ${className}`}
       style={{ 
         width: `${size}px`, 

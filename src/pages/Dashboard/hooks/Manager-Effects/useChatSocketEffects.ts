@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { createChatRefreshScheduler } from '@/utils/chatRefreshScheduler';
 import type React from 'react';
 import toast from 'react-hot-toast';
 import { getSocket } from '../../../../services/socket';
@@ -78,6 +79,17 @@ export function useChatSocket(params: UseChatSocketParams) {
     reloadBellFeed,
     t,
   } = params;
+
+  const refreshRef = useRef<ReturnType<typeof createChatRefreshScheduler> | null>(null);
+  const latestParams = useRef(params);
+  latestParams.current = params;
+  useEffect(() => {
+    refreshRef.current = createChatRefreshScheduler();
+    return () => { refreshRef.current?.dispose(); refreshRef.current = null; };
+  }, []);
+  const scheduleRefresh = (key: 'loadChatList' | 'loadNotifications' | 'reloadBellFeed') => {
+    refreshRef.current?.schedule(key, () => latestParams.current[key]?.());
+  };
 
   useEffect(() => {
     if (!currentUser) return;
@@ -277,17 +289,17 @@ export function useChatSocket(params: UseChatSocketParams) {
     // Khi admin xóa một thông báo của người dùng: cập nhật realtime chuông thông báo
     const onNotificationDeletedByAdmin = (_payload: { id: number }) => {
       try {
-        if (typeof reloadBellFeed === 'function') reloadBellFeed();
+        if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed');
       } catch {}
       try {
-        if (typeof loadNotifications === 'function') loadNotifications();
+        if (typeof loadNotifications === 'function') scheduleRefresh('loadNotifications');
       } catch {}
     };
 
     // Khi admin xóa TẤT CẢ thông báo của người dùng: reload realtime
     const onNotificationsClearedByAdmin = (_payload: { userId: number; deleted?: number }) => {
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
-      try { if (typeof loadNotifications === 'function') loadNotifications(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
+      try { if (typeof loadNotifications === 'function') scheduleRefresh('loadNotifications'); } catch {}
     };
 
     // Đăng ký lắng nghe sự kiện xóa thông báo bởi admin để cập nhật chuông realtime
@@ -298,9 +310,9 @@ export function useChatSocket(params: UseChatSocketParams) {
       toast.success(String(t('chat.notifications.newFriendRequest', { name: data.requester?.name } as any)));
       loadFriendRequests();
       if (typeof loadNotifications === 'function') {
-        loadNotifications();
+        scheduleRefresh('loadNotifications');
       }
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
     };
     const onFriendAccepted = (data: any) => {
       const other = data.acceptedBy || data.requester; // requester field when accepter receives event
@@ -337,9 +349,9 @@ export function useChatSocket(params: UseChatSocketParams) {
       loadUsers();
       loadFriendRequests();
       if (typeof loadChatList === 'function') {
-        loadChatList();
+        scheduleRefresh('loadChatList');
       }
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
     };
     const onFriendRejected = (data: any) => {
       toast(String(t('chat.notifications.friendRejected', { name: data.rejectedBy?.name } as any)));
@@ -385,20 +397,20 @@ export function useChatSocket(params: UseChatSocketParams) {
           } catch {}
           // Đã gọi loadUsers ở trên, không cần gọi lần nữa bên dưới
           loadFriendRequests();
-          try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+          try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
           return;
         }
       } catch {}
       // Fallback nếu payload không có rejectedBy
       loadUsers(searchTerm);
       loadFriendRequests();
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
     };
     const onFriendDeclined = (data: any) => onFriendRejected(data);
     const onFriendCancelled = () => {
       loadUsers(searchTerm);
       loadFriendRequests();
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
     };
 
     // Friend removed handler (restore original)
@@ -415,10 +427,10 @@ export function useChatSocket(params: UseChatSocketParams) {
     const onGroupInvited = () => {
       loadPendingInvites();
       if (typeof loadNotifications === 'function') {
-        loadNotifications();
+        scheduleRefresh('loadNotifications');
       }
       toast(String(t('chat.groups.notifications.newInvite', { defaultValue: 'You have a new group invitation' })));
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
     };
 
     const onNewMessage = (data: any) => {
@@ -503,10 +515,10 @@ export function useChatSocket(params: UseChatSocketParams) {
         }
         // Ensure ordering matches backend logic (pinned first)
         if (typeof loadChatList === 'function') {
-          loadChatList();
+          scheduleRefresh('loadChatList');
         }
       }
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
     };
 
     const onGroupMessage = (data: any) => {
@@ -596,7 +608,7 @@ export function useChatSocket(params: UseChatSocketParams) {
         });
         setTimeout(scrollToBottom, 100);
       }
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
     };
 
     const onMessageSent = (data: any) => {
@@ -605,7 +617,7 @@ export function useChatSocket(params: UseChatSocketParams) {
         const targetId = data?.messageId ?? data?.id;
         const status = data?.status || 'sent';
         return prev.map((m: any) => 
-          m.id === targetId ? { ...m, status } : m
+          m.id === targetId && m.status !== 'read' && !(m.status === 'delivered' && status === 'sent') ? { ...m, status } : m
         );
       });
     };
@@ -614,7 +626,7 @@ export function useChatSocket(params: UseChatSocketParams) {
       // Update message status to delivered
       setMessages((prev: any[]) => {
         return prev.map((m: any) => 
-          m.id === data.messageId ? { ...m, status: 'delivered' } : m
+          m.id === data.messageId && m.status !== 'read' ? { ...m, status: 'delivered' } : m
         );
       });
     };
@@ -686,7 +698,7 @@ export function useChatSocket(params: UseChatSocketParams) {
         }
 
         if (typeof loadChatList === 'function') {
-          loadChatList();
+          scheduleRefresh('loadChatList');
         }
       } catch (_err) {
         /* ignore */
@@ -708,7 +720,7 @@ export function useChatSocket(params: UseChatSocketParams) {
         }
 
         if (typeof loadChatList === 'function') {
-          loadChatList();
+          scheduleRefresh('loadChatList');
         }
       } catch (_err) {
         /* ignore */
@@ -719,11 +731,11 @@ export function useChatSocket(params: UseChatSocketParams) {
       // Update group message status to delivered
       setMessages((prev: any[]) => {
         return prev.map((m: any) => 
-          m.id === data.messageId ? { ...m, status: 'delivered' } : m
+          m.id === data.messageId && m.status !== 'read' ? { ...m, status: 'delivered' } : m
         );
       });
       // Refresh bell badge to reflect potential unread increments for recipients
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
     };
 
     const onGroupMessageRead = (data: any) => {
@@ -760,7 +772,7 @@ export function useChatSocket(params: UseChatSocketParams) {
         });
       });
       // Refresh bell badge to reflect decrements when messages are read
-      try { if (typeof reloadBellFeed === 'function') reloadBellFeed(); } catch {}
+      try { if (typeof reloadBellFeed === 'function') scheduleRefresh('reloadBellFeed'); } catch {}
     };
 
     const onUserOnline = (data: any) => {
@@ -1115,7 +1127,7 @@ export function useChatSocket(params: UseChatSocketParams) {
             : it
         )));
         if (typeof loadChatList === 'function') {
-          loadChatList();
+          scheduleRefresh('loadChatList');
         }
       } catch (_e) {
         /* ignore */

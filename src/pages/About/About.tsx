@@ -124,7 +124,7 @@ const About = () => {
           {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm-down:gap-6 xs-down:gap-5">
             {features.map((feature, index) => (
-              <div key={index} className="flex items-start gap-4">
+              <div key={index} data-icon-hover className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 flex-shrink-0">
                   {feature.icon}
                 </div>
@@ -156,7 +156,7 @@ const About = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm-down:gap-6 xs-down:gap-5">
             {values.map((value, index) => (
-              <div key={index} className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-8 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30 text-center hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]">
+              <div key={index} data-icon-hover className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-8 sm-down:p-6 xs-down:p-5 border border-white/20 dark:border-gray-700/30 text-center hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-6">
                   {value.icon}
                 </div>
@@ -193,7 +193,7 @@ const About = () => {
               t('whyChoose.items.support'),
               t('whyChoose.items.updates'),
             ].map((item, index) => (
-              <div key={index} className="flex items-center gap-3 xs-down:gap-2">
+              <div key={index} data-icon-hover className="flex items-center gap-3 xs-down:gap-2">
                 <CheckCircle className="w-6 h-6 xs-down:w-5 xs-down:h-5 text-green-300 flex-shrink-0" />
                 <span className="text-white/90 xs-down:text-sm">{item}</span>
               </div>

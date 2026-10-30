@@ -17,7 +17,7 @@ const Contact = () => {
         {/* Hero */}
         <LazyLoad threshold={0.1} rootMargin="50px" animationDuration={500} delay={0}>
           <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/70 dark:bg-gray-800/90 border border-white/20 dark:border-gray-700/30 shadow-sm mb-4">
+          <div data-icon-hover className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/70 dark:bg-gray-800/90 border border-white/20 dark:border-gray-700/30 shadow-sm mb-4">
             <MessageSquare className="w-4 h-4 text-blue-600" />
             <span className="text-sm text-gray-700 dark:text-gray-300">{t('hero.badge')}</span>
           </div>
@@ -40,7 +40,7 @@ const Contact = () => {
           icon: <MapPin className="w-6 h-6" />, title: t('cards.address.title'), value: t('cards.address.value')
         }].map((c, i) => (
           <LazyLoad key={i} threshold={0.1} rootMargin="50px" animationDuration={500} delay={100 + (i * 100)}>
-            <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 sm-down:p-5 xs-down:p-4 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]">
+            <div data-icon-hover className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 sm-down:p-5 xs-down:p-4 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]">
               <div className="w-12 h-12 xs-down:w-10 xs-down:h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
                 {c.icon}
               </div>
@@ -76,7 +76,7 @@ const Contact = () => {
                   <textarea rows={5} className="w-full px-4 py-3 xs-down:py-2.5 rounded-xl border bg-white dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 dark:text-white" placeholder={t('form.messagePh')!} required />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 xs-down:gap-2.5 sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                  <div data-icon-hover className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                     <ShieldCheck className="w-5 h-5 text-green-500" />
                     <span className="text-sm xs-down:text-xs">{t('form.privacyNote')}</span>
                   </div>
@@ -96,7 +96,7 @@ const Contact = () => {
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl p-7 sm-down:p-6 xs-down:p-5 text-white">
               <h3 className="text-xl xs-down:text-lg font-bold mb-2">{t('aside.title')}</h3>
               <p className="text-white/90 mb-4 xs-down:text-sm">{t('aside.subtitle')}</p>
-              <div className="flex items-center gap-3 xs-down:gap-2.5">
+              <div data-icon-hover className="flex items-center gap-3 xs-down:gap-2.5">
                 <HeartHandshake className="w-6 h-6 xs-down:w-5 xs-down:h-5" />
                 <span className="text-white/90 xs-down:text-sm">{t('aside.cta')}</span>
               </div>
