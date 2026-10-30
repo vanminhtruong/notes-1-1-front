@@ -41,6 +41,7 @@ export interface Note {
 }
 
 export interface CreateNoteData {
+  folderId?: number | null;
   title: string;
   content?: string;
   imageUrl?: string | null;
@@ -293,6 +294,7 @@ export interface TagWithNotesResponse {
 
 export const notesService = {
   async getNotes(params?: {
+    scope?: 'category';
     page?: number;
     limit?: number;
     category?: string;

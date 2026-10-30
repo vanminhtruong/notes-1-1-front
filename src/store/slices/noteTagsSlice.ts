@@ -1,3 +1,4 @@
+import toastI18n from 'i18next';
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { notesService, type NoteTag, type CreateTagData, type UpdateTagData } from '@/services/notesService';
 import toast from 'react-hot-toast';
@@ -52,10 +53,10 @@ export const createTag = createAsyncThunk(
   async (data: CreateTagData, { rejectWithValue }) => {
     try {
       const response = await notesService.createTag(data);
-      toast.success('Tạo tag thành công');
+      toast.success(toastI18n.t('dashboard:tags.createSuccess'));
       return response.tag;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Tạo tag thất bại';
+      const message = error.response?.data?.message || toastI18n.t('dashboard:tags.createError');
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -67,10 +68,10 @@ export const updateTag = createAsyncThunk(
   async ({ id, data }: { id: number; data: UpdateTagData }, { rejectWithValue }) => {
     try {
       const response = await notesService.updateTag(id, data);
-      toast.success('Cập nhật tag thành công');
+      toast.success(toastI18n.t('dashboard:tags.updateSuccess'));
       return response.tag;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Cập nhật tag thất bại';
+      const message = error.response?.data?.message || toastI18n.t('dashboard:tags.updateError');
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -82,10 +83,10 @@ export const deleteTag = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       await notesService.deleteTag(id);
-      toast.success('Xóa tag thành công');
+      toast.success(toastI18n.t('dashboard:tags.deleteSuccess'));
       return id;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Xóa tag thất bại';
+      const message = error.response?.data?.message || toastI18n.t('dashboard:tags.deleteError');
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -97,10 +98,10 @@ export const togglePinTag = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await notesService.togglePinTag(id);
-      toast.success(response.message);
+      toast.success(toastI18n.t(response.tag.isPinned ? 'dashboard:tags.pinSuccess' : 'dashboard:tags.unpinSuccess'));
       return response.tag;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Ghim/bỏ ghim tag thất bại';
+      const message = error.response?.data?.message || toastI18n.t('dashboard:tags.pinError');
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -112,10 +113,10 @@ export const addTagToNote = createAsyncThunk(
   async ({ noteId, tagId }: { noteId: number; tagId: number }, { rejectWithValue }) => {
     try {
       const response = await notesService.addTagToNote(noteId, tagId);
-      toast.success('Thêm tag vào ghi chú thành công');
+      toast.success(toastI18n.t('dashboard:tags.addSuccess'));
       return { noteId, tag: response.tag };
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Thêm tag vào ghi chú thất bại';
+      const message = error.response?.data?.message || toastI18n.t('dashboard:tags.addError');
       toast.error(message);
       return rejectWithValue(message);
     }
@@ -127,10 +128,10 @@ export const removeTagFromNote = createAsyncThunk(
   async ({ noteId, tagId }: { noteId: number; tagId: number }, { rejectWithValue }) => {
     try {
       await notesService.removeTagFromNote(noteId, tagId);
-      toast.success('Xóa tag khỏi ghi chú thành công');
+      toast.success(toastI18n.t('dashboard:tags.removeSuccess'));
       return { noteId, tagId };
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Xóa tag khỏi ghi chú thất bại';
+      const message = error.response?.data?.message || toastI18n.t('dashboard:tags.removeError');
       toast.error(message);
       return rejectWithValue(message);
     }

@@ -126,7 +126,7 @@ const TagsView = ({
           React.createElement(
             'button',
             {
-              onClick: () => toast.dismiss(toastData.id),
+              onClick: () => toast.remove(toastData.id),
               className: 'px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm',
             },
             t('tags.cancel')
@@ -137,12 +137,12 @@ const TagsView = ({
               onClick: async () => {
                 try {
                   await deleteTag(tag.id);
-                  toast.dismiss(toastData.id);
+                  toast.remove(toastData.id);
                   toast.success(t('tags.deleteSuccess'));
                   loadTags();
                 } catch (error: any) {
                   console.error('Error deleting tag:', error);
-                  toast.dismiss(toastData.id);
+                  toast.remove(toastData.id);
                   toast.error(error.response?.data?.message || t('tags.deleteError'));
                 }
               },

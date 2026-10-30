@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { 
   useUnreadChats, 
   useFilteredUsers, 
@@ -6,21 +5,21 @@ import {
   useGroupOnline, 
   useRemovableMembers 
 } from '../../components/interface/chatWindowImports';
-import type { ChatItem, User, FriendRequest, GroupSummary, Message } from '../../components/interface/chatWindowImports';
+import type { User, GroupSummary, Message } from '../../components/interface/chatWindowImports';
 
 interface UseComputedValuesHandlerParams {
-  chatList: ChatItem[];
+  chatList: Parameters<typeof useUnreadChats>[0];
   unreadMap: Record<number, number>;
   users: User[];
   friends: User[];
-  friendRequests: FriendRequest[];
+  friendRequests: User[];
   searchTerm: string;
   currentUserId: number | undefined;
-  blockedUsers: number[];
+  blockedUsers: Parameters<typeof useFilteredUsers>[5];
   messages: Message[];
   selectedGroup: GroupSummary | null;
-  onlineIds: Set<number>;
-  t: (key: string, defaultValue?: string) => string;
+  onlineIds: Parameters<typeof useGroupOnline>[1];
+  t: Parameters<typeof useRemovableMembers>[4];
 }
 
 export const useComputedValuesHandler = (params: UseComputedValuesHandlerParams) => {
@@ -44,7 +43,9 @@ export const useComputedValuesHandler = (params: UseComputedValuesHandlerParams)
   const filteredUsers = useFilteredUsers(users, friends, friendRequests, searchTerm, currentUserId, blockedUsers);
   const groupedMessages = useGroupedMessages(messages);
   const isSelectedGroupOnline = useGroupOnline(selectedGroup, onlineIds, currentUserId);
-  const removableMembers = useRemovableMembers(selectedGroup, friends, users, { id: currentUserId } as any, t);
+  const currentUser = users.find((user) => user.id === currentUserId)
+    ?? friends.find((user) => user.id === currentUserId);
+  const removableMembers = useRemovableMembers(selectedGroup, friends, users, currentUser, t);
 
   const scrollToBottom = () => {};
 

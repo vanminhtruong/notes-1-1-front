@@ -101,7 +101,7 @@ const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0
   const title = mode === 'incoming' ? t('chat.call.title.incoming') : mode === 'outgoing' ? t('chat.call.title.outgoing') : t('chat.call.title.active');
   const primaryAction = () => {
     if (mode === 'incoming') return onAccept;
-    if (mode === 'outgoing') return onReject;
+    if (mode === 'outgoing') return onCancel;
     return onEnd;
   };
   const primaryText = mode === 'incoming' ? t('chat.call.actions.accept') : mode === 'outgoing' ? t('chat.call.actions.cancel') : t('chat.call.actions.end');

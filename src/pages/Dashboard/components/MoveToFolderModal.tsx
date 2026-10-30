@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useState, memo, useEffect } from 'react';
 import { X, FolderOpen, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -97,7 +98,7 @@ const MoveToFolderModal = memo(({ isOpen, onClose, folders, onSelectFolder, note
         </div>
 
         {/* Folders List */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <ModalScrollArea className="flex-1 px-6 py-4">
           {filteredFolders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <FolderOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-3" />
@@ -149,7 +150,7 @@ const MoveToFolderModal = memo(({ isOpen, onClose, folders, onSelectFolder, note
               ))}
             </div>
           )}
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         <div className="flex gap-3 px-6 pb-6 pt-4 border-t border-gray-200 dark:border-gray-700">

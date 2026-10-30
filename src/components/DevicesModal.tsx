@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useState, useEffect, memo } from 'react';
 import { X, Smartphone, Monitor, Tablet, MapPin, Clock, Trash2, LogOut } from 'lucide-react';
 import { sessionService } from '@/services/sessionService';
@@ -100,14 +101,14 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
         </div>
         <div className="mt-3 flex justify-end gap-2">
           <button
-            onClick={() => toast.dismiss(toastData.id)}
+            onClick={() => toast.remove(toastData.id)}
             className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
           >
             {t('devices.cancel')}
           </button>
           <button
             onClick={async () => {
-              toast.dismiss(toastData.id);
+              toast.remove(toastData.id);
               try {
                 setDeletingId(sessionId);
                 const result = await sessionService.deleteSession(sessionId);
@@ -153,14 +154,14 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
         </div>
         <div className="mt-3 flex justify-end gap-2">
           <button
-            onClick={() => toast.dismiss(toastData.id)}
+            onClick={() => toast.remove(toastData.id)}
             className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
           >
             {t('devices.cancel')}
           </button>
           <button
             onClick={async () => {
-              toast.dismiss(toastData.id);
+              toast.remove(toastData.id);
               try {
                 setDeletingAll(true);
                 await sessionService.deleteAllOtherSessions();
@@ -232,7 +233,7 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(85vh-200px)]">
+        <ModalScrollArea className="p-6 max-h-[calc(85vh-200px)]">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -320,7 +321,7 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
               ))}
             </div>
           )}
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         {!loading && sessions.length > 1 && (

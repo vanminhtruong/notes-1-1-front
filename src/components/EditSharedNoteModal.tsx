@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
@@ -181,7 +182,7 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <ModalScrollArea className="p-6 flex-1">
           <div className="space-y-6">
             {/* Title */}
             <div>
@@ -361,7 +362,7 @@ const EditSharedNoteModal = memo<EditSharedNoteModalProps>(({ isOpen,
               </div>
             </div>
           </div>
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">

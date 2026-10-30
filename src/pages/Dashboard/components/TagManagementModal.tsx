@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useState, useEffect } from 'react';
 import { X, Tag, Plus, Edit2, Trash2, Search, Pin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -113,7 +114,7 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
+        <ModalScrollArea className="flex-1 p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
           {/* Create/Edit Form */}
           {isCreating && (
             <form onSubmit={handleSubmit} className="mb-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
@@ -259,7 +260,7 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
               ))}
             </div>
           )}
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         <div className="p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-t border-gray-200 dark:border-gray-700 flex justify-end">

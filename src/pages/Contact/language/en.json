@@ -10,6 +10,7 @@
     "address": { "title": "Address", "value": "123 Innovation Street, Silicon Valley, CA" }
   },
   "form": {
+    "notConfigured": "Contact service is not configured. Your message has not been sent.",
     "title": "Send us a message",
     "name": "Your Name",
     "email": "Email",

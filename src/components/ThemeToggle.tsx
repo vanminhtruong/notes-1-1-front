@@ -1,3 +1,4 @@
+import toastI18n from 'i18next';
 import { memo, useState, useRef, useEffect } from 'react';
 import { Moon, Sun, Palette, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -102,7 +103,7 @@ const ThemeToggle = memo(() => {
         setIsOpen(false);
       } else {
         if (result.error === 'Authentication required') {
-          toast.error('Vui lòng đăng nhập để sử dụng nền động');
+          toast.error(toastI18n.t('layout:theme.loginRequired'));
         } else {
           toast.error(t('animatedBackground.updateFailed'));
         }

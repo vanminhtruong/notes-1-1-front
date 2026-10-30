@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import React, { useEffect, useMemo, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
@@ -152,7 +153,7 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+        <ModalScrollArea className="p-6 max-h-[calc(90vh-180px)]">
           {/* Group Name */}
           <div className="mb-6">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -240,7 +241,7 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
               </p>
             </div>
           </div>
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">

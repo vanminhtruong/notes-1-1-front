@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { 
   BookOpen, 
   Users, 
@@ -235,9 +236,9 @@ const About = () => {
             {t('contact.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 xs-down:gap-3 justify-center">
-            <button className="px-8 xs-down:px-6 py-3 xs-down:py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 font-semibold">
+            <Link to="/contact" className="px-8 xs-down:px-6 py-3 xs-down:py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 font-semibold">
               {t('contact.button.primary')}
-            </button>
+            </Link>
             <button className="px-8 xs-down:px-6 py-3 xs-down:py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-semibold">
               {t('contact.button.secondary')}
             </button>

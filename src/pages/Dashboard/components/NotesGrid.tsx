@@ -15,7 +15,7 @@ interface NotesGridProps {
   onToggleSelect: (id: number) => void;
   onView: (note: Note) => void;
   onEdit: (note: Note) => void;
-  onArchive: (id: number) => void;
+  onArchive: (id: number, restoring?: boolean) => void;
   onDelete: (id: number) => void;
   onMoveToFolder?: (note: Note) => void;
   onPinUpdate?: (note: ServiceNote) => void;
@@ -92,6 +92,7 @@ const NotesGrid = memo(({
         {notes.map((note, index) => (
           <LazyLoad
             key={note.id}
+            className="flex flex-col h-full min-w-0"
             threshold={0.1}
             rootMargin="100px"
             animationDuration={500}
@@ -104,11 +105,11 @@ const NotesGrid = memo(({
               onToggleSelect={() => onToggleSelect(note.id)}
               onView={() => onView(note)}
               onEdit={() => onEdit(note)}
-              onArchive={() => onArchive(note.id)}
+              onArchive={() => onArchive(note.id, note.isArchived ?? showArchived)}
               onDelete={() => onDelete(note.id)}
               onMoveToFolder={onMoveToFolder ? () => onMoveToFolder(note) : undefined}
               onPinUpdate={onPinUpdate}
-              showArchived={showArchived}
+              showArchived={note.isArchived ?? showArchived}
               showReminder={dueReminderNoteIds.includes(note.id)}
               onAcknowledgeReminder={() => onAcknowledgeReminder(note.id)}
               getPriorityColor={getPriorityColor}

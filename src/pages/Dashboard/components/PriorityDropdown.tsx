@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { memo, useState, useCallback } from 'react';
 import { ChevronDown, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +45,7 @@ const PriorityDropdown = memo(({ value, onChange }: PriorityDropdownProps) => {
             onClick={handleClose}
           />
           <div className="absolute z-20 w-full bottom-full mb-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg overflow-hidden">
-            <div className="max-h-60 overflow-y-auto">
+            <ModalScrollArea className="max-h-60">
               {priorities.map((priority) => (
                 <button
                   key={priority.value}
@@ -62,7 +63,7 @@ const PriorityDropdown = memo(({ value, onChange }: PriorityDropdownProps) => {
                   <span style={{ color: priority.color }}>{priority.label}</span>
                 </button>
               ))}
-            </div>
+            </ModalScrollArea>
           </div>
         </>
       )}

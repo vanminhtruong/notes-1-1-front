@@ -71,14 +71,14 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
           </div>
           <div className="mt-3 flex justify-end gap-2">
             <button
-              onClick={() => toast.dismiss(toastData.id)}
+              onClick={() => toast.remove(toastData.id)}
               className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
             >
               {t('actions.cancel')}
             </button>
             <button
               onClick={async () => {
-                toast.dismiss(toastData.id);
+                toast.remove(toastData.id);
                 try {
                   setIsRemoving(true);
                   await onRemove(sharedNote.id);

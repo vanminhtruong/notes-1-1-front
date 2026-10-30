@@ -1,4 +1,6 @@
 {
+  "qaFixes": {"movedOut": "Note moved out of folder", "restoreTitle": "Restore note?", "restoreMessage": "The note will return to its original location.", "restored": "Note restored successfully"},
+  "checklist": {"label": "Checklist", "progress": "{{completed}}/{{total}} done", "more": "View {{count}} more items", "untitled": "Untitled task"},
   "title": "Dashboard",
   "welcome": "Welcome to your dashboard",
   "stats": {
@@ -88,13 +90,15 @@
     "sharing": "Sharing...",
     "back": "Back",
     "pin": "Pin",
-    "unpin": "Unpin"
+    "unpin": "Unpin",
+    "remove": "Remove"
   },
   "confirm": {
     "removeFriend": "Remove {{name}} as friend?",
     "blockUser": "Block {{name}}?",
     "blockUserHint": "You and this user will not be able to message each other.",
-    "unblockUser": "Unblock {{name}}?"
+    "unblockUser": "Unblock {{name}}?",
+    "deleteMessages": "Delete messages with {{name}}?"
   },
   "messages": {
     "selectedCount": "{{count}} items selected",
@@ -142,7 +146,23 @@
     "noteCreateFailed": "Failed to create note",
     "noteUpdateFailed": "Failed to update note",
     "noteDeleteFailed": "Failed to delete note",
-    "noteActionFailed": "Operation failed"
+    "noteActionFailed": "Operation failed",
+    "createNoteSuccess": "Note created successfully",
+    "createNoteError": "Failed to create note",
+    "updateNoteSuccess": "Note updated successfully",
+    "updateNoteError": "Failed to update note",
+    "fetchFoldersError": "Failed to load folders list",
+    "fetchFolderNotesError": "Failed to load notes in this folder",
+    "createFolderSuccess": "Folder created successfully",
+    "createFolderError": "Failed to create folder",
+    "updateFolderSuccess": "Folder updated successfully",
+    "updateFolderError": "Failed to update folder",
+    "deleteFolderSuccess": "Folder deleted successfully",
+    "deleteFolderError": "Failed to delete folder",
+    "moveNoteSuccess": "Note moved to folder",
+    "moveNoteError": "Failed to move note",
+    "pinFolderError": "Failed to pin folder",
+    "unpinFolderError": "Failed to unpin folder"
   },
   "editor": {
     "loading": "Loading editor...",
@@ -163,6 +183,7 @@
       "h1": "Heading 1",
       "h2": "Heading 2",
       "h3": "Heading 3",
+      "checklist": "Checklist (Ctrl+Shift+9)",
       "bulletList": "Bulleted list",
       "orderedList": "Numbered list",
       "alignLeft": "Align left",
@@ -181,7 +202,9 @@
       "bulkDeleteTitle": "Delete selected notes?",
       "irreversible": "This action cannot be undone.",
       "archiveTitle": "Archive note?",
-      "archiveMessage": "The note will be moved to Archived."
+      "archiveMessage": "The note will be moved to Archived.",
+      "deleteFolderMessage": "Delete folder “{{name}}”? Notes inside will be kept.",
+      "removeFromFolderMessage": "Move this note out of the folder?"
     },
     "create": {
       "title": "Create new note",
@@ -232,7 +255,8 @@
     }
   },
   "success": {
-    "reminderAcknowledged": "Reminder acknowledged"
+    "reminderAcknowledged": "Reminder acknowledged",
+    "created": "Created successfully"
   },
   "notes": {
     "title": "Notes",
@@ -327,12 +351,19 @@
       "noImagesFound": "No images found",
       "updateSuccess": "Background updated successfully",
       "updateError": "Failed to update background"
-    }
+    },
+    "loadError": "Unable to load note",
+    "createError": "Unable to create note",
+    "untitled": "Untitled note",
+    "pinError": "Unable to pin note",
+    "unpinSuccess": "Note unpinned successfully",
+    "unpinError": "Unable to unpin note"
   },
   "errors": {
     "reminderAcknowledgeFailed": "Failed to acknowledge reminder",
     "loadUsers": "Failed to load users",
-    "loadGroups": "Failed to load groups"
+    "loadGroups": "Failed to load groups",
+    "createFailed": "Creation failed"
   },
   "chat": {
     "errors": {
@@ -351,7 +382,8 @@
       "messageBlockedCurrent": "Message not sent. Messaging between you and this user is blocked.",
       "shareForbidden": "Cannot send due to blocking or insufficient permissions",
       "shareFailed": "Failed to share, please try again",
-      "callBlocked": "Cannot place a call because both parties are blocked"
+      "callBlocked": "Cannot place a call because both parties are blocked",
+      "pin": "Failed to update pin status"
     },
     "success": {
       "recallSelf": "Recalled messages for yourself",
@@ -364,7 +396,10 @@
       "messagesDeletedForMe": "Deleted all messages with {{name}} for you",
       "sharedToUser": "Shared note to friend",
       "sharedToGroup": "Shared note to group",
-      "edit": "Message updated"
+      "edit": "Message updated",
+      "blocked": "User blocked successfully",
+      "unblocked": "User unblocked successfully",
+      "settingsUpdated": "Settings updated successfully"
     },
     "notifications": {
       "newFriendRequest": "{{name}} sent you a friend request",
@@ -373,7 +408,8 @@
       "youBlocked": "You blocked {{name}}",
       "youWereBlocked": "You were blocked by {{name}}",
       "youUnblocked": "You unblocked {{name}}",
-      "unblockedYou": "{{name}} unblocked you"
+      "unblockedYou": "{{name}} unblocked you",
+      "friendRemoved": "{{name}} removed you as a friend"
     },
     "notificationsBell": {
       "bellAria": "Message notifications",
@@ -517,7 +553,8 @@
         "deleteFailed": "Failed to delete group",
         "removeFailed": "Failed to remove member",
         "loadFailed": "Unable to load groups",
-        "updateFailed": "Failed to update group"
+        "updateFailed": "Failed to update group",
+        "pin": "Failed to update group pin status"
       },
       "confirm": {
         "leave": "Leave group?",
@@ -534,7 +571,8 @@
         "roleUpdated": "Role updated",
         "messagesDeleted": "Deleted all group messages",
         "membersAdded": "Members added",
-        "inviteSent": "Invitations sent"
+        "inviteSent": "Invitations sent",
+        "inviteAccepted": "Joined group"
       },
       "members": {
         "title": "Group members",
@@ -550,8 +588,15 @@
       },
       "notifications": {
         "promoted": "You were promoted to admin",
-        "demoted": "You were demoted to member"
-      }
+        "demoted": "You were demoted to member",
+        "newInvite": "You have a new group invitation",
+        "removed": "You were removed from the group"
+      },
+      "info": {
+        "inviteDeclined": "Invitation declined"
+      },
+      "pinned": "Group pinned",
+      "unpinned": "Group unpinned"
     },
     "chatList": {
       "empty": {
@@ -660,7 +705,9 @@
       "removeFriend": "Remove Friend",
       "block": "Block",
       "unblock": "Unblock",
-      "addFriend": "Add friend"
+      "addFriend": "Add friend",
+      "pinned": "Chat pinned",
+      "unpinned": "Chat unpinned"
     },
     "recalled": {
       "text": "Message was recalled",
@@ -676,7 +723,8 @@
       "recipientBanned": "Account has been deactivated due to policy violations"
     },
     "blocked": {
-      "inputHidden": "You cannot send messages or upload files in this conversation because one of you has blocked the other."
+      "inputHidden": "You cannot send messages or upload files in this conversation because one of you has blocked the other.",
+      "profileHidden": "Profile unavailable because one of you blocked the other."
     },
     "toast": {
       "blocked": "Blocked {{name}}. They will no longer be able to message you, and you cannot message them.",
@@ -728,7 +776,9 @@
         "ended": "Call ended",
         "cancelled": "Call was cancelled",
         "toggleCameraError": "Unable to toggle camera",
-        "toggleMicError": "Unable to toggle microphone"
+        "toggleMicError": "Unable to toggle microphone",
+        "insecureMicrophone": "Microphone access requires HTTPS or localhost",
+        "unsupportedMicrophone": "This browser does not support microphone access"
       }
     },
     "message": {
@@ -840,6 +890,14 @@
         "changeButton": "Change PIN",
         "setButton": "Set PIN"
       }
+    },
+    "confirm": {
+      "block": "Block {{name}}?"
+    },
+    "background": {
+      "uploading": "Uploading background...",
+      "updated": "Background updated",
+      "reset": "Default background restored"
     }
   },
   "auth": {
@@ -1004,6 +1062,15 @@
     "pinError": "Failed to pin/unpin tag",
     "maxLimit": "You can only add up to {{max}} tags per note",
     "loading": "Loading...",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "loadError": "Unable to load tags",
+    "pinSuccess": "Tag pinned",
+    "unpinSuccess": "Tag unpinned"
+  },
+  "loading": {
+    "creating": "Creating..."
+  },
+  "richEditor": {
+    "linkPrompt": "Enter link URL"
   }
 }

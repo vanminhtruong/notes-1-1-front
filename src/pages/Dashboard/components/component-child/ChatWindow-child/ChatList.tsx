@@ -200,12 +200,12 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
           </div>
         </div>
         <div className="mt-3 flex justify-end gap-2">
-          <button onClick={() => toast.dismiss(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+          <button onClick={() => toast.remove(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
             {t('actions.cancel')}
           </button>
           <button
             onClick={async () => {
-              toast.dismiss(toastData.id);
+              toast.remove(toastData.id);
               if (!onBulkRemoveFriends) return;
               setBulkActionLoading(true);
               try {
@@ -242,12 +242,12 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
           </div>
         </div>
         <div className="mt-3 flex justify-end gap-2">
-          <button onClick={() => toast.dismiss(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+          <button onClick={() => toast.remove(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
             {t('actions.cancel')}
           </button>
           <button
             onClick={async () => {
-              toast.dismiss(toastData.id);
+              toast.remove(toastData.id);
               if (!onBulkBlock) return;
               setBulkActionLoading(true);
               try {
@@ -539,10 +539,10 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                             </div>
                                           </div>
                                           <div className="mt-3 flex justify-end gap-2">
-                                            <button onClick={() => toast.dismiss(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                                            <button onClick={() => toast.remove(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
                                               {t('actions.cancel')}
                                             </button>
-                                            <button onClick={() => { handleUnblock(friend.id); toast.dismiss(toastData.id); }} className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm">
+                                            <button onClick={() => { handleUnblock(friend.id); toast.remove(toastData.id); }} className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm">
                                               {t('actions.confirm', 'Confirm')}
                                             </button>
                                           </div>
@@ -559,10 +559,10 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                             </div>
                                           </div>
                                           <div className="mt-3 flex justify-end gap-2">
-                                            <button onClick={() => toast.dismiss(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                                            <button onClick={() => toast.remove(toastData.id)} className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
                                               {t('actions.cancel')}
                                             </button>
-                                            <button onClick={() => { handleBlock(friend.id); toast.dismiss(toastData.id); }} className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm">
+                                            <button onClick={() => { handleBlock(friend.id); toast.remove(toastData.id); }} className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm">
                                               {t('actions.confirm', 'Confirm')}
                                             </button>
                                           </div>
@@ -588,7 +588,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                           </div>
                                           <div className="mt-3 flex justify-end gap-2">
                                             <button
-                                              onClick={() => toast.dismiss(toastData.id)}
+                                              onClick={() => toast.remove(toastData.id)}
                                               className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
                                             >
                                               {t('actions.cancel')}
@@ -596,7 +596,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                             <button
                                               onClick={() => {
                                                 onDeleteMessages(friend.id, friend.name);
-                                                toast.dismiss(toastData.id);
+                                                toast.remove(toastData.id);
                                               }}
                                               className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"
                                             >
@@ -627,7 +627,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                           </div>
                                           <div className="mt-3 flex justify-end gap-2">
                                             <button
-                                              onClick={() => toast.dismiss(toastData.id)}
+                                              onClick={() => toast.remove(toastData.id)}
                                               className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
                                             >
                                               {t('actions.cancel')}
@@ -635,7 +635,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                             <button
                                               onClick={() => {
                                                 onRemoveFriend(item.friendshipId as number, friend.name);
-                                                toast.dismiss(toastData.id);
+                                                toast.remove(toastData.id);
                                               }}
                                               className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"
                                             >

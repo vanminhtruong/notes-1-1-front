@@ -1,4 +1,6 @@
 {
+  "qaFixes": {"movedOut": "Đã chuyển ghi chú ra khỏi thư mục", "restoreTitle": "Khôi phục ghi chú?", "restoreMessage": "Ghi chú sẽ trở về vị trí ban đầu.", "restored": "Khôi phục ghi chú thành công"},
+  "checklist": {"label": "Checklist", "progress": "{{completed}}/{{total}} hoàn thành", "more": "Xem thêm {{count}} mục", "untitled": "Mục chưa có nội dung"},
   "title": "Bảng điều khiển",
   "welcome": "Chào mừng đến với bảng điều khiển của bạn",
   "stats": {
@@ -82,13 +84,15 @@
     "close": "Đóng",
     "viewDetails": "Xem chi tiết",
     "back": "Quay lại",
-    "update": "Cập nhật"
+    "update": "Cập nhật",
+    "remove": "Gỡ bỏ"
   },
   "confirm": {
     "removeFriend": "Xóa bạn {{name}}?",
     "deleteMessages": "Xóa toàn bộ tin nhắn với {{name}}?",
     "blockUser": "Chặn {{name}}?",
-    "blockUserHint": "Bạn và người này sẽ không thể nhắn tin cho nhau."
+    "blockUserHint": "Bạn và người này sẽ không thể nhắn tin cho nhau.",
+    "unblockUser": "Bỏ chặn {{name}}?"
   },
   "messages": {
     "selectedCount": "Đã chọn {{count}} mục",
@@ -136,7 +140,23 @@
     "noteCreateFailed": "Không thể tạo ghi chú",
     "noteUpdateFailed": "Không thể cập nhật ghi chú",
     "noteDeleteFailed": "Xóa ghi chú thất bại",
-    "noteActionFailed": "Thao tác thất bại"
+    "noteActionFailed": "Thao tác thất bại",
+    "createNoteSuccess": "Tạo ghi chú thành công",
+    "createNoteError": "Không thể tạo ghi chú",
+    "updateNoteSuccess": "Cập nhật ghi chú thành công",
+    "updateNoteError": "Không thể cập nhật ghi chú",
+    "fetchFoldersError": "Không thể tải danh sách thư mục",
+    "fetchFolderNotesError": "Không thể tải ghi chú trong thư mục",
+    "createFolderSuccess": "Tạo thư mục thành công",
+    "createFolderError": "Không thể tạo thư mục",
+    "updateFolderSuccess": "Cập nhật thư mục thành công",
+    "updateFolderError": "Không thể cập nhật thư mục",
+    "deleteFolderSuccess": "Xóa thư mục thành công",
+    "deleteFolderError": "Không thể xóa thư mục",
+    "moveNoteSuccess": "Đã chuyển ghi chú vào thư mục",
+    "moveNoteError": "Không thể chuyển ghi chú",
+    "pinFolderError": "Không thể ghim thư mục",
+    "unpinFolderError": "Không thể bỏ ghim thư mục"
   },
   "editor": {
     "loading": "Đang tải editor...",
@@ -157,6 +177,7 @@
       "h1": "Tiêu đề 1",
       "h2": "Tiêu đề 2",
       "h3": "Tiêu đề 3",
+      "checklist": "Checklist (Ctrl+Shift+9)",
       "bulletList": "Danh sách dấu đầu dòng",
       "orderedList": "Danh sách đánh số",
       "alignLeft": "Căn trái",
@@ -175,7 +196,9 @@
       "bulkDeleteTitle": "Xóa các ghi chú đã chọn?",
       "irreversible": "Hành động này không thể hoàn tác.",
       "archiveTitle": "Lưu trữ ghi chú?",
-      "archiveMessage": "Ghi chú sẽ được chuyển vào mục Đã lưu trữ."
+      "archiveMessage": "Ghi chú sẽ được chuyển vào mục Đã lưu trữ.",
+      "deleteFolderMessage": "Xóa thư mục “{{name}}”? Ghi chú bên trong vẫn được giữ lại.",
+      "removeFromFolderMessage": "Bạn có muốn chuyển ghi chú này ra khỏi thư mục?"
     },
     "create": {
       "title": "Tạo ghi chú mới",
@@ -213,12 +236,14 @@
     }
   },
   "success": {
-    "reminderAcknowledged": "Đã xác nhận nhắc nhở"
+    "reminderAcknowledged": "Đã xác nhận nhắc nhở",
+    "created": "Đã tạo thành công"
   },
   "errors": {
     "reminderAcknowledgeFailed": "Xác nhận nhắc nhở thất bại",
     "loadUsers": "Không thể tải danh sách người dùng",
-    "loadGroups": "Không thể tải danh sách nhóm"
+    "loadGroups": "Không thể tải danh sách nhóm",
+    "createFailed": "Tạo thất bại"
   },
   "notes": {
     "title": "Ghi chú",
@@ -328,7 +353,10 @@
       "noImagesFound": "Không tìm thấy hình ảnh nào",
       "updateSuccess": "Cập nhật nền thành công",
       "updateError": "Không thể cập nhật nền"
-    }
+    },
+    "loadError": "Không thể tải ghi chú",
+    "createError": "Không thể tạo ghi chú",
+    "untitled": "Ghi chú chưa đặt tên"
   },
   "chat": {
     "reply": {
@@ -353,7 +381,8 @@
       "messageBlockedCurrent": "Không thể gửi tin nhắn. Bạn và người này đã chặn nhau.",
       "shareForbidden": "Không thể gửi do bị chặn hoặc không đủ quyền",
       "shareFailed": "Chia sẻ thất bại, vui lòng thử lại",
-      "callBlocked": "Không thể gọi do hai bên đã chặn nhau"
+      "callBlocked": "Không thể gọi do hai bên đã chặn nhau",
+      "pin": "Không thể cập nhật trạng thái ghim"
     },
     "success": {
       "recallSelf": "Đã thu hồi tin nhắn cho mình",
@@ -366,7 +395,10 @@
       "messagesDeletedForMe": "Đã xóa tất cả tin nhắn với {{name}} cho bạn",
       "sharedToUser": "Đã chia sẻ ghi chú tới bạn bè",
       "sharedToGroup": "Đã chia sẻ ghi chú tới nhóm",
-      "edit": "Đã cập nhật tin nhắn"
+      "edit": "Đã cập nhật tin nhắn",
+      "blocked": "Đã chặn người dùng",
+      "unblocked": "Đã bỏ chặn người dùng",
+      "settingsUpdated": "Đã cập nhật cài đặt"
     },
     "notifications": {
       "newFriendRequest": "{{name}} đã gửi lời mời kết bạn",
@@ -375,7 +407,8 @@
       "youBlocked": "Bạn đã chặn {{name}}",
       "youWereBlocked": "Bạn đã bị {{name}} chặn",
       "youUnblocked": "Bạn đã bỏ chặn {{name}}",
-      "unblockedYou": "{{name}} đã bỏ chặn bạn"
+      "unblockedYou": "{{name}} đã bỏ chặn bạn",
+      "friendRemoved": "{{name}} đã hủy kết bạn với bạn"
     },
     "notificationsBell": {
       "bellAria": "Thông báo tin nhắn",
@@ -519,7 +552,8 @@
         "deleteFailed": "Không thể xóa nhóm",
         "removeFailed": "Không thể xóa thành viên",
         "loadFailed": "Không thể tải danh sách nhóm",
-        "updateFailed": "Cập nhật nhóm thất bại"
+        "updateFailed": "Cập nhật nhóm thất bại",
+        "pin": "Không thể cập nhật trạng thái ghim nhóm"
       },
       "confirm": {
         "leave": "Rời nhóm?",
@@ -536,7 +570,8 @@
         "roleUpdated": "Đã cập nhật quyền",
         "messagesDeleted": "Đã xóa toàn bộ tin nhắn nhóm",
         "membersAdded": "Đã thêm thành viên",
-        "inviteSent": "Đã gửi lời mời"
+        "inviteSent": "Đã gửi lời mời",
+        "inviteAccepted": "Đã tham gia nhóm"
       },
       "members": {
         "title": "Thành viên nhóm",
@@ -552,8 +587,15 @@
       },
       "notifications": {
         "promoted": "Bạn đã được thăng làm quản trị",
-        "demoted": "Bạn đã bị giáng làm thành viên"
-      }
+        "demoted": "Bạn đã bị giáng làm thành viên",
+        "newInvite": "Bạn có lời mời vào nhóm mới",
+        "removed": "Bạn đã bị xóa khỏi nhóm"
+      },
+      "info": {
+        "inviteDeclined": "Đã từ chối lời mời"
+      },
+      "pinned": "Đã ghim nhóm",
+      "unpinned": "Đã bỏ ghim nhóm"
     },
     "chatList": {
       "empty": {
@@ -664,7 +706,9 @@
       "removeFriend": "Xóa bạn bè",
       "block": "Chặn",
       "unblock": "Bỏ chặn",
-      "addFriend": "Kết bạn"
+      "addFriend": "Kết bạn",
+      "pinned": "Đã ghim cuộc trò chuyện",
+      "unpinned": "Đã bỏ ghim cuộc trò chuyện"
     },
     "recalled": {
       "text": "Tin nhắn đã bị thu hồi",
@@ -680,7 +724,8 @@
       "recipientBanned": "Tài khoản bị vô hiệu hóa do vi phạm chính sách"
     },
     "blocked": {
-      "inputHidden": "Bạn không thể gửi tin nhắn hoặc tải tệp lên trong cuộc trò chuyện này vì một trong hai đã chặn người kia."
+      "inputHidden": "Bạn không thể gửi tin nhắn hoặc tải tệp lên trong cuộc trò chuyện này vì một trong hai đã chặn người kia.",
+      "profileHidden": "Không thể xem hồ sơ vì một trong hai đã chặn nhau."
     },
     "toast": {
       "blocked": "Đã chặn {{name}}. Họ sẽ không thể nhắn tin cho bạn và bạn cũng không thể nhắn tin cho họ.",
@@ -732,7 +777,9 @@
         "ended": "Cuộc gọi đã kết thúc",
         "cancelled": "Cuộc gọi đã bị hủy",
         "toggleCameraError": "Không thể bật/tắt camera",
-        "toggleMicError": "Không thể bật/tắt micro"
+        "toggleMicError": "Không thể bật/tắt micro",
+        "insecureMicrophone": "Micro chỉ hoạt động trên HTTPS hoặc localhost",
+        "unsupportedMicrophone": "Trình duyệt không hỗ trợ truy cập micro"
       }
     },
     "message": {
@@ -844,6 +891,14 @@
         "changeButton": "Thay đổi PIN",
         "setButton": "Đặt PIN"
       }
+    },
+    "confirm": {
+      "block": "Bạn có chắc muốn chặn {{name}}?"
+    },
+    "background": {
+      "uploading": "Đang tải ảnh nền...",
+      "updated": "Đã cập nhật ảnh nền",
+      "reset": "Đã khôi phục nền mặc định"
     }
   },
   "auth": {
@@ -1001,6 +1056,15 @@
     "pinError": "Không thể ghim/bỏ ghim tag",
     "maxLimit": "Bạn chỉ được thêm tối đa {{max}} tag cho mỗi ghi chú",
     "loading": "Đang tải...",
-    "loadMore": "Tải thêm"
+    "loadMore": "Tải thêm",
+    "loadError": "Không thể tải danh sách tag",
+    "pinSuccess": "Đã ghim tag",
+    "unpinSuccess": "Đã bỏ ghim tag"
+  },
+  "loading": {
+    "creating": "Đang tạo..."
+  },
+  "richEditor": {
+    "linkPrompt": "Nhập địa chỉ liên kết"
   }
 }

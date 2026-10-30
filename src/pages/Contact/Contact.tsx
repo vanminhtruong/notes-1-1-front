@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail, Phone, MapPin, Send, MessageSquare, ShieldCheck, HeartHandshake } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -6,20 +5,10 @@ import LazyLoad from '@/components/LazyLoad';
 
 const Contact = () => {
   const { t } = useTranslation('contact');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      // Placeholder submit. Hook up to backend endpoint later.
-      await new Promise((res) => setTimeout(res, 800));
-      toast.success(t('form.success'));
-    } catch {
-      toast.error(t('form.error'));
-    } finally {
-      setLoading(false);
-    }
+    // No receiver/API is configured yet. Never report a message as delivered.
+    toast.error(t('form.notConfigured'));
   };
 
   return (
@@ -91,9 +80,9 @@ const Contact = () => {
                     <ShieldCheck className="w-5 h-5 text-green-500" />
                     <span className="text-sm xs-down:text-xs">{t('form.privacyNote')}</span>
                   </div>
-                  <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 px-6 xs-down:px-5 py-3 xs-down:py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-60">
+                  <button type="submit" className="inline-flex items-center justify-center gap-2 px-6 xs-down:px-5 py-3 xs-down:py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-60">
                     <Send className="w-5 h-5 xs-down:w-4 xs-down:h-4" />
-                    {loading ? t('form.sending') : t('form.send')}
+                    {t('form.send')}
                   </button>
                 </div>
               </form>

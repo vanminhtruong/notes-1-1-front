@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { notesService, type NoteCategory } from '@/services/notesService';
+import { notesService } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import type { Priority } from '../Manager-useState/useFolderNotesState';
@@ -116,6 +116,7 @@ export const useFolderNotesHandler = ({
 
     try {
       await notesService.createNote({
+        folderId,
         title: newNote.title,
         content: newNote.content || undefined,
         imageUrl: newNote.imageUrl || undefined,
@@ -124,7 +125,7 @@ export const useFolderNotesHandler = ({
         categoryId: newNote.categoryId,
         priority: newNote.priority,
         reminderAt: localInputToIso(newNote.reminderAtLocal),
-      } as any);
+      });
       toast.success(t('toasts.createNoteSuccess'));
       handleCloseCreateModal();
       onSuccess();

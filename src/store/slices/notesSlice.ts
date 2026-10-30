@@ -218,8 +218,7 @@ const notesSlice = createSlice({
             state.notes.splice(firstUnpinnedIndex, 0, action.payload);
           }
         }
-        state.stats.total += 1;
-        state.stats.active += 1;
+        // Counters are refreshed from the server by the socket listener.
       }
     },
     updateNoteRealtime: (state, action: PayloadAction<Note>) => {
@@ -238,8 +237,7 @@ const notesSlice = createSlice({
       if (state.currentNote?.id === action.payload.id) {
         state.currentNote = null;
       }
-      state.stats.total -= 1;
-      state.stats.active -= 1;
+      // Do not infer counters from a possibly filtered page of notes.
     },
     archiveNoteRealtime: (state, action: PayloadAction<{ id: number; isArchived: boolean }>) => {
       const { id, isArchived } = action.payload;
@@ -255,14 +253,7 @@ const notesSlice = createSlice({
       if (state.currentNote?.id === id) {
         state.currentNote.isArchived = isArchived;
       }
-      // Update stats optimistically
-      if (isArchived) {
-        state.stats.active = Math.max(0, state.stats.active - 1);
-        state.stats.archived += 1;
-      } else {
-        state.stats.active += 1;
-        state.stats.archived = Math.max(0, state.stats.archived - 1);
-      }
+      // The socket listener fetches authoritative counters, including folder scope.
     },
     // Reminder due event from server
     noteReminderReceived: (state, action: PayloadAction<{ noteId: number; note?: Note }>) => {

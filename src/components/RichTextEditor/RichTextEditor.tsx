@@ -7,6 +7,7 @@ import {
   Strikethrough,
   List,
   ListOrdered,
+  ListChecks,
   Heading1,
   Heading2,
   Heading3,
@@ -22,6 +23,7 @@ import {
   Minus,
 } from 'lucide-react';
 import './editor.css';
+import './checklist.css';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -49,6 +51,8 @@ const ToolbarButton = memo(({
     onClick={onClick}
     disabled={disabled}
     title={title}
+    aria-label={title}
+    aria-pressed={isActive}
     className={`p-2 rounded transition-colors ${
       isActive
         ? 'bg-blue-600 text-white'
@@ -139,10 +143,10 @@ const RichTextEditor = memo(({ editor, placeholder: _placeholder, className = ''
             return;
           }
           editor.chain().focus().setLink({ href }).run();
-          toast.dismiss(toastEvt.id);
+          toast.remove(toastEvt.id);
           toast.success(t('editor.link.inserted', { defaultValue: 'Link inserted' }));
         }}
-        onCancel={() => toast.dismiss(toastEvt.id)}
+        onCancel={() => toast.remove(toastEvt.id)}
       />
     ), { duration: 60000, position: 'top-center' });
     return id;
@@ -237,6 +241,17 @@ const RichTextEditor = memo(({ editor, placeholder: _placeholder, className = ''
           title={t('editor.toolbar.orderedList', { defaultValue: 'Numbered list' })}
         >
           <ListOrdered className="w-4 h-4" />
+        </ToolbarButton>
+
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          isActive={editor.isActive('taskList')}
+          title={t('editor.toolbar.checklist')}
+        >
+          <span className="flex items-center gap-1.5">
+            <ListChecks className="w-4 h-4" />
+            <span className="text-xs font-medium">{t('editor.toolbar.checklist').replace(' (Ctrl+Shift+9)', '')}</span>
+          </span>
         </ToolbarButton>
 
         <Divider />

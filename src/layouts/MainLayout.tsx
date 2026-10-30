@@ -100,7 +100,7 @@ export default function MainLayout() {
         </div>
         <div className="mt-3 flex justify-end gap-2">
           <button
-            onClick={() => toast.dismiss(toastData.id)}
+            onClick={() => toast.remove(toastData.id)}
             className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
           >
             {t('user.cancel')}
@@ -108,7 +108,7 @@ export default function MainLayout() {
           <button
             onClick={() => {
               handleLogout();
-              toast.dismiss(toastData.id);
+              toast.remove(toastData.id);
             }}
             className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"
           >
@@ -133,7 +133,7 @@ export default function MainLayout() {
         </div>
         <div className="mt-3 flex justify-end gap-2">
           <button
-            onClick={() => toast.dismiss(toastData.id)}
+            onClick={() => toast.remove(toastData.id)}
             className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
           >
             {t('user.cancel')}
@@ -147,7 +147,7 @@ export default function MainLayout() {
                 toast.error(e?.response?.data?.message || String(t('user.deleteFailed', { defaultValue: 'Xóa tài khoản thất bại' } as any)));
               } finally {
                 dispatch(resetAuth());
-                toast.dismiss(toastData.id);
+                toast.remove(toastData.id);
               }
             }}
             className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm"

@@ -58,7 +58,8 @@
     "light": "밝게",
     "dark": "어둡게",
     "darkBlack": "다크 블랙",
-    "selectTheme": "테마 선택"
+    "selectTheme": "테마 선택",
+    "loginRequired": "움직이는 배경을 사용하려면 로그인하세요"
   },
   "animatedBackground": {
     "title": "애니메이션 배경",
@@ -81,5 +82,3 @@
     "terms": "이용약관"
   }
 }
-
-

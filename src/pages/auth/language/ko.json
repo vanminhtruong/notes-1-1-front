@@ -76,7 +76,9 @@
   "toastResetFailed": "비밀번호를 재설정할 수 없습니다",
   "newPasswordPlaceholder": "새 비밀번호 입력",
   "success": {
-    "loginSuccess": "로그인 성공"
+    "loginSuccess": "로그인 성공",
+    "registerSuccess": "가입이 완료되었습니다",
+    "logoutSuccess": "로그아웃했습니다"
   },
   "errors": {
     "deactivated": "계정이 비활성화되었습니다",
@@ -101,5 +103,3 @@
     "termsText": "로그인하면 서비스 약관 및 개인정보 처리방침에 동의하는 것입니다"
   }
 }
-
-

@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useEffect, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { groupService } from '@/services/groupService';
@@ -164,7 +165,7 @@ const GroupMembersPanel = memo(function GroupMembersPanel({ open, groupId, onClo
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <ModalScrollArea className="flex-1">
           {loading ? (
             <div className="p-4 text-sm text-gray-500 dark:text-gray-400">{t('loading', { defaultValue: 'Đang tải...' })}</div>
           ) : members.length === 0 ? (
@@ -321,7 +322,7 @@ const GroupMembersPanel = memo(function GroupMembersPanel({ open, groupId, onClo
               })}
             </ul>
           )}
-        </div>
+        </ModalScrollArea>
       </div>
     </div>
   );

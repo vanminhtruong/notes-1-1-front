@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import React, { memo } from 'react';
 import NicknameModal from './NicknameModal';
 import { chatService } from '@/services/chatService';
@@ -97,7 +98,7 @@ const ReactionDetailsModal = memo(function ReactionDetailsModal({ open, onClose,
             ))}
           </div>
           {/* Right list */}
-          <div className="flex-1 overflow-y-auto p-2">
+          <ModalScrollArea className="flex-1 p-2">
             {filtered.length === 0 ? (
               <div className="flex h-full items-center justify-center text-sm text-gray-500 dark:text-gray-400">{empty}</div>
             ) : (
@@ -157,7 +158,7 @@ const ReactionDetailsModal = memo(function ReactionDetailsModal({ open, onClose,
                 })}
               </ul>
             )}
-          </div>
+          </ModalScrollArea>
         </div>
         {/* Nickname Modal */}
         <NicknameModal

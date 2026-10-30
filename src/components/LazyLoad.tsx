@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, memo, type ReactNode } from 'react';
 
 interface LazyLoadProps {
   children: ReactNode;
+  className?: string;
   threshold?: number;
   rootMargin?: string;
   animationDuration?: number;
@@ -11,6 +12,7 @@ interface LazyLoadProps {
 
 const LazyLoad = memo(({
   children,
+  className,
   threshold = 0.1,
   rootMargin = '50px',
   animationDuration = 600,
@@ -59,6 +61,7 @@ const LazyLoad = memo(({
   return (
     <div
       ref={elementRef}
+      className={className}
       style={{
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',

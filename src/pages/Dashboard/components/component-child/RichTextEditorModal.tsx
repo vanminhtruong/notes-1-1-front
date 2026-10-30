@@ -1,8 +1,11 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useEffect, useState, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { X, Bold, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, Heading1, Heading2, Code, Quote, Link2, Minus, Undo, Redo } from 'lucide-react';
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock';
+import toast from 'react-hot-toast';
+import ToastInput from '@/components/ToastInput';
 
 interface RichTextEditorModalProps {
   isOpen: boolean;
@@ -23,6 +26,7 @@ const RichTextEditorModal = memo<RichTextEditorModalProps>(({ isOpen, onClose, v
       lockBodyScroll('RichTextEditorModal');
       return () => {
         unlockBodyScroll('RichTextEditorModal');
+        toast.dismiss('rich-editor-link');
       };
     }
     return;
@@ -39,10 +43,36 @@ const RichTextEditorModal = memo<RichTextEditorModalProps>(({ isOpen, onClose, v
   };
 
   const insertLink = () => {
-    const url = prompt(t('richEditor.linkPrompt') || 'Nhập URL:');
-    if (url) {
-      execCommand('createLink', url);
-    }
+    const selection = window.getSelection();
+    const range = selection?.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
+    toast.custom(toastEvent => (
+      <ToastInput
+        label={t('richEditor.linkPrompt') || 'Nhập URL:'}
+        confirmText={t('actions.save', 'Save')}
+        cancelText={t('actions.cancel', 'Cancel')}
+        onCancel={() => { toast.remove(toastEvent.id); editorRef.current?.focus(); }}
+        onSubmit={raw => {
+          const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+          try {
+            const parsed = new URL(url);
+            if (!parsed.hostname || /^[a-z][a-z\d+.-]*:/i.test(raw) && !/^https?:\/\//i.test(raw)) throw new Error('Invalid URL');
+          } catch {
+            toast.error(t('editor.link.invalidUrl', 'Invalid URL'));
+            return;
+          }
+          if (!editorRef.current?.isConnected) { toast.remove(toastEvent.id); return; }
+          editorRef.current.focus();
+          if (range && editorRef.current.contains(range.commonAncestorContainer)) {
+            const currentSelection = window.getSelection();
+            currentSelection?.removeAllRanges();
+            currentSelection?.addRange(range);
+          }
+          execCommand('createLink', url);
+          setContent(editorRef.current.innerHTML);
+          toast.remove(toastEvent.id);
+        }}
+      />
+    ), { id: 'rich-editor-link', duration: Infinity });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -230,7 +260,7 @@ const RichTextEditorModal = memo<RichTextEditorModalProps>(({ isOpen, onClose, v
         </div>
 
         {/* Editor Body */}
-        <div className="flex-1 overflow-y-auto p-6 xl-down:p-5 lg-down:p-4 md-down:p-4 sm-down:p-4 xs-down:p-3">
+        <ModalScrollArea className="flex-1 p-6 xl-down:p-5 lg-down:p-4 md-down:p-4 sm-down:p-4 xs-down:p-3">
           <div
             ref={editorRef}
             contentEditable
@@ -243,7 +273,7 @@ const RichTextEditorModal = memo<RichTextEditorModalProps>(({ isOpen, onClose, v
               lineHeight: '1.6',
             }}
           />
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 xl-down:gap-2.5 lg-down:gap-2 md-down:gap-3 sm-down:gap-3 xs-down:gap-2 p-6 xl-down:p-5 lg-down:p-4 md-down:p-4 sm-down:p-4 xs-down:p-3 border-t border-gray-200 dark:border-gray-700">

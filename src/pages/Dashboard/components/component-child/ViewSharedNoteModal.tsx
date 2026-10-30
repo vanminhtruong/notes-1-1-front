@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
@@ -94,7 +95,7 @@ const ViewSharedNoteModal = memo<ViewSharedNoteModalProps>(({ isOpen, onClose, n
           </button>
         </div>
         {/* Body */}
-        <div className="p-6 xl-down:p-5 lg-down:p-4 md-down:p-4 sm-down:p-4 xs-down:p-3 overflow-y-auto flex-1">
+        <ModalScrollArea className="p-6 xl-down:p-5 lg-down:p-4 md-down:p-4 sm-down:p-4 xs-down:p-3 flex-1">
           <div className="space-y-6 xl-down:space-y-5 lg-down:space-y-4 md-down:space-y-4 sm-down:space-y-4 xs-down:space-y-3">
             {/* Title */}
             <div>
@@ -208,7 +209,7 @@ const ViewSharedNoteModal = memo<ViewSharedNoteModalProps>(({ isOpen, onClose, n
               {t('notes.createdAt') || 'Tạo lúc'}: {new Date(note.createdAt).toLocaleString('vi-VN')}
             </div>
           </div>
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 xl-down:gap-2.5 lg-down:gap-2 md-down:gap-3 sm-down:gap-3 xs-down:gap-2 p-6 xl-down:p-5 lg-down:p-4 md-down:p-4 sm-down:p-4 xs-down:p-3 border-t border-gray-200 dark:border-gray-700">

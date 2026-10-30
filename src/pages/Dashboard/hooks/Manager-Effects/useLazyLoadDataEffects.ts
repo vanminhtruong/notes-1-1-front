@@ -24,7 +24,6 @@ export const useLazyLoadDataEffects = ({
   searchTerm,
   selectedCategory,
   selectedPriority,
-  folders,
   fetchFolders,
   showMoveToFolderModal,
 }: UseLazyLoadDataEffectsProps) => {
@@ -49,17 +48,17 @@ export const useLazyLoadDataEffects = ({
       }));
       
       dispatch(fetchNoteStats());
-    } else if (viewMode === 'folders' && folders.length === 0) {
-      // Fetch folders only when entering folders view for the first time
+    } else if (viewMode === 'folders') {
+      // Refresh counts when returning to the folders view.
       fetchFolders();
     }
     // Tags view doesn't need initial fetch - handled by TagsView component
-  }, [viewMode, currentPage, searchTerm, selectedCategory, selectedPriority, dispatch, folders.length, fetchFolders]);
+  }, [viewMode, currentPage, searchTerm, selectedCategory, selectedPriority, dispatch, fetchFolders]);
 
-  // Fetch folders when Move to Folder modal opens (if not already loaded)
+  // Refresh destination counts each time the move dialog opens.
   useEffect(() => {
-    if (showMoveToFolderModal && folders.length === 0) {
+    if (showMoveToFolderModal) {
       fetchFolders();
     }
-  }, [showMoveToFolderModal, folders.length, fetchFolders]);
+  }, [showMoveToFolderModal, fetchFolders]);
 };

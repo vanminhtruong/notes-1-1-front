@@ -58,7 +58,8 @@
     "light": "Light",
     "dark": "Dark",
     "darkBlack": "Dark Black",
-    "selectTheme": "Select theme"
+    "selectTheme": "Select theme",
+    "loginRequired": "Please sign in to use animated backgrounds"
   },
   "animatedBackground": {
     "title": "Animated Background",

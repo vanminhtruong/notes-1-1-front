@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useEffect, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pin, Users } from 'lucide-react';
@@ -137,11 +138,11 @@ const CommonGroupsModal = memo(function CommonGroupsModal({ open, onClose, userI
             </button>
           </div>
         </div>
-        <div className="px-6 pb-6 pt-4 max-h-[65vh] overflow-y-auto">
+        <ModalScrollArea className="px-6 pb-6 pt-4 max-h-[65vh]">
           {activeTab === 'all'
             ? renderList(allGroups, 'chat.commonGroups.empty.all', 'Người này chưa tham gia nhóm nào')
             : renderList(myGroups, 'chat.commonGroups.empty.my', 'Chưa có nhóm chung nào')}
-        </div>
+        </ModalScrollArea>
       </div>
     </div>
   </div>

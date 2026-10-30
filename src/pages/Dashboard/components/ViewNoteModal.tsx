@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { memo, useState, useEffect } from 'react';
 import { Clock, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -71,8 +72,8 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 xl-down:p-3.5 lg-down:p-3 md-down:p-2.5 sm-down:p-2 xs-down:p-1.5 z-[99999]">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl xl-down:rounded-xl lg-down:rounded-xl md-down:rounded-lg sm-down:rounded-lg shadow-xl max-w-2xl md-down:max-w-md sm-down:max-w-sm w-full p-6 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3 max-h-[85vh] flex flex-col">
-        <div className="flex items-start justify-between mb-4 xl-down:mb-3.5 md-down:mb-3 sm-down:mb-2.5">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl xl-down:rounded-xl lg-down:rounded-xl md-down:rounded-lg sm-down:rounded-lg shadow-xl max-w-2xl md-down:max-w-md sm-down:max-w-sm w-full p-6 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3 max-h-[85vh] flex flex-col overflow-hidden">
+        <div className="flex shrink-0 items-start justify-between mb-4 xl-down:mb-3.5 md-down:mb-3 sm-down:mb-2.5">
           <h2 className="text-xl xl-down:text-lg md-down:text-base sm-down:text-base xs-down:text-sm font-bold text-gray-900 dark:text-white">{t('modals.view.title')}</h2>
           <button 
             onClick={onClose} 
@@ -83,7 +84,7 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
           </button>
         </div>
 
-        <div className="space-y-4 xl-down:space-y-3.5 lg-down:space-y-3 md-down:space-y-3 sm-down:space-y-2.5 flex-1 overflow-y-auto pr-1">
+        <ModalScrollArea className="space-y-4 xl-down:space-y-3.5 lg-down:space-y-3 md-down:space-y-3 sm-down:space-y-2.5 min-h-0 flex-1">
           <div>
             <h3 className="text-lg xl-down:text-base md-down:text-base sm-down:text-sm font-semibold text-gray-900 dark:text-white mb-3">{note.title}</h3>
             <div className="bg-gray-50 dark:bg-gray-900/40 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
@@ -177,14 +178,15 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
             </button>
           </div>
 
-          <div className="flex justify-end gap-3 md-down:gap-2.5 sm-down:gap-2 mt-6 md-down:mt-5 sm-down:mt-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 md-down:px-3 md-down:py-1.5 sm-down:px-2.5 sm-down:py-1.5 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 text-sm md-down:text-sm sm-down:text-xs"
-            >
-              {t('actions.close')}
-            </button>
-          </div>
+        </ModalScrollArea>
+
+        <div className="flex shrink-0 justify-end gap-3 md-down:gap-2.5 sm-down:gap-2 mt-4 pt-4 md-down:mt-3 md-down:pt-3 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 md-down:px-3 md-down:py-1.5 sm-down:px-2.5 sm-down:py-1.5 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 text-sm md-down:text-sm sm-down:text-xs"
+          >
+            {t('actions.close')}
+          </button>
         </div>
       </div>
       

@@ -1,4 +1,6 @@
 {
+  "qaFixes": {"movedOut": "笔记已移出文件夹", "restoreTitle": "恢复笔记？", "restoreMessage": "笔记将返回原来的位置。", "restored": "笔记已恢复"},
+  "checklist": {"label": "待办清单", "progress": "已完成 {{completed}}/{{total}}", "more": "查看其余 {{count}} 项", "untitled": "未命名任务"},
   "title": "仪表盘",
   "welcome": "欢迎来到您的仪表盘",
   "stats": {
@@ -88,13 +90,15 @@
     "sharing": "分享中...",
     "back": "返回",
     "pin": "置顶",
-    "unpin": "取消置顶"
+    "unpin": "取消置顶",
+    "remove": "移除"
   },
   "confirm": {
     "removeFriend": "移除好友 {{name}}？",
     "blockUser": "拉黑 {{name}}？",
     "blockUserHint": "您和该用户将无法互相发送消息。",
-    "unblockUser": "取消拉黑 {{name}}？"
+    "unblockUser": "取消拉黑 {{name}}？",
+    "deleteMessages": "删除与 {{name}} 的消息？"
   },
   "messages": {
     "selectedCount": "选择了 {{count}} 项",
@@ -142,7 +146,23 @@
     "noteCreateFailed": "创建笔记失败",
     "noteUpdateFailed": "更新笔记失败",
     "noteDeleteFailed": "删除笔记失败",
-    "noteActionFailed": "操作失败"
+    "noteActionFailed": "操作失败",
+    "createNoteSuccess": "笔记创建成功",
+    "createNoteError": "创建笔记失败",
+    "updateNoteSuccess": "笔记更新成功",
+    "updateNoteError": "更新笔记失败",
+    "fetchFoldersError": "加载文件夹列表失败",
+    "fetchFolderNotesError": "无法加载此文件夹中的笔记",
+    "createFolderSuccess": "文件夹创建成功",
+    "createFolderError": "创建文件夹失败",
+    "updateFolderSuccess": "文件夹更新成功",
+    "updateFolderError": "更新文件夹失败",
+    "deleteFolderSuccess": "文件夹删除成功",
+    "deleteFolderError": "删除文件夹失败",
+    "moveNoteSuccess": "笔记已移至文件夹",
+    "moveNoteError": "移动笔记失败",
+    "pinFolderError": "无法置顶文件夹",
+    "unpinFolderError": "无法取消置顶文件夹"
   },
   "editor": {
     "loading": "加载编辑器...",
@@ -163,6 +183,7 @@
       "h1": "标题 1",
       "h2": "标题 2",
       "h3": "标题 3",
+      "checklist": "待办清单 (Ctrl+Shift+9)",
       "bulletList": "无序列表",
       "orderedList": "有序列表",
       "alignLeft": "左对齐",
@@ -181,7 +202,9 @@
       "bulkDeleteTitle": "删除所选笔记？",
       "irreversible": "此操作无法撤销。",
       "archiveTitle": "归档笔记？",
-      "archiveMessage": "笔记将被移至归档。"
+      "archiveMessage": "笔记将被移至归档。",
+      "deleteFolderMessage": "删除文件夹“{{name}}”？其中的笔记将保留。",
+      "removeFromFolderMessage": "将此笔记移出文件夹？"
     },
     "create": {
       "title": "新建笔记",
@@ -232,7 +255,8 @@
     }
   },
   "success": {
-    "reminderAcknowledged": "已确认提醒"
+    "reminderAcknowledged": "已确认提醒",
+    "created": "创建成功"
   },
   "notes": {
     "title": "笔记",
@@ -327,12 +351,19 @@
       "noImagesFound": "未找到图片",
       "updateSuccess": "背景更新成功",
       "updateError": "更新背景失败"
-    }
+    },
+    "loadError": "无法加载笔记",
+    "createError": "无法创建笔记",
+    "untitled": "无标题笔记",
+    "pinError": "无法置顶笔记",
+    "unpinSuccess": "已取消置顶笔记",
+    "unpinError": "无法取消置顶笔记"
   },
   "errors": {
     "reminderAcknowledgeFailed": "确认提醒失败",
     "loadUsers": "加载用户失败",
-    "loadGroups": "加载群组失败"
+    "loadGroups": "加载群组失败",
+    "createFailed": "创建失败"
   },
   "chat": {
     "errors": {
@@ -351,7 +382,8 @@
       "messageBlockedCurrent": "消息未发送。由于您和该用户之间的屏蔽关系。",
       "shareForbidden": "由于被屏蔽或权限不足，无法发送",
       "shareFailed": "分享失败，请重试",
-      "callBlocked": "无法通话，因为双方已被屏蔽"
+      "callBlocked": "无法通话，因为双方已被屏蔽",
+      "pin": "无法更新置顶状态"
     },
     "success": {
       "recallSelf": "已为您撤回消息",
@@ -364,7 +396,10 @@
       "messagesDeletedForMe": "已为您删除与 {{name}} 的所有消息",
       "sharedToUser": "已分享笔记给好友",
       "sharedToGroup": "已分享笔记到群组",
-      "edit": "消息已更新"
+      "edit": "消息已更新",
+      "blocked": "已屏蔽用户",
+      "unblocked": "已取消屏蔽用户",
+      "settingsUpdated": "设置已更新"
     },
     "notifications": {
       "newFriendRequest": "{{name}} 发送了好友请求",
@@ -373,7 +408,8 @@
       "youBlocked": "您拉黑了 {{name}}",
       "youWereBlocked": "您被 {{name}} 拉黑了",
       "youUnblocked": "您取消拉黑了 {{name}}",
-      "unblockedYou": "{{name}} 取消了对您的拉黑"
+      "unblockedYou": "{{name}} 取消了对您的拉黑",
+      "friendRemoved": "{{name}} 已将您移出好友列表"
     },
     "notificationsBell": {
       "bellAria": "消息通知",
@@ -517,7 +553,8 @@
         "deleteFailed": "解散群组失败",
         "removeFailed": "移除成员失败",
         "loadFailed": "无法加载群组",
-        "updateFailed": "更新群组失败"
+        "updateFailed": "更新群组失败",
+        "pin": "无法更新群组置顶状态"
       },
       "confirm": {
         "leave": "退出群组？",
@@ -534,7 +571,8 @@
         "roleUpdated": "角色已更新",
         "messagesDeleted": "已删除所有群消息",
         "membersAdded": "成员已添加",
-        "inviteSent": "邀请已发送"
+        "inviteSent": "邀请已发送",
+        "inviteAccepted": "已加入群组"
       },
       "members": {
         "title": "群组成员",
@@ -550,8 +588,15 @@
       },
       "notifications": {
         "promoted": "您已被提升为管理员",
-        "demoted": "您已被降级为成员"
-      }
+        "demoted": "您已被降级为成员",
+        "newInvite": "您收到新的群组邀请",
+        "removed": "您已被移出群组"
+      },
+      "info": {
+        "inviteDeclined": "已拒绝邀请"
+      },
+      "pinned": "已置顶群组",
+      "unpinned": "已取消置顶群组"
     },
     "chatList": {
       "empty": {
@@ -660,7 +705,9 @@
       "removeFriend": "解除好友",
       "block": "拉黑",
       "unblock": "取消拉黑",
-      "addFriend": "添加好友"
+      "addFriend": "添加好友",
+      "pinned": "已置顶聊天",
+      "unpinned": "已取消置顶聊天"
     },
     "recalled": {
       "text": "消息已撤回",
@@ -676,7 +723,8 @@
       "recipientBanned": "账户因违反政策已被停用"
     },
     "blocked": {
-      "inputHidden": "由于您或对方已拉黑彼此，无法发送消息或上传文件。"
+      "inputHidden": "由于您或对方已拉黑彼此，无法发送消息或上传文件。",
+      "profileHidden": "由于一方屏蔽了另一方，无法查看资料。"
     },
     "toast": {
       "blocked": "已拉黑 {{name}}。",
@@ -728,7 +776,9 @@
         "ended": "通话结束",
         "cancelled": "通话已取消",
         "toggleCameraError": "无法切换摄像头",
-        "toggleMicError": "无法切换麦克风"
+        "toggleMicError": "无法切换麦克风",
+        "insecureMicrophone": "访问麦克风需要 HTTPS 或 localhost",
+        "unsupportedMicrophone": "此浏览器不支持麦克风访问"
       }
     },
     "message": {
@@ -840,6 +890,14 @@
         "changeButton": "更改 PIN 码",
         "setButton": "设置 PIN 码"
       }
+    },
+    "confirm": {
+      "block": "确定屏蔽 {{name}}？"
+    },
+    "background": {
+      "uploading": "正在上传背景…",
+      "updated": "背景已更新",
+      "reset": "已恢复默认背景"
     }
   },
   "sharedNotes": {
@@ -984,6 +1042,15 @@
     "pinError": "置顶/取消置顶失败",
     "maxLimit": "每个笔记最多只能添加 {{max}} 个标签",
     "loading": "加载中...",
-    "loadMore": "加载更多"
+    "loadMore": "加载更多",
+    "loadError": "无法加载标签",
+    "pinSuccess": "标签已置顶",
+    "unpinSuccess": "已取消置顶标签"
+  },
+  "loading": {
+    "creating": "正在创建…"
+  },
+  "richEditor": {
+    "linkPrompt": "输入链接地址"
   }
 }

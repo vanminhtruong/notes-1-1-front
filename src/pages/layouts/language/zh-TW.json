@@ -58,7 +58,8 @@
     "light": "亮色",
     "dark": "暗色",
     "darkBlack": "純黑",
-    "selectTheme": "選擇主題"
+    "selectTheme": "選擇主題",
+    "loginRequired": "請登入以使用動態背景"
   },
   "animatedBackground": {
     "title": "動態背景",

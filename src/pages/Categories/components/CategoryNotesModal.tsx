@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, FileText, Calendar, AlertCircle, Pin, Image, Video, Youtube, User, Clock } from 'lucide-react';
@@ -122,7 +123,7 @@ const CategoryNotesModal = ({ isOpen, onClose, category }: CategoryNotesModalPro
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 lg-down:px-5 lg-down:py-3.5 md-down:px-4 md-down:py-3 sm-down:px-3.5 sm-down:py-2.5">
+        <ModalScrollArea className="flex-1 px-6 py-4 lg-down:px-5 lg-down:py-3.5 md-down:px-4 md-down:py-3 sm-down:px-3.5 sm-down:py-2.5">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -246,7 +247,7 @@ const CategoryNotesModal = ({ isOpen, onClose, category }: CategoryNotesModalPro
               ))}
             </div>
           )}
-        </div>
+        </ModalScrollArea>
 
         {/* Footer with Pagination */}
         {!isLoading && notes.length > 0 && totalPages > 1 && (

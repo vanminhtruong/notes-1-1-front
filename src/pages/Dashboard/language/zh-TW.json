@@ -1,4 +1,6 @@
 {
+  "qaFixes": {"movedOut": "筆記已移出資料夾", "restoreTitle": "恢復筆記？", "restoreMessage": "筆記將返回原來的位置。", "restored": "筆記已恢復"},
+  "checklist": {"label": "待辦清單", "progress": "已完成 {{completed}}/{{total}}", "more": "查看其餘 {{count}} 項", "untitled": "未命名任務"},
   "title": "儀表板",
   "welcome": "歡迎來到您的儀表板",
   "stats": {
@@ -88,13 +90,15 @@
     "sharing": "分享中...",
     "back": "返回",
     "pin": "置頂",
-    "unpin": "取消置頂"
+    "unpin": "取消置頂",
+    "remove": "移除"
   },
   "confirm": {
     "removeFriend": "移除好友 {{name}}？",
     "blockUser": "封鎖 {{name}}？",
     "blockUserHint": "您和該用戶將無法互相傳送訊息。",
-    "unblockUser": "取消封鎖 {{name}}？"
+    "unblockUser": "取消封鎖 {{name}}？",
+    "deleteMessages": "刪除與 {{name}} 的訊息？"
   },
   "messages": {
     "selectedCount": "選擇了 {{count}} 項",
@@ -142,7 +146,23 @@
     "noteCreateFailed": "建立筆記失敗",
     "noteUpdateFailed": "更新筆記失敗",
     "noteDeleteFailed": "刪除筆記失敗",
-    "noteActionFailed": "操作失敗"
+    "noteActionFailed": "操作失敗",
+    "createNoteSuccess": "筆記建立成功",
+    "createNoteError": "建立筆記失敗",
+    "updateNoteSuccess": "筆記更新成功",
+    "updateNoteError": "更新筆記失敗",
+    "fetchFoldersError": "載入資料夾列表失敗",
+    "fetchFolderNotesError": "無法載入此資料夾中的筆記",
+    "createFolderSuccess": "資料夾建立成功",
+    "createFolderError": "建立資料夾失敗",
+    "updateFolderSuccess": "資料夾更新成功",
+    "updateFolderError": "更新資料夾失敗",
+    "deleteFolderSuccess": "資料夾刪除成功",
+    "deleteFolderError": "刪除資料夾失敗",
+    "moveNoteSuccess": "筆記已移至資料夾",
+    "moveNoteError": "移動筆記失敗",
+    "pinFolderError": "無法釘選資料夾",
+    "unpinFolderError": "無法取消釘選資料夾"
   },
   "editor": {
     "loading": "載入編輯器...",
@@ -163,6 +183,7 @@
       "h1": "標題 1",
       "h2": "標題 2",
       "h3": "標題 3",
+      "checklist": "待辦清單 (Ctrl+Shift+9)",
       "bulletList": "符號清單",
       "orderedList": "編號清單",
       "alignLeft": "置左",
@@ -181,7 +202,9 @@
       "bulkDeleteTitle": "刪除所選筆記？",
       "irreversible": "此操作無法復原。",
       "archiveTitle": "封存筆記？",
-      "archiveMessage": "筆記將被移至封存。"
+      "archiveMessage": "筆記將被移至封存。",
+      "deleteFolderMessage": "刪除資料夾「{{name}}」？其中的筆記將保留。",
+      "removeFromFolderMessage": "將此筆記移出資料夾？"
     },
     "create": {
       "title": "新建筆記",
@@ -232,7 +255,8 @@
     }
   },
   "success": {
-    "reminderAcknowledged": "已確認提醒"
+    "reminderAcknowledged": "已確認提醒",
+    "created": "建立成功"
   },
   "notes": {
     "title": "筆記",
@@ -327,12 +351,19 @@
       "noImagesFound": "未找到圖片",
       "updateSuccess": "背景更新成功",
       "updateError": "更新背景失敗"
-    }
+    },
+    "loadError": "無法載入筆記",
+    "createError": "無法建立筆記",
+    "untitled": "未命名筆記",
+    "pinError": "無法釘選筆記",
+    "unpinSuccess": "已取消釘選筆記",
+    "unpinError": "無法取消釘選筆記"
   },
   "errors": {
     "reminderAcknowledgeFailed": "確認提醒失敗",
     "loadUsers": "載入用戶失敗",
-    "loadGroups": "載入群組失敗"
+    "loadGroups": "載入群組失敗",
+    "createFailed": "建立失敗"
   },
   "chat": {
     "errors": {
@@ -351,7 +382,8 @@
       "messageBlockedCurrent": "訊息未發送。由於您和該用戶之間的封鎖關係。",
       "shareForbidden": "由於被封鎖或權限不足，無法發送",
       "shareFailed": "分享失敗，請重試",
-      "callBlocked": "無法通話，因為雙方已被封鎖"
+      "callBlocked": "無法通話，因為雙方已被封鎖",
+      "pin": "無法更新釘選狀態"
     },
     "success": {
       "recallSelf": "已為您收回訊息",
@@ -364,7 +396,10 @@
       "messagesDeletedForMe": "已為您刪除與 {{name}} 的所有訊息",
       "sharedToUser": "已分享筆記給好友",
       "sharedToGroup": "已分享筆記到群組",
-      "edit": "訊息已更新"
+      "edit": "訊息已更新",
+      "blocked": "已封鎖使用者",
+      "unblocked": "已解除封鎖使用者",
+      "settingsUpdated": "設定已更新"
     },
     "notifications": {
       "newFriendRequest": "{{name}} 發送了好友請求",
@@ -373,7 +408,8 @@
       "youBlocked": "您封鎖了 {{name}}",
       "youWereBlocked": "您被 {{name}} 封鎖了",
       "youUnblocked": "您取消封鎖了 {{name}}",
-      "unblockedYou": "{{name}} 取消了對您的封鎖"
+      "unblockedYou": "{{name}} 取消了對您的封鎖",
+      "friendRemoved": "{{name}} 已將您從好友中移除"
     },
     "notificationsBell": {
       "bellAria": "訊息通知",
@@ -517,7 +553,8 @@
         "deleteFailed": "解散群組失敗",
         "removeFailed": "移除成員失敗",
         "loadFailed": "無法載入群組",
-        "updateFailed": "更新群組失敗"
+        "updateFailed": "更新群組失敗",
+        "pin": "無法更新群組釘選狀態"
       },
       "confirm": {
         "leave": "退出群組？",
@@ -534,7 +571,8 @@
         "roleUpdated": "角色已更新",
         "messagesDeleted": "已刪除所有群訊息",
         "membersAdded": "成員已新增",
-        "inviteSent": "邀請已發送"
+        "inviteSent": "邀請已發送",
+        "inviteAccepted": "已加入群組"
       },
       "members": {
         "title": "群組成員",
@@ -550,8 +588,15 @@
       },
       "notifications": {
         "promoted": "您已被提升為管理員",
-        "demoted": "您已被降級為成員"
-      }
+        "demoted": "您已被降級為成員",
+        "newInvite": "您收到新的群組邀請",
+        "removed": "您已被移出群組"
+      },
+      "info": {
+        "inviteDeclined": "已拒絕邀請"
+      },
+      "pinned": "已釘選群組",
+      "unpinned": "已取消釘選群組"
     },
     "chatList": {
       "empty": {
@@ -660,7 +705,9 @@
       "removeFriend": "解除好友",
       "block": "封鎖",
       "unblock": "取消封鎖",
-      "addFriend": "新增好友"
+      "addFriend": "新增好友",
+      "pinned": "已釘選聊天",
+      "unpinned": "已取消釘選聊天"
     },
     "recalled": {
       "text": "訊息已收回",
@@ -676,7 +723,8 @@
       "recipientBanned": "帳戶因違反政策已被停用"
     },
     "blocked": {
-      "inputHidden": "由於您或對方已封鎖彼此，無法傳送訊息或上傳檔案。"
+      "inputHidden": "由於您或對方已封鎖彼此，無法傳送訊息或上傳檔案。",
+      "profileHidden": "由於一方封鎖了另一方，無法查看個人資料。"
     },
     "toast": {
       "blocked": "已封鎖 {{name}}。",
@@ -728,7 +776,9 @@
         "ended": "通話結束",
         "cancelled": "通話已取消",
         "toggleCameraError": "無法切換鏡頭",
-        "toggleMicError": "無法切換麥克風"
+        "toggleMicError": "無法切換麥克風",
+        "insecureMicrophone": "存取麥克風需要 HTTPS 或 localhost",
+        "unsupportedMicrophone": "此瀏覽器不支援麥克風存取"
       }
     },
     "message": {
@@ -840,6 +890,14 @@
         "changeButton": "更改 PIN 碼",
         "setButton": "設定 PIN 碼"
       }
+    },
+    "confirm": {
+      "block": "確定封鎖 {{name}}？"
+    },
+    "background": {
+      "uploading": "正在上傳背景…",
+      "updated": "背景已更新",
+      "reset": "已還原預設背景"
     }
   },
   "sharedNotes": {
@@ -984,6 +1042,15 @@
     "pinError": "置頂/取消置頂失敗",
     "maxLimit": "每個筆記最多只能新增 {{max}} 個標籤",
     "loading": "載入中...",
-    "loadMore": "載入更多"
+    "loadMore": "載入更多",
+    "loadError": "無法載入標籤",
+    "pinSuccess": "標籤已釘選",
+    "unpinSuccess": "已取消釘選標籤"
+  },
+  "loading": {
+    "creating": "正在建立…"
+  },
+  "richEditor": {
+    "linkPrompt": "輸入連結網址"
   }
 }

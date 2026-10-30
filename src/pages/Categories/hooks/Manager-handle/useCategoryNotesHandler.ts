@@ -34,6 +34,7 @@ export const useCategoryNotesHandler = ({
     try {
       const response = await notesService.getNotes({
         category: categoryId.toString(),
+        scope: 'category',
         page: currentPage,
         limit: pageSize,
         isArchived: false,

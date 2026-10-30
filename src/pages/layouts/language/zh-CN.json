@@ -58,7 +58,8 @@
     "light": "亮色",
     "dark": "暗色",
     "darkBlack": "纯黑",
-    "selectTheme": "选择主题"
+    "selectTheme": "选择主题",
+    "loginRequired": "请登录以使用动态背景"
   },
   "animatedBackground": {
     "title": "动态背景",

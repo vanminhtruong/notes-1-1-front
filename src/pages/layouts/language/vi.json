@@ -23,7 +23,8 @@
     "allSessionsTerminated": "Tất cả phiên đăng nhập của bạn đã bị đăng xuất bởi quản trị viên",
     "logoutConfirm": "Đăng xuất?",
     "logoutMessage": "Bạn có chắc chắn muốn đăng xuất không?",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "deleteFailed": "Xóa tài khoản thất bại"
   },
   "devices": {
     "title": "Thiết bị đã đăng nhập",
@@ -57,7 +58,8 @@
     "light": "Sáng",
     "dark": "Tối",
     "darkBlack": "Tối Đen",
-    "selectTheme": "Chọn chế độ hiển thị"
+    "selectTheme": "Chọn chế độ hiển thị",
+    "loginRequired": "Vui lòng đăng nhập để sử dụng nền động"
   },
   "animatedBackground": {
     "title": "Nền Động",
@@ -76,7 +78,6 @@
     "connect": "Kết nối",
     "tagline": "Gọn gàng hơn mỗi ngày. Cảm hứng hơn mỗi bước.",
     "copyright": "Tất cả quyền được bảo lưu",
-    
     "privacy": "Bảo mật",
     "terms": "Điều khoản"
   }

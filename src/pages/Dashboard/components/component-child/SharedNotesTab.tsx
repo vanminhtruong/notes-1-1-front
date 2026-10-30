@@ -283,9 +283,9 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
             }`}
           >
             {t('sharedNotes.received')}
-            {sharedWithMe.length > 0 && (
+            {totalWithMe > 0 && (
               <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-white/20">
-                {sharedWithMe.length}
+                {totalWithMe}
               </span>
             )}
           </button>
@@ -299,9 +299,9 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
             }`}
           >
             {t('sharedNotes.sent')}
-            {sharedByMe.length > 0 && (
+            {totalByMe > 0 && (
               <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-white/20">
-                {sharedByMe.length}
+                {totalByMe}
               </span>
             )}
           </button>
@@ -315,9 +315,9 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
             }`}
           >
             {t('sharedNotes.groups') || 'Groups'}
-            {groupSharedNotes.length > 0 && (
+            {totalGroups > 0 && (
               <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-white/20">
-                {groupSharedNotes.length}
+                {totalGroups}
               </span>
             )}
           </button>

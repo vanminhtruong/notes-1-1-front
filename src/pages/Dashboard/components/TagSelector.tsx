@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, X, Tag as TagIcon, Settings, Loader2 } from 'lucide-react';
@@ -249,7 +250,7 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange, has
           </div>
 
           {/* Tags List */}
-          <div className="max-h-32 md-down:max-h-28 overflow-y-auto p-2 md-down:p-1.5">
+          <ModalScrollArea className="max-h-32 md-down:max-h-28 p-2 md-down:p-1.5">
             {isLoading ? (
               <div className="flex items-center justify-center py-4 text-sm md-down:text-xs text-gray-500 dark:text-gray-400">
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -302,7 +303,7 @@ const TagSelector = ({ noteId, selectedTags, onOpenManagement, onOpenChange, has
                 )}
               </>
             )}
-          </div>
+          </ModalScrollArea>
         </div>,
         document.body
       )}

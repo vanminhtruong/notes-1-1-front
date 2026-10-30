@@ -1,3 +1,4 @@
+import toastI18n from 'i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSocket } from '../../../../services/socket';
 import { chatService } from '@/services/chatService';
@@ -181,8 +182,8 @@ export function useVoiceCall(currentUserId: number | null) {
       } else {
         const insecure = typeof window !== 'undefined' && (window as any).isSecureContext === false;
         toast.error(insecure
-          ? 'Không thể truy cập micro vì trang không ở chế độ bảo mật (https hoặc localhost)'
-          : 'Trình duyệt không hỗ trợ gọi thoại (legacy gUM không khả dụng)'
+          ? toastI18n.t('dashboard:chat.call.toast.insecureMicrophone')
+          : toastI18n.t('dashboard:chat.call.toast.unsupportedMicrophone')
         );
         endCall(false);
         return;

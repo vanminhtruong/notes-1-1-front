@@ -5,6 +5,7 @@ import { formatDateMDYY, getTextColorForBackground, getTextColorForImageBackgrou
 import { extractYouTubeId } from '@/utils/youtube';
 import { getHtmlPreview, sanitizeInlineHtml } from '@/utils/htmlUtils';
 import PinButton from './PinButton';
+import ChecklistPreview from './ChecklistPreview';
 import TagBadge from './TagBadge';
 import TagSelector from './TagSelector';
 import BackgroundPicker from './BackgroundPicker';
@@ -26,6 +27,7 @@ export interface Note {
   tags?: NoteTag[];
   createdAt: string;
   isPinned?: boolean;
+  isArchived?: boolean;
   backgroundColor?: string | null;
   backgroundImage?: string | null;
 }
@@ -114,7 +116,7 @@ const NoteCard = memo(({
 
   return (
     <div 
-      className={`relative overflow-visible z-[5000] hover:z-[10000] ${hasBg ? 'bg-transparent dark:bg-transparent' : 'bg-white/70 dark:bg-gray-800/90'} backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3`}
+      className={`relative flex flex-col h-full min-w-0 overflow-visible z-[5000] hover:z-[10000] ${hasBg ? 'bg-transparent dark:bg-transparent' : 'bg-white/70 dark:bg-gray-800/90'} backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3`}
       style={{
         backgroundColor: bgColor || undefined,
         backgroundImage: bgImage ? `url(${bgImage})` : 'none',
@@ -210,7 +212,12 @@ const NoteCard = memo(({
         </div>
       </div>
 
-      <div
+      {note.content?.includes('data-type="taskList"') ? (
+        <ChecklistPreview noteId={note.id} content={note.content}
+          compact={!!(note.imageUrl || note.videoUrl || note.youtubeUrl)}
+          readOnly={showArchived} onView={onView}
+          textClassName={textColors.textSecondary} hasBackground={hasBg} />
+      ) : <div
         className={`${textColors.textSecondary} text-sm mb-4 md-down:text-xs sm-down:mb-3 xs-down:mb-2.5`}
         style={{
           display: 'block',
@@ -228,7 +235,7 @@ const NoteCard = memo(({
         }}
         title={getHtmlPreview(note.content, 500)}
         dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(note.content || '') }}
-      />
+      />}
 
       {note.videoUrl ? (
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 relative group">
@@ -259,10 +266,10 @@ const NoteCard = memo(({
           </div>
         </div>
       ) : (
-        <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 h-40 lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
+        note.content?.includes('data-type="taskList"') ? null : <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 h-40 lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
       )}
 
-      <div className="space-y-2">
+      <div className="mt-auto space-y-2">
         {/* Row 1: Priority, Category, Actions */}
         <div className="flex items-center justify-between sm-down:flex-col sm-down:gap-2 sm-down:items-start">
           <div className="flex items-center gap-2 sm-down:gap-1.5 xs-down:gap-1">

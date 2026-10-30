@@ -60,6 +60,7 @@ const Dashboard = () => {
     setShowEditModal: folderNotesState.setShowEditModal,
     setEditNote: folderNotesState.setEditNote,
     onSuccess: () => {
+      void foldersHandler.fetchFolders();
       if (foldersState.selectedFolder) {
         foldersHandler.fetchFolderNotes(foldersState.selectedFolder.id);
       }
@@ -241,8 +242,8 @@ const Dashboard = () => {
                 onBack={folderHandlers.handleBackFromFolder}
                 onView={dashboardHandlers.openView}
                 onEdit={folderNotesHandler.handleOpenEditModal}
-                onArchive={folderHandlers.handleArchiveNoteInFolder as any}
-                onDelete={folderHandlers.handleDeleteNoteInFolder as any}
+                onArchive={(note) => folderHandlers.handleArchiveNoteInFolder(note.id)}
+                onDelete={(note) => folderHandlers.handleDeleteNoteInFolder(note.id)}
                 onAcknowledgeReminder={dashboardHandlers.acknowledgeReminderNote}
                 onCreateNote={folderNotesHandler.handleOpenCreateModal}
                 onRemoveFromFolder={folderHandlers.handleRemoveFromFolder}
@@ -252,6 +253,7 @@ const Dashboard = () => {
                 getPriorityText={dashboardHandlers.getPriorityText}
                 currentPage={foldersState.currentPage}
                 totalPages={foldersState.folderNotesPagination.totalPages}
+                totalItems={foldersState.folderNotesPagination.totalItems}
                 onPageChange={(page) => {
                   if (foldersState.selectedFolder) {
                     foldersHandler.fetchFolderNotes(foldersState.selectedFolder.id, page);
@@ -369,7 +371,7 @@ const Dashboard = () => {
       <CreateFolderModal
         isOpen={modalsState.showCreateFolderModal}
         onClose={modalsHandler.handleCloseCreateFolderModal}
-        onSubmit={foldersHandler.createFolder as any}
+        onSubmit={foldersHandler.createFolder}
       />
 
       {/* Edit Folder Modal */}
@@ -377,7 +379,7 @@ const Dashboard = () => {
         isOpen={modalsState.showEditFolderModal}
         folder={modalsState.editingFolder}
         onClose={modalsHandler.handleCloseEditFolderModal}
-        onSubmit={foldersHandler.updateFolder as any}
+        onSubmit={foldersHandler.updateFolder}
       />
 
       {/* Create Note in Folder Modal */}

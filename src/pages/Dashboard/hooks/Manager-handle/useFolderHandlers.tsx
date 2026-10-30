@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NoteFolder } from '@/services/notesService';
+import { useConfirmationToast } from './useConfirmationToastHandler';
 
 interface UseFolderHandlersProps {
   deleteFolder: (folderId: number) => Promise<void>;
@@ -24,12 +25,13 @@ export const useFolderHandlers = ({
   currentPage,
 }: UseFolderHandlersProps) => {
   const { t } = useTranslation('dashboard');
+  const { confirmWithToast } = useConfirmationToast({ t });
 
   const handleDeleteFolder = useCallback(async (folder: NoteFolder) => {
-    if (window.confirm(t('modals.confirm.deleteFolderMessage', { name: folder.name }))) {
+    if (await confirmWithToast(t('modals.confirm.deleteFolderMessage', { name: folder.name }))) {
       await deleteFolder(folder.id);
     }
-  }, [deleteFolder, t]);
+  }, [deleteFolder, t, confirmWithToast]);
 
   const handleViewFolder = useCallback((folder: NoteFolder) => {
     setSelectedFolder(folder);
@@ -61,7 +63,7 @@ export const useFolderHandlers = ({
   }, [confirmDeleteNote, selectedFolder, fetchFolderNotes, currentPage]);
 
   const handleRemoveFromFolder = useCallback(async (noteId: number) => {
-    if (window.confirm(t('modals.confirm.removeFromFolderMessage'))) {
+    if (await confirmWithToast(t('modals.confirm.removeFromFolderMessage'))) {
       try {
         await moveNoteToFolder(noteId, null);
         if (selectedFolder) {
@@ -71,7 +73,7 @@ export const useFolderHandlers = ({
         // Error already handled in moveNoteToFolder
       }
     }
-  }, [moveNoteToFolder, selectedFolder, fetchFolderNotes, currentPage, t]);
+  }, [moveNoteToFolder, selectedFolder, fetchFolderNotes, currentPage, t, confirmWithToast]);
 
   return {
     handleDeleteFolder,

@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useTranslation } from 'react-i18next';
 import { useState, memo, useEffect, useCallback, useRef } from 'react';
 import { X, ChevronDown, Search, Loader2 } from 'lucide-react';
@@ -240,7 +241,7 @@ const CategoryDropdown = memo(({ value, onChange, categories: initialCategories,
             </div>
 
             {/* Categories List */}
-            <div className="max-h-60 overflow-y-auto">
+            <ModalScrollArea className="max-h-60">
               {/* None option */}
               <button
                 type="button"
@@ -280,7 +281,7 @@ const CategoryDropdown = memo(({ value, onChange, categories: initialCategories,
                   {t('category.noResults')}
                 </div>
               ) : null}
-            </div>
+            </ModalScrollArea>
           </div>
         </>
       )}
@@ -381,7 +382,7 @@ const CreateNoteInFolderModal = memo(({ isOpen, onClose, newNote, setNewNote, on
           </button>
         </div>
         
-        <div className="space-y-3 px-6 pb-6 overflow-y-auto xl-down:space-y-2.5 xl-down:px-5 xl-down:pb-5 lg-down:space-y-2.5 lg-down:px-5 lg-down:pb-5 md-down:space-y-2 md-down:px-4 md-down:pb-4 sm-down:space-y-2 sm-down:px-3.5 sm-down:pb-3.5 xs-down:space-y-1.5 xs-down:px-3 xs-down:pb-3">
+        <ModalScrollArea className="space-y-3 px-6 pb-6 xl-down:space-y-2.5 xl-down:px-5 xl-down:pb-5 lg-down:space-y-2.5 lg-down:px-5 lg-down:pb-5 md-down:space-y-2 md-down:px-4 md-down:pb-4 sm-down:space-y-2 sm-down:px-3.5 sm-down:pb-3.5 xs-down:space-y-1.5 xs-down:px-3 xs-down:pb-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
               {t('modals.create.fields.title')}
@@ -450,7 +451,7 @@ const CreateNoteInFolderModal = memo(({ isOpen, onClose, newNote, setNewNote, on
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 xs-down:text-[10px] xs-down:mt-0.5">{t('modals.create.fields.reminderHint')}</p>
           </div>
-        </div>
+        </ModalScrollArea>
 
         <div className="flex gap-3 px-6 pb-6 pt-4 border-t border-gray-200 dark:border-gray-700 xl-down:gap-2.5 xl-down:px-5 xl-down:pb-5 xl-down:pt-3.5 lg-down:gap-2.5 lg-down:px-5 lg-down:pb-5 lg-down:pt-3.5 md-down:gap-2 md-down:px-4 md-down:pb-4 md-down:pt-3 sm-down:gap-2 sm-down:px-3.5 sm-down:pb-3.5 sm-down:pt-2.5 xs-down:gap-1.5 xs-down:px-3 xs-down:pb-3 xs-down:pt-2">
           <button

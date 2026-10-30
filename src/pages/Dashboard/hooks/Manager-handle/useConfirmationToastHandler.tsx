@@ -8,7 +8,7 @@ import { useCallback } from 'react';
 import toast from 'react-hot-toast';
 
 interface UseConfirmationToastParams {
-  t: (key: string, defaultValue?: string) => string;
+  t: (key: string, defaultValue: string) => string;
 }
 
 interface UseConfirmationToastReturn {
@@ -25,13 +25,13 @@ export const useConfirmationToast = ({
         <div className="text-sm text-gray-800 dark:text-gray-100 mb-3">{message}</div>
         <div className="flex items-center justify-end gap-2">
           <button
-            onClick={() => { toast.dismiss(id); resolve(false); }}
+            onClick={() => { toast.remove(id); resolve(false); }}
             className="px-3 py-1.5 text-sm rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100"
           >
             {t('actions.cancel', 'Cancel')}
           </button>
           <button
-            onClick={() => { toast.dismiss(id); resolve(true); }}
+            onClick={() => { toast.remove(id); resolve(true); }}
             className="px-3 py-1.5 text-sm rounded-md bg-red-600 hover:bg-red-700 text-white"
           >
             {t('actions.confirm', 'Confirm')}

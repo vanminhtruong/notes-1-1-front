@@ -1,5 +1,5 @@
 import { useMemo, useCallback, memo } from 'react';
-import { type ChatWindowProps, toast, useTranslation, useMessageNotifications, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
+import { type ChatWindowProps, toast, useTranslation, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
 import * as DashboardHooks from '../hooks';
 
 const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
@@ -74,13 +74,13 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
         <div className="text-sm text-gray-800 dark:text-gray-100 mb-3">{message}</div>
         <div className="flex items-center justify-end gap-2">
           <button
-            onClick={() => { toast.dismiss(id); resolve(false); }}
+            onClick={() => { toast.remove(id); resolve(false); }}
             className="px-3 py-1.5 text-sm rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100"
           >
             {tt('actions.cancel', 'Cancel')}
           </button>
           <button
-            onClick={() => { toast.dismiss(id); resolve(true); }}
+            onClick={() => { toast.remove(id); resolve(true); }}
             className="px-3 py-1.5 text-sm rounded-md bg-red-600 hover:bg-red-700 text-white"
           >
             {tt('actions.confirm', 'Confirm')}

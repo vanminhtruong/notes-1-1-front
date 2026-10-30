@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, UserPlus, Search, Users, Loader2 } from 'lucide-react';
@@ -75,7 +76,7 @@ const InviteMembersModal: React.FC<InviteMembersModalProps> = memo(({
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto flex-1 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3">
+        <ModalScrollArea className="p-6 flex-1 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3">
           {/* Search Input */}
           <div className="mb-4 md-down:mb-3 xs-down:mb-2.5">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
@@ -141,7 +142,7 @@ const InviteMembersModal: React.FC<InviteMembersModalProps> = memo(({
                 {t('chat.groups.invite.availableUsers', 'Người dùng khả dụng')}
               </p>
             </div>
-            <div className="max-h-[320px] overflow-y-auto md-down:max-h-[280px] sm-down:max-h-[240px] xs-down:max-h-[200px]">
+            <ModalScrollArea className="max-h-[320px] md-down:max-h-[280px] sm-down:max-h-[240px] xs-down:max-h-[200px]">
               {loadingUsers ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3 md-down:py-10 md-down:gap-2.5 xs-down:py-8 xs-down:gap-2">
                   <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin md-down:w-7 md-down:h-7 xs-down:w-6 xs-down:h-6" />
@@ -219,9 +220,9 @@ const InviteMembersModal: React.FC<InviteMembersModalProps> = memo(({
                   })}
                 </div>
               )}
-            </div>
+            </ModalScrollArea>
           </div>
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 xl-down:px-5 xl-down:py-3.5 lg-down:px-5 lg-down:py-3.5 md-down:px-4 md-down:py-3 sm-down:px-3.5 sm-down:py-2.5 xs-down:px-3 xs-down:py-2 md-down:gap-2.5 xs-down:gap-2">

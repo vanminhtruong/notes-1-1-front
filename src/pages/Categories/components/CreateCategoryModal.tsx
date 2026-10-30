@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -104,7 +105,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
+        <ModalScrollArea className="flex-1 p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
           <form onSubmit={handleSubmit} id="create-category-form" className="space-y-4 md-down:space-y-3.5 sm-down:space-y-3 xs-down:space-y-3">
             {/* Category Name */}
             <div>
@@ -177,7 +178,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
               </div>
             </div>
           </form>
-        </div>
+        </ModalScrollArea>
 
         {/* Footer - Fixed */}
         <div className="p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-t border-gray-200 dark:border-gray-700">

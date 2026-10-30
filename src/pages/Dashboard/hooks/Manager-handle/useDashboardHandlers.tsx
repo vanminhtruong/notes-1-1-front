@@ -133,7 +133,7 @@ export const useDashboardHandlers = ({
           React.createElement(
             'button',
             {
-              onClick: () => toast.dismiss(toastData.id),
+              onClick: () => toast.remove(toastData.id),
               className: 'px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm',
             },
             t('actions.cancel')
@@ -143,7 +143,7 @@ export const useDashboardHandlers = ({
             {
               onClick: async () => {
                 await handleDeleteNote(id);
-                toast.dismiss(toastData.id);
+                toast.remove(toastData.id);
               },
               className: 'px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm',
             },
@@ -161,14 +161,14 @@ export const useDashboardHandlers = ({
     
     // Show success toast
     if (result.meta.requestStatus === 'fulfilled') {
-      toast.success(t('toasts.archiveSuccess'), {
+      toast.success(t((result.payload as { isArchived: boolean }).isArchived ? 'toasts.archiveSuccess' : 'qaFixes.restored'), {
         duration: 3000,
         className: 'dark:bg-gray-800 dark:text-white',
       });
     }
   }, [dispatch, t]);
 
-  const confirmArchiveNote = useCallback((id: number) => {
+  const confirmArchiveNote = useCallback((id: number, restoring = false) => {
     const tId = toast.custom((toastData) => {
       const containerClass = `max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`;
       return React.createElement(
@@ -180,8 +180,8 @@ export const useDashboardHandlers = ({
           React.createElement(
             'div',
             { className: 'flex-1' },
-            React.createElement('p', { className: 'font-semibold' }, t('modals.confirm.archiveTitle')),
-            React.createElement('p', { className: 'text-sm text-gray-600 dark:text-gray-300' }, t('modals.confirm.archiveMessage'))
+            React.createElement('p', { className: 'font-semibold' }, t(restoring ? 'qaFixes.restoreTitle' : 'modals.confirm.archiveTitle')),
+            React.createElement('p', { className: 'text-sm text-gray-600 dark:text-gray-300' }, t(restoring ? 'qaFixes.restoreMessage' : 'modals.confirm.archiveMessage'))
           )
         ),
         React.createElement(
@@ -190,7 +190,7 @@ export const useDashboardHandlers = ({
           React.createElement(
             'button',
             {
-              onClick: () => toast.dismiss(toastData.id),
+              onClick: () => toast.remove(toastData.id),
               className: 'px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm',
             },
             t('actions.cancel')
@@ -200,11 +200,11 @@ export const useDashboardHandlers = ({
             {
               onClick: async () => {
                 await handleArchiveNote(id);
-                toast.dismiss(toastData.id);
+                toast.remove(toastData.id);
               },
               className: 'px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm',
             },
-            t('actions.archive')
+            t(restoring ? 'actions.restore' : 'actions.archive')
           )
         )
       );
@@ -297,7 +297,7 @@ export const useDashboardHandlers = ({
           React.createElement(
             'button',
             {
-              onClick: () => toast.dismiss(toastData.id),
+              onClick: () => toast.remove(toastData.id),
               className: 'px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm',
             },
             t('actions.cancel')
@@ -307,7 +307,7 @@ export const useDashboardHandlers = ({
             {
               onClick: async () => {
                 await handleBulkDelete();
-                toast.dismiss(toastData.id);
+                toast.remove(toastData.id);
               },
               className: 'px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm',
             },

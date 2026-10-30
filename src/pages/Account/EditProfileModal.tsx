@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
@@ -133,7 +134,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, in
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
+        <ModalScrollArea className="flex-1 p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
           <div className="space-y-4 md-down:space-y-3.5 sm-down:space-y-3 xs-down:space-y-3">
             {/* Avatar */}
             <div>
@@ -237,7 +238,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, in
               </div>
             </div>
           </div>
-        </div>
+        </ModalScrollArea>
 
         {/* Footer - Fixed */}
         <div className="p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-t border-gray-200 dark:border-gray-700">

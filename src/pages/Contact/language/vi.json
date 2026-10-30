@@ -10,6 +10,7 @@
     "address": { "title": "Địa chỉ", "value": "123 Innovation Street, Silicon Valley, CA" }
   },
   "form": {
+    "notConfigured": "Chưa cấu hình dịch vụ liên hệ. Tin nhắn của bạn chưa được gửi.",
     "title": "Gửi tin nhắn cho chúng tôi",
     "name": "Họ và tên",
     "email": "Email",

@@ -1,5 +1,6 @@
-import { useCallback } from 'react';
-import { notesService, type NoteFolder } from '@/services/notesService';
+import { useCallback, useEffect, useRef } from 'react';
+import { socketService } from '@/services/socketService';
+import { notesService, type NoteFolder, type CreateFolderData, type UpdateFolderData } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -29,6 +30,7 @@ export const useFoldersHandler = ({
   setSelectedFolder,
 }: UseFoldersHandlerProps) => {
   const { t } = useTranslation('dashboard');
+  const folderRequest = useRef(0);
 
   const fetchFolders = useCallback(async () => {
     setIsLoading(true);
@@ -42,47 +44,72 @@ export const useFoldersHandler = ({
     }
   }, [t, setIsLoading, setFolders]);
 
-  const fetchFolderNotes = useCallback(async (_folderId: number, page: number = 1) => {
+  const fetchFolderNotes = useCallback(async (folderId: number, page: number = 1) => {
+    const request = ++folderRequest.current;
     setIsFolderNotesLoading(true);
+    setFolderNotes([]);
     setCurrentPage(page);
     try {
-      const response = await notesService.getNotes({ page, limit: 9 } as any);
+      let response = await notesService.getFolderById(folderId, { page, limit: 9 });
+      if (request !== folderRequest.current) return;
+      const lastPage = Math.max(1, response.pagination.totalPages);
+      if (page > lastPage) {
+        response = await notesService.getFolderById(folderId, { page: lastPage, limit: 9 });
+        if (request !== folderRequest.current) return;
+      }
+      setCurrentPage(response.pagination.page);
       setFolderNotes(response.notes);
       setFolderNotesPagination({
         currentPage: response.pagination.page,
         totalPages: response.pagination.totalPages,
         totalItems: response.pagination.total,
       });
+      setFolders(previous => previous.map(folder => folder.id === folderId
+        ? { ...folder, notesCount: response.pagination.total } : folder));
     } catch (error: any) {
-      toast.error(error.message || t('toasts.fetchFolderNotesError'));
+      if (request === folderRequest.current) {
+        toast.error(error.message || t('toasts.fetchFolderNotesError'));
+      }
     } finally {
-      setIsFolderNotesLoading(false);
+      if (request === folderRequest.current) setIsFolderNotesLoading(false);
     }
-  }, [t, setIsFolderNotesLoading, setCurrentPage, setFolderNotes, setFolderNotesPagination]);
+  }, [t, setIsFolderNotesLoading, setCurrentPage, setFolderNotes, setFolderNotesPagination, setFolders]);
 
-  const createFolder = useCallback(async (name: string, _description?: string) => {
+  // Keep folder counts and the open folder in sync after changes from any client.
+  useEffect(() => {
+    const socket = socketService.getSocket();
+    if (!socket) return;
+    const refresh = () => {
+      void fetchFolders();
+      if (selectedFolder) void fetchFolderNotes(selectedFolder.id);
+    };
+    const events = ['note_created', 'note_updated', 'note_deleted', 'note_archived', 'note_moved_to_folder',
+      'note:pinned', 'note:unpinned', 'folder_created', 'folder_updated', 'folder_deleted'];
+    events.forEach(event => socket.on(event, refresh));
+    return () => { events.forEach(event => socket.off(event, refresh)); };
+  }, [fetchFolders, fetchFolderNotes, selectedFolder?.id]);
+
+  const createFolder = useCallback(async (data: CreateFolderData) => {
     try {
-      const response = await notesService.createFolder({ name } as any);
+      await notesService.createFolder(data);
       toast.success(t('toasts.createFolderSuccess'));
       await fetchFolders();
-      return response;
     } catch (error: any) {
-      toast.error(error.message || t('toasts.createFolderError'));
+      toast.error(error.response?.data?.message || error.message || t('toasts.createFolderError'));
       throw error;
     }
   }, [t, fetchFolders]);
 
-  const updateFolder = useCallback(async (folderId: number, name: string, _description?: string) => {
+  const updateFolder = useCallback(async (folderId: number, data: UpdateFolderData) => {
     try {
-      const response = await notesService.updateFolder(folderId, { name } as any);
+      const response = await notesService.updateFolder(folderId, data);
       toast.success(t('toasts.updateFolderSuccess'));
       await fetchFolders();
       if (selectedFolder?.id === folderId) {
         setSelectedFolder(response.folder);
       }
-      return response;
     } catch (error: any) {
-      toast.error(error.message || t('toasts.updateFolderError'));
+      toast.error(error.response?.data?.message || error.message || t('toasts.updateFolderError'));
       throw error;
     }
   }, [t, fetchFolders, selectedFolder, setSelectedFolder]);
@@ -101,12 +128,14 @@ export const useFoldersHandler = ({
   const moveNoteToFolder = useCallback(async (noteId: number, folderId: number | null) => {
     try {
       await notesService.moveNoteToFolder(noteId, folderId);
-      toast.success(t('toasts.moveNoteSuccess'));
+      toast.success(t(folderId === null ? 'qaFixes.movedOut' : 'toasts.moveNoteSuccess'));
+      await fetchFolders();
+      if (selectedFolder) await fetchFolderNotes(selectedFolder.id);
     } catch (error: any) {
       toast.error(error.message || t('toasts.moveNoteError'));
       throw error;
     }
-  }, [t]);
+  }, [t, fetchFolders, fetchFolderNotes, selectedFolder]);
 
   const pinFolder = useCallback(async (folderId: number) => {
     try {

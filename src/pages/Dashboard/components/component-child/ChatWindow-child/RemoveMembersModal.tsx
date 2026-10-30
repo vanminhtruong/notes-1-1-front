@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useEffect, useMemo, useRef, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, UserMinus, Search, Users, Loader2, AlertCircle } from 'lucide-react';
@@ -123,7 +124,7 @@ const RemoveMembersModal = memo(({ isOpen, members, onClose, onConfirm }: Remove
           </button>
         </div>
         {/* Content */}
-        <div className="p-6 overflow-y-auto flex-1 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3">
+        <ModalScrollArea className="p-6 flex-1 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3">
           {/* Search Input */}
           <div className="mb-4 md-down:mb-3 xs-down:mb-2.5">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
@@ -208,7 +209,7 @@ const RemoveMembersModal = memo(({ isOpen, members, onClose, onConfirm }: Remove
                 {t('chat.groups.remove.listTitle', { count: filtered.length, defaultValue: `Danh sách (${filtered.length})` })}
               </p>
             </div>
-            <div className="max-h-[320px] overflow-y-auto md-down:max-h-[280px] sm-down:max-h-[240px] xs-down:max-h-[200px]">
+            <ModalScrollArea className="max-h-[320px] md-down:max-h-[280px] sm-down:max-h-[240px] xs-down:max-h-[200px]">
               {filtered.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center md-down:py-10 xs-down:py-8">
                   <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3 md-down:w-14 md-down:h-14 md-down:mb-2.5 xs-down:w-12 xs-down:h-12 xs-down:mb-2">
@@ -276,7 +277,7 @@ const RemoveMembersModal = memo(({ isOpen, members, onClose, onConfirm }: Remove
                   })}
                 </div>
               )}
-            </div>
+            </ModalScrollArea>
           </div>
 
           {/* Warning Notice */}
@@ -288,7 +289,7 @@ const RemoveMembersModal = memo(({ isOpen, members, onClose, onConfirm }: Remove
               </p>
             </div>
           )}
-        </div>
+        </ModalScrollArea>
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 xl-down:px-5 xl-down:py-3.5 lg-down:px-5 lg-down:py-3.5 md-down:px-4 md-down:py-3 sm-down:px-3.5 sm-down:py-2.5 xs-down:px-3 xs-down:py-2 md-down:gap-2.5 xs-down:gap-2">
           <button

@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useMemo, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, ShieldOff, Search, UserX, AlertCircle } from 'lucide-react';
@@ -70,7 +71,7 @@ const BlockedUsersModal = memo(({ isOpen, users, onUnblock, onClose }: BlockedUs
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto flex-1 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3">
+        <ModalScrollArea className="p-6 flex-1 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3">
           {/* Search Input */}
           <div className="mb-4 md-down:mb-3 xs-down:mb-2.5">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
@@ -98,7 +99,7 @@ const BlockedUsersModal = memo(({ isOpen, users, onUnblock, onClose }: BlockedUs
                 {t('chat.settings.blocked.listTitle', { count: filtered.length })}
               </p>
             </div>
-            <div className="max-h-[400px] overflow-y-auto md-down:max-h-[350px] sm-down:max-h-[300px] xs-down:max-h-[250px]">
+            <ModalScrollArea className="max-h-[400px] md-down:max-h-[350px] sm-down:max-h-[300px] xs-down:max-h-[250px]">
               {filtered.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center md-down:py-10 xs-down:py-8">
                   <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3 md-down:w-14 md-down:h-14 md-down:mb-2.5 xs-down:w-12 xs-down:h-12 xs-down:mb-2">
@@ -171,7 +172,7 @@ const BlockedUsersModal = memo(({ isOpen, users, onUnblock, onClose }: BlockedUs
                   ))}
                 </div>
               )}
-            </div>
+            </ModalScrollArea>
           </div>
 
           {/* Info Notice */}
@@ -183,7 +184,7 @@ const BlockedUsersModal = memo(({ isOpen, users, onUnblock, onClose }: BlockedUs
               </p>
             </div>
           )}
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end xl-down:px-5 xl-down:py-3.5 lg-down:px-5 lg-down:py-3.5 md-down:px-4 md-down:py-3 sm-down:px-3.5 sm-down:py-2.5 xs-down:px-3 xs-down:py-2">

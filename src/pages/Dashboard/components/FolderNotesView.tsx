@@ -26,6 +26,7 @@ interface FolderNotesViewProps {
   getPriorityText: (priority: string) => string;
   currentPage: number;
   totalPages: number;
+  totalItems: number;
   onPageChange: (page: number) => void;
 }
 
@@ -49,6 +50,7 @@ const FolderNotesView = ({
   getPriorityText,
   currentPage,
   totalPages,
+  totalItems,
   onPageChange,
 }: FolderNotesViewProps) => {
   const { t } = useTranslation('dashboard');
@@ -83,7 +85,7 @@ const FolderNotesView = ({
           </div>
           <div className="mt-3 flex justify-end gap-2">
             <button
-              onClick={() => toast.dismiss(toastData.id)}
+              onClick={() => toast.remove(toastData.id)}
               className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
             >
               {t('actions.cancel')}
@@ -92,7 +94,7 @@ const FolderNotesView = ({
               onClick={() => {
                 selectedIds.forEach(id => onRemoveFromFolder(id));
                 setSelectedIds([]);
-                toast.dismiss(toastData.id);
+                toast.remove(toastData.id);
               }}
               className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm"
             >
@@ -130,7 +132,7 @@ const FolderNotesView = ({
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{folder.name}</h2>
               <p className="text-gray-600 dark:text-gray-400">
-                {t('folders.notesCount', { count: notes.length })}
+                {t('folders.notesCount', { count: totalItems })}
               </p>
             </div>
           </div>

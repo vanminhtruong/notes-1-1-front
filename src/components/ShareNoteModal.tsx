@@ -1,3 +1,4 @@
+import ModalScrollArea from '@/components/ModalScrollArea';
 import { useState, useEffect, memo } from 'react';
 import { X, Users, UserCheck, Send, Search } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
@@ -269,7 +270,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <ModalScrollArea className="flex-1 p-6 space-y-6">
           {/* Note Preview */}
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
             <h4 className="font-medium text-gray-900 dark:text-white mb-2 line-clamp-1">
@@ -407,7 +408,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
                   : (t('notes.share.availableGroups') || 'nhóm có sẵn')
                 }
               </div>
-              <div className="max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg">
+              <ModalScrollArea className="max-h-40 border border-gray-200 dark:border-gray-600 rounded-lg">
                 {isSearching ? (
                   <div className="flex items-center justify-center h-20">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
@@ -469,7 +470,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
                   </p>
                 </div>
               )}
-              </div>
+              </ModalScrollArea>
             </div>
           )}
 
@@ -552,7 +553,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
               </p>
             </div>
           )}
-        </div>
+        </ModalScrollArea>
 
         {/* Footer */}
         <div className="flex justify-end gap-3 p-6 pb-8 border-t border-gray-200 dark:border-gray-700 shrink-0">

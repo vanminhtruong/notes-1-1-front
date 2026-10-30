@@ -5,6 +5,7 @@ import * as LucideIcons from 'lucide-react';
 import { formatDateMDYY } from '@/utils/utils';
 import { notesService } from '@/services/notesService';
 import toast from 'react-hot-toast';
+import { useConfirmationToast } from '../../../hooks/Manager-handle/useConfirmationToastHandler';
 import EditSharedNoteModal from '@/components/EditSharedNoteModal';
 import ViewSharedNoteModal from '@/pages/Dashboard/components/component-child/ViewSharedNoteModal';
 import { extractYouTubeId } from '@/utils/youtube';
@@ -39,6 +40,7 @@ interface PermissionsResponse {
 
 const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage, compact = false }) => {
   const { t } = useTranslation('dashboard');
+  const { confirmWithToast } = useConfirmationToast({ t });
   const [permissions, setPermissions] = useState<PermissionsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -203,7 +205,7 @@ const SharedNoteCard: React.FC<SharedNoteCardProps> = memo(({ note, isOwnMessage
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(t('notes.confirmDelete') || 'Bạn có chắc muốn xóa ghi chú này?')) {
+    if (!await confirmWithToast(t('notes.confirmDelete') || 'Bạn có chắc muốn xóa ghi chú này?')) {
       return;
     }
 
