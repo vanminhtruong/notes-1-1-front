@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
 import { fetchTags } from '@/store/slices/noteTagsSlice'
-import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone, Tag } from 'lucide-react'
+import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone, Tag, LayoutDashboard, Info, Contact } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
@@ -221,43 +221,26 @@ export default function MainLayout() {
               </div>
             </div>
 
-            <nav className="hidden lg:flex items-center gap-6 xl-down:gap-5 lg-down:gap-4">
-              <Link
-                to="/dashboard"
-                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${isActiveRoute('/dashboard')
-                  ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
-                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+            <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-2 xl-down:gap-1">
+              {[
+                { to: '/dashboard', label: t('nav.dashboard'), Icon: LayoutDashboard },
+                { to: '/categories', label: t('nav.categories'), Icon: Tag },
+                { to: '/about', label: t('nav.about'), Icon: Info },
+                { to: '/contact', label: t('nav.contact'), Icon: Contact },
+              ].map(({ to, label, Icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  aria-current={isActiveRoute(to) ? 'page' : undefined}
+                  className={`group relative inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition-all duration-300 ease-out motion-safe:hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${isActiveRoute(to)
+                    ? 'pure-dark-tab-active bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white ring-1 ring-blue-400/40 shadow-lg shadow-blue-500/25 dark:from-blue-500 dark:via-indigo-500 dark:to-purple-500 dark:text-white'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-500/15 hover:text-blue-700 dark:hover:text-blue-300 hover:shadow-sm'
                   }`}
-              >
-                {t('nav.dashboard')}
-              </Link>
-              <Link
-                to="/categories"
-                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${isActiveRoute('/categories')
-                  ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
-                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
-                  }`}
-              >
-                {t('nav.categories')}
-              </Link>
-              <Link
-                to="/about"
-                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${isActiveRoute('/about')
-                  ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
-                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
-                  }`}
-              >
-                {t('nav.about')}
-              </Link>
-              <Link
-                to="/contact"
-                className={`px-3 py-2 rounded-lg transition-all duration-200 lg-down:text-sm ${isActiveRoute('/contact')
-                  ? 'bg-blue-600 text-white shadow-sm pure-dark-tab-active'
-                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70'
-                  }`}
-              >
-                {t('nav.contact')}
-              </Link>
+                >
+                  <Icon aria-hidden="true" className="h-[18px] w-[18px] shrink-0 transition-transform duration-300 ease-out motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:scale-110" strokeWidth={2} />
+                  <span>{label}</span>
+                </Link>
+              ))}
             </nav>
 
             <div className="flex items-center space-x-4 lg-down:space-x-3 md-down:space-x-2">
@@ -422,47 +405,27 @@ export default function MainLayout() {
                 <X className="w-5 h-5 text-gray-700 dark:text-gray-200" />
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto px-5 py-6 space-y-3">
-              <Link
-                to="/dashboard"
-                onClick={() => setMobileNavOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${isActiveRoute('/dashboard')
-                  ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
-                  : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
+            <nav aria-label="Mobile navigation" className="flex-1 overflow-y-auto px-5 py-6 space-y-3">
+              {[
+                { to: '/dashboard', label: t('nav.dashboard'), Icon: LayoutDashboard },
+                { to: '/categories', label: t('nav.categories'), Icon: Tag },
+                { to: '/about', label: t('nav.about'), Icon: Info },
+                { to: '/contact', label: t('nav.contact'), Icon: Contact },
+              ].map(({ to, label, Icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setMobileNavOpen(false)}
+                  aria-current={isActiveRoute(to) ? 'page' : undefined}
+                  className={`group flex items-center gap-3 rounded-xl border border-white/30 px-4 py-3 text-base font-medium shadow-sm transition-all duration-300 ease-out dark:border-gray-700/50 motion-safe:hover:translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${isActiveRoute(to)
+                    ? 'pure-dark-tab-active bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white ring-1 ring-blue-400/40 shadow-lg shadow-blue-500/25 dark:from-blue-500 dark:via-indigo-500 dark:to-purple-500 dark:text-white'
+                    : 'bg-white/80 text-gray-800 hover:bg-blue-50 hover:text-blue-700 hover:shadow-md dark:bg-gray-800/70 dark:text-gray-100 dark:hover:bg-blue-500/15 dark:hover:text-blue-300'
                   }`}
-              >
-                {t('nav.dashboard')}
-              </Link>
-              <Link
-                to="/categories"
-                onClick={() => setMobileNavOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${isActiveRoute('/categories')
-                  ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
-                  : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
-                  }`}
-              >
-                {t('nav.categories')}
-              </Link>
-              <Link
-                to="/about"
-                onClick={() => setMobileNavOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${isActiveRoute('/about')
-                  ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
-                  : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
-                  }`}
-              >
-                {t('nav.about')}
-              </Link>
-              <Link
-                to="/contact"
-                onClick={() => setMobileNavOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium border border-white/30 dark:border-gray-700/50 shadow-sm transition-all ${isActiveRoute('/contact')
-                  ? 'text-white dark:text-gray-900 bg-gradient-to-r from-blue-600 via-purple-500 to-pink-500 dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 shadow-md'
-                  : 'text-gray-800 dark:text-gray-100 bg-white/80 dark:bg-gray-800/70 hover:shadow-md'
-                  }`}
-              >
-                {t('nav.contact')}
-              </Link>
+                >
+                  <Icon aria-hidden="true" className="h-5 w-5 shrink-0 transition-transform duration-300 motion-safe:group-hover:scale-110" strokeWidth={2} />
+                  <span>{label}</span>
+                </Link>
+              ))}
             </nav>
             <div className="px-5 py-4 border-t border-white/20 dark:border-gray-700/40 bg-gradient-to-r from-gray-50/80 to-white/70 dark:from-gray-800/70 dark:to-gray-900/70">
               <div className="block sm:hidden">
