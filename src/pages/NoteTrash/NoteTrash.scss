@@ -299,14 +299,18 @@
   color: var(--nt-muted); font-size: 13px;
 }
 .note-trash-page .nt-selection-bar {
-  margin-top: 13px; padding: 9px 14px;
-  min-height: 52px; border-radius: 11px;
+  margin-top: 13px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  min-height: 56px;
+  border-radius: 12px;
   background: var(--nt-accent-bg); border: 1px solid var(--nt-accent-border);
 }
+.note-trash-page .nt-list-header { margin-bottom: 14px; }
 .note-trash-page .nt-selection-bar .nt-select-all { color: var(--nt-accent); font-weight: 700; }
 .note-trash-page .nt-selection-bar .nt-button { min-height: 35px; }
 .note-trash-page .nt-select-all { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 550; }
-.note-trash-page .nt-list { display: flex; flex-direction: column; gap: 10px; }
+.note-trash-page .nt-list { display: flex; flex-direction: column; gap: 14px; }
 .note-trash-page .nt-note {
   display: grid; grid-template-columns: 19px 42px minmax(0, 1fr) minmax(142px, auto) auto;
   align-items: center; gap: 17px; min-width: 0;
@@ -446,13 +450,43 @@
   display: flex; align-items: center; justify-content: center;
   padding: 16px; background: rgba(8, 13, 29, .63);
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+/* In pure-black mode, even the content visible through the overlay must be
+   monochrome. Grayscale also neutralizes gradients/animations outside this page. */
+:root.dark-black .note-trash-page .nt-modal-backdrop {
+  background: rgba(0, 0, 0, .86);
+  backdrop-filter: grayscale(1) blur(6px) brightness(.55);
+  -webkit-backdrop-filter: grayscale(1) blur(6px) brightness(.55);
 }
 .note-trash-page .nt-modal {
+  position: relative;
   width: min(100%, 420px); max-height: calc(100dvh - 40px); overflow-y: auto;
   padding: 27px; border-radius: 18px;
   border: 1px solid var(--nt-line); background: var(--nt-surface-strong);
   color: var(--nt-text); box-shadow: 0 22px 70px rgba(0, 0, 0, .24);
 }
+.note-trash-page .nt-modal-close {
+  position: absolute;
+  top: 17px;
+  right: 17px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--nt-line);
+  border-radius: 10px;
+  color: var(--nt-muted);
+  background: var(--nt-subtle);
+  transition: color .16s ease, background-color .16s ease, border-color .16s ease;
+}
+.note-trash-page .nt-modal-close:hover:not(:disabled) {
+  color: var(--nt-title);
+  border-color: var(--nt-accent-border);
+  background: var(--nt-accent-bg);
+}
+.note-trash-page .nt-modal-close:disabled { opacity: .45; }
 .note-trash-page .nt-modal-icon {
   width: 49px; height: 49px; display: grid; place-items: center;
   margin-bottom: 16px; border-radius: 14px;

@@ -16,6 +16,15 @@ import { getCachedUser } from '@pages/Dashboard/components/interface/chatWindowI
 import AnimatedBackground from '@/components/AnimatedBackground'
 import { preloadAnimatedBackgrounds } from '~/utils/preload'
 
+// Offline PWA shell is served in production/preview only. Never cache authenticated APIs.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(error => {
+      console.warn('[PWA] Service worker registration failed', error);
+    });
+  }, { once: true });
+}
+
 // Prepare audio unlock on first user interaction (autoplay policy)
 unlockAudioOnce()
 

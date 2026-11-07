@@ -1,4 +1,5 @@
 import api from './api';
+import * as offline from '@/offline/offlineNotes';
 
 export interface NoteTag {
   id: number;
@@ -23,6 +24,7 @@ export interface Note {
   priority: 'low' | 'medium' | 'high';
   isArchived: boolean;
   isPinned: boolean;
+  folderId?: number | null;
   reminderAt: string | null;
   reminderSent: boolean;
   reminderAcknowledged: boolean;
@@ -333,8 +335,7 @@ export const notesService = {
     sortBy?: string;
     sortOrder?: 'ASC' | 'DESC';
   }): Promise<NotesResponse> {
-    const response = await api.get('/notes', { params });
-    return response.data;
+    return offline.getNotes(params);
   },
 
   async searchAutocomplete(query: string): Promise<SearchAutocompleteResponse> {
@@ -345,33 +346,27 @@ export const notesService = {
   },
 
   async getNoteById(id: number): Promise<{ note: Note }> {
-    const response = await api.get(`/notes/${id}`);
-    return response.data;
+    return offline.getNoteById(id);
   },
 
   async createNote(data: CreateNoteData): Promise<{ message: string; note: Note }> {
-    const response = await api.post('/notes', data);
-    return response.data;
+    return offline.createNote(data);
   },
 
   async updateNote(id: number, data: UpdateNoteData): Promise<{ message: string; note: Note }> {
-    const response = await api.put(`/notes/${id}`, data);
-    return response.data;
+    return offline.updateNote(id, data);
   },
 
   async deleteNote(id: number): Promise<{ message: string }> {
-    const response = await api.delete(`/notes/${id}`);
-    return response.data;
+    return offline.deleteNote(id);
   },
 
   async archiveNote(id: number): Promise<{ message: string; note: Note }> {
-    const response = await api.patch(`/notes/${id}/archive`);
-    return response.data;
+    return offline.archiveNote(id);
   },
 
   async getNoteStats(): Promise<NoteStats> {
-    const response = await api.get('/notes/stats');
-    return response.data;
+    return offline.getStats();
   },
 
   async ackReminder(id: number): Promise<{ message: string; note: Note }> {
@@ -459,16 +454,21 @@ export const notesService = {
     sortBy?: string;
     sortOrder?: 'ASC' | 'DESC';
   }): Promise<FoldersResponse> {
-    const response = await api.get('/notes/folders', { params });
-    return response.data;
+    // Folder metadata is read-only while offline.
+    const response = await offline.getFolders();
+    if (params?.search) {
+      const term = params.search.toLocaleLowerCase();
+      const folders = response.folders.filter(f => f.name.toLocaleLowerCase().includes(term));
+      return { folders, total: folders.length };
+    }
+    return response;
   },
 
   async getFolderById(id: number, params?: {
     page?: number;
     limit?: number;
   }): Promise<FolderWithNotesResponse> {
-    const response = await api.get(`/notes/folders/${id}`, { params });
-    return response.data;
+    return offline.getFolderById(id, params);
   },
 
   async createFolder(data: CreateFolderData): Promise<{ message: string; folder: NoteFolder }> {
@@ -526,8 +526,13 @@ export const notesService = {
     sortBy?: string;
     sortOrder?: 'ASC' | 'DESC';
   }): Promise<CategoriesResponse> {
-    const response = await api.get('/notes/categories', { params });
-    return response.data;
+    const response = await offline.getCategories();
+    if (params?.search) {
+      const q = params.search.toLocaleLowerCase();
+      const categories = response.categories.filter(item => item.name.toLocaleLowerCase().includes(q));
+      return { categories, total: categories.length };
+    }
+    return response;
   },
 
   async searchCategories(query: string, limit?: number): Promise<CategoriesResponse> {
@@ -573,8 +578,13 @@ export const notesService = {
     sortBy?: string;
     sortOrder?: 'ASC' | 'DESC';
   }): Promise<TagsResponse> {
-    const response = await api.get('/notes/tags', { params });
-    return response.data;
+    const response = await offline.getTags();
+    if (params?.search) {
+      const q = params.search.toLocaleLowerCase();
+      const tags = response.tags.filter(item => item.name.toLocaleLowerCase().includes(q));
+      return { tags, total: tags.length };
+    }
+    return response;
   },
 
   async getTagById(id: number): Promise<{ tag: NoteTag }> {

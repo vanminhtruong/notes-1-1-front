@@ -1,0 +1,196 @@
+/* Account avatar viewer — independent of the profile card and global modal CSS. */
+.avatar-lightbox-overlay {
+  --av-surface: #ffffff;
+  --av-content: #f4f6f9;
+  --av-frame: #e9edf2;
+  --av-border: #e0e5ec;
+  --av-heading: #172033;
+  --av-text: #455369;
+  --av-muted: #6b788c;
+  --av-action: #ffffff;
+  --av-action-hover: #f4f6fa;
+  position: fixed;
+  inset: 0;
+  z-index: 10020;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 18px;
+  background: rgba(12, 20, 33, .70);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+:root.dark:not(.dark-black) .avatar-lightbox-overlay {
+  --av-surface: #202939;
+  --av-content: #171f2e;
+  --av-frame: #151c28;
+  --av-border: #3a4659;
+  --av-heading: #f4f7fb;
+  --av-text: #d9e0eb;
+  --av-muted: #adb7c6;
+  --av-action: #293649;
+  --av-action-hover: #344258;
+  background: rgba(5, 10, 19, .82);
+}
+:root.dark-black .avatar-lightbox-overlay {
+  --av-surface: #151515;
+  --av-content: #101010;
+  --av-frame: #0c0c0c;
+  --av-border: #343434;
+  --av-heading: #f4f4f4;
+  --av-text: #d9d9d9;
+  --av-muted: #aaaaaa;
+  --av-action: #222222;
+  --av-action-hover: #303030;
+  background: rgba(0, 0, 0, .92);
+  backdrop-filter: grayscale(1) blur(7px);
+  -webkit-backdrop-filter: grayscale(1) blur(7px);
+}
+.avatar-lightbox-overlay *,
+.avatar-lightbox-overlay *::before,
+.avatar-lightbox-overlay *::after { box-sizing: border-box; }
+
+.avatar-lightbox {
+  width: min(100%, 640px);
+  max-height: calc(100dvh - 36px);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--av-border);
+  border-radius: 22px;
+  background: var(--av-surface);
+  box-shadow: 0 25px 90px rgba(0, 0, 0, .28), 0 7px 22px rgba(0, 0, 0, .1);
+  color: var(--av-text);
+}
+
+.avatar-lightbox-header {
+  flex: 0 0 auto;
+  padding: 18px 20px;
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--av-border);
+}
+.avatar-lightbox-heading { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.avatar-lightbox-header-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--av-content);
+  border: 1px solid var(--av-border);
+  color: var(--av-text);
+}
+.avatar-lightbox-heading-text { min-width: 0; }
+.avatar-lightbox-heading-text h2 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 750;
+  color: var(--av-heading);
+}
+.avatar-lightbox-heading-text p {
+  margin: 3px 0 0;
+  color: var(--av-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.avatar-lightbox-close {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border: 1px solid var(--av-border);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--av-action);
+  color: var(--av-text);
+  cursor: pointer;
+  transition: background-color .18s, color .18s, border-color .18s;
+}
+.avatar-lightbox-close:hover { background: var(--av-action-hover); color: var(--av-heading); }
+.avatar-lightbox-close:focus-visible,
+.avatar-lightbox-done:focus-visible {
+  outline: 2px solid var(--av-heading);
+  outline-offset: 3px;
+}
+.avatar-lightbox-body {
+  min-height: 0;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: center;
+  background: var(--av-content);
+  overflow: auto;
+}
+.avatar-lightbox-image-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 190px;
+  padding: 10px;
+  border: 1px solid var(--av-border);
+  border-radius: 15px;
+  background: var(--av-frame);
+}
+.avatar-lightbox-image-frame img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(62dvh, 620px);
+  border-radius: 9px;
+  object-fit: contain;
+}
+.avatar-lightbox-footer {
+  min-height: 68px;
+  flex: 0 0 auto;
+  padding: 13px 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--av-border);
+}
+.avatar-lightbox-caption { font-size: 12px; line-height: 1.5; color: var(--av-muted); }
+.avatar-lightbox-done {
+  min-height: 38px;
+  padding: 9px 20px;
+  border: 1px solid var(--av-border);
+  border-radius: 10px;
+  background: var(--av-action);
+  color: var(--av-heading);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .18s, border-color .18s;
+}
+.avatar-lightbox-done:hover { background: var(--av-action-hover); }
+@media (max-width: 640px) {
+  .avatar-lightbox-overlay { padding: 12px; }
+  .avatar-lightbox { border-radius: 17px; max-height: calc(100dvh - 24px); }
+  .avatar-lightbox-header { padding: 14px; min-height: 69px; gap: 9px; }
+  .avatar-lightbox-header-icon { width: 36px; height: 36px; flex-basis: 36px; }
+  .avatar-lightbox-heading-text h2 { font-size: 14px; }
+  .avatar-lightbox-heading-text p { font-size: 11px; }
+  .avatar-lightbox-close { width: 36px; height: 36px; flex-basis: 36px; }
+  .avatar-lightbox-body { padding: 12px; }
+  .avatar-lightbox-image-frame { padding: 7px; min-height: 145px; border-radius: 12px; }
+  .avatar-lightbox-image-frame img { max-height: min(58dvh, 560px); border-radius: 8px; }
+  .avatar-lightbox-footer { padding: 12px 14px; min-height: 59px; }
+}
+@media (max-width: 360px) {
+  .avatar-lightbox-footer { gap: 8px; }
+  .avatar-lightbox-caption { font-size: 11px; }
+  .avatar-lightbox-done { padding: 8px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar-lightbox * { transition: none !important; }
+}

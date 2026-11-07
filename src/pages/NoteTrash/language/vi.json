@@ -43,5 +43,6 @@
   "deleteAllTitle": "Dọn sạch toàn bộ thùng rác?",
   "deleteWarning": "Thao tác này không thể hoàn tác. Ghi chú và tệp đính kèm sẽ bị xóa vĩnh viễn.",
   "cancel": "Hủy",
+  "close": "Đóng",
   "confirmDelete": "Xóa vĩnh viễn"
 }

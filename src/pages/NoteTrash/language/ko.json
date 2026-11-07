@@ -43,5 +43,6 @@
   "deleteAllTitle": "휴지통을 비우시겠습니까?",
   "deleteWarning": "이 작업은 되돌릴 수 없습니다. 메모와 첨부 파일이 영구 삭제됩니다.",
   "cancel": "취소",
+  "close": "닫기",
   "confirmDelete": "영구 삭제"
 }

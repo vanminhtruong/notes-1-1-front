@@ -43,5 +43,6 @@
   "deleteAllTitle": "Empty your trash?",
   "deleteWarning": "This cannot be undone. All selected notes and their attached files will be permanently removed.",
   "cancel": "Cancel",
+  "close": "Close",
   "confirmDelete": "Delete forever"
 }

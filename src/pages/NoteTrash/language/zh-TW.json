@@ -43,5 +43,6 @@
   "deleteAllTitle": "清空回收桶？",
   "deleteWarning": "此操作無法復原，筆記和附件將被永久刪除。",
   "cancel": "取消",
+  "close": "關閉",
   "confirmDelete": "永久刪除"
 }

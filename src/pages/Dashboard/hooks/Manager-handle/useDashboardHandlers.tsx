@@ -1,10 +1,11 @@
 import React, { useCallback, useRef } from 'react';
-import { useAppDispatch } from '@/store';
+import { store, useAppDispatch } from '@/store';
 import toast from 'react-hot-toast';
-import { createNote, deleteNote, deleteNoteRealtime, fetchNoteStats, archiveNote, updateNote, ackReminder } from '@/store/slices/notesSlice';
+import { createNote, deleteNote, deleteNoteRealtime, fetchNoteStats, fetchNotes, archiveNote, updateNote, ackReminder } from '@/store/slices/notesSlice';
 import { useTranslation } from 'react-i18next';
 import type { Priority } from '../Interface/types';
-import { noteTrashService, type NoteCategory } from '@/services/notesService';
+import type { NoteCategory } from '@/services/notesService';
+import { deleteMany, isOffline } from '@/offline/offlineNotes';
 
 interface UseDashboardHandlersProps {
   newNote: {
@@ -58,6 +59,15 @@ export const useDashboardHandlers = ({
   const { t } = useTranslation('dashboard');
   const dispatch = useAppDispatch();
   const deletingSelectedRef = useRef(false);
+  const savingNoteRef = useRef(false);
+  const refreshOfflineNotes = useCallback(() => {
+    if (!isOffline()) return;
+    const { filters, pagination } = store.getState().notes;
+    void dispatch(fetchNotes({ page: pagination.page, limit: 9,
+      search: filters.search || undefined, category: filters.category || undefined,
+      priority: filters.priority || undefined, isArchived: filters.isArchived }));
+    void dispatch(fetchNoteStats());
+  }, [dispatch]);
 
   const localInputToIso = useCallback((local: string | undefined) => {
     if (!local) return undefined;
@@ -79,38 +89,37 @@ export const useDashboardHandlers = ({
   }, []);
 
   const handleCreateNote = useCallback(async () => {
-    if (!newNote.title.trim()) return;
-    
-    // Close modal immediately for better UX
-    setShowCreateModal(false);
-    // Optimistic: đưa category đã chọn lên đầu ngay
-    if (newNote.categoryId) {
-      setCategories(prev => moveToFront(prev, newNote.categoryId as number));
+    if (!newNote.title.trim() || savingNoteRef.current) return;
+    savingNoteRef.current = true;
+    try {
+      // Keep the form open until the server OR IndexedDB confirms persistence.
+      const result = await dispatch(createNote({
+        title: newNote.title,
+        content: newNote.content || undefined,
+        imageUrl: newNote.imageUrl || undefined,
+        videoUrl: newNote.videoUrl || undefined,
+        youtubeUrl: newNote.youtubeUrl || undefined,
+        categoryId: newNote.categoryId,
+        priority: newNote.priority,
+        reminderAt: localInputToIso(newNote.reminderAtLocal),
+        sharedFromUserId: newNote.sharedFromUserId,
+      }));
+      if (!createNote.fulfilled.match(result)) return; // Do not lose draft on failure.
+      if (newNote.categoryId) setCategories(prev => moveToFront(prev, newNote.categoryId as number));
+      setShowCreateModal(false);
+      setNewNote({ title: '', content: '', imageUrl: '', videoUrl: '', youtubeUrl: '',
+        categoryId: undefined, priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
+      refreshOfflineNotes();
+    } finally {
+      savingNoteRef.current = false;
     }
-    setNewNote({ title: '', content: '', imageUrl: '', videoUrl: '', youtubeUrl: '', categoryId: undefined, priority: 'medium', reminderAtLocal: '', sharedFromUserId: undefined });
-    
-    // Create note in background
-    dispatch(createNote({
-      title: newNote.title,
-      content: newNote.content || undefined,
-      imageUrl: newNote.imageUrl ? newNote.imageUrl : undefined,
-      videoUrl: newNote.videoUrl ? newNote.videoUrl : undefined,
-      youtubeUrl: newNote.youtubeUrl ? newNote.youtubeUrl : undefined,
-      categoryId: newNote.categoryId,
-      priority: newNote.priority,
-      reminderAt: localInputToIso(newNote.reminderAtLocal),
-      sharedFromUserId: newNote.sharedFromUserId,
-    }));
-    
-    // No need to fetchNotes - socket event 'note_created' will auto-add the note to the list
-  }, [newNote, dispatch, localInputToIso, setShowCreateModal, setCategories, moveToFront, setNewNote]);
+  }, [newNote, dispatch, localInputToIso, setShowCreateModal, setCategories, moveToFront, setNewNote, refreshOfflineNotes]);
 
   const handleDeleteNote = useCallback(async (id: number) => {
     // Delete note in background
-    dispatch(deleteNote(id));
-    
-    // No need to fetchNotes - socket event 'note_deleted' will auto-remove the note from list
-  }, [dispatch]);
+    const result = await dispatch(deleteNote(id));
+    if (deleteNote.fulfilled.match(result)) refreshOfflineNotes();
+  }, [dispatch, refreshOfflineNotes]);
 
   const confirmDeleteNote = useCallback((id: number) => {
     const tId = toast.custom((toastData) => {
@@ -158,6 +167,7 @@ export const useDashboardHandlers = ({
 
   const handleArchiveNote = useCallback(async (id: number) => {
     const result = await dispatch(archiveNote(id));
+    if (archiveNote.fulfilled.match(result)) refreshOfflineNotes();
     // No need to fetchNotes - socket event 'note_archived' will auto-update the list
     
     // Show success toast
@@ -167,7 +177,7 @@ export const useDashboardHandlers = ({
         className: 'dark:bg-gray-800 dark:text-white',
       });
     }
-  }, [dispatch, t]);
+  }, [dispatch, t, refreshOfflineNotes]);
 
   const confirmArchiveNote = useCallback((id: number, restoring = false) => {
     const tId = toast.custom((toastData) => {
@@ -234,34 +244,28 @@ export const useDashboardHandlers = ({
   }, [setViewNote, setShowViewModal]);
 
   const handleUpdateNote = useCallback(async () => {
-    if (!editNote.title.trim()) return;
-    
-    // Close modal immediately for better UX
-    setShowEditModal(false);
-    // Optimistic: đưa category đã chọn lên đầu ngay
-    if (editNote.categoryId) {
-      setCategories(prev => moveToFront(prev, editNote.categoryId as number));
+    if (!editNote.title.trim() || savingNoteRef.current) return;
+    savingNoteRef.current = true;
+    try {
+      const updateData = {
+        title: editNote.title,
+        content: editNote.content,
+        imageUrl: editNote.imageUrl?.trim() || null,
+        videoUrl: editNote.videoUrl?.trim() || null,
+        youtubeUrl: editNote.youtubeUrl?.trim() || null,
+        categoryId: editNote.categoryId,
+        priority: editNote.priority,
+        reminderAt: editNote.reminderAtLocal ? localInputToIso(editNote.reminderAtLocal) ?? null : null,
+      };
+      const result = await dispatch(updateNote({ id: editNote.id, data: updateData }));
+      if (!updateNote.fulfilled.match(result)) return; // Preserve user's input if storage fails.
+      if (editNote.categoryId) setCategories(prev => moveToFront(prev, editNote.categoryId as number));
+      setShowEditModal(false);
+      refreshOfflineNotes();
+    } finally {
+      savingNoteRef.current = false;
     }
-    
-    const updateData = {
-      title: editNote.title,
-      content: editNote.content,
-      imageUrl: editNote.imageUrl?.trim() || null,
-      videoUrl: editNote.videoUrl?.trim() || null,
-      youtubeUrl: editNote.youtubeUrl?.trim() || null,
-      categoryId: editNote.categoryId,
-      priority: editNote.priority,
-      reminderAt: editNote.reminderAtLocal ? localInputToIso(editNote.reminderAtLocal) ?? null : null,
-    };
-    
-    // Update note in background
-    dispatch(updateNote({
-      id: editNote.id,
-      data: updateData,
-    }));
-    
-    // No need to fetchNotes - socket event 'note_updated' will auto-update the note in the list
-  }, [editNote, localInputToIso, dispatch, setShowEditModal, setCategories, moveToFront]);
+  }, [editNote, localInputToIso, dispatch, setShowEditModal, setCategories, moveToFront, refreshOfflineNotes]);
 
   const toggleSelect = useCallback((id: number) => {
     setSelectedIds((prev: number[]) => (prev.includes(id) ? prev.filter((x: number) => x !== id) : [...prev, id]));
@@ -275,13 +279,14 @@ export const useDashboardHandlers = ({
     const ids = [...new Set(selectedIds)];
     try {
       // One request: the backend processes SQLite write transactions sequentially.
-      const result = await noteTrashService.moveSelected(ids);
+      const result = await deleteMany(ids);
       for (const id of result.deletedIds) {
         dispatch(deleteNoteRealtime({ id }));
       }
       setSelectedIds([]);
       void dispatch(fetchNoteStats());
-      toast.success(t('toasts.noteDeleted'));
+      refreshOfflineNotes();
+      toast.success(isOffline() ? 'Đã lưu thao tác xóa trên thiết bị, chờ đồng bộ.' : t('toasts.noteDeleted'));
     } catch (error: any) {
       // The backend may return IDs already moved before a partial failure.
       const completed: number[] = error?.response?.data?.deletedIds || [];
@@ -292,7 +297,7 @@ export const useDashboardHandlers = ({
     } finally {
       deletingSelectedRef.current = false;
     }
-  }, [selectedIds, dispatch, setSelectedIds, t]);
+  }, [selectedIds, dispatch, setSelectedIds, t, refreshOfflineNotes]);
 
   const confirmBulkDelete = useCallback(() => {
     const tId = toast.custom((toastData) => {

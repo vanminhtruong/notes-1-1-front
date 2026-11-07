@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 import { notesService, type Note, type CreateNoteData, type UpdateNoteData } from '@/services/notesService';
 import toast from 'react-hot-toast';
 import i18n from '@/libs/i18n';
+import { isOffline } from '@/offline/offlineNotes';
 
 export interface NotesState {
   notes: Note[];
@@ -114,7 +115,9 @@ export const createNote = createAsyncThunk(
   async (data: CreateNoteData, { rejectWithValue }) => {
     try {
       const response = await notesService.createNote(data);
-      toast.success(i18n.t('dashboard:toasts.noteCreated'));
+      toast.success(isOffline() || 'offline' in response
+        ? 'Đã lưu trên thiết bị. Sẽ đồng bộ khi có mạng.'
+        : i18n.t('dashboard:toasts.noteCreated'));
       return response.note;
     } catch (error: any) {
       const message = error.response?.data?.message || i18n.t('dashboard:toasts.noteCreateFailed');
@@ -129,7 +132,9 @@ export const updateNote = createAsyncThunk(
   async ({ id, data }: { id: number; data: UpdateNoteData }, { rejectWithValue }) => {
     try {
       const response = await notesService.updateNote(id, data);
-      toast.success(i18n.t('dashboard:toasts.noteUpdated'));
+      toast.success('offline' in response
+        ? 'Đã lưu thay đổi offline. Đang chờ đồng bộ.'
+        : i18n.t('dashboard:toasts.noteUpdated'));
       return response.note;
     } catch (error: any) {
       const message = error.response?.data?.message || i18n.t('dashboard:toasts.noteUpdateFailed');
@@ -143,8 +148,10 @@ export const deleteNote = createAsyncThunk(
   'notes/deleteNote',
   async (id: number, { rejectWithValue }) => {
     try {
-      await notesService.deleteNote(id);
-      toast.success(i18n.t('dashboard:toasts.noteDeleted'));
+      const response = await notesService.deleteNote(id);
+      toast.success('offline' in response
+        ? 'Đã xếp hàng chuyển vào thùng rác khi có mạng.'
+        : i18n.t('dashboard:toasts.noteDeleted'));
       return id;
     } catch (error: any) {
       const message = error.response?.data?.message || i18n.t('dashboard:toasts.noteDeleteFailed');
@@ -299,25 +306,27 @@ const notesSlice = createSlice({
         state.currentNote = action.payload;
       })
       // Create Note
-      .addCase(createNote.fulfilled, (state) => {
-        // Note will be added by socket event 'note_created' for real-time sync
-        // No need to add here to avoid duplicate
-        // Just update loading state
+      .addCase(createNote.fulfilled, (state, action) => {
         state.isLoading = false;
+        if (action.payload.id < 0 && !state.notes.some(item => item.id === action.payload.id)) {
+          state.notes.unshift(action.payload);
+          state.pagination.total += 1;
+        }
       })
       // Update Note
-      .addCase(updateNote.fulfilled, (state) => {
-        // Note will be updated by socket event 'note_updated' for real-time sync
-        // No need to update here to avoid duplicate
-        // Just update loading state
+      .addCase(updateNote.fulfilled, (state, action) => {
         state.isLoading = false;
+        if (isOffline()) {
+          const idx = state.notes.findIndex(note => note.id === action.payload.id);
+          if (idx >= 0) state.notes[idx] = action.payload;
+          if (state.currentNote?.id === action.payload.id) state.currentNote = action.payload;
+        }
       })
       // Delete Note
-      .addCase(deleteNote.fulfilled, (state) => {
-        // Note will be removed by socket event 'note_deleted' for real-time sync
-        // No need to remove here to avoid duplicate
-        // Just update loading state
+      .addCase(deleteNote.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.notes = state.notes.filter(note => note.id !== action.payload);
+        if (state.currentNote?.id === action.payload) state.currentNote = null;
       })
       // Archive Note
       .addCase(archiveNote.fulfilled, (state, action) => {

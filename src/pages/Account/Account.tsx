@@ -5,6 +5,7 @@ import { Mail, User, ArrowLeft, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import EditProfileModal from './EditProfileModal';
+import AvatarPreviewModal from './components/AvatarPreviewModal';
 import LazyLoad from '@/components/LazyLoad';
 
 export default function Account() {
@@ -22,15 +23,6 @@ export default function Account() {
   }, [dispatch, isAuthenticated, user]);
 
   
-
-  // Close preview on ESC
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPreviewOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-900/60 dark:to-gray-800 min-h-screen">
@@ -72,13 +64,19 @@ export default function Account() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 md-down:text-xs">{t('avatar.label')}</label>
               <div className="flex items-center gap-4 sm-down:gap-3 xs-down:gap-2.5">
                 {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt="avatar"
-                    className="w-20 h-20 rounded-full object-cover border border-gray-300 dark:border-gray-700 cursor-zoom-in lg-down:w-18 lg-down:h-18 md-down:w-16 md-down:h-16 sm-down:w-14 sm-down:h-14 xs-down:w-12 xs-down:h-12"
+                  <button
+                    type="button"
                     onClick={() => setPreviewOpen(true)}
-                    title={t('avatar.preview', { defaultValue: 'Xem ảnh lớn' })}
-                  />
+                    aria-label={t('avatar.preview')}
+                    title={t('avatar.preview')}
+                    className="relative inline-flex shrink-0 rounded-full outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gray-600 dark:focus-visible:outline-gray-200 transition-transform duration-150 hover:scale-105"
+                  >
+                    <img
+                      src={user.avatar}
+                      alt={t('avatar.label')}
+                      className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600 lg-down:w-18 lg-down:h-18 md-down:w-16 md-down:h-16 sm-down:w-14 sm-down:h-14 xs-down:w-12 xs-down:h-12"
+                    />
+                  </button>
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-300 border border-gray-300 dark:border-gray-700 lg-down:w-18 lg-down:h-18 md-down:w-16 md-down:h-16 sm-down:w-14 sm-down:h-14 xs-down:w-12 xs-down:h-12">
                     <User className="w-8 h-8 lg-down:w-7 lg-down:h-7 md-down:w-6 md-down:h-6 sm-down:w-5 sm-down:h-5 xs-down:w-4 xs-down:h-4" />
@@ -140,30 +138,12 @@ export default function Account() {
           </div>
         </div>
 
-        {/* Image Preview Modal */}
-        {previewOpen && user?.avatar && (
-          <div
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 lg-down:p-3 md-down:p-2.5 sm-down:p-2"
-            role="dialog"
-            aria-modal="true"
-            onClick={() => setPreviewOpen(false)}
-          >
-            <div className="relative max-w-[95vw] max-h-[95vh] sm-down:max-w-[90vw] sm-down:max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-              <button
-                className="absolute -top-3 -right-3 bg-white text-gray-800 rounded-full w-8 h-8 flex items-center justify-center shadow hover:bg-gray-100 lg-down:w-7 lg-down:h-7 sm-down:w-6 sm-down:h-6 sm-down:-top-2 sm-down:-right-2"
-                aria-label={t('avatar.closePreview', { defaultValue: 'Đóng' })}
-                onClick={() => setPreviewOpen(false)}
-              >
-                ×
-              </button>
-              <img
-                src={user.avatar}
-                alt="avatar preview"
-                className="object-contain max-w-[95vw] max-h-[95vh] rounded-lg shadow-2xl sm-down:max-w-[90vw] sm-down:max-h-[90vh] sm-down:rounded"
-              />
-            </div>
-          </div>
-        )}
+        {/* Reusable, accessible full-size avatar viewer. */}
+        <AvatarPreviewModal
+          isOpen={previewOpen}
+          imageUrl={user?.avatar}
+          onClose={() => setPreviewOpen(false)}
+        />
         {/* Edit Profile Modal */}
         <EditProfileModal
           isOpen={editOpen}

@@ -14,6 +14,8 @@
     "remove": "이미지 제거",
     "info": "JPG, PNG, WebP 지원. 최대 5MB",
     "preview": "이미지 미리보기",
+    "previewSubtitle": "계정 프로필 사진",
+    "previewHint": "잘림 없이 전체 이미지 표시",
     "closePreview": "닫기",
     "maxSizeError": "이미지 최대 크기는 5MB 입니다",
     "uploadError": "이미지 업로드 실패"

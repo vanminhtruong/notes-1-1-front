@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { authService } from '@/services/authService'
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock'
 import { socketService } from '@/services/socketService'
+import OfflineSyncCenter, { OfflineSyncMenuItem } from '@/offline/OfflineSyncCenter'
 
 export default function MainLayout() {
   const { t, i18n } = useTranslation('layout');
@@ -322,6 +323,8 @@ export default function MainLayout() {
                         <span>{t('user.noteTrash', { defaultValue: 'Thùng rác ghi chú' })}</span>
                       </Link>
 
+                      <OfflineSyncMenuItem onOpen={() => setMenuOpen(false)} />
+
                       <Link
                         to="/change-password"
                         onClick={() => setMenuOpen(false)}
@@ -439,6 +442,9 @@ export default function MainLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
+
+      {/* Keep the sync dialog mounted outside the dropdown and sticky header. */}
+      <OfflineSyncCenter />
 
       {/* Chat Window */}
       {chatOpen && (

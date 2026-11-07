@@ -14,6 +14,8 @@
     "remove": "移除图片",
     "info": "支持 JPG, PNG, WebP。最大 5MB。",
     "preview": "预览图片",
+    "previewSubtitle": "账户头像",
+    "previewHint": "完整显示图片，不裁剪",
     "closePreview": "关闭",
     "maxSizeError": "图片大小最大为 5MB",
     "uploadError": "上传图片失败"

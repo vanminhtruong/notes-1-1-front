@@ -43,5 +43,6 @@
   "deleteAllTitle": "清空回收站？",
   "deleteWarning": "此操作无法撤销，笔记和附件将被永久删除。",
   "cancel": "取消",
+  "close": "关闭",
   "confirmDelete": "永久删除"
 }

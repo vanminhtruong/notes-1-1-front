@@ -320,10 +320,19 @@ export default function NoteTrashPage() {
       </div>
 
       {deletion && (
-        <div className="nt-modal-backdrop" role="presentation"
-          onMouseDown={event => { if (event.target === event.currentTarget && !busy) setDeletion(null); }}>
+        <div className="nt-modal-backdrop" role="presentation">
           <div className="nt-modal" role="alertdialog" aria-modal="true"
             aria-labelledby="nt-confirm-title" aria-describedby="nt-confirm-message">
+            <button
+              type="button"
+              className="nt-modal-close"
+              onClick={() => setDeletion(null)}
+              disabled={busy}
+              title={t('close')}
+              aria-label={t('close')}
+            >
+              <X size={19} strokeWidth={2} aria-hidden="true" />
+            </button>
             <div className="nt-modal-icon"><Trash2 size={23} /></div>
             <h2 id="nt-confirm-title">{deleteTitle}</h2>
             {deletion.type === 'one' && <p className="nt-modal-name">{deletion.title}</p>}

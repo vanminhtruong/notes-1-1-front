@@ -14,6 +14,8 @@
     "remove": "Gỡ ảnh",
     "info": "Hỗ trợ JPG, PNG, WebP. Tối đa 5MB.",
     "preview": "Xem ảnh lớn",
+    "previewSubtitle": "Ảnh đại diện của tài khoản",
+    "previewHint": "Hiển thị toàn bộ ảnh, không cắt xén",
     "closePreview": "Đóng",
     "maxSizeError": "Ảnh tối đa 5MB",
     "uploadError": "Tải ảnh thất bại"
