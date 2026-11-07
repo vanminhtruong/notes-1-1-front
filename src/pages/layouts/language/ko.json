@@ -24,7 +24,8 @@
     "allSessionsTerminated": "관리자가 모든 세션을 종료했습니다",
     "logoutConfirm": "로그아웃?",
     "logoutMessage": "로그아웃하시겠습니까?",
-    "cancel": "취소"
+    "cancel": "취소",
+    "noteTrash": "메모 휴지통"
   },
   "devices": {
     "title": "로그인된 기기",

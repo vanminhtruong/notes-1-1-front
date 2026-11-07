@@ -1,6 +1,16 @@
 {
-  "qaFixes": {"movedOut": "笔记已移出文件夹", "restoreTitle": "恢复笔记？", "restoreMessage": "笔记将返回原来的位置。", "restored": "笔记已恢复"},
-  "checklist": {"label": "待办清单", "progress": "已完成 {{completed}}/{{total}}", "more": "查看其余 {{count}} 项", "untitled": "未命名任务"},
+  "qaFixes": {
+    "movedOut": "笔记已移出文件夹",
+    "restoreTitle": "恢复笔记？",
+    "restoreMessage": "笔记将返回原来的位置。",
+    "restored": "笔记已恢复"
+  },
+  "checklist": {
+    "label": "待办清单",
+    "progress": "已完成 {{completed}}/{{total}}",
+    "more": "查看其余 {{count}} 项",
+    "untitled": "未命名任务"
+  },
   "title": "仪表盘",
   "welcome": "欢迎来到您的仪表盘",
   "stats": {
@@ -204,7 +214,8 @@
       "archiveTitle": "归档笔记？",
       "archiveMessage": "笔记将被移至归档。",
       "deleteFolderMessage": "删除文件夹“{{name}}”？其中的笔记将保留。",
-      "removeFromFolderMessage": "将此笔记移出文件夹？"
+      "removeFromFolderMessage": "将此笔记移出文件夹？",
+      "trashMessage": "笔记将在回收站保留30天，可随时恢复。"
     },
     "create": {
       "title": "新建笔记",

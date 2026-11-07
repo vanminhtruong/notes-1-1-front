@@ -1,0 +1,554 @@
+<!doctype html><html class="light"><meta charset="utf-8">
+    <style>body{margin:0;font-family:Arial,sans-serif}/* Page-scoped surfaces: avoid the global dark-black Tailwind overrides used by other pages. */
+.note-trash-page {
+  --nt-page: linear-gradient(135deg, #f7f9fe 0%, #eef3ff 52%, #f6f8fc 100%);
+  --nt-surface: rgba(255, 255, 255, .84);
+  --nt-surface-strong: #fff;
+  --nt-subtle: #f7f8fc;
+  --nt-line: #e3e8f0;
+  --nt-title: #18243a;
+  --nt-text: #334155;
+  --nt-muted: #64748b;
+  --nt-accent: #4f46e5;
+  --nt-accent-bg: #eef2ff;
+  --nt-accent-hover: #e2e8ff;
+  --nt-accent-border: #d9defe;
+  --nt-danger: #b42336;
+  --nt-danger-bg: #fff3f4;
+  --nt-danger-border: #ffd6da;
+  --nt-danger-hover: #ffe7ea;
+  --nt-danger-solid: #c52e45;
+  --nt-warning: #a04c0b;
+  --nt-warning-bg: #fff6e9;
+  --nt-warning-border: #f7dfb8;
+  --nt-shadow: 0 16px 48px rgba(51, 72, 114, .10), 0 2px 9px rgba(51, 72, 114, .045);
+
+  min-height: 75vh;
+  padding: clamp(18px, 2.8vw, 40px) 16px 72px;
+  background: var(--nt-page);
+  color: var(--nt-text);
+  transition: background-color .2s, color .2s;
+}
+:root.dark:not(.dark-black) .note-trash-page {
+  --nt-page: linear-gradient(135deg, #111827 0%, #192436 58%, #121c2c 100%);
+  --nt-surface: rgba(31, 41, 55, .93);
+  --nt-surface-strong: #253044;
+  --nt-subtle: #1a2535;
+  --nt-line: #3d4a60;
+  --nt-title: #f4f7ff;
+  --nt-text: #dce3ef;
+  --nt-muted: #a9b7cb;
+  --nt-accent: #bbbaff;
+  --nt-accent-bg: #303763;
+  --nt-accent-hover: #394477;
+  --nt-accent-border: #505b99;
+  --nt-danger: #ffb7c1;
+  --nt-danger-bg: #452634;
+  --nt-danger-border: #754153;
+  --nt-danger-hover: #593040;
+  --nt-danger-solid: #b9324d;
+  --nt-warning: #ffd39a;
+  --nt-warning-bg: #49372b;
+  --nt-warning-border: #755537;
+  --nt-shadow: 0 16px 42px rgba(0, 0, 0, .2);
+}
+/* Match the app's pure black theme: neutral monochrome, no colored accents. */
+:root.dark-black .note-trash-page {
+  --nt-page: #000000;
+  --nt-surface: #0a0a0a;
+  --nt-surface-strong: #151515;
+  --nt-subtle: #111111;
+  --nt-line: #323232;
+  --nt-title: #f2f2f2;
+  --nt-text: #dedede;
+  --nt-muted: #ababab;
+  --nt-accent: #e2e2e2;
+  --nt-accent-bg: #202020;
+  --nt-accent-hover: #2a2a2a;
+  --nt-accent-border: #444444;
+  --nt-danger: #e5e5e5;
+  --nt-danger-bg: #212121;
+  --nt-danger-border: #494949;
+  --nt-danger-hover: #303030;
+  --nt-danger-solid: #414141;
+  --nt-warning: #dddddd;
+  --nt-warning-bg: #232323;
+  --nt-warning-border: #505050;
+  --nt-shadow: 0 12px 35px rgba(0, 0, 0, .55);
+}
+
+.note-trash-page * { box-sizing: border-box; }
+.note-trash-page button { cursor: pointer; font: inherit; }
+.note-trash-page button:disabled { cursor: not-allowed; opacity: .48; }
+.note-trash-page button:focus-visible,
+.note-trash-page input:focus-visible,
+.note-trash-page a:focus-visible {
+  outline: 3px solid var(--nt-accent);
+  outline-offset: 3px;
+}
+/* Custom square checkboxes with a real, visible checked state in all themes. */
+.note-trash-page input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  margin: 0;
+  flex: 0 0 19px;
+  border: 1.5px solid var(--nt-muted);
+  border-radius: 5px;
+  background: var(--nt-surface-strong);
+  color: #ffffff;
+  cursor: pointer;
+  vertical-align: middle;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.04);
+  transition: border-color .16s, background-color .16s, box-shadow .16s;
+}
+.note-trash-page input[type='checkbox']::after {
+  content: '';
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-1px) rotate(-45deg) scale(.6);
+  opacity: 0;
+  transition: transform .16s, opacity .16s;
+}
+.note-trash-page input[type='checkbox']:checked {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px var(--nt-accent-bg);
+}
+.note-trash-page input[type='checkbox']:checked::after {
+  opacity: 1;
+  transform: translateY(-1px) rotate(-45deg) scale(1);
+}
+.note-trash-page input[type='checkbox']:hover:not(:disabled) {
+  border-color: var(--nt-accent);
+}
+.note-trash-page input[type='checkbox']:disabled { cursor: not-allowed; }
+:root.dark-black .note-trash-page input[type='checkbox'] {
+  background: #111;
+  border-color: #777;
+  color: #111;
+}
+:root.dark-black .note-trash-page input[type='checkbox']:checked {
+  background: #e2e2e2;
+  border-color: #e2e2e2;
+  box-shadow: 0 0 0 2px #424242;
+}
+:root.dark-black .note-trash-page input[type='checkbox']:hover:not(:disabled) {
+  border-color: #f0f0f0;
+}
+.note-trash-page .nt-container { max-width: 1140px; margin: 0 auto; min-width: 0; }
+.note-trash-page .nt-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 0 0 19px 3px;
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--nt-muted);
+}
+.note-trash-page .nt-back {
+  display: inline-flex; align-items: center; gap: 8px; padding: 7px 2px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--nt-text);
+  transition: color .18s;
+}
+.note-trash-page .nt-back:hover { color: var(--nt-accent); }
+.note-trash-page .nt-workspace {
+  overflow: hidden;
+  border: 1px solid var(--nt-line);
+  border-radius: 22px;
+  background: var(--nt-surface);
+  box-shadow: var(--nt-shadow);
+  backdrop-filter: blur(16px);
+}
+.note-trash-page .nt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-width: 0;
+  padding: 27px 30px;
+  background: var(--nt-surface);
+  border-bottom: 1px solid var(--nt-line);
+}
+.note-trash-page .nt-header-primary {
+  min-width: 0; display: flex; align-items: center; gap: 17px;
+}
+.note-trash-page .nt-hero-icon {
+  width: 58px; height: 58px; border-radius: 17px;
+  display: grid; place-items: center; flex: 0 0 58px;
+  background: var(--nt-accent-bg); color: var(--nt-accent);
+  border: 1px solid var(--nt-accent-border);
+}
+.note-trash-page .nt-heading { min-width: 0; }
+.note-trash-page .nt-heading h1 {
+  margin: 0; font-size: clamp(20px, 2.3vw, 26px);
+  line-height: 1.3; letter-spacing: -.55px;
+  font-weight: 750; color: var(--nt-title);
+}
+.note-trash-page .nt-heading p {
+  margin-top: 6px; font-size: 13px; line-height: 1.6;
+  color: var(--nt-muted); max-width: 580px;
+}
+.note-trash-page .nt-retention {
+  display: flex; flex: 0 0 auto; align-items: center; gap: 8px;
+  padding: 11px 13px; border: 1px solid var(--nt-accent-border);
+  border-radius: 12px; background: var(--nt-accent-bg);
+  color: var(--nt-accent); white-space: nowrap; font-size: 13px;
+}
+.note-trash-page .nt-retention strong { font-size: 19px; font-weight: 780; }
+.note-trash-page .nt-retention-label {
+  padding-left: 9px; border-left: 1px solid var(--nt-accent-border);
+  font-size: 12px; font-weight: 500;
+}
+.note-trash-page .nt-content { padding: 24px 30px 28px; min-width: 0; }
+.note-trash-page .nt-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; min-width: 0; margin-bottom: 14px;
+}
+.note-trash-page .nt-search { position: relative; display: block; flex: 1 1 430px; min-width: 0; max-width: 470px; }
+.note-trash-page .nt-search > svg {
+  position: absolute; top: 50%; left: 14px; transform: translateY(-50%);
+  color: var(--nt-muted); pointer-events: none;
+}
+.note-trash-page .nt-search input {
+  width: 100%; min-width: 0; padding: 12px 42px;
+  border: 1px solid var(--nt-line); border-radius: 11px;
+  background: var(--nt-surface-strong); color: var(--nt-title);
+  font-size: 14px; line-height: 21px; outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.note-trash-page .nt-search input::placeholder { color: var(--nt-muted); opacity: .88; }
+.note-trash-page .nt-search input:focus { border-color: var(--nt-accent); box-shadow: 0 0 0 3px var(--nt-accent-bg); }
+.note-trash-page .nt-toolbar-actions {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 15px; min-width: 0;
+}
+.note-trash-page .nt-count {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--nt-muted); font-size: 13px; white-space: nowrap;
+}
+.note-trash-page .nt-count strong { color: var(--nt-title); font-weight: 760; }
+.note-trash-page .nt-button {
+  display: inline-flex; justify-content: center; align-items: center;
+  gap: 8px; min-height: 42px; min-width: 0; padding: 9px 14px;
+  border: 1px solid transparent; border-radius: 10px;
+  font-size: 13px; line-height: 1.4; font-weight: 650;
+  white-space: nowrap; text-align: center;
+  transition: background-color .17s, color .17s, border-color .17s, transform .17s;
+}
+.note-trash-page .nt-button:active:not(:disabled) { transform: scale(.985); }
+.note-trash-page .nt-button-primary {
+  background: #4f46e5; color: #fff;
+}
+.note-trash-page .nt-button-primary:hover { background: #4338ca; }
+:root.dark-black .note-trash-page .nt-button-primary {
+  background: #e0e0e0; color: #151515;
+  border-color: #e0e0e0;
+}
+:root.dark-black .note-trash-page .nt-button-primary:hover {
+  background: #c7c7c7;
+}
+.note-trash-page .nt-button-secondary {
+  background: var(--nt-subtle); border-color: var(--nt-line); color: var(--nt-text);
+}
+.note-trash-page .nt-button-secondary:hover { background: var(--nt-surface-strong); }
+.note-trash-page .nt-button-restore {
+  border-color: var(--nt-accent-border);
+  background: var(--nt-accent-bg); color: var(--nt-accent);
+}
+.note-trash-page .nt-button-restore:hover { background: var(--nt-accent-hover); }
+.note-trash-page .nt-button-outline-danger {
+  border-color: var(--nt-danger-border);
+  background: var(--nt-danger-bg);
+  color: var(--nt-danger);
+}
+.note-trash-page .nt-button-outline-danger:hover { background: var(--nt-danger-hover); }
+.note-trash-page .nt-button-danger {
+  background: var(--nt-danger-solid); color: #fff;
+}
+.note-trash-page .nt-button-danger:hover { filter: brightness(.92); }
+:root.dark-black .note-trash-page .nt-button-danger {
+  border-color: #707070;
+  background: #343434;
+  color: #f5f5f5;
+}
+.note-trash-page .nt-button-delete-icon {
+  min-width: 41px; width: 41px; padding: 0;
+  border: 1px solid var(--nt-danger-border);
+  background: var(--nt-danger-bg); color: var(--nt-danger);
+}
+.note-trash-page .nt-button-delete-icon:hover { background: var(--nt-danger-hover); }
+.note-trash-page .nt-tip {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 11px 14px; border-radius: 10px;
+  background: var(--nt-subtle); border: 1px solid var(--nt-line);
+  color: var(--nt-muted); font-size: 12px; line-height: 1.6;
+}
+.note-trash-page .nt-tip svg { flex: 0 0 auto; margin-top: 1px; color: var(--nt-accent); }
+.note-trash-page .nt-tip p { margin: 0; }
+.note-trash-page .nt-list-header,
+.note-trash-page .nt-selection-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 14px; min-height: 56px; padding: 11px 3px;
+  color: var(--nt-muted); font-size: 13px;
+}
+.note-trash-page .nt-selection-bar {
+  margin-top: 13px; padding: 9px 14px;
+  min-height: 52px; border-radius: 11px;
+  background: var(--nt-accent-bg); border: 1px solid var(--nt-accent-border);
+}
+.note-trash-page .nt-selection-bar .nt-select-all { color: var(--nt-accent); font-weight: 700; }
+.note-trash-page .nt-selection-bar .nt-button { min-height: 35px; }
+.note-trash-page .nt-select-all { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 550; }
+.note-trash-page .nt-list { display: flex; flex-direction: column; gap: 10px; }
+.note-trash-page .nt-note {
+  display: grid; grid-template-columns: 19px 42px minmax(0, 1fr) minmax(142px, auto) auto;
+  align-items: center; gap: 17px; min-width: 0;
+  border: 1px solid var(--nt-line); border-radius: 13px;
+  background: var(--nt-surface-strong); padding: 15px 17px;
+  transition: background-color .18s, border-color .18s, box-shadow .18s;
+}
+.note-trash-page .nt-note:hover {
+  border-color: var(--nt-accent-border);
+  box-shadow: 0 5px 20px rgba(30, 44, 75, .055);
+}
+.note-trash-page .nt-note-checkbox { display: grid; place-items: center; cursor: pointer; min-height: 32px; min-width: 27px; }
+.note-trash-page .nt-note:has(.nt-note-checkbox input:checked) {
+  border-color: var(--nt-accent-border);
+  background: var(--nt-subtle);
+}
+:root.dark-black .note-trash-page .nt-note:has(.nt-note-checkbox input:checked) {
+  background: #1e1e1e;
+  border-color: #777;
+}
+.note-trash-page .nt-document-icon {
+  display: grid; place-items: center; width: 42px; height: 42px;
+  border-radius: 12px; color: var(--nt-accent);
+  background: var(--nt-accent-bg);
+}
+.note-trash-page .nt-note-description { min-width: 0; }
+.note-trash-page .nt-note-description h2 {
+  min-width: 0; max-width: 100%; overflow-wrap: anywhere; margin: 0;
+  color: var(--nt-title); font-size: 14px; font-weight: 700;
+  line-height: 1.45;
+}
+.note-trash-page .nt-note-date {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  margin-top: 7px; color: var(--nt-muted); font-size: 12px;
+}
+.note-trash-page .nt-expiry {
+  min-width: 0; display: flex; flex-direction: column;
+  align-items: flex-start; gap: 6px;
+}
+.note-trash-page .nt-expiry-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  max-width: 100%; padding: 5px 9px; border-radius: 7px;
+  color: var(--nt-accent); background: var(--nt-accent-bg);
+  font-size: 12px; font-weight: 700; line-height: 1.35;
+}
+.note-trash-page .nt-expiry-soon {
+  color: var(--nt-warning); background: var(--nt-warning-bg);
+  border: 1px solid var(--nt-warning-border);
+}
+.note-trash-page .nt-expiry-date {
+  color: var(--nt-muted); font-size: 11px; white-space: nowrap;
+}
+.note-trash-page .nt-row-actions {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+}
+.note-trash-page .nt-feedback {
+  min-height: 300px; display: flex; align-items: center;
+  flex-direction: column; justify-content: center; text-align: center;
+  gap: 11px; padding: 28px 18px;
+  border: 1px dashed var(--nt-line); border-radius: 14px;
+  background: var(--nt-subtle);
+}
+.note-trash-page .nt-feedback-icon {
+  width: 70px; height: 70px; border-radius: 19px;
+  display: grid; place-items: center; margin-bottom: 5px;
+  background: var(--nt-accent-bg); color: var(--nt-accent);
+}
+.note-trash-page .nt-feedback .nt-error-icon { background: var(--nt-danger-bg); color: var(--nt-danger); }
+.note-trash-page .nt-feedback h2 { margin: 0; color: var(--nt-title); font-size: 19px; font-weight: 720; }
+.note-trash-page .nt-feedback p { margin: 0 0 7px; color: var(--nt-muted); font-size: 13px; line-height: 1.6; max-width: 370px; }
+.note-trash-page .nt-pagination {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 14px; margin-top: 24px;
+  padding-top: 20px; border-top: 1px solid var(--nt-line);
+  color: var(--nt-muted); font-size: 12px;
+}
+.note-trash-page .nt-page-controls { display: flex; align-items: center; gap: 13px; }
+.note-trash-page .nt-page-button {
+  display: grid; place-items: center; width: 38px; height: 38px;
+  border: 1px solid var(--nt-line); border-radius: 9px;
+  background: var(--nt-surface-strong); color: var(--nt-text);
+}
+.note-trash-page .nt-page-button:hover:not(:disabled) { background: var(--nt-subtle); }
+.note-trash-page .nt-skeleton-list { padding: 0; }
+.note-trash-page .nt-skeleton-row {
+  display: flex; align-items: center; gap: 15px;
+  padding: 19px 17px; border: 1px solid var(--nt-line); border-radius: 12px;
+  background: var(--nt-surface-strong);
+}
+.note-trash-page .nt-skeleton {
+  display: block; border-radius: 7px;
+  background: linear-gradient(95deg, var(--nt-subtle) 15%, var(--nt-line) 48%, var(--nt-subtle) 85%);
+  background-size: 210% 100%;
+  animation: nt-loading 1.45s linear infinite;
+}
+.note-trash-page .nt-skeleton-icon { width: 40px; height: 40px; flex: 0 0 40px; }
+.note-trash-page .nt-skeleton-text { flex: 1; min-width: 0; display: grid; gap: 10px; }
+.note-trash-page .nt-skeleton-title { width: min(240px, 85%); height: 12px; }
+.note-trash-page .nt-skeleton-meta { width: min(145px, 65%); height: 9px; }
+.note-trash-page .nt-skeleton-action { width: 95px; height: 30px; }
+@keyframes nt-loading { to { background-position-x: -210%; } }
+.note-trash-page .nt-spin { animation: nt-spin 1s linear infinite; }
+@keyframes nt-spin { to { transform: rotate(360deg); } }
+
+/* Accessible confirmation dialog, styled with the same surface tokens. */
+.note-trash-page .nt-modal-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(8, 13, 29, .63);
+  backdrop-filter: blur(5px);
+}
+.note-trash-page .nt-modal {
+  width: min(100%, 420px); max-height: calc(100dvh - 40px); overflow-y: auto;
+  padding: 27px; border-radius: 18px;
+  border: 1px solid var(--nt-line); background: var(--nt-surface-strong);
+  color: var(--nt-text); box-shadow: 0 22px 70px rgba(0, 0, 0, .24);
+}
+.note-trash-page .nt-modal-icon {
+  width: 49px; height: 49px; display: grid; place-items: center;
+  margin-bottom: 16px; border-radius: 14px;
+  background: var(--nt-danger-bg); color: var(--nt-danger);
+}
+.note-trash-page .nt-modal h2 { color: var(--nt-title); margin: 0; font-size: 19px; line-height: 1.4; font-weight: 760; }
+.note-trash-page .nt-modal > p { margin: 12px 0 0; font-size: 13px; line-height: 1.65; color: var(--nt-muted); }
+.note-trash-page .nt-modal .nt-modal-name {
+  display: inline-block; max-width: 100%; overflow-wrap: anywhere;
+  padding: 8px 11px; background: var(--nt-subtle);
+  border-radius: 8px; color: var(--nt-text); font-weight: 650;
+}
+.note-trash-page .nt-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+
+@media (max-width: 1040px) {
+  .note-trash-page .nt-note {
+    grid-template-columns: 19px 42px minmax(0, 1fr) minmax(126px, auto);
+    gap: 13px;
+  }
+  .note-trash-page .nt-row-actions { grid-column: 3 / -1; }
+  .note-trash-page .nt-expiry { grid-column: 4; grid-row: 1; }
+}
+@media (max-width: 700px) {
+  .note-trash-page { padding: 14px 12px 42px; }
+  .note-trash-page .nt-breadcrumb { margin-bottom: 11px; }
+  .note-trash-page .nt-workspace { border-radius: 16px; }
+  .note-trash-page .nt-header { align-items: flex-start; flex-direction: column; gap: 14px; padding: 21px 17px; }
+  .note-trash-page .nt-header-primary { gap: 13px; }
+  .note-trash-page .nt-hero-icon { width: 46px; height: 46px; border-radius: 13px; flex-basis: 46px; }
+  .note-trash-page .nt-heading h1 { font-size: 20px; }
+  .note-trash-page .nt-heading p { font-size: 12px; }
+  .note-trash-page .nt-retention { padding: 7px 10px; align-self: flex-start; }
+  .note-trash-page .nt-retention strong { font-size: 15px; }
+  .note-trash-page .nt-content { padding: 17px 14px 21px; }
+  .note-trash-page .nt-toolbar { align-items: stretch; flex-direction: column; }
+  .note-trash-page .nt-search { max-width: none; flex-basis: auto; }
+  .note-trash-page .nt-toolbar-actions {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  }
+  .note-trash-page .nt-note {
+    grid-template-columns: 19px 40px minmax(0, 1fr);
+    padding: 14px; gap: 10px 12px;
+  }
+  .note-trash-page .nt-document-icon { width: 40px; height: 40px; }
+  .note-trash-page .nt-expiry { grid-column: 2 / -1; grid-row: auto; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .note-trash-page .nt-row-actions { grid-column: 2 / -1; grid-row: auto; justify-content: flex-start; }
+  .note-trash-page .nt-note-description h2 { font-size: 14px; }
+  .note-trash-page .nt-note-date { font-size: 11px; }
+}
+@media (max-width: 400px) {
+  .note-trash-page { padding-inline: 8px; }
+  .note-trash-page .nt-header { padding: 17px 12px; }
+  .note-trash-page .nt-content { padding: 14px 10px 19px; }
+  .note-trash-page .nt-note { padding: 12px 10px; gap: 9px; }
+  .note-trash-page .nt-toolbar-actions {
+    align-items: stretch;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  .note-trash-page .nt-toolbar-actions .nt-count { align-self: flex-start; }
+  .note-trash-page .nt-toolbar-actions .nt-button { width: 100%; }
+  .note-trash-page .nt-button { padding-inline: 11px; }
+  .note-trash-page .nt-list-header, .note-trash-page .nt-selection-bar { font-size: 12px; }
+  .note-trash-page .nt-retention-label { font-size: 11px; }
+  .note-trash-page .nt-pagination { flex-direction: column; }
+  .note-trash-page .nt-modal { padding: 20px; }
+  .note-trash-page .nt-modal-actions > button { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .note-trash-page *, .note-trash-page *::before, .note-trash-page *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+    <div class="note-trash-page"><div class="nt-container">
+      <nav class="nt-breadcrumb"><a class="nt-back">← Bảng điều khiển</a> › <span>Thùng rác ghi chú</span></nav>
+      <section class="nt-workspace">
+       <header class="nt-header"><div class="nt-header-primary">
+        <div class="nt-hero-icon">▤</div><div class="nt-heading"><h1>Thùng rác ghi chú</h1>
+        <p>Ghi chú đã xóa được giữ lại 30 ngày trước khi hệ thống tự động dọn dẹp.</p></div></div>
+        <div class="nt-retention">◷ <span><strong>30</strong> ngày</span><span class="nt-retention-label">lưu giữ</span></div>
+       </header>
+       <div class="nt-content">
+        <div class="nt-toolbar"><label class="nt-search"><span style="position:absolute;top:13px;left:15px;color:gray">⌕</span><input placeholder="Tìm kiếm ghi chú đã xóa..."></label>
+         <div class="nt-toolbar-actions"><span class="nt-count">▤ <strong>8</strong> ghi chú</span>
+          <button class="nt-button nt-button-outline-danger">♧ Dọn sạch thùng rác</button></div></div>
+        <div class="nt-tip"><span>ⓘ</span><p>Bạn có thể khôi phục ghi chú trước khi hết hạn. Ghi chú đã xóa vĩnh viễn sẽ không thể lấy lại.</p></div>
+        <div class="nt-list-header"><label class="nt-select-all"><input type="checkbox">Chọn tất cả trên trang</label><span>8 mục</span></div>
+        <div class="nt-list">
+          <article class="nt-note">
+           <label class="nt-note-checkbox"><input type="checkbox"></label>
+           <div class="nt-document-icon">▤</div>
+           <div class="nt-note-description"><h2>Danh sách công việc tuần này</h2><div class="nt-note-date">▦ Đã xóa: 05/11/2026</div></div>
+           <div class="nt-expiry"><span class="nt-expiry-badge">◷ Còn 26 ngày</span>
+           <span class="nt-expiry-date">Hạn xóa: 05/12/2026</span></div>
+           <div class="nt-row-actions"><button class="nt-button nt-button-restore">↺ Khôi phục</button>
+           <button class="nt-button nt-button-delete-icon">⌫</button></div></article><article class="nt-note">
+           <label class="nt-note-checkbox"><input type="checkbox"></label>
+           <div class="nt-document-icon">▤</div>
+           <div class="nt-note-description"><h2>Ý tưởng phát triển sản phẩm mới</h2><div class="nt-note-date">▦ Đã xóa: 05/11/2026</div></div>
+           <div class="nt-expiry"><span class="nt-expiry-badge nt-expiry-soon">◷ Còn 3 ngày</span>
+           <span class="nt-expiry-date">Hạn xóa: 05/12/2026</span></div>
+           <div class="nt-row-actions"><button class="nt-button nt-button-restore">↺ Khôi phục</button>
+           <button class="nt-button nt-button-delete-icon">⌫</button></div></article><article class="nt-note">
+           <label class="nt-note-checkbox"><input type="checkbox"></label>
+           <div class="nt-document-icon">▤</div>
+           <div class="nt-note-description"><h2>Ghi chú cuộc họp vào ngày thứ ba</h2><div class="nt-note-date">▦ Đã xóa: 05/11/2026</div></div>
+           <div class="nt-expiry"><span class="nt-expiry-badge">◷ Còn 26 ngày</span>
+           <span class="nt-expiry-date">Hạn xóa: 05/12/2026</span></div>
+           <div class="nt-row-actions"><button class="nt-button nt-button-restore">↺ Khôi phục</button>
+           <button class="nt-button nt-button-delete-icon">⌫</button></div></article><article class="nt-note">
+           <label class="nt-note-checkbox"><input type="checkbox"></label>
+           <div class="nt-document-icon">▤</div>
+           <div class="nt-note-description"><h2>Công thức nấu ăn và nguyên liệu cần chuẩn bị</h2><div class="nt-note-date">▦ Đã xóa: 05/11/2026</div></div>
+           <div class="nt-expiry"><span class="nt-expiry-badge">◷ Còn 26 ngày</span>
+           <span class="nt-expiry-date">Hạn xóa: 05/12/2026</span></div>
+           <div class="nt-row-actions"><button class="nt-button nt-button-restore">↺ Khôi phục</button>
+           <button class="nt-button nt-button-delete-icon">⌫</button></div></article>
+        </div>
+       </div>
+      </section></div></div>
+    </html>

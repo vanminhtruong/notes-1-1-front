@@ -24,7 +24,8 @@
     "allSessionsTerminated": "您所有的工作階段已被管理員終止",
     "logoutConfirm": "確認登出？",
     "logoutMessage": "您確定要登出嗎？",
-    "cancel": "取消"
+    "cancel": "取消",
+    "noteTrash": "筆記回收桶"
   },
   "devices": {
     "title": "已登入裝置",

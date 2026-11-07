@@ -24,7 +24,8 @@
     "allSessionsTerminated": "您所有的会话已被管理员终止",
     "logoutConfirm": "确认退出？",
     "logoutMessage": "您确定要退出登录吗？",
-    "cancel": "取消"
+    "cancel": "取消",
+    "noteTrash": "笔记回收站"
   },
   "devices": {
     "title": "已登录设备",

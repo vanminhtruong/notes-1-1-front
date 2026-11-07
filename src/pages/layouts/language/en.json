@@ -24,7 +24,8 @@
     "allSessionsTerminated": "All your sessions have been terminated by administrator",
     "logoutConfirm": "Logout?",
     "logoutMessage": "Are you sure you want to logout?",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "noteTrash": "Note trash"
   },
   "devices": {
     "title": "Logged in devices",

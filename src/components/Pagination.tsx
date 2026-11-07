@@ -91,6 +91,8 @@ const Pagination = memo(({ currentPage, totalPages, onPageChange, className = ''
               type="button"
               key={pageNum}
               onClick={() => onPageChange(pageNum)}
+              aria-current={isActive ? 'page' : undefined}
+              aria-label={`Page ${pageNum}`}
               className={`min-w-[40px] px-3 py-2 rounded-lg border font-medium transition-all duration-200 md-down:min-w-[36px] md-down:px-2.5 md-down:py-1.5 md-down:text-sm sm-down:min-w-[32px] sm-down:px-2 sm-down:text-xs ${
                 isActive
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30 scale-110'

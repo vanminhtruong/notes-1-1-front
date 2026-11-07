@@ -1,6 +1,16 @@
 {
-  "qaFixes": {"movedOut": "Note moved out of folder", "restoreTitle": "Restore note?", "restoreMessage": "The note will return to its original location.", "restored": "Note restored successfully"},
-  "checklist": {"label": "Checklist", "progress": "{{completed}}/{{total}} done", "more": "View {{count}} more items", "untitled": "Untitled task"},
+  "qaFixes": {
+    "movedOut": "Note moved out of folder",
+    "restoreTitle": "Restore note?",
+    "restoreMessage": "The note will return to its original location.",
+    "restored": "Note restored successfully"
+  },
+  "checklist": {
+    "label": "Checklist",
+    "progress": "{{completed}}/{{total}} done",
+    "more": "View {{count}} more items",
+    "untitled": "Untitled task"
+  },
   "title": "Dashboard",
   "welcome": "Welcome to your dashboard",
   "stats": {
@@ -204,7 +214,8 @@
       "archiveTitle": "Archive note?",
       "archiveMessage": "The note will be moved to Archived.",
       "deleteFolderMessage": "Delete folder “{{name}}”? Notes inside will be kept.",
-      "removeFromFolderMessage": "Move this note out of the folder?"
+      "removeFromFolderMessage": "Move this note out of the folder?",
+      "trashMessage": "The note will stay in trash for 30 days and can be restored."
     },
     "create": {
       "title": "Create new note",

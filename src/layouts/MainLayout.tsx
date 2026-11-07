@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
 import { fetchTags } from '@/store/slices/noteTagsSlice'
-import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone, Tag, LayoutDashboard, Info, Contact } from 'lucide-react'
+import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone, Trash2, Tag, LayoutDashboard, Info, Contact } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
@@ -302,15 +302,6 @@ export default function MainLayout() {
                         <span>{t('user.accountDetails')}</span>
                       </Link>
 
-                      <Link
-                        to="/categories"
-                        onClick={() => setMenuOpen(false)}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
-                      >
-                        <Tag className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
-                        <span>{t('user.categories')}</span>
-                      </Link>
-
                       <button
                         onClick={() => {
                           setMenuOpen(false);
@@ -321,6 +312,15 @@ export default function MainLayout() {
                         <MessageCircle className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
                         <span>{t('user.chat')}</span>
                       </button>
+
+                      <Link
+                        to="/note-trash"
+                        onClick={() => setMenuOpen(false)}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
+                      >
+                        <Trash2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                        <span>{t('user.noteTrash', { defaultValue: 'Thùng rác ghi chú' })}</span>
+                      </Link>
 
                       <Link
                         to="/change-password"

@@ -10,6 +10,7 @@ import ProtectedRoute from '@components/ProtectedRoute'
 import Account from '@/pages/Account/Account'
 import ChangePassword from '@/pages/ChangePassword/ChangePassword'
 import Categories from '@/pages/Categories/Categories'
+import NoteTrashPage from '@/pages/NoteTrash/NoteTrashPage'
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
             <Account />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: 'note-trash',
+        element: <ProtectedRoute><NoteTrashPage /></ProtectedRoute>,
       },
       {
         path: 'change-password',

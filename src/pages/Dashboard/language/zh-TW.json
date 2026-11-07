@@ -1,6 +1,16 @@
 {
-  "qaFixes": {"movedOut": "筆記已移出資料夾", "restoreTitle": "恢復筆記？", "restoreMessage": "筆記將返回原來的位置。", "restored": "筆記已恢復"},
-  "checklist": {"label": "待辦清單", "progress": "已完成 {{completed}}/{{total}}", "more": "查看其餘 {{count}} 項", "untitled": "未命名任務"},
+  "qaFixes": {
+    "movedOut": "筆記已移出資料夾",
+    "restoreTitle": "恢復筆記？",
+    "restoreMessage": "筆記將返回原來的位置。",
+    "restored": "筆記已恢復"
+  },
+  "checklist": {
+    "label": "待辦清單",
+    "progress": "已完成 {{completed}}/{{total}}",
+    "more": "查看其餘 {{count}} 項",
+    "untitled": "未命名任務"
+  },
   "title": "儀表板",
   "welcome": "歡迎來到您的儀表板",
   "stats": {
@@ -204,7 +214,8 @@
       "archiveTitle": "封存筆記？",
       "archiveMessage": "筆記將被移至封存。",
       "deleteFolderMessage": "刪除資料夾「{{name}}」？其中的筆記將保留。",
-      "removeFromFolderMessage": "將此筆記移出資料夾？"
+      "removeFromFolderMessage": "將此筆記移出資料夾？",
+      "trashMessage": "筆記將在回收桶保留30天，可隨時還原。"
     },
     "create": {
       "title": "新建筆記",

@@ -1,15 +1,21 @@
 import { memo } from 'react';
-import { Trash2 } from 'lucide-react';
+import { CheckCheck, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface BulkActionsBarProps {
   selectedCount: number;
   showArchived: boolean;
+  visibleCount: number;
+  allVisibleSelected: boolean;
+  onToggleSelectAll: () => void;
   onClearSelection: () => void;
   onBulkDelete: () => void;
 }
 
-const BulkActionsBar = memo(({ selectedCount, showArchived, onClearSelection, onBulkDelete }: BulkActionsBarProps) => {
+const BulkActionsBar = memo(({
+  selectedCount, showArchived, visibleCount, allVisibleSelected,
+  onToggleSelectAll, onClearSelection, onBulkDelete,
+}: BulkActionsBarProps) => {
   const { t } = useTranslation('dashboard');
 
   if (selectedCount === 0 || showArchived) return null;
@@ -23,16 +29,31 @@ const BulkActionsBar = memo(({ selectedCount, showArchived, onClearSelection, on
       <div className="text-sm text-gray-900 dark:text-white font-semibold md-down:text-xs sm-down:text-center">
         {t('messages.selectedCount', { count: selectedCount })}
       </div>
-      <div className="flex gap-2 sm-down:gap-2 sm-down:w-full">
+      <div className="flex flex-wrap items-center justify-end gap-2 sm-down:grid sm-down:grid-cols-2 sm-down:w-full">
         <button
+          type="button"
+          onClick={onToggleSelectAll}
+          disabled={visibleCount === 0}
+          title={t('messages.selectAllVisibleHint', { defaultValue: 'Chọn hoặc bỏ chọn tất cả ghi chú trên trang hiện tại' })}
+          aria-pressed={allVisibleSelected}
+          className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed md-down:px-3 md-down:py-1.5 md-down:text-xs sm-down:min-w-0"
+        >
+          <CheckCheck className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 shrink-0" aria-hidden="true" />
+          {allVisibleSelected
+            ? t('common.unselectAll', { defaultValue: 'Bỏ chọn tất cả' })
+            : t('common.selectAll', { defaultValue: 'Chọn tất cả' })}
+        </button>
+        <button
+          type="button"
           onClick={onClearSelection}
           className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium transition-all hover:scale-105 active:scale-95 md-down:px-3 md-down:py-1.5 md-down:text-xs sm-down:flex-1"
         >
           {t('actions.clearSelection')}
         </button>
         <button
+          type="button"
           onClick={onBulkDelete}
-          className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg md-down:px-3 md-down:py-1.5 md-down:text-xs md-down:gap-1.5 sm-down:flex-1"
+          className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg md-down:px-3 md-down:py-1.5 md-down:text-xs md-down:gap-1.5 sm-down:col-span-2 sm-down:w-full"
         >
           <Trash2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
           {t('actions.deleteSelected')}

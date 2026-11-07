@@ -1,6 +1,16 @@
 {
-  "qaFixes": {"movedOut": "Đã chuyển ghi chú ra khỏi thư mục", "restoreTitle": "Khôi phục ghi chú?", "restoreMessage": "Ghi chú sẽ trở về vị trí ban đầu.", "restored": "Khôi phục ghi chú thành công"},
-  "checklist": {"label": "Checklist", "progress": "{{completed}}/{{total}} hoàn thành", "more": "Xem thêm {{count}} mục", "untitled": "Mục chưa có nội dung"},
+  "qaFixes": {
+    "movedOut": "Đã chuyển ghi chú ra khỏi thư mục",
+    "restoreTitle": "Khôi phục ghi chú?",
+    "restoreMessage": "Ghi chú sẽ trở về vị trí ban đầu.",
+    "restored": "Khôi phục ghi chú thành công"
+  },
+  "checklist": {
+    "label": "Checklist",
+    "progress": "{{completed}}/{{total}} hoàn thành",
+    "more": "Xem thêm {{count}} mục",
+    "untitled": "Mục chưa có nội dung"
+  },
   "title": "Bảng điều khiển",
   "welcome": "Chào mừng đến với bảng điều khiển của bạn",
   "stats": {
@@ -198,7 +208,8 @@
       "archiveTitle": "Lưu trữ ghi chú?",
       "archiveMessage": "Ghi chú sẽ được chuyển vào mục Đã lưu trữ.",
       "deleteFolderMessage": "Xóa thư mục “{{name}}”? Ghi chú bên trong vẫn được giữ lại.",
-      "removeFromFolderMessage": "Bạn có muốn chuyển ghi chú này ra khỏi thư mục?"
+      "removeFromFolderMessage": "Bạn có muốn chuyển ghi chú này ra khỏi thư mục?",
+      "trashMessage": "Ghi chú sẽ chuyển vào thùng rác trong 30 ngày và có thể khôi phục."
     },
     "create": {
       "title": "Tạo ghi chú mới",

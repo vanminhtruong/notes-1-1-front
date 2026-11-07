@@ -1,10 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useAppDispatch } from '@/store';
 import toast from 'react-hot-toast';
-import { createNote, deleteNote, archiveNote, updateNote, ackReminder } from '@/store/slices/notesSlice';
+import { createNote, deleteNote, deleteNoteRealtime, fetchNoteStats, archiveNote, updateNote, ackReminder } from '@/store/slices/notesSlice';
 import { useTranslation } from 'react-i18next';
 import type { Priority } from '../Interface/types';
-import type { NoteCategory } from '@/services/notesService';
+import { noteTrashService, type NoteCategory } from '@/services/notesService';
 
 interface UseDashboardHandlersProps {
   newNote: {
@@ -57,6 +57,7 @@ export const useDashboardHandlers = ({
 }: UseDashboardHandlersProps) => {
   const { t } = useTranslation('dashboard');
   const dispatch = useAppDispatch();
+  const deletingSelectedRef = useRef(false);
 
   const localInputToIso = useCallback((local: string | undefined) => {
     if (!local) return undefined;
@@ -124,7 +125,7 @@ export const useDashboardHandlers = ({
             'div',
             { className: 'flex-1' },
             React.createElement('p', { className: 'font-semibold' }, t('modals.confirm.deleteTitle')),
-            React.createElement('p', { className: 'text-sm text-gray-600 dark:text-gray-300' }, t('modals.confirm.irreversible'))
+            React.createElement('p', { className: 'text-sm text-gray-600 dark:text-gray-300' }, t('modals.confirm.trashMessage', { defaultValue: 'Ghi chú sẽ được giữ trong thùng rác 30 ngày và có thể khôi phục.' }))
           )
         ),
         React.createElement(
@@ -269,11 +270,29 @@ export const useDashboardHandlers = ({
   const clearSelection = useCallback(() => setSelectedIds([]), [setSelectedIds]);
 
   const handleBulkDelete = useCallback(async () => {
-    if (selectedIds.length === 0) return;
-    await Promise.all(selectedIds.map((id) => dispatch(deleteNote(id))));
-    setSelectedIds([]);
-    // No need to fetchNotes - socket events will auto-remove deleted notes from list
-  }, [selectedIds, dispatch, setSelectedIds]);
+    if (selectedIds.length === 0 || deletingSelectedRef.current) return;
+    deletingSelectedRef.current = true;
+    const ids = [...new Set(selectedIds)];
+    try {
+      // One request: the backend processes SQLite write transactions sequentially.
+      const result = await noteTrashService.moveSelected(ids);
+      for (const id of result.deletedIds) {
+        dispatch(deleteNoteRealtime({ id }));
+      }
+      setSelectedIds([]);
+      void dispatch(fetchNoteStats());
+      toast.success(t('toasts.noteDeleted'));
+    } catch (error: any) {
+      // The backend may return IDs already moved before a partial failure.
+      const completed: number[] = error?.response?.data?.deletedIds || [];
+      for (const id of completed) dispatch(deleteNoteRealtime({ id }));
+      setSelectedIds(previous => previous.filter(id => !completed.includes(id)));
+      void dispatch(fetchNoteStats());
+      toast.error(error?.response?.data?.message || t('toasts.noteDeleteFailed'));
+    } finally {
+      deletingSelectedRef.current = false;
+    }
+  }, [selectedIds, dispatch, setSelectedIds, t]);
 
   const confirmBulkDelete = useCallback(() => {
     const tId = toast.custom((toastData) => {
@@ -288,7 +307,7 @@ export const useDashboardHandlers = ({
             'div',
             { className: 'flex-1' },
             React.createElement('p', { className: 'font-semibold' }, t('modals.confirm.bulkDeleteTitle')),
-            React.createElement('p', { className: 'text-sm text-gray-600 dark:text-gray-300' }, t('modals.confirm.irreversible'))
+            React.createElement('p', { className: 'text-sm text-gray-600 dark:text-gray-300' }, t('modals.confirm.trashMessage', { defaultValue: 'Ghi chú sẽ được giữ trong thùng rác 30 ngày và có thể khôi phục.' }))
           )
         ),
         React.createElement(

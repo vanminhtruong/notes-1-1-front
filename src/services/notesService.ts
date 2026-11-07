@@ -292,6 +292,35 @@ export interface TagWithNotesResponse {
   };
 }
 
+export interface TrashedNote {
+  id: number;
+  originalNoteId: number;
+  userId: number;
+  deletedById: number | null;
+  title: string;
+  deletedAt: string;
+  expiresAt: string;
+}
+
+export interface NoteTrashResponse {
+  notes: TrashedNote[];
+  pagination: { total: number; page: number; limit: number; totalPages: number };
+  retentionDays: number;
+}
+
+export const noteTrashService = {
+  async list(params?: { page?: number; limit?: number; search?: string }): Promise<NoteTrashResponse> {
+    return (await api.get('/notes/trash', { params })).data;
+  },
+  async restore(id: number) { return (await api.post('/notes/trash/' + id + '/restore')).data; },
+  async deleteOne(id: number) { return (await api.delete('/notes/trash/' + id)).data; },
+  async deleteSelected(ids: number[]) { return (await api.post('/notes/trash/delete-selected', { ids })).data; },
+  async empty() { return (await api.delete('/notes/trash')).data; },
+  async moveSelected(ids: number[]): Promise<{ message: string; deletedIds: number[]; deletedCount: number }> {
+    return (await api.post('/notes/trash/move-selected', { ids })).data;
+  },
+};
+
 export const notesService = {
   async getNotes(params?: {
     scope?: 'category';

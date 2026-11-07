@@ -1,6 +1,16 @@
 {
-  "qaFixes": {"movedOut": "메모를 폴더 밖으로 이동했습니다", "restoreTitle": "메모를 복원할까요?", "restoreMessage": "메모가 원래 위치로 돌아갑니다.", "restored": "메모가 복원되었습니다"},
-  "checklist": {"label": "체크리스트", "progress": "{{completed}}/{{total}} 완료", "more": "{{count}}개 항목 더 보기", "untitled": "내용 없는 항목"},
+  "qaFixes": {
+    "movedOut": "메모를 폴더 밖으로 이동했습니다",
+    "restoreTitle": "메모를 복원할까요?",
+    "restoreMessage": "메모가 원래 위치로 돌아갑니다.",
+    "restored": "메모가 복원되었습니다"
+  },
+  "checklist": {
+    "label": "체크리스트",
+    "progress": "{{completed}}/{{total}} 완료",
+    "more": "{{count}}개 항목 더 보기",
+    "untitled": "내용 없는 항목"
+  },
   "title": "대시보드",
   "welcome": "대시보드에 오신 것을 환영합니다",
   "stats": {
@@ -197,7 +207,8 @@
       "archiveTitle": "노트를 보관하시겠습니까?",
       "archiveMessage": "노트가 보관함으로 이동됩니다.",
       "deleteFolderMessage": "“{{name}}” 폴더를 삭제하시겠습니까? 안의 노트는 유지됩니다.",
-      "removeFromFolderMessage": "이 노트를 폴더에서 꺼내시겠습니까?"
+      "removeFromFolderMessage": "이 노트를 폴더에서 꺼내시겠습니까?",
+      "trashMessage": "메모는 휴지통에 30일 동안 보관되며 복원할 수 있습니다."
     },
     "create": {
       "title": "새 노트 만들기",

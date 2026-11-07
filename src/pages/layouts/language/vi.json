@@ -24,7 +24,8 @@
     "logoutConfirm": "Đăng xuất?",
     "logoutMessage": "Bạn có chắc chắn muốn đăng xuất không?",
     "cancel": "Hủy",
-    "deleteFailed": "Xóa tài khoản thất bại"
+    "deleteFailed": "Xóa tài khoản thất bại",
+    "noteTrash": "Thùng rác ghi chú"
   },
   "devices": {
     "title": "Thiết bị đã đăng nhập",

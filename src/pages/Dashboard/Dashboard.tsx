@@ -297,6 +297,19 @@ const Dashboard = () => {
             <BulkActionsBar
               selectedCount={dashboardState.selectedIds.length}
               showArchived={viewModeState.viewMode === 'archived'}
+              visibleCount={dashboardState.notes.length}
+              allVisibleSelected={dashboardState.notes.length > 0 && dashboardState.notes.every(
+                note => dashboardState.selectedIds.includes(note.id)
+              )}
+              onToggleSelectAll={() => {
+                const pageIds = dashboardState.notes.map(note => note.id);
+                dashboardState.setSelectedIds(previous => {
+                  const allSelected = pageIds.length > 0 && pageIds.every(id => previous.includes(id));
+                  return allSelected
+                    ? previous.filter(id => !pageIds.includes(id))
+                    : [...new Set([...previous, ...pageIds])];
+                });
+              }}
               onClearSelection={dashboardHandlers.clearSelection}
               onBulkDelete={dashboardHandlers.confirmBulkDelete}
             />

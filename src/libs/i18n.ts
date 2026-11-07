@@ -45,6 +45,12 @@ import contactZhTw from '@/pages/Contact/language/zh-TW.json';
 import categoriesZhCn from '@/pages/Categories/language/zh-CN.json';
 import categoriesZhTw from '@/pages/Categories/language/zh-TW.json';
 
+import trashEn from '@/pages/NoteTrash/language/en.json';
+import trashVi from '@/pages/NoteTrash/language/vi.json';
+import trashKo from '@/pages/NoteTrash/language/ko.json';
+import trashZhCn from '@/pages/NoteTrash/language/zh-CN.json';
+import trashZhTw from '@/pages/NoteTrash/language/zh-TW.json';
+
 const resources = {
   en: {
     layout: layoutEn,
@@ -55,6 +61,7 @@ const resources = {
     account: accountEn,
     auth: authEn,
     categories: categoriesEn,
+    noteTrash: trashEn,
   },
   vi: {
     layout: layoutVi,
@@ -65,6 +72,7 @@ const resources = {
     account: accountVi,
     auth: authVi,
     categories: categoriesVi,
+    noteTrash: trashVi,
   },
   ko: {
     layout: layoutKo,
@@ -75,6 +83,7 @@ const resources = {
     account: accountKo,
     auth: authKo,
     categories: categoriesKo,
+    noteTrash: trashKo,
   },
   'zh-CN': {
     layout: layoutZhCn,
@@ -85,6 +94,7 @@ const resources = {
     account: accountZhCn,
     auth: authZhCn,
     categories: categoriesZhCn,
+    noteTrash: trashZhCn,
   },
   'zh-TW': {
     layout: layoutZhTw,
@@ -95,6 +105,7 @@ const resources = {
     account: accountZhTw,
     auth: authZhTw,
     categories: categoriesZhTw,
+    noteTrash: trashZhTw,
   },
 };
 
@@ -114,7 +125,7 @@ i18n
     fallbackLng: 'en',
     lng: getSavedLanguage(), // Use saved language or let detector decide
     defaultNS: 'layout',
-    ns: ['layout', 'home', 'dashboard', 'about', 'contact', 'account', 'auth', 'categories'],
+    ns: ['layout', 'home', 'dashboard', 'about', 'contact', 'account', 'auth', 'categories', 'noteTrash'],
 
     detection: {
       order: ['localStorage', 'cookie', 'navigator'], // localStorage first!
