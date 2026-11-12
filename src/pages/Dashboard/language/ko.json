@@ -11,6 +11,25 @@
     "more": "{{count}}개 항목 더 보기",
     "untitled": "내용 없는 항목"
   },
+  "sort": {
+    "label": "정렬",
+    "createdNewest": "최신순",
+    "createdOldest": "오래된순",
+    "updatedNewest": "최근 수정순",
+    "updatedOldest": "오래된 수정순",
+    "titleAZ": "제목 A–Z",
+    "titleZA": "제목 Z–A",
+    "priorityHigh": "높은 우선순위",
+    "priorityLow": "낮은 우선순위",
+    "menuTitle": "메모 정렬",
+    "menuHint": "메모 목록 정렬 방법 선택",
+    "groups": {
+      "created": "작성일",
+      "updated": "수정일",
+      "name": "메모 제목",
+      "priority": "우선순위"
+    }
+  },
   "title": "대시보드",
   "welcome": "대시보드에 오신 것을 환영합니다",
   "stats": {
@@ -165,7 +184,8 @@
     "moveNoteError": "노트를 이동할 수 없습니다",
     "pinFolderError": "폴더를 고정하지 못했습니다",
     "unpinFolderError": "폴더 고정을 해제하지 못했습니다",
-    "noteDeleted": "노트를 삭제했습니다"
+    "noteDeleted": "노트를 삭제했습니다",
+    "noteDeleteFailed": "노트를 삭제하지 못했습니다."
   },
   "editor": {
     "loading": "에디터 로딩 중...",

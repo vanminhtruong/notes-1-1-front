@@ -11,6 +11,25 @@
     "more": "查看其餘 {{count}} 項",
     "untitled": "未命名任務"
   },
+  "sort": {
+    "label": "排序",
+    "createdNewest": "最新",
+    "createdOldest": "最舊",
+    "updatedNewest": "最近更新",
+    "updatedOldest": "最早更新",
+    "titleAZ": "標題 A–Z",
+    "titleZA": "標題 Z–A",
+    "priorityHigh": "優先級高的在前",
+    "priorityLow": "優先級低的在前",
+    "menuTitle": "筆記排序",
+    "menuHint": "選擇筆記清單的排序方式",
+    "groups": {
+      "created": "建立日期",
+      "updated": "更新日期",
+      "name": "筆記標題",
+      "priority": "優先級"
+    }
+  },
   "title": "儀表板",
   "welcome": "歡迎來到您的儀表板",
   "stats": {

@@ -11,6 +11,25 @@
     "more": "View {{count}} more items",
     "untitled": "Untitled task"
   },
+  "sort": {
+    "label": "Sort by",
+    "createdNewest": "Newest",
+    "createdOldest": "Oldest",
+    "updatedNewest": "Recently updated",
+    "updatedOldest": "Least recently updated",
+    "titleAZ": "Title A–Z",
+    "titleZA": "Title Z–A",
+    "priorityHigh": "High priority first",
+    "priorityLow": "Low priority first",
+    "menuTitle": "Sort notes",
+    "menuHint": "Choose how notes are displayed",
+    "groups": {
+      "created": "Date created",
+      "updated": "Last updated",
+      "name": "Note title",
+      "priority": "Priority"
+    }
+  },
   "title": "Dashboard",
   "welcome": "Welcome to your dashboard",
   "stats": {

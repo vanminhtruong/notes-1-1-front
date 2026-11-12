@@ -14,6 +14,8 @@
     "changePassword": "更改密碼",
     "devices": "已登入裝置",
     "logout": "登出",
+
+    "accountActions": "工作階段與帳戶",
     "deleteAccount": "刪除帳戶",
     "deleteConfirm": "確認刪除帳戶？",
     "deleteMessage": "此動作無法復原。您的所有資料將被刪除，且所有裝置將登出。",

@@ -14,6 +14,8 @@
     "changePassword": "修改密码",
     "devices": "已登录设备",
     "logout": "退出登录",
+
+    "accountActions": "会话与账户",
     "deleteAccount": "删除账户",
     "deleteConfirm": "确认删除账户？",
     "deleteMessage": "此操作不可逆。您的所有数据将被删除，且所有设备将退出登录。",

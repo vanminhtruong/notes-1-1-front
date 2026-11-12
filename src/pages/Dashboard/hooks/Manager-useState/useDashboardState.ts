@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useAppSelector } from '@/store';
 import type { NoteCategory } from '@/services/notesService';
 import type { Priority } from '../Interface/types';
+import { DEFAULT_NOTE_SORT, type NoteSortKey } from '../../utils/noteSort';
 
 export const useDashboardState = () => {
   // Local UI states
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedPriority, setSelectedPriority] = useState('');
+  const [sortKey, setSortKey] = useState<NoteSortKey>(DEFAULT_NOTE_SORT);
   const [showArchived, setShowArchived] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [categories, setCategories] = useState<NoteCategory[]>([]);
@@ -55,6 +57,8 @@ export const useDashboardState = () => {
     setSelectedCategory,
     selectedPriority,
     setSelectedPriority,
+    sortKey,
+    setSortKey,
     showArchived,
     setShowArchived,
     currentPage,

@@ -14,6 +14,8 @@
     "changePassword": "Change Password",
     "devices": "Logged in devices",
     "logout": "Logout",
+
+    "accountActions": "Session & account",
     "deleteAccount": "Delete account",
     "deleteConfirm": "Delete account?",
     "deleteMessage": "This action is irreversible. All your data will be removed and you will be logged out on all devices.",

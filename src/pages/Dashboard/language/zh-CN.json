@@ -11,6 +11,25 @@
     "more": "查看其余 {{count}} 项",
     "untitled": "未命名任务"
   },
+  "sort": {
+    "label": "排序",
+    "createdNewest": "最新",
+    "createdOldest": "最旧",
+    "updatedNewest": "最近更新",
+    "updatedOldest": "最早更新",
+    "titleAZ": "标题 A–Z",
+    "titleZA": "标题 Z–A",
+    "priorityHigh": "优先级高的在前",
+    "priorityLow": "优先级低的在前",
+    "menuTitle": "笔记排序",
+    "menuHint": "选择笔记列表的排序方式",
+    "groups": {
+      "created": "创建日期",
+      "updated": "更新日期",
+      "name": "笔记标题",
+      "priority": "优先级"
+    }
+  },
   "title": "仪表盘",
   "welcome": "欢迎来到您的仪表盘",
   "stats": {

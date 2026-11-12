@@ -20,6 +20,8 @@ export interface NotesState {
     category: string;
     priority: string;
     isArchived: boolean;
+    sortBy: 'createdAt' | 'updatedAt' | 'title' | 'priority';
+    sortOrder: 'ASC' | 'DESC';
   };
   stats: {
     total: number;
@@ -48,6 +50,8 @@ const initialState: NotesState = {
     category: '',
     priority: '',
     isArchived: false,
+    sortBy: 'createdAt',
+    sortOrder: 'DESC',
   },
   stats: {
     total: 0,
@@ -69,9 +73,16 @@ export const fetchNotes = createAsyncThunk(
     priority?: string;
     search?: string;
     isArchived?: boolean;
-  } = {}, { rejectWithValue }) => {
+    sortBy?: 'createdAt' | 'updatedAt' | 'title' | 'priority';
+    sortOrder?: 'ASC' | 'DESC';
+  } = {}, { rejectWithValue, getState }) => {
     try {
-      const response = await notesService.getNotes(params);
+      const { sortBy, sortOrder } = (getState() as { notes: NotesState }).notes.filters;
+      const response = await notesService.getNotes({
+        ...params,
+        sortBy: params.sortBy ?? sortBy,
+        sortOrder: params.sortOrder ?? sortOrder,
+      });
       return response;
     } catch (error: any) {
       const message = error.response?.data?.message || 'Lấy danh sách ghi chú thất bại';

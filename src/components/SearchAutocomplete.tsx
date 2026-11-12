@@ -11,9 +11,10 @@ import { sanitizeInlineHtml } from '@/utils/htmlUtils';
 interface SearchAutocompleteProps {
   onSearch?: (query: string) => void;
   placeholder?: string;
+  inputClassName?: string;
 }
 
-const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) => {
+const SearchAutocomplete = ({ onSearch, placeholder, inputClassName = '' }: SearchAutocompleteProps) => {
   const { t } = useTranslation('dashboard');
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -296,7 +297,7 @@ const SearchAutocomplete = ({ onSearch, placeholder }: SearchAutocompleteProps) 
           }}
           placeholder={placeholder || t('search.placeholder', 'Tìm kiếm ghi chú...')}
           autoComplete="off"
-          className="w-full pl-8 sm:pl-10 pr-9 sm:pr-10 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
+          className={`w-full pl-8 sm:pl-10 pr-9 sm:pr-10 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md ${inputClassName}`}
         />
         {(query || isLoading) && (
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:pr-3">

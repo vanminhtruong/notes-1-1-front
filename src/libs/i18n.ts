@@ -6,9 +6,6 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import layoutEn from '@/pages/layouts/language/en.json';
 import layoutVi from '@/pages/layouts/language/vi.json';
 import layoutKo from '@/pages/layouts/language/ko.json';
-import homeEn from '@/pages/Home/language/en.json';
-import homeVi from '@/pages/Home/language/vi.json';
-import homeKo from '@/pages/Home/language/ko.json';
 import dashboardEn from '@/pages/Dashboard/language/en.json';
 import dashboardVi from '@/pages/Dashboard/language/vi.json';
 import dashboardKo from '@/pages/Dashboard/language/ko.json';
@@ -30,8 +27,6 @@ import categoriesKo from '@/pages/Categories/language/ko.json';
 
 import layoutZhCn from '@/pages/layouts/language/zh-CN.json';
 import layoutZhTw from '@/pages/layouts/language/zh-TW.json';
-import homeZhCn from '@/pages/Home/language/zh-CN.json';
-import homeZhTw from '@/pages/Home/language/zh-TW.json';
 import dashboardZhCn from '@/pages/Dashboard/language/zh-CN.json';
 import dashboardZhTw from '@/pages/Dashboard/language/zh-TW.json';
 import aboutZhCn from '@/pages/About/language/zh-CN.json';
@@ -54,7 +49,6 @@ import trashZhTw from '@/pages/NoteTrash/language/zh-TW.json';
 const resources = {
   en: {
     layout: layoutEn,
-    home: homeEn,
     dashboard: dashboardEn,
     about: aboutEn,
     contact: contactEn,
@@ -65,7 +59,6 @@ const resources = {
   },
   vi: {
     layout: layoutVi,
-    home: homeVi,
     dashboard: dashboardVi,
     about: aboutVi,
     contact: contactVi,
@@ -76,7 +69,6 @@ const resources = {
   },
   ko: {
     layout: layoutKo,
-    home: homeKo,
     dashboard: dashboardKo,
     about: aboutKo,
     contact: contactKo,
@@ -87,7 +79,6 @@ const resources = {
   },
   'zh-CN': {
     layout: layoutZhCn,
-    home: homeZhCn,
     dashboard: dashboardZhCn,
     about: aboutZhCn,
     contact: contactZhCn,
@@ -98,7 +89,6 @@ const resources = {
   },
   'zh-TW': {
     layout: layoutZhTw,
-    home: homeZhTw,
     dashboard: dashboardZhTw,
     about: aboutZhTw,
     contact: contactZhTw,
@@ -125,7 +115,7 @@ i18n
     fallbackLng: 'en',
     lng: getSavedLanguage(), // Use saved language or let detector decide
     defaultNS: 'layout',
-    ns: ['layout', 'home', 'dashboard', 'about', 'contact', 'account', 'auth', 'categories', 'noteTrash'],
+    ns: ['layout', 'dashboard', 'about', 'contact', 'account', 'auth', 'categories', 'noteTrash'],
 
     detection: {
       order: ['localStorage', 'cookie', 'navigator'], // localStorage first!

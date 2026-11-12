@@ -12,6 +12,8 @@ interface UseLazyLoadDataEffectsProps {
   searchTerm: string;
   selectedCategory: string;
   selectedPriority: string;
+  sortBy: 'createdAt' | 'updatedAt' | 'title' | 'priority';
+  sortOrder: 'ASC' | 'DESC';
   folders: NoteFolder[];
   fetchFolders: () => void;
   showMoveToFolderModal?: boolean;
@@ -24,6 +26,8 @@ export const useLazyLoadDataEffects = ({
   searchTerm,
   selectedCategory,
   selectedPriority,
+  sortBy,
+  sortOrder,
   fetchFolders,
   showMoveToFolderModal,
 }: UseLazyLoadDataEffectsProps) => {
@@ -35,6 +39,8 @@ export const useLazyLoadDataEffects = ({
         search: searchTerm,
         category: selectedCategory,
         priority: selectedPriority,
+        sortBy,
+        sortOrder,
         isArchived: viewMode === 'archived',
       }));
       
@@ -44,6 +50,8 @@ export const useLazyLoadDataEffects = ({
         search: searchTerm,
         category: selectedCategory || undefined,
         priority: selectedPriority || undefined,
+        sortBy,
+        sortOrder,
         isArchived: viewMode === 'archived',
       }));
       
@@ -53,7 +61,7 @@ export const useLazyLoadDataEffects = ({
       fetchFolders();
     }
     // Tags view doesn't need initial fetch - handled by TagsView component
-  }, [viewMode, currentPage, searchTerm, selectedCategory, selectedPriority, dispatch, fetchFolders]);
+  }, [viewMode, currentPage, searchTerm, selectedCategory, selectedPriority, sortBy, sortOrder, dispatch, fetchFolders]);
 
   // Refresh destination counts each time the move dialog opens.
   useEffect(() => {

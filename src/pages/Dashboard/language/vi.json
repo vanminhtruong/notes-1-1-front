@@ -11,6 +11,25 @@
     "more": "Xem thêm {{count}} mục",
     "untitled": "Mục chưa có nội dung"
   },
+  "sort": {
+    "label": "Sắp xếp",
+    "createdNewest": "Mới nhất",
+    "createdOldest": "Cũ nhất",
+    "updatedNewest": "Mới cập nhật",
+    "updatedOldest": "Cập nhật cũ nhất",
+    "titleAZ": "Tiêu đề A–Z",
+    "titleZA": "Tiêu đề Z–A",
+    "priorityHigh": "Ưu tiên cao trước",
+    "priorityLow": "Ưu tiên thấp trước",
+    "menuTitle": "Sắp xếp ghi chú",
+    "menuHint": "Chọn cách hiển thị danh sách",
+    "groups": {
+      "created": "Ngày tạo",
+      "updated": "Ngày cập nhật",
+      "name": "Tên ghi chú",
+      "priority": "Mức ưu tiên"
+    }
+  },
   "title": "Bảng điều khiển",
   "welcome": "Chào mừng đến với bảng điều khiển của bạn",
   "stats": {

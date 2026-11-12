@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local UI screenshots and temporary browser profiles
+.nt-preview/

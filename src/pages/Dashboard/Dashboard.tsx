@@ -1,5 +1,6 @@
 import { useAppDispatch } from '@/store';
 import { useTranslation } from 'react-i18next';
+import { NOTE_SORT_QUERIES } from './utils/noteSort';
 
 // Import hooks và components
 import * as DashboardHooks from './hooks';
@@ -18,6 +19,7 @@ const Dashboard = () => {
 
   // State hooks
   const dashboardState = DashboardHooks.useDashboardState();
+  const sortParams = NOTE_SORT_QUERIES[dashboardState.sortKey];
   const foldersState = DashboardHooks.useFoldersState();
   const viewModeState = DashboardHooks.useViewModeState();
   const modalsState = DashboardHooks.useModalsState();
@@ -162,6 +164,8 @@ const Dashboard = () => {
     searchTerm: dashboardState.searchTerm,
     selectedCategory: dashboardState.selectedCategory,
     selectedPriority: dashboardState.selectedPriority,
+    sortBy: sortParams.sortBy,
+    sortOrder: sortParams.sortOrder,
     folders: foldersState.folders,
     fetchFolders: foldersHandler.fetchFolders,
     showMoveToFolderModal: modalsState.showMoveToFolderModal,
@@ -287,6 +291,12 @@ const Dashboard = () => {
                 setSelectedCategory={dashboardState.setSelectedCategory}
                 selectedPriority={dashboardState.selectedPriority}
                 setSelectedPriority={dashboardState.setSelectedPriority}
+                sortKey={dashboardState.sortKey}
+                onSortChange={(value) => {
+                  dashboardState.setSortKey(value);
+                  dashboardState.setCurrentPage(1);
+                  dashboardState.setSelectedIds([]);
+                }}
                 onCreateNote={modalsActionsHandler.handleOpenCreateModal}
                 showArchived={viewModeState.viewMode === 'archived'}
                 categories={dashboardState.categories}

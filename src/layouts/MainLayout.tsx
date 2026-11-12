@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
 import { logoutUser, getProfile, resetAuth } from '@/store/slices/authSlice'
 import { fetchTags } from '@/store/slices/noteTagsSlice'
-import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone, Trash2, Tag, LayoutDashboard, Info, Contact } from 'lucide-react'
+import { User, LogOut, ChevronDown, Mail, MessageCircle, Key, UserX, Menu, X, Smartphone, Trash2, Tag, LayoutDashboard, Info, Contact, ShieldAlert } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import ChatWindow from '../pages/Dashboard/components/ChatWindow'
@@ -24,6 +24,8 @@ export default function MainLayout() {
   const dispatch = useAppDispatch();
   const { user, token, isAuthenticated } = useAppSelector((state) => state.auth);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Session & Account actions start collapsed on every page load.
+  const [actionsOpen, setActionsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [devicesOpen, setDevicesOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -266,13 +268,14 @@ export default function MainLayout() {
                   <div className="hidden lg:flex flex-col items-start leading-tight text-left xl-down:hidden">
                     <span className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || t('user.account')}</span>
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform md-down:w-3.5 md-down:h-3.5 ${menuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform duration-300 ease-out md-down:w-3.5 md-down:h-3.5 ${menuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                {menuOpen && (
+                {(
                   <div
                     role="menu"
-                    className="absolute right-0 mt-2 w-72 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-xl overflow-hidden lg-down:w-64 md-down:w-56 sm-down:w-48"
+                    className={`absolute right-0 mt-2 w-72 origin-top-right rounded-2xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl shadow-black/10 dark:shadow-black/40 ring-1 ring-black/5 dark:ring-white/5 overflow-hidden transition-all duration-200 ease-out motion-reduce:transition-none lg-down:w-64 md-down:w-56 sm-down:w-48 ${menuOpen ? 'visible pointer-events-auto translate-y-0 scale-100 opacity-100' : 'invisible pointer-events-none -translate-y-2 scale-95 opacity-0'}`}
+                    aria-hidden={!menuOpen}
                   >
                     <div className="px-4 py-3 bg-gradient-to-r from-gray-50/80 to-white/60 dark:from-gray-800/60 dark:to-gray-900/60 border-b border-white/20 dark:border-gray-700/40 md-down:px-3 md-down:py-2.5">
                       <div className="flex items-center gap-3">
@@ -345,29 +348,64 @@ export default function MainLayout() {
                         <span>{t('user.devices')}</span>
                       </button>
 
-                      <div className="my-2 h-px bg-white/30 dark:bg-gray-700/50" />
+                      <div className="my-2 h-px bg-gradient-to-r from-transparent via-gray-300/80 to-transparent dark:via-gray-600/60" />
 
+                      {/* Collapsible group: Logout + Delete account */}
                       <button
-                        onClick={() => {
-                          setMenuOpen(false);
-                          confirmDeleteAccount();
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
+                        type="button"
+                        onClick={() => setActionsOpen((v) => !v)}
+                        aria-expanded={actionsOpen}
+                        aria-controls="account-actions-panel"
+                        className="group w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/70 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 md-down:px-2.5 md-down:py-1.5"
                       >
-                        <UserX className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
-                        <span>{t('user.deleteAccount')}</span>
+                        <span className="flex items-center gap-2">
+                          <ShieldAlert className="w-3.5 h-3.5" aria-hidden="true" />
+                          {t('user.accountActions', { defaultValue: 'Phiên & tài khoản' })}
+                        </span>
+                        <ChevronDown aria-hidden="true" className={`w-4 h-4 transition-transform duration-300 ease-out ${actionsOpen ? 'rotate-180' : ''}`} />
                       </button>
 
-                      <button
-                        onClick={() => {
-                          setMenuOpen(false);
-                          confirmLogout();
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors md-down:px-2.5 md-down:py-1.5 md-down:text-xs"
+                      <div
+                        id="account-actions-panel"
+                        aria-hidden={!actionsOpen}
+                        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${actionsOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                       >
-                        <LogOut className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
-                        <span>{t('user.logout')}</span>
-                      </button>
+                        <div className="min-h-0 overflow-hidden">
+                          <div className="space-y-1 pt-1">
+                            <button
+                              type="button"
+                              tabIndex={actionsOpen ? 0 : -1}
+                              onClick={() => {
+                                setMenuOpen(false);
+                                confirmLogout();
+                              }}
+                              style={{ transitionDelay: actionsOpen ? '60ms' : '0ms' }}
+                              className={`group/item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-all duration-300 ease-out motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 md-down:px-2.5 md-down:py-1.5 md-down:text-xs ${actionsOpen ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0'}`}
+                            >
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-600 transition-transform duration-200 group-hover/item:scale-110 dark:bg-gray-800 dark:text-gray-300 md-down:h-6 md-down:w-6">
+                                <LogOut className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                              </span>
+                              <span>{t('user.logout')}</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              tabIndex={actionsOpen ? 0 : -1}
+                              onClick={() => {
+                                setMenuOpen(false);
+                                confirmDeleteAccount();
+                              }}
+                              style={{ transitionDelay: actionsOpen ? '110ms' : '0ms' }}
+                              className={`group/item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 ease-out motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/60 md-down:px-2.5 md-down:py-1.5 md-down:text-xs ${actionsOpen ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0'}`}
+                            >
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-600 transition-transform duration-200 group-hover/item:scale-110 dark:bg-red-900/30 dark:text-red-400 md-down:h-6 md-down:w-6">
+                                <UserX className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
+                              </span>
+                              <span>{t('user.deleteAccount')}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

@@ -14,6 +14,8 @@
     "changePassword": "Đổi mật khẩu",
     "devices": "Thiết bị đã đăng nhập",
     "logout": "Đăng xuất",
+
+    "accountActions": "Phiên & tài khoản",
     "deleteAccount": "Xóa tài khoản",
     "deleteConfirm": "Xóa tài khoản?",
     "deleteMessage": "Hành động này không thể hoàn tác. Mọi dữ liệu sẽ bị xóa và bạn sẽ bị đăng xuất trên mọi thiết bị.",

@@ -196,9 +196,22 @@ function formatQuery(notes: Note[], p: NoteQuery = {}): NotesResponse {
     return true;
   });
   const direction = p.sortOrder === 'ASC' ? 1 : -1;
-  const sortBy = p.sortBy === 'updatedAt' ? 'updatedAt' : 'createdAt';
-  matches.sort((a, b) => Number(b.isPinned) - Number(a.isPinned) ||
-    direction * ((new Date(a[sortBy]).getTime() || 0) - (new Date(b[sortBy]).getTime() || 0)));
+  const sortBy = ['createdAt', 'updatedAt', 'title', 'priority'].includes(p.sortBy || '') ? p.sortBy : 'createdAt';
+  const priorityRank: Record<string, number> = { low: 1, medium: 2, high: 3 };
+  matches.sort((a, b) => {
+    const pinned = Number(b.isPinned) - Number(a.isPinned);
+    if (pinned) return pinned;
+    let difference = 0;
+    if (sortBy === 'title') {
+      difference = (a.title || '').localeCompare(b.title || '', 'vi', { sensitivity: 'base', numeric: true });
+    } else if (sortBy === 'priority') {
+      difference = (priorityRank[a.priority] || 0) - (priorityRank[b.priority] || 0);
+    } else {
+      const field = sortBy === 'updatedAt' ? 'updatedAt' : 'createdAt';
+      difference = (new Date(a[field]).getTime() || 0) - (new Date(b[field]).getTime() || 0);
+    }
+    return direction * difference || b.id - a.id;
+  });
   return {
     notes: matches.slice((page - 1) * limit, page * limit),
     pagination: { total: matches.length, page, limit, totalPages: Math.ceil(matches.length / limit) },

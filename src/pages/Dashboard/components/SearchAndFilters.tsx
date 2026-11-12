@@ -4,6 +4,8 @@ import { Plus, ChevronDown, Filter, X, Sparkles, Tag, Check, SlidersHorizontal, 
 import { useTranslation } from 'react-i18next';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
 import PriorityDropdownFilter from './PriorityDropdownFilter';
+import NoteSortSelect from './NoteSortSelect';
+import type { NoteSortKey } from '../utils/noteSort';
 import * as LucideIcons from 'lucide-react';
 
 // Category Dropdown Component với thiết kế mới
@@ -278,6 +280,8 @@ interface SearchAndFiltersProps {
   setSelectedCategory: (value: string) => void;
   selectedPriority: string;
   setSelectedPriority: (value: string) => void;
+  sortKey: NoteSortKey;
+  onSortChange: (value: NoteSortKey) => void;
   onCreateNote: () => void;
   showArchived?: boolean;
   categories: Array<{ id: number; name: string; color: string; icon: string }>;
@@ -290,6 +294,8 @@ const SearchAndFilters = memo(({
   setSelectedCategory,
   selectedPriority,
   setSelectedPriority,
+  sortKey,
+  onSortChange,
   onCreateNote,
   showArchived = false,
   categories,
@@ -443,17 +449,21 @@ const SearchAndFilters = memo(({
         shadow-lg shadow-black/5 dark:shadow-black/15
         transition-all duration-300
       ">
-        <div className="flex items-center gap-3 md-down:gap-2">
+        <div className="flex flex-wrap items-center gap-3 md-down:gap-2">
           {/* Search Input */}
-          <div className="flex-1 relative group">
+          <div className="relative group min-w-0 flex-[1_1_260px]">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative bg-white/90 dark:bg-gray-800/90 rounded-xl border border-gray-200/60 dark:border-gray-700/60 hover:border-blue-400/50 dark:hover:border-blue-500/50 transition-all duration-300 overflow-hidden">
+            <div className="relative rounded-xl">
               <SearchAutocomplete
                 onSearch={setSearchTerm}
                 placeholder={t('search.placeholder')}
+                inputClassName="!h-[52px] !py-0 !rounded-xl"
               />
             </div>
           </div>
+
+          {/* Sort the whole note collection, not only the visible page. */}
+          <NoteSortSelect value={sortKey} onChange={onSortChange} />
 
           {/* Magic Filter Toggle Button Wrapper */}
           <div className="relative group transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5 z-10">
