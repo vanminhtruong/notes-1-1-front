@@ -46,8 +46,6 @@ export { default as GroupsTab } from '../component-child/ChatWindow-child/Groups
 export { default as GroupEditorModal } from '../component-child/ChatWindow-child/GroupEditorModal.tsx';
 export { default as RemoveMembersModal } from '../component-child/ChatWindow-child/RemoveMembersModal.tsx';
 export { default as ChatSettings } from '../component-child/ChatWindow-child/ChatSettings.tsx';
-export { default as SetPinModal } from '../component-child/ChatWindow-child/SetPinModal.tsx';
-export { default as EnterPinModal } from '../component-child/ChatWindow-child/EnterPinModal.tsx';
 export { SharedNotesTab } from '../component-child/SharedNotesTab.tsx';
 
 // types and utils

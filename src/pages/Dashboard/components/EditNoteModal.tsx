@@ -1,4 +1,5 @@
 import ModalScrollArea from '@/components/ModalScrollArea';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useState, memo, useEffect, useCallback, useRef } from 'react';
 import { X, ChevronDown, Search, Loader2 } from 'lucide-react';
@@ -8,7 +9,7 @@ import { notesService, type NoteCategory } from '@/services/notesService';
 import PriorityDropdown from './PriorityDropdown';
 
 // MediaTabs Component
-const MediaTabs = memo(({ editNote, setEditNote, t }: { editNote: any; setEditNote: (note: any) => void; t: any }) => {
+const MediaTabs = memo(({ editNote, setEditNote, t, onProtectedFileSelected, onProtectedMediaRemoved }: { editNote: any; setEditNote: (note: any) => void; t: any; onProtectedFileSelected?: (kind: 'image' | 'video' | 'background', file: File) => string; onProtectedMediaRemoved?: (kind: 'image' | 'video' | 'background') => void }) => {
   const [activeTab, setActiveTab] = useState<'image' | 'video' | 'youtube'>('image');
 
   return (
@@ -61,8 +62,7 @@ const MediaTabs = memo(({ editNote, setEditNote, t }: { editNote: any; setEditNo
                 const file = e.target.files?.[0];
                 if (!file) return;
                 try {
-                  const { uploadService } = await import('@/services/uploadService');
-                  const { url } = await uploadService.uploadImage(file);
+                  const url = onProtectedFileSelected ? onProtectedFileSelected('image', file) : (await (await import('@/services/uploadService')).uploadService.uploadImage(file)).url;
                   setEditNote({ ...editNote, imageUrl: url, videoUrl: '', youtubeUrl: '' });
                 } catch (_err) {
                   // ignore
@@ -73,6 +73,7 @@ const MediaTabs = memo(({ editNote, setEditNote, t }: { editNote: any; setEditNo
             {editNote.imageUrl && (
               <img src={editNote.imageUrl} alt="preview" className="w-16 h-16 rounded-md object-cover border" />
             )}
+            {onProtectedMediaRemoved && editNote.imageUrl && <button type="button" className="text-xs text-red-600 dark:text-red-300" onClick={() => { onProtectedMediaRemoved('image'); setEditNote({ ...editNote, imageUrl: '' }); }}>{t('e2ee.removeMedia')}</button>}
           </div>
         )}
 
@@ -85,8 +86,7 @@ const MediaTabs = memo(({ editNote, setEditNote, t }: { editNote: any; setEditNo
                 const file = e.target.files?.[0];
                 if (!file) return;
                 try {
-                  const { uploadService } = await import('@/services/uploadService');
-                  const { url } = await uploadService.uploadFile(file);
+                  const url = onProtectedFileSelected ? onProtectedFileSelected('video', file) : (await (await import('@/services/uploadService')).uploadService.uploadFile(file)).url;
                   setEditNote({ ...editNote, videoUrl: url, imageUrl: '', youtubeUrl: '' });
                 } catch (err) {
                   console.error('Video upload failed:', err);
@@ -102,6 +102,7 @@ const MediaTabs = memo(({ editNote, setEditNote, t }: { editNote: any; setEditNo
                 className="w-16 h-16 rounded-md object-cover border" 
               />
             )}
+            {onProtectedMediaRemoved && editNote.videoUrl && <button type="button" className="text-xs text-red-600 dark:text-red-300" onClick={() => { onProtectedMediaRemoved('video'); setEditNote({ ...editNote, videoUrl: '' }); }}>{t('e2ee.removeMedia')}</button>}
           </div>
         )}
 
@@ -306,6 +307,7 @@ export interface EditNote {
   categoryId: number | undefined;
   priority: 'low' | 'medium' | 'high';
   reminderAtLocal: string;
+  backgroundImage?: string;
 }
 
 interface EditNoteModalProps {
@@ -315,9 +317,13 @@ interface EditNoteModalProps {
   setEditNote: (note: EditNote) => void;
   onSubmit: () => void;
   categories: Array<{ id: number; name: string; color: string; icon: string }>;
+  secureMode?: boolean;
+  busy?: boolean;
+  onProtectedFileSelected?: (kind: 'image' | 'video' | 'background', file: File) => string;
+  onProtectedMediaRemoved?: (kind: 'image' | 'video' | 'background') => void;
 }
 
-const EditNoteModal = memo(({ isOpen, onClose, editNote, setEditNote, onSubmit, categories }: EditNoteModalProps) => {
+const EditNoteModal = memo(({ isOpen, onClose, editNote, setEditNote, onSubmit, categories, secureMode = false, busy = false, onProtectedFileSelected, onProtectedMediaRemoved }: EditNoteModalProps) => {
   const { t } = useTranslation('dashboard');
   
   const editor = useRichTextEditor({
@@ -348,15 +354,15 @@ const EditNoteModal = memo(({ isOpen, onClose, editNote, setEditNote, onSubmit, 
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 xl-down:p-3.5 lg-down:p-3 md-down:p-2.5 sm-down:p-2 xs-down:p-1.5 z-[99999]">
+  const modal = (
+    <div className={`${secureMode ? 'note-e2ee-editor' : ''} fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 xl-down:p-3.5 lg-down:p-3 md-down:p-2.5 sm-down:p-2 xs-down:p-1.5 z-[99999]`}>
       <div className="bg-white dark:bg-gray-800 rounded-2xl xl-down:rounded-xl lg-down:rounded-xl md-down:rounded-lg sm-down:rounded-lg xs-down:rounded-lg shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-6 pt-6 pb-3 xl-down:px-5 xl-down:pt-5 xl-down:pb-2.5 lg-down:px-5 lg-down:pt-5 lg-down:pb-2.5 md-down:px-4 md-down:pt-4 md-down:pb-2 sm-down:px-3.5 sm-down:pt-3.5 sm-down:pb-2 xs-down:px-3 xs-down:pt-3 xs-down:pb-1.5">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white xl-down:text-lg lg-down:text-lg md-down:text-base sm-down:text-base xs-down:text-sm">{t('modals.edit.title')}</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white xl-down:text-lg lg-down:text-lg md-down:text-base sm-down:text-base xs-down:text-sm">{secureMode ? t('e2ee.encryptedTitle') : t('modals.edit.title')}</h2>
           <button
             onClick={onClose}
             className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 md-down:p-0.5 xs-down:p-0.5"
-            title="Đóng"
+            title={t('e2ee.close')}
           >
             <X className="w-5 h-5 md-down:w-4 md-down:h-4 xs-down:w-3.5 xs-down:h-3.5" />
           </button>
@@ -391,9 +397,27 @@ const EditNoteModal = memo(({ isOpen, onClose, editNote, setEditNote, onSubmit, 
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
               {t('modals.create.fields.media')}
             </label>
-            <MediaTabs editNote={editNote} setEditNote={setEditNote} t={t} />
+            <MediaTabs editNote={editNote} setEditNote={setEditNote} t={t} onProtectedFileSelected={secureMode ? onProtectedFileSelected : undefined} onProtectedMediaRemoved={secureMode ? onProtectedMediaRemoved : undefined} />
           </div>
 
+          {secureMode && (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{t('e2ee.backgroundAlt')}</label>
+              <div className="flex flex-wrap items-center gap-2">
+                <input type="file" accept="image/*" className="min-w-0 max-w-full text-xs" onChange={event => {
+                  const file = event.target.files?.[0];
+                  if (!file || !onProtectedFileSelected) return;
+                  const url = onProtectedFileSelected('background', file);
+                  if (url) setEditNote({ ...editNote, backgroundImage: url });
+                }} />
+                {editNote.backgroundImage && <button type="button" className="text-xs text-red-600 dark:text-red-300" onClick={() => {
+                  onProtectedMediaRemoved?.('background');
+                  setEditNote({ ...editNote, backgroundImage: '' });
+                }}>{t('e2ee.removeMedia')}</button>}
+              </div>
+              {editNote.backgroundImage && <img src={editNote.backgroundImage} className="max-h-24 max-w-full rounded-lg border object-contain" alt={t('e2ee.backgroundAlt')} />}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4 md-down:gap-3 sm-down:gap-2.5 xs-down:gap-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
@@ -442,15 +466,16 @@ const EditNoteModal = memo(({ isOpen, onClose, editNote, setEditNote, onSubmit, 
           </button>
           <button
             onClick={onSubmit}
-            disabled={!editNote.title.trim()}
+            disabled={!editNote.title.trim() || busy}
             className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 md-down:px-3 md-down:py-1.5 md-down:text-sm sm-down:px-2.5 sm-down:py-1.5 sm-down:text-sm xs-down:px-2 xs-down:py-1 xs-down:text-xs"
           >
-            {t('actions.update')}
+            {secureMode ? (busy ? t('e2ee.saving') : t('e2ee.saveEncrypted')) : t('actions.update')}
           </button>
         </div>
       </div>
     </div>
   );
+  return secureMode ? createPortal(modal, document.body) : modal;
 });
 
 EditNoteModal.displayName = 'EditNoteModal';

@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useEffect } from 'react';
-import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play, FolderInput, FolderOutput, Palette } from 'lucide-react';
+import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play, FolderInput, FolderOutput, Palette, LockKeyhole, LockOpen } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY, getTextColorForBackground, getTextColorForImageBackground } from '@/utils/utils';
 import { extractYouTubeId } from '@/utils/youtube';
@@ -9,6 +9,7 @@ import ChecklistPreview from './ChecklistPreview';
 import TagBadge from './TagBadge';
 import TagSelector from './TagSelector';
 import BackgroundPicker from './BackgroundPicker';
+import NoteEncryptionDialog from './NoteEncryptionDialog';
 import { useNoteBackgroundHandler } from '../hooks/Manager-handle/useNoteBackgroundHandler';
 import type { Note as ServiceNote, NoteTag } from '@/services/notesService';
 import type { NoteCategory } from '@/services/notesService';
@@ -26,6 +27,7 @@ export interface Note {
   category?: NoteCategory | null;
   tags?: NoteTag[];
   createdAt: string;
+  isEncrypted?: boolean;
   isPinned?: boolean;
   isArchived?: boolean;
   backgroundColor?: string | null;
@@ -69,6 +71,7 @@ const NoteCard = memo(({
 }: NoteCardProps) => {
   const { t } = useTranslation('dashboard');
   const [isHovered, setIsHovered] = useState(false);
+  const [showEncryption, setShowEncryption] = useState(false);
   const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
   const [isBackgroundPickerOpen, setIsBackgroundPickerOpen] = useState(false);
   const tagsContainerRef = useRef<HTMLDivElement>(null);
@@ -76,8 +79,8 @@ const NoteCard = memo(({
   const paletteBtnRef = useRef<HTMLButtonElement | null>(null);
   const { updateBackground } = useNoteBackgroundHandler();
   // UI state để phản ánh ngay thay đổi nền (tránh phải đợi socket/refetch)
-  const [bgColor, setBgColor] = useState<string | null>(note.backgroundColor ?? null);
-  const [bgImage, setBgImage] = useState<string | null>(note.backgroundImage ?? null);
+  const [bgColor, setBgColor] = useState<string | null>(note.isEncrypted ? null : note.backgroundColor ?? null);
+  const [bgImage, setBgImage] = useState<string | null>(note.isEncrypted ? null : note.backgroundImage ?? null);
   const hasBg = !!(bgColor || bgImage);
   
   // Tính màu chữ phù hợp dựa trên nền
@@ -87,9 +90,9 @@ const NoteCard = memo(({
 
   // Đồng bộ khi note props thay đổi
   useEffect(() => {
-    setBgColor(note.backgroundColor ?? null);
-    setBgImage(note.backgroundImage ?? null);
-  }, [note.id, note.backgroundColor, note.backgroundImage]);
+    setBgColor(note.isEncrypted ? null : note.backgroundColor ?? null);
+    setBgImage(note.isEncrypted ? null : note.backgroundImage ?? null);
+  }, [note.id, note.isEncrypted, note.backgroundColor, note.backgroundImage]);
 
   useEffect(() => {
     if ((isHovered || isTagSelectorOpen) && note.tags && note.tags.length > 0 && tagsContainerRef.current) {
@@ -116,10 +119,10 @@ const NoteCard = memo(({
 
   return (
     <div 
-      className={`relative flex flex-col h-full min-w-0 overflow-visible z-[5000] hover:z-[10000] ${hasBg ? 'bg-transparent dark:bg-transparent' : 'bg-white/70 dark:bg-gray-800/90'} backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3`}
+      className={`note-dashboard-card ${note.isEncrypted ? 'note-e2ee-card' : ''} relative flex flex-col h-full min-w-0 overflow-visible z-[5000] hover:z-[10000] ${hasBg ? 'bg-transparent dark:bg-transparent' : 'bg-white/70 dark:bg-gray-800/90'} backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3`}
       style={{
-        backgroundColor: bgColor || undefined,
-        backgroundImage: bgImage ? `url(${bgImage})` : 'none',
+        backgroundColor: note.isEncrypted ? undefined : bgColor || undefined,
+        backgroundImage: !note.isEncrypted && bgImage ? `url(${bgImage})` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -159,10 +162,16 @@ const NoteCard = memo(({
               fontWeight: '700'
             } : undefined}
           >
-            {note.title}
+            {note.isEncrypted ? t('e2ee.privateTitle') : note.title}
           </h3>
         </div>
         <div className="flex gap-2 flex-shrink-0">
+          <button type="button" onClick={() => setShowEncryption(true)}
+            aria-label={note.isEncrypted ? t('e2ee.unlockAction') : t('e2ee.enableAction')}
+            title={note.isEncrypted ? t('e2ee.unlockAction') : t('e2ee.enableAction')}
+            className="note-e2ee-trigger rounded-lg border border-transparent p-1 text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:hover:text-white sm-down:p-0.5">
+            {note.isEncrypted ? <LockKeyhole className="h-4 w-4 md-down:h-3.5 md-down:w-3.5" /> : <LockOpen className="h-4 w-4 md-down:h-3.5 md-down:w-3.5" />}
+          </button>
           {showReminder && (
             <button
               onClick={onAcknowledgeReminder}
@@ -173,7 +182,7 @@ const NoteCard = memo(({
             </button>
           )}
           <button
-            onClick={onView}
+            onClick={() => note.isEncrypted ? setShowEncryption(true) : onView()}
             className="p-1 text-gray-400 hover:text-indigo-600 transition-colors duration-200 sm-down:p-0.5"
             title={t('actions.viewDetails')}
           >
@@ -197,7 +206,7 @@ const NoteCard = memo(({
             </button>
           )}
           <button
-            onClick={onEdit}
+            onClick={() => note.isEncrypted ? setShowEncryption(true) : onEdit()}
             className="p-1 text-gray-400 hover:text-blue-600 transition-colors duration-200 sm-down:p-0.5"
             title={t('actions.edit')}
           >
@@ -212,7 +221,11 @@ const NoteCard = memo(({
         </div>
       </div>
 
-      {note.content?.includes('data-type="taskList"') ? (
+      {note.isEncrypted ? (
+        <div className="note-e2ee-status mb-4 flex min-h-16 items-center gap-2 rounded-xl border p-3 text-xs">
+          <LockKeyhole className="h-4 w-4 shrink-0" aria-hidden="true" /> <span>{t('e2ee.cardStatus')}</span>
+        </div>
+      ) : note.content?.includes('data-type="taskList"') ? (
         <ChecklistPreview noteId={note.id} content={note.content}
           compact={!!(note.imageUrl || note.videoUrl || note.youtubeUrl)}
           readOnly={showArchived} onView={onView}
@@ -237,7 +250,7 @@ const NoteCard = memo(({
         dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(note.content || '') }}
       />}
 
-      {note.videoUrl ? (
+      {!note.isEncrypted && note.videoUrl ? (
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 relative group">
           <video
             src={note.videoUrl}
@@ -250,11 +263,11 @@ const NoteCard = memo(({
             <Play className="w-12 h-12 text-white" />
           </div>
         </div>
-      ) : note.imageUrl ? (
+      ) : !note.isEncrypted && note.imageUrl ? (
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5">
           <img src={note.imageUrl} alt={note.title} className="w-full h-40 object-cover rounded-xl border lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
         </div>
-      ) : note.youtubeUrl && extractYouTubeId(note.youtubeUrl) ? (
+      ) : !note.isEncrypted && note.youtubeUrl && extractYouTubeId(note.youtubeUrl) ? (
         <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 relative group">
           <img 
             src={`https://img.youtube.com/vi/${extractYouTubeId(note.youtubeUrl)}/hqdefault.jpg`} 
@@ -266,7 +279,7 @@ const NoteCard = memo(({
           </div>
         </div>
       ) : (
-        note.content?.includes('data-type="taskList"') ? null : <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 h-40 lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
+        (note.isEncrypted || note.content?.includes('data-type="taskList"')) ? null : <div className="mb-4 sm-down:mb-3 xs-down:mb-2.5 h-40 lg-down:h-36 md-down:h-32 sm-down:h-28 xs-down:h-24" />
       )}
 
       <div className="mt-auto space-y-2">
@@ -351,7 +364,7 @@ const NoteCard = memo(({
               </>
             )}
           </div>
-          {(isHovered || isTagSelectorOpen || isBackgroundPickerOpen) && !showArchived && (
+          {(isHovered || isTagSelectorOpen || isBackgroundPickerOpen) && !showArchived && !note.isEncrypted && (
             <div 
               className="absolute top-1 z-[10020] scale-75 origin-top-left flex items-center gap-2"
               style={{ 
@@ -396,6 +409,7 @@ const NoteCard = memo(({
           )}
         </div>
       </div>
+      {showEncryption && <NoteEncryptionDialog note={note as ServiceNote} onClose={() => setShowEncryption(false)} />}
     </div>
   );
 });

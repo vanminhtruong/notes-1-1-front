@@ -12,7 +12,4 @@ export interface ChatListProps {
   onRefreshBlockedUsers?: () => void;
   onBulkRemoveFriends?: (friendshipIds: number[]) => Promise<void>;
   onBulkBlock?: (userIds: number[]) => Promise<void>;
-  e2eeEnabled?: boolean;
-  e2eeUnlocked?: boolean;
-  lockedPlaceholder?: string;
 }

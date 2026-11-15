@@ -1,0 +1,130 @@
+// A quiet, compact scrollbar scoped to the note sorting menu.
+.dashboard-sort-options-scroll {
+  --sort-scroll-thumb: #bac5d3;
+  --sort-scroll-thumb-hover: #94a3b8;
+  --sort-scroll-thumb-active: #64748b;
+
+  scrollbar-gutter: stable;
+
+  &::-webkit-scrollbar {
+    width: 9px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    margin-block: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--sort-scroll-thumb);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
+
+    &:hover {
+      background-color: var(--sort-scroll-thumb-hover);
+    }
+
+    &:active {
+      background-color: var(--sort-scroll-thumb-active);
+    }
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  // Firefox uses the standards-based thin scrollbar.
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sort-scroll-thumb) transparent;
+
+    &:hover {
+      scrollbar-color: var(--sort-scroll-thumb-hover) transparent;
+    }
+  }
+}
+
+.dark .dashboard-sort-options-scroll {
+  --sort-scroll-thumb: #525252;
+  --sort-scroll-thumb-hover: #737373;
+  --sort-scroll-thumb-active: #a3a3a3;
+}
+
+// Normal dark mode uses the app's blue-gray surfaces, not the OLED black palette.
+// Scope these overrides away from dark-black so that theme remains unchanged.
+// The listbox is portaled to document.body, so both surfaces are rooted at :root.
+:root.dark:not(.dark-black) {
+  .dashboard-sort-trigger {
+    background-color: #263244;
+    border-color: #475569;
+
+    &:hover {
+      background-color: #334155;
+      border-color: #64748b;
+    }
+
+    &[aria-expanded='true'] {
+      background-color: #334155;
+      border-color: #64748b;
+      --tw-ring-color: rgba(148, 163, 184, 0.18);
+    }
+  }
+
+  .dashboard-sort-trigger-icon {
+    background-color: #35465a;
+  }
+
+  .dashboard-sort-trigger:hover .dashboard-sort-trigger-icon {
+    background-color: #475569;
+  }
+
+  .dashboard-sort-menu {
+    background-color: #263244;
+    border-color: #475569;
+  }
+
+  .dashboard-sort-menu-header {
+    background-color: #263244;
+    border-color: #475569;
+  }
+
+  .dashboard-sort-menu-count {
+    background-color: #35465a;
+  }
+
+  .dashboard-sort-option {
+    background-color: #334155;
+    border-color: #475569;
+
+    &:hover {
+      background-color: #42536a;
+      border-color: #64748b;
+    }
+
+    &[aria-selected='true'] {
+      background-color: #40536c;
+      border-color: #64748b;
+    }
+  }
+
+  .dashboard-sort-options-scroll {
+    --sort-scroll-thumb: #64748b;
+    --sort-scroll-thumb-hover: #94a3b8;
+    --sort-scroll-thumb-active: #cbd5e1;
+  }
+}
+
+@media (forced-colors: active) {
+  .dashboard-sort-options-scroll {
+    --sort-scroll-thumb: ButtonText;
+    --sort-scroll-thumb-hover: Highlight;
+    --sort-scroll-thumb-active: Highlight;
+  }
+}

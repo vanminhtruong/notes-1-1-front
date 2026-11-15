@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { ChatSettingsProps } from '../../interface/ChatSettings.interface';
 import BlockedUsersModal from './BlockedUsersModal';
 
-const ChatSettings: React.FC<ChatSettingsProps> = memo(({ enabled, hasPin, readStatusEnabled, hidePhone, hideBirthDate, allowMessagesFromNonFriends, blockedUsers, onBack, onToggle, onChangePin, onToggleReadStatus, onToggleHidePhone, onToggleHideBirthDate, onToggleAllowMessagesFromNonFriends, onUnblockUser }) => {
+const ChatSettings: React.FC<ChatSettingsProps> = memo(({ readStatusEnabled, hidePhone, hideBirthDate, allowMessagesFromNonFriends, blockedUsers, onBack, onToggleReadStatus, onToggleHidePhone, onToggleHideBirthDate, onToggleAllowMessagesFromNonFriends, onUnblockUser }) => {
   const { t } = useTranslation('dashboard');
   
   const [showBlocked, setShowBlocked] = useState(false);
@@ -16,25 +16,6 @@ const ChatSettings: React.FC<ChatSettingsProps> = memo(({ enabled, hasPin, readS
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        <div>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-medium text-gray-900 dark:text-gray-100">{t('chat.settings.encryption.title')}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">{t('chat.settings.encryption.description')}</div>
-            </div>
-            <button
-              onClick={() => onToggle(!enabled)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-              aria-pressed={enabled}
-            >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
-            </button>
-          </div>
-          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            {enabled ? t('chat.settings.encryption.enabled') : t('chat.settings.encryption.disabled')}
-          </div>
-        </div>
-
         <div>
           <div className="flex items-center justify-between">
             <div>
@@ -125,18 +106,6 @@ const ChatSettings: React.FC<ChatSettingsProps> = memo(({ enabled, hasPin, readS
           </button>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="font-medium text-gray-900 dark:text-gray-100">{t('chat.settings.pin.title')}</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">{hasPin ? t('chat.settings.pin.change') : t('chat.settings.pin.set')}</div>
-          </div>
-          <button
-            onClick={onChangePin}
-            className="px-3 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            {hasPin ? t('chat.settings.pin.changeButton') : t('chat.settings.pin.setButton')}
-          </button>
-        </div>
       </div>
       {/* Modal: Blocked Users */}
       <BlockedUsersModal

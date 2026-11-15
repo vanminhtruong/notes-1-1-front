@@ -7,21 +7,6 @@ export interface ImagePreviewProps {
   onClose: () => void;
 }
 
-// PIN modals
-export interface EnterPinModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onUnlock: () => void;
-  expectedHash: string | null;
-}
-
-export interface SetPinModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  hasExisting: boolean;
-  onSet: (payload: { pinHash: string; oldPinHash?: string }) => void;
-}
-
 // Remove members modal
 export type RemovableMember = { id: number; name: string; avatar?: string };
 

@@ -1,5 +1,5 @@
 import { useMemo, useCallback, memo } from 'react';
-import { type ChatWindowProps, toast, useTranslation, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SetPinModal, EnterPinModal, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
+import { type ChatWindowProps, toast, useTranslation, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
 import * as DashboardHooks from '../hooks';
 
 const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
@@ -129,32 +129,21 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   // Initialize chatSettingsHandler after loadUsers and loadFriends are available
   const chatSettingsHandler = useChatSettingsHandler({
     setShowSettings: chatSettingsState.setShowSettings,
-    setE2EEEnabled: chatSettingsState.setE2EEEnabled,
-    setE2EEPinHash: chatSettingsState.setE2EEPinHash,
-    setE2EEUnlocked: chatSettingsState.setE2EEUnlocked,
-    setShowSetPin: chatSettingsState.setShowSetPin,
     setReadStatusEnabled: chatSettingsState.setReadStatusEnabled,
     setHidePhone: chatSettingsState.setHidePhone,
     setHideBirthDate: chatSettingsState.setHideBirthDate,
     setAllowMessagesFromNonFriends: chatSettingsState.setAllowMessagesFromNonFriends,
     setBlockedUsers: chatSettingsState.setBlockedUsers,
-    e2eeEnabled: chatSettingsState.e2eeEnabled,
     t,
     onRefreshFriends: loadFriends,
     onRefreshUsers: loadUsers,
   });
 
   useChatSettingsEffects({
-    e2eeEnabled: chatSettingsState.e2eeEnabled,
-    e2eeUnlocked: chatSettingsState.e2eeUnlocked,
     readStatusEnabled: chatSettingsState.readStatusEnabled,
     allowMessagesFromNonFriends: chatSettingsState.allowMessagesFromNonFriends,
     hidePhone: chatSettingsState.hidePhone,
     hideBirthDate: chatSettingsState.hideBirthDate,
-    setE2EEEnabled: chatSettingsState.setE2EEEnabled,
-    setE2EEPinHash: chatSettingsState.setE2EEPinHash,
-    setE2EEUnlocked: chatSettingsState.setE2EEUnlocked,
-    setShowEnterPin: chatSettingsState.setShowEnterPin,
     setReadStatusEnabled: chatSettingsState.setReadStatusEnabled,
     setHidePhone: chatSettingsState.setHidePhone,
     setHideBirthDate: chatSettingsState.setHideBirthDate,
@@ -170,7 +159,6 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
 
   DashboardHooks.useSearchTermEffects({
     isOpen,
-    showEnterPin: chatSettingsState.showEnterPin,
     currentUserId: currentUser?.id,
     setSearchTerm: chatWindowState.setSearchTerm,
   });
@@ -398,7 +386,6 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
     setPendingImages: attachmentState.setPendingImages,
     setPendingFiles: attachmentState.setPendingFiles,
     typingSentRef: messageInputState.typingSentRef,
-    chatSettingsState,
     chatBackgroundHandler,
   });
 
@@ -442,16 +429,12 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
       <div className="flex-1 overflow-hidden">
         {chatSettingsState.showSettings ? (
           <ChatSettings
-            enabled={chatSettingsState.e2eeEnabled}
-            hasPin={!!chatSettingsState.e2eePinHash}
             readStatusEnabled={chatSettingsState.readStatusEnabled}
             hidePhone={chatSettingsState.hidePhone}
             hideBirthDate={chatSettingsState.hideBirthDate}
             allowMessagesFromNonFriends={chatSettingsState.allowMessagesFromNonFriends}
             blockedUsers={chatSettingsState.blockedUsers as any}
             onBack={chatSettingsHandler.closeSettings}
-            onToggle={chatSettingsHandler.handleToggleE2EE}
-            onChangePin={() => chatSettingsState.setShowSetPin(true)}
             onToggleReadStatus={chatSettingsHandler.handleToggleReadStatus}
             onToggleHidePhone={chatSettingsHandler.handleToggleHidePhone}
             onToggleHideBirthDate={chatSettingsHandler.handleToggleHideBirthDate}
@@ -494,9 +477,6 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
                       initialLoading={chatWindowState.historyLoading}
                       onPrependMessages={messageActionsHandler.handlePrependMessages}
                       onRemoveMessages={messageActionsHandler.handleRemoveMessages}
-                      maskMessages={chatSettingsState.e2eeEnabled && !chatSettingsState.e2eeUnlocked}
-                      lockedNotice={t('chat.encryption.chatLocked')}
-                      onUnlock={chatWindowCallbacksHandler.handleUnlock}
                       backgroundUrl={chatBackgroundState.chatBackgroundUrl}
                       onChangeBackground={chatWindowCallbacksHandler.handleChangeBackground}
                       onChangeBackgroundForBoth={chatWindowCallbacksHandler.handleChangeBackgroundForBoth}
@@ -540,9 +520,6 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
                     onRefreshBlockedUsers={chatSettingsHandler.refreshBlockedUsers}
                     onBulkRemoveFriends={handleBulkRemoveFriends}
                     onBulkBlock={handleBulkBlock}
-                    e2eeEnabled={chatSettingsState.e2eeEnabled}
-                    e2eeUnlocked={chatSettingsState.e2eeUnlocked}
-                    lockedPlaceholder={t('chat.encryption.previewLocked')}
                   />
                 )}
               </div>
@@ -562,9 +539,6 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
                   onRefreshBlockedUsers={chatSettingsHandler.refreshBlockedUsers}
                   onBulkRemoveFriends={handleBulkRemoveFriends}
                   onBulkBlock={handleBulkBlock}
-                  e2eeEnabled={chatSettingsState.e2eeEnabled}
-                  e2eeUnlocked={chatSettingsState.e2eeUnlocked}
-                  lockedPlaceholder="🔒 Encrypted — unlock to preview"
                 />
               </div>
             )}
@@ -598,9 +572,6 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
                       onRemoveMembers={chatWindowCallbacksHandler.handleRemoveMembersOpen}
                       onLeaveGroup={groupActionsHandler.handleLeaveGroup}
                       onDeleteGroup={groupActionsHandler.handleDeleteGroup}
-                      maskMessages={chatSettingsState.e2eeEnabled && !chatSettingsState.e2eeUnlocked}
-                      lockedNotice={t('chat.encryption.groupLocked')}
-                      onUnlock={chatWindowCallbacksHandler.handleUnlock}
                       onReplyRequested={chatWindowCallbacksHandler.handleSetReplyingToMessage}
                     />
                     <RemoveMembersModal
@@ -670,19 +641,6 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
         onClose={chatWindowCallbacksHandler.handleClosePreview}
       />
 
-      {/* E2EE PIN modals */}
-      <SetPinModal
-        isOpen={chatSettingsState.showSetPin}
-        onClose={chatWindowCallbacksHandler.handleSetPinClose}
-        hasExisting={!!chatSettingsState.e2eePinHash}
-        onSet={chatSettingsHandler.handleSetPin}
-      />
-      <EnterPinModal
-        isOpen={chatSettingsState.showEnterPin}
-        onClose={chatWindowCallbacksHandler.handleEnterPinClose}
-        onUnlock={chatWindowCallbacksHandler.handleEnterPinUnlock}
-        expectedHash={chatSettingsState.e2eePinHash}
-      />
     </div>
   );
 });

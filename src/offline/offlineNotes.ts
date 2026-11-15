@@ -244,6 +244,17 @@ async function readMeta<T>(name: string): Promise<T | null> {
   const userId = uid();
   return userId ? ((await byKey<MetaEntry>('meta', metaKey(userId, name)))?.data as T || null) : null;
 }
+// Remove a plaintext offline snapshot before changing E2EE state on the server.
+// Never replay old local plaintext edits after encryption has been enabled.
+export async function clearNoteForEncryption(id: number): Promise<void> {
+  const userId = requireUser();
+  if ((await operationsForUser(userId)).some(op => op.noteId === id)) {
+    throw new Error('Ghi chú còn thay đổi offline chưa đồng bộ. Hãy đồng bộ trước khi mã hóa.');
+  }
+  await writeBatch([], [], [key(userId, id)]);
+  broadcast();
+}
+
 export async function getNotes(params: NoteQuery = {}): Promise<NotesResponse> {
   const userId = requireUser();
   if (!isOffline()) {

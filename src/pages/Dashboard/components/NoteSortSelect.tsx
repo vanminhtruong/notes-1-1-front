@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { ArrowDownUp, CalendarDays, Check, ChevronDown, Clock3, Flag, Type } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { NoteSortKey } from '../utils/noteSort';
+import './NoteSortSelect.scss';
 
 interface NoteSortSelectProps {
   value: NoteSortKey;
@@ -150,11 +151,11 @@ const NoteSortSelect = memo(({ value, onChange }: NoteSortSelectProps) => {
           if (!open) setMenuStyle({ visibility: 'hidden' });
           setOpen(previous => !previous);
         }}
-        className={`group flex h-[52px] min-w-0 flex-[1_1_166px] items-center gap-2.5 rounded-xl border bg-white/95 px-3 text-left shadow-sm transition-[background-color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:focus-visible:ring-neutral-400/25 sm:flex-none sm:w-[208px] dark:bg-neutral-900 ${open
+        className={`dashboard-sort-trigger group flex h-[52px] min-w-0 flex-[1_1_166px] items-center gap-2.5 rounded-xl border bg-white/95 px-3 text-left shadow-sm transition-[background-color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:focus-visible:ring-neutral-400/25 sm:flex-none sm:w-[208px] dark:bg-neutral-900 ${open
           ? 'border-blue-400 ring-2 ring-blue-500/10 dark:border-neutral-500 dark:ring-neutral-500/15'
           : 'border-slate-200/90 hover:border-slate-300 hover:bg-white dark:border-neutral-700 dark:hover:border-neutral-500 dark:hover:bg-neutral-800'}`}
       >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors group-hover:bg-slate-200 dark:bg-neutral-800 dark:text-neutral-200 dark:group-hover:bg-neutral-700">
+        <span className="dashboard-sort-trigger-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors group-hover:bg-slate-200 dark:bg-neutral-800 dark:text-neutral-200 dark:group-hover:bg-neutral-700">
           <ArrowDownUp aria-hidden="true" className="h-[17px] w-[17px]" strokeWidth={1.8} />
         </span>
         <span className="min-w-0 flex-1">
@@ -176,18 +177,18 @@ const NoteSortSelect = memo(({ value, onChange }: NoteSortSelectProps) => {
           aria-label={t('sort.label')}
           onKeyDown={handleMenuKeyDown}
           style={menuStyle}
-          className="z-[10100] overflow-y-auto overscroll-contain rounded-2xl border border-slate-200/95 bg-white p-2.5 shadow-[0_18px_55px_-14px_rgba(15,23,42,0.26)] dark:border-neutral-700 dark:bg-neutral-900 dark:shadow-[0_18px_55px_-14px_rgba(0,0,0,0.62)]"
+          className="dashboard-sort-menu z-[10100] flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200/95 bg-white p-2.5 shadow-[0_18px_55px_-14px_rgba(15,23,42,0.26)] dark:border-neutral-700 dark:bg-neutral-900 dark:shadow-[0_18px_55px_-14px_rgba(0,0,0,0.62)]"
         >
-          <div className="sticky top-[-10px] z-10 mb-1.5 flex items-center justify-between gap-2 rounded-xl border-b border-slate-100 bg-white px-2.5 py-2.5 dark:border-neutral-700 dark:bg-neutral-900">
+          <div className="dashboard-sort-menu-header mb-1.5 flex shrink-0 items-center justify-between gap-2 rounded-xl border-b border-slate-100 bg-white px-2.5 py-2.5 dark:border-neutral-700 dark:bg-neutral-900">
             <div className="min-w-0">
               <p className="text-[13px] font-bold leading-5 text-slate-900 dark:text-neutral-100">{t('sort.menuTitle')}</p>
               <p className="text-[11px] leading-4 text-slate-500 dark:text-neutral-400">{t('sort.menuHint')}</p>
             </div>
-            <span className="rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-semibold tabular-nums text-slate-600 dark:bg-neutral-800 dark:text-neutral-200">
+            <span className="dashboard-sort-menu-count rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-semibold tabular-nums text-slate-600 dark:bg-neutral-800 dark:text-neutral-200">
               {ORDER.length}
             </span>
           </div>
-          <div className="space-y-2.5 px-0.5 pb-0.5">
+          <div className="dashboard-sort-options-scroll min-h-0 flex-1 space-y-2.5 overflow-y-auto overscroll-contain px-0.5 pb-1 pr-1.5">
             {GROUPS.map(group => (
               <section key={group.label} role="group" aria-label={t(group.label)}>
                 <p className="mb-1.5 px-2 text-[10px] font-bold uppercase tracking-[0.11em] text-slate-500 dark:text-neutral-400">
@@ -204,7 +205,7 @@ const NoteSortSelect = memo(({ value, onChange }: NoteSortSelectProps) => {
                         aria-selected={selected}
                         type="button"
                         onClick={() => select(key)}
-                        className={`group/option flex min-h-[62px] min-w-0 flex-col justify-between rounded-xl border px-2.5 py-2.5 text-left transition-[background-color,border-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:focus-visible:ring-neutral-400/30 ${selected
+                        className={`dashboard-sort-option group/option flex min-h-[62px] min-w-0 flex-col justify-between rounded-xl border px-2.5 py-2.5 text-left transition-[background-color,border-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:focus-visible:ring-neutral-400/30 ${selected
                           ? 'border-blue-300 bg-blue-50/90 shadow-sm dark:border-neutral-500 dark:bg-neutral-700/55'
                           : 'border-slate-200/90 bg-slate-50/60 hover:border-slate-300 hover:bg-slate-100/90 dark:border-neutral-700 dark:bg-neutral-800/55 dark:hover:border-neutral-500 dark:hover:bg-neutral-700/65'}`}
                       >

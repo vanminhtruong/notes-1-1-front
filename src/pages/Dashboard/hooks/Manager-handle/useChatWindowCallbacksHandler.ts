@@ -15,7 +15,6 @@ interface UseChatWindowCallbacksHandlerProps {
   setPendingImages: React.Dispatch<React.SetStateAction<Array<{ id: string; file: File; preview: string }>>>;
   setPendingFiles: React.Dispatch<React.SetStateAction<Array<{ id: string; file: File }>>>;
   typingSentRef: React.MutableRefObject<boolean>;
-  chatSettingsState: any;
   chatBackgroundHandler: any;
 }
 
@@ -32,7 +31,6 @@ export const useChatWindowCallbacksHandler = ({
   setPendingImages,
   setPendingFiles,
   typingSentRef,
-  chatSettingsState,
   chatBackgroundHandler,
 }: UseChatWindowCallbacksHandlerProps) => {
   const handleBackToChats = useCallback(() => {
@@ -50,8 +48,6 @@ export const useChatWindowCallbacksHandler = ({
       }, 60);
     }
   }, [selectedGroup?.id, setSelectedGroup, setActiveTab]);
-
-  const handleUnlock = useCallback(() => chatSettingsState.setShowEnterPin(true), [chatSettingsState]);
   const handleSetReplyingToMessage = useCallback((m: any) => setReplyingToMessage(m), [setReplyingToMessage]);
   const handleClearReply = useCallback(() => setReplyingToMessage(null), [setReplyingToMessage]);
   const handleCloseGroupEditor = useCallback(() => setShowGroupEditor(false), [setShowGroupEditor]);
@@ -101,18 +97,9 @@ export const useChatWindowCallbacksHandler = ({
   const handleEditGroup = useCallback(() => setShowGroupEditor(true), [setShowGroupEditor]);
   const handleRemoveMembersOpen = useCallback(() => setShowRemoveMembers(true), [setShowRemoveMembers]);
 
-  const handleSetPinClose = useCallback(() => chatSettingsState.setShowSetPin(false), [chatSettingsState]);
-  const handleEnterPinClose = useCallback(() => chatSettingsState.setShowEnterPin(false), [chatSettingsState]);
-  const handleEnterPinUnlock = useCallback(() => {
-    chatSettingsState.setE2EEUnlocked(true);
-    sessionStorage.setItem('e2ee_unlocked', '1');
-    chatSettingsState.setShowEnterPin(false);
-  }, [chatSettingsState]);
-
   return {
     handleBackToChats,
     handleBackToGroups,
-    handleUnlock,
     handleSetReplyingToMessage,
     handleClearReply,
     handleCloseGroupEditor,
@@ -129,8 +116,5 @@ export const useChatWindowCallbacksHandler = ({
     handleUpdateRecipientStatus,
     handleEditGroup,
     handleRemoveMembersOpen,
-    handleSetPinClose,
-    handleEnterPinClose,
-    handleEnterPinUnlock,
   };
 };

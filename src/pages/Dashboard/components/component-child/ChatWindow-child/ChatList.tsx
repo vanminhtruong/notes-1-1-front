@@ -11,7 +11,7 @@ import { blockService, type BlockStatus } from '@/services/blockService';
 import { pinService } from '@/services/pinService';
 import LazyLoad from '@/components/LazyLoad';
 
-const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, onRefreshBlockedUsers, onBulkRemoveFriends, onBulkBlock, e2eeEnabled, e2eeUnlocked, lockedPlaceholder }: ChatListProps) => {
+const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, onRefreshBlockedUsers, onBulkRemoveFriends, onBulkBlock }: ChatListProps) => {
   const { t } = useTranslation('dashboard');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
@@ -271,7 +271,6 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
     ), { duration: 10000 });
   };
 
-  const isLocked = !!e2eeEnabled && !e2eeUnlocked;
   return (
     <div className="h-full overflow-y-auto md-down:px-3 md-down:pb-24 md-down:pt-3">
       {/* Multi-select Toolbar */}
@@ -363,9 +362,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
           const friend = item.friend;
           const displayName = (item as any).nickname && (item as any).nickname.trim().length > 0 ? (item as any).nickname : friend.name;
           const online = friends.find((f) => f.id === friend.id)?.isOnline ?? friend.isOnline;
-          const preview = isLocked
-            ? (lockedPlaceholder || t('chat.preview.locked', '🔒 Encrypted — unlock to preview'))
-            : formatPreviewText(item.lastMessage, currentUserId, {
+          const preview = formatPreviewText(item.lastMessage, currentUserId, {
               recalled: t('chat.preview.recalled'),
               image: t('chat.preview.image'),
               file: t('chat.preview.file'),

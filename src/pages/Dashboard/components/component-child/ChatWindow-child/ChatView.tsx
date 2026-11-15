@@ -39,9 +39,6 @@ const ChatView = memo(({
   onEditGroup,
   onDeleteGroup,
   onRemoveMembers,
-  maskMessages,
-  lockedNotice,
-  onUnlock,
   backgroundUrl,
   onChangeBackground,
   onChangeBackgroundForBoth,
@@ -553,16 +550,16 @@ const ChatView = memo(({
 
   useEffect(() => {
     // Always bring the view to the bottom to reveal typing indicator in 1-1 chat
-    if (!isPartnerTyping || maskMessages) return;
+    if (!isPartnerTyping) return;
     setTimeout(scrollToBottom, 50);
-  }, [isPartnerTyping, maskMessages]);
+  }, [isPartnerTyping]);
 
   useEffect(() => {
     // Always bring the view to the bottom to reveal typing indicator in group chat
     if (!isGroup) return;
-    if (!typingUsers || typingUsers.length === 0 || maskMessages) return;
+    if (!typingUsers || typingUsers.length === 0) return;
     setTimeout(scrollToBottom, 50);
-  }, [typingUsers, isGroup, maskMessages]);
+  }, [typingUsers, isGroup]);
 
   // Toggle "Back to bottom" button visibility on scroll
   useEffect(() => {
@@ -868,21 +865,9 @@ const ChatView = memo(({
     };
   }, [isGroup, (selectedChat as any)?.lastSeenAt]);
 
-  // When messages are masked (locked), still allow showing only my own outgoing messages
-  // so the sender can see what they just sent. Otherwise show all grouped messages.
-  const lockStartedAt = Number(sessionStorage.getItem('e2ee_lock_started_at') || '0');
-  const visibleGroups = maskMessages
-    ? groupedMessages
-      .filter((g) => g.senderId === currentUserId)
-      .map((g) => {
-        const filteredItems = g.items.filter((i) => {
-          const ts = typeof i.createdAt === 'string' ? new Date(i.createdAt).getTime() : (i.createdAt as any as number);
-          return !Number.isFinite(lockStartedAt) || lockStartedAt === 0 ? true : ts >= lockStartedAt;
-        });
-        return { ...g, items: filteredItems };
-      })
-      .filter((g) => g.items.length > 0)
-    : groupedMessages;
+
+
+  const visibleGroups = groupedMessages;
 
   // Prefetch block statuses for senders present in the currently visible groups (group chat only)
   useEffect(() => {
@@ -1301,7 +1286,7 @@ const ChatView = memo(({
         ) : (
           <>
             {/* Pinned banner */}
-            {!maskMessages && pinnedMessages.length > 0 && (
+            {pinnedMessages.length > 0 && (
               <PinnedMessageBanner
                 pinnedMessages={pinnedMessages}
                 messages={messages}
@@ -1340,29 +1325,7 @@ const ChatView = memo(({
               />
             )}
 
-            {maskMessages && (
-              <div className="relative z-10 mb-4 flex items-center justify-center text-center select-none">
-                <div>
-                  <div className="text-5xl mb-4">🔒</div>
-                  <div className="text-gray-700 dark:text-gray-200 font-medium mb-2">
-                    {lockedNotice || t('chat.locked.notice', 'Đoạn tin nhắn đã bị mã hóa')}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    {t('chat.locked.hint', 'Hãy nhập PIN để mở khóa và xem lịch sử cuộc trò chuyện. Bạn vẫn có thể tiếp tục nhắn tin.')}
-                  </div>
-                  {typeof onUnlock === 'function' && (
-                    <button
-                      className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-                      onClick={onUnlock}
-                    >
-                      {t('chat.locked.unlockCta', 'Nhập PIN để mở khóa')}
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
             {visibleGroups.length === 0 ? (
-              !maskMessages ? (
                 <div className="text-center py-8 relative z-10">
                   <div className="w-16 h-16 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl mx-auto mb-4 shadow-lg">
                     {selectedChat.avatar ? (
@@ -1374,7 +1337,6 @@ const ChatView = memo(({
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{t('chat.chatView.empty.youAreFriends', { name: selectedChat.name })}</p>
                 </div>
-              ) : null
             ) : (
               <div className="space-y-px relative z-10 mt-0.5 px-4">
                 {(() => {
@@ -1806,7 +1768,7 @@ const ChatView = memo(({
                 })()}
               </div>
             )}
-            {!isGroup && isPartnerTyping && !maskMessages && (
+            {!isGroup && isPartnerTyping && (
               <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
                 <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-blue-500/30 dark:ring-blue-400/30 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 mt-auto shadow">
                   {selectedChat.avatar ? (
@@ -1826,7 +1788,7 @@ const ChatView = memo(({
                 </div>
               </div>
             )}
-            {isGroup && typingUsers && typingUsers.length > 0 && !maskMessages && (
+            {isGroup && typingUsers && typingUsers.length > 0 && (
               <div className="mt-3 px-4 flex gap-2 justify-start relative z-10">
                 <div className="flex -space-x-2 mt-auto">
                   {(() => {

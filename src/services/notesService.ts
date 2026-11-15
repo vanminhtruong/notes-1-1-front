@@ -12,6 +12,7 @@ export interface NoteTag {
 }
 
 export interface Note {
+  isEncrypted?: boolean;
   id: number;
   title: string;
   content: string;
@@ -324,6 +325,30 @@ export const noteTrashService = {
 };
 
 export const notesService = {
+  async getNoteForEncryption(id: number): Promise<Note> {
+    const response = await api.get<{ note: Note }>(`/notes/${id}`, { headers: { 'Cache-Control': 'no-cache' } });
+    return response.data.note;
+  },
+
+  async uploadEncryptedMedia(id: number, kind: 'image' | 'video' | 'background', ciphertext: Blob): Promise<string> {
+    const result = await api.post<{ id: string }>(`/notes/${id}/encrypted-media/${kind}`, ciphertext, {
+      headers: { 'Content-Type': 'application/octet-stream' }, timeout: 120000,
+    });
+    return result.data.id;
+  },
+
+  async getEncryptedMedia(id: number, kind: 'image' | 'video' | 'background', assetId: string): Promise<ArrayBuffer> {
+    const response = await api.get<ArrayBuffer>(`/notes/${id}/encrypted-media/${kind}/${assetId}`, {
+      responseType: 'arraybuffer', timeout: 120000,
+    });
+    return response.data;
+  },
+
+  async changeEncryption(id: number, data: { action: 'encrypt' | 'save' | 'decrypt'; ciphertext?: string; title?: string; content?: string; expectedUpdatedAt: string; mediaRefs?: Partial<Record<'image' | 'video' | 'background', string | null>>; metadata?: { categoryId?: number | null; priority?: 'low' | 'medium' | 'high'; reminderAt?: string | null }; publicMedia?: { image?: string | null; video?: string | null; background?: string | null; youtube?: string | null } }): Promise<{ note: Note; message: string }> {
+    const response = await api.patch(`/notes/${id}/encryption`, data);
+    return response.data;
+  },
+
   async getNotes(params?: {
     scope?: 'category';
     page?: number;

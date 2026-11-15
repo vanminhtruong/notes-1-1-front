@@ -25,7 +25,7 @@
     },
     "security": {
       "title": "Bảo Mật Doanh Nghiệp",
-      "description": "Dữ liệu của bạn được bảo vệ bằng mã hóa đầu cuối, xác thực an toàn và kiểm tra bảo mật thường xuyên."
+      "description": "Bảo vệ tài khoản bằng cơ chế xác thực an toàn và các tùy chọn quyền riêng tư tích hợp."
     },
     "performance": {
       "title": "Tốc Độ Chớp Nhoáng",

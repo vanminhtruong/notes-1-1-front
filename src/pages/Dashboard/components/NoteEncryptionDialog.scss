@@ -1,0 +1,90 @@
+/* Palette follows the app theme classes on documentElement, including portaled modals. */
+.note-e2ee-dialog { color-scheme: light; }
+.note-e2ee-dialog button { min-height: 36px; }
+:root.dark:not(.dark-black) .note-e2ee-dialog { background: #263244; border-color: #475569; color: #f1f5f9; color-scheme: dark; }
+:root.dark:not(.dark-black) .note-e2ee-dialog header,
+:root.dark:not(.dark-black) .note-e2ee-dialog footer { border-color: #475569; }
+:root.dark-black .note-e2ee-backdrop { background: rgba(0,0,0,.82); backdrop-filter: blur(5px); }
+:root.dark-black .note-e2ee-dialog { background: #111; border-color: #414141; color: #ededed; color-scheme: dark; }
+:root.dark-black .note-e2ee-dialog header,
+:root.dark-black .note-e2ee-dialog footer { border-color: #363636; }
+:root.dark-black .note-e2ee-dialog .note-e2ee-icon { background: #252525; color: #e5e5e5; }
+:root.dark-black .note-e2ee-dialog input,
+:root.dark-black .note-e2ee-dialog textarea { background: #181818; color: #f1f1f1; border-color: #505050; }
+:root.dark-black .note-e2ee-dialog .note-e2ee-primary { background: #e5e5e5; border-color: #e5e5e5; color: #111; }
+:root.dark-black .note-e2ee-dialog .note-e2ee-primary:hover { background: #cfcfcf; border-color: #cfcfcf; color: #090909; }
+:root.dark-black .note-e2ee-dialog .bg-slate-50 { background: #1c1c1c; }
+:root.dark-black .note-e2ee-dialog [class*="bg-slate-700"],
+:root.dark-black .note-e2ee-dialog [class*="bg-slate-900"] { background: #1c1c1c; }
+:root.dark-black .note-e2ee-dialog [class*="border-slate-600"] { border-color: #404040; }
+:root.dark-black .note-e2ee-dialog .text-slate-500,
+:root.dark-black .note-e2ee-dialog [class*="text-slate-300"] { color: #bcbcbc; }
+@media(max-width:480px) { .note-e2ee-dialog { max-height:94dvh; } .note-e2ee-dialog > div { max-height:calc(94dvh - 80px); } }
+
+/* Note card and placeholder must use the same surface palette as the selected mode. */
+.note-e2ee-status {
+  color: #475569;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+:root.dark:not(.dark-black) .note-e2ee-card .note-e2ee-status {
+  color: #e2e8f0;
+  background: #35465a;
+  border-color: #58677c;
+}
+:root.dark-black .note-e2ee-card {
+  /* Match neighboring cards: the existing dark:bg-gray-800/90 is transparent in OLED mode. */
+  background: transparent !important;
+  background-image: none !important;
+  border-color: rgba(75,75,75,.3) !important;
+}
+:root.dark-black .note-e2ee-card:hover {
+  background: transparent !important;
+  border-color: rgba(95,95,95,.45) !important;
+}
+:root.dark-black .note-e2ee-card .note-e2ee-status {
+  color: #e1e1e1;
+  background: transparent !important;
+  border-color: rgba(95,95,95,.35);
+}
+:root.dark-black .note-e2ee-card h3 {
+  color: #f2f2f2 !important;
+  text-shadow: none !important;
+}
+/* Same neutral lock affordance for encrypted and unencrypted notes in OLED mode. */
+:root.dark-black .note-dashboard-card .note-e2ee-trigger {
+  color: #d0d0d0 !important;
+  border-color: #414141 !important;
+  background-color: transparent !important;
+}
+:root.dark-black .note-dashboard-card .note-e2ee-trigger:hover,
+:root.dark-black .note-dashboard-card .note-e2ee-trigger:focus-visible {
+  color: #fafafa !important;
+  background-color: #292929 !important;
+  border-color: #636363 !important;
+}
+
+/* Reused full editor: use exactly the same theme surfaces as the E2EE modal. */
+:root.dark:not(.dark-black) .note-e2ee-editor > div {
+  background-color: #263244 !important;
+  border: 1px solid #475569;
+}
+:root.dark-black .note-e2ee-editor > div {
+  background-color: #111 !important;
+  border: 1px solid #414141;
+  color: #ededed;
+  color-scheme: dark;
+}
+:root.dark-black .note-e2ee-editor input:not([type="file"]),
+:root.dark-black .note-e2ee-editor textarea,
+:root.dark-black .note-e2ee-editor [contenteditable="true"] {
+  background-color: #181818 !important;
+  color: #f1f1f1 !important;
+  border-color: #454545 !important;
+}
+:root.dark-black .note-e2ee-editor button:focus-visible {
+  outline: 2px solid #bcbcbc;
+  outline-offset: 2px;
+}
+
+

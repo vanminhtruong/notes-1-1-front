@@ -31,10 +31,6 @@ export interface ChatViewProps {
   onEditGroup?: () => void;
   onDeleteGroup?: () => void;
   onRemoveMembers?: () => void;
-  // E2EE masking
-  maskMessages?: boolean;
-  lockedNotice?: string;
-  onUnlock?: () => void;
   // Per-chat background (1-1)
   backgroundUrl?: string | null;
   onChangeBackground?: () => void;
