@@ -41,13 +41,13 @@ api.interceptors.response.use(
         '/auth/reset-password',
       ].some((p) => reqUrl.includes(p));
       const hasToken = !!localStorage.getItem('token');
-      const isAlreadyOnLogin = window.location.pathname === '/login';
+      const isAlreadyOnLogin = window.location.pathname === `${import.meta.env.BASE_URL}login`;
 
       // Only force-redirect when a valid session likely expired on a protected API
       if (hasToken && !isAuthEndpoint && !isAlreadyOnLogin) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.href = `${import.meta.env.BASE_URL}login`;
       }
     }
     return Promise.reject(error);

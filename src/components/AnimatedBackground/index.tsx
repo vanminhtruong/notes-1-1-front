@@ -15,7 +15,7 @@ const AnimatedBackground = () => {
   const currentThemeRef = useRef(theme);
   // Allow background on auth pages even if appTheme is not dark-black
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
-  const isAuthPage = ['/login', '/register', '/forgot-password'].includes(pathname);
+  const isAuthPage = ['/login', '/register', '/forgot-password'].some(route => pathname.endsWith(route));
   // Show when enabled; restrict to dark-black except for auth pages
   const shouldShow = enabled && (isAuthPage || appTheme === 'dark-black');
 

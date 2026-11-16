@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import SearchAutocomplete from '@/components/SearchAutocomplete';
 import PriorityDropdownFilter from './PriorityDropdownFilter';
 import NoteSortSelect from './NoteSortSelect';
+import './SearchAndFilters.scss';
 import type { NoteSortKey } from '../utils/noteSort';
 import * as LucideIcons from 'lucide-react';
 
@@ -438,35 +439,27 @@ const SearchAndFilters = memo(({
       `}</style>
 
       {/* Main Search Bar with Toggle Button */}
-      <div className="
-        relative overflow-visible
-        bg-gradient-to-br from-white/70 via-white/50 to-white/70 
-        dark:from-gray-800/70 dark:via-gray-800/50 dark:to-gray-800/70
-        backdrop-blur-xl
-        border border-white/40 dark:border-gray-700/40
-        rounded-2xl
-        p-4 xl-down:p-3.5 lg-down:p-3 md-down:p-2.5
-        shadow-lg shadow-black/5 dark:shadow-black/15
-        transition-all duration-300
-      ">
-        <div className="flex flex-wrap items-center gap-3 md-down:gap-2">
+      <div className="dashboard-notes-toolbar">
+        <div className="dashboard-notes-toolbar-layout">
           {/* Search Input */}
-          <div className="relative group min-w-0 flex-[1_1_260px]">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative rounded-xl">
+          <div className="dashboard-notes-toolbar-search">
+            <div className="relative min-w-0">
               <SearchAutocomplete
                 onSearch={setSearchTerm}
                 placeholder={t('search.placeholder')}
-                inputClassName="!h-[52px] !py-0 !rounded-xl"
+                inputClassName="dashboard-notes-search-input !h-[52px] !py-0 !rounded-xl"
               />
             </div>
           </div>
 
-          {/* Sort the whole note collection, not only the visible page. */}
-          <NoteSortSelect value={sortKey} onChange={onSortChange} />
+          {/* Related controls are grouped separately from the search field. */}
+          <div className="dashboard-notes-toolbar-actions">
+            <div className="dashboard-notes-toolbar-sort">
+              <NoteSortSelect value={sortKey} onChange={onSortChange} />
+            </div>
 
-          {/* Magic Filter Toggle Button Wrapper */}
-          <div className="relative group transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5 z-10">
+          {/* Original Filters styling and animations are intentionally untouched. */}
+          <div className="dashboard-notes-toolbar-filter relative group transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5 z-10">
             <button
               onClick={toggleFilters}
               disabled={isAnimating}
@@ -514,30 +507,21 @@ const SearchAndFilters = memo(({
             )}
           </div>
 
-          {/* Create Note Button - Always visible */}
+          {/* A restrained secondary action keeps Filters as the visual accent. */}
+          {!showArchived && (
+            <span className="dashboard-notes-toolbar-divider" aria-hidden="true" />
+          )}
           {!showArchived && (
             <button
               onClick={onCreateNote}
-              className="
-                group relative flex items-center gap-2
-                px-5 py-3 md-down:px-4 md-down:py-2.5 sm-down:px-3 sm-down:py-2
-                bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500
-                text-white rounded-xl
-                transition-all duration-300
-                transform hover:scale-105 hover:-translate-y-0.5
-                shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/35
-                overflow-hidden
-              "
+              type="button"
+              className="dashboard-notes-create group relative flex h-[52px] items-center justify-center gap-2.5 overflow-hidden rounded-xl border px-4 text-sm font-semibold transition-[background-color,border-color,box-shadow,color] duration-200 focus-visible:outline-none focus-visible:ring-2"
             >
-              {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-
-              <div className="relative flex items-center gap-2">
-                <Plus className="w-5 h-5 md-down:w-4 md-down:h-4 transition-transform group-hover:rotate-90 duration-300" />
-                <span className="font-semibold text-sm md-down:text-xs hidden sm:block">{t('actions.createNote')}</span>
-              </div>
+              <Plus aria-hidden="true" className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
+              <span className="min-w-0 truncate whitespace-nowrap">{t('actions.createNote')}</span>
             </button>
           )}
+          </div>
         </div>
       </div>
 

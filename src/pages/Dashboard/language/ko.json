@@ -1,4 +1,5 @@
 {
+  "noteActions": { "more": "추가 작업" },
   "e2ee": {
     "privateTitle": "🔒 비공개 메모",
     "removeMedia": "파일 제거",
@@ -975,6 +976,10 @@
     "editPermissions": "권한 편집",
     "permissionsUpdated": "권한이 성공적으로 업데이트되었습니다",
     "permissionsUpdateFailed": "권한 업데이트 실패",
+    "dismissGroup": "내 그룹 목록에서 제거",
+    "confirmDismissGroup": "내 목록에서 이 공유 메모를 제거할까요? 원본 메모와 다른 멤버의 목록은 유지됩니다.",
+    "dismissGroupSuccess": "내 그룹 목록에서 제거했습니다",
+    "deleteOriginal": "원본 메모 삭제",
     "confirmRemoveGroup": "이 공유 노트를 그룹에서 제거하시겠습니까?",
     "viewNote": "노트 보기",
     "editNote": "노트 편집",

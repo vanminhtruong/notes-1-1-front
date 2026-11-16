@@ -31,9 +31,10 @@ const languages: Language[] = [
 
 interface LanguageSwitcherProps {
   direction?: 'up' | 'down';
+  inlineSubmenu?: boolean;
 }
 
-const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) => {
+const LanguageSwitcher = memo(({ direction = 'down', inlineSubmenu = false }: LanguageSwitcherProps) => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -155,6 +156,7 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
   return (
     <div ref={dropdownRef} className="relative">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="group flex items-center gap-2 px-3 py-2 rounded-lg border border-white/20 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/60 hover:bg-white/80 dark:hover:bg-gray-800/80 backdrop-blur-md transition-all duration-200"
         aria-expanded={isOpen}
@@ -177,7 +179,7 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
       {isOpen && (
         <div
           role="menu"
-          className={`absolute right-0 w-64 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl z-50 transition-all duration-200 ${direction === 'up' ? 'bottom-full mb-2 origin-bottom' : 'mt-2 origin-top'
+          className={`absolute right-0 w-[min(16rem,calc(100vw-1rem))] rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl z-50 transition-all duration-200 ${direction === 'up' ? 'bottom-full mb-2 origin-bottom' : 'mt-2 origin-top'
             }`}
         >
           <div className="p-2">
@@ -194,6 +196,7 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
                 return (
                   <div key={language.code} className="relative">
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -212,7 +215,9 @@ const LanguageSwitcher = memo(({ direction = 'down' }: LanguageSwitcherProps) =>
                     </button>
 
                     {isExpanded && (
-                      <div className="absolute left-full top-0 ml-4 w-64 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl overflow-hidden z-[60] animate-in fade-in slide-in-from-left-1 duration-200">
+                      <div className={inlineSubmenu
+                        ? "mt-1 ml-4 rounded-lg border border-gray-200/70 dark:border-gray-700/70 bg-gray-50/80 dark:bg-gray-800/80"
+                        : "absolute left-full top-0 ml-4 w-64 rounded-xl border border-white/20 dark:border-gray-700/40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-xl overflow-hidden z-[60] animate-in fade-in slide-in-from-left-1 duration-200"}>
                         <div className="p-2 space-y-1">
                           {language.children.map(child => renderLanguageItem(child))}
                         </div>

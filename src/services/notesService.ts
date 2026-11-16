@@ -438,6 +438,11 @@ export const notesService = {
     return response.data;
   },
 
+  async removeReceivedSharedNote(sharedNoteId: number): Promise<{ message: string }> {
+    const response = await api.delete(`/notes/shared/received/${sharedNoteId}`);
+    return response.data;
+  },
+
   async removeSharedNote(sharedNoteId: number): Promise<{ message: string }> {
     const response = await api.delete(`/notes/shared/${sharedNoteId}`);
     return response.data;
@@ -465,6 +470,11 @@ export const notesService = {
 
   async updateGroupSharedNotePermissions(groupSharedNoteId: number, data: { canEdit?: boolean; canDelete?: boolean; canCreate?: boolean }): Promise<{ message: string; groupSharedNote: GroupSharedNote }> {
     const response = await api.put(`/notes/shared/groups/${groupSharedNoteId}/permissions`, data);
+    return response.data;
+  },
+
+  async dismissGroupSharedNote(groupSharedNoteId: number): Promise<{ message: string }> {
+    const response = await api.delete(`/notes/shared/groups/${groupSharedNoteId}/dismiss`);
     return response.data;
   },
 

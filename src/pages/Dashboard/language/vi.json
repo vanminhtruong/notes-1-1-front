@@ -1,4 +1,5 @@
 {
+  "noteActions": { "more": "Thao tác khác" },
   "e2ee": {
     "privateTitle": "🔒 Ghi chú riêng tư",
     "removeMedia": "Xóa tệp",
@@ -1012,6 +1013,10 @@
     "editPermissions": "Chỉnh sửa quyền",
     "permissionsUpdated": "Cập nhật quyền thành công",
     "permissionsUpdateFailed": "Cập nhật quyền thất bại",
+    "dismissGroup": "Xóa khỏi danh sách nhóm",
+    "confirmDismissGroup": "Bạn muốn xóa ghi chú chia sẻ này khỏi danh sách của mình? Ghi chú gốc và danh sách của các thành viên khác vẫn được giữ nguyên.",
+    "dismissGroupSuccess": "Đã xóa ghi chú khỏi danh sách nhóm của bạn",
+    "deleteOriginal": "Xóa ghi chú gốc",
     "confirmRemoveGroup": "Bạn có chắc muốn xóa ghi chú chia sẻ này khỏi nhóm?",
     "viewNote": "Xem ghi chú",
     "editNote": "Chỉnh sửa ghi chú",

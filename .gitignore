@@ -25,3 +25,8 @@ dist-ssr
 
 # Local UI screenshots and temporary browser profiles
 .nt-preview/
+
+# Local configuration is never committed to public frontend repositories.
+.env
+.env.*
+!.env.example

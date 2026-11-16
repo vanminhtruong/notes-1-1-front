@@ -8,7 +8,7 @@ export interface SharedNotesTabProps {
 export interface SharedNoteItemProps {
   sharedNote: SharedNote;
   type: 'received' | 'sent';
-  onRemove: (id: number) => void;
+  onRemove: (id: number) => Promise<void>;
   onViewNote: (noteId: number) => void;
   onEditNote?: (noteId: number) => void;
   onCreateFromNote?: (noteId: number) => void;

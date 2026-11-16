@@ -198,6 +198,13 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
     }
   };
 
+  const dismissGroupSharedNote = async (id: number) => {
+    await notesService.dismissGroupSharedNote(id);
+    // Update immediately, then refresh counts and pages from the server.
+    sharedNotesState.setGroupSharedNotes(prev => prev.filter(item => item.id !== id));
+    await sharedNotesHandlers.fetchGroupSharedNotes(1);
+  };
+
   const handleNoteUpdated = () => {
     setIsEditModalOpen(false);
     setEditingNote(null);
@@ -389,7 +396,10 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
                     }}
                     onRemove={async (id) => {
                       await notesService.removeGroupSharedNote(id);
+                      sharedNotesState.setGroupSharedNotes(prev => prev.filter(item => item.id !== id));
+                      await sharedNotesHandlers.fetchGroupSharedNotes(1);
                     }}
+                    onDismiss={dismissGroupSharedNote}
                   />
                 </LazyLoad>
               ))
@@ -407,7 +417,7 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
                   <SharedNoteItem
                     sharedNote={sharedNote as any}
                     type={subTab === 'received' ? 'received' : 'sent'}
-                    onRemove={removeSharedNote}
+                    onRemove={(id) => removeSharedNote(id, subTab === 'received' ? 'received' : 'sent')}
                     onViewNote={handleViewNote}
                     onEditNote={handleEditNote}
                     onCreateFromNote={handleCreateFromNote}

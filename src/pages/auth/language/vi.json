@@ -35,8 +35,7 @@
   "loginNow": "Đăng nhập ngay",
   "agreeTerms": "Bằng việc đăng ký, bạn đồng ý với",
   "termsOfService": "Điều khoản sử dụng",
-  "privacyPolicy": "Chính sách bảo mật"
-  ,
+  "privacyPolicy": "Chính sách bảo mật",
   "forgotTitle": "Quên mật khẩu",
   "forgotSubtitle": "Làm theo các bước để đặt lại mật khẩu của bạn",
   "stepEmail": "Email",
@@ -63,7 +62,6 @@
   "newPassword": "Mật khẩu mới",
   "newPasswordRequired": "Mật khẩu mới là bắt buộc",
   "min6Chars": "Ít nhất 6 ký tự",
-  
   "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới",
   "resetPassword": "Đặt lại mật khẩu",
   "resettingPassword": "Đang đặt lại...",
@@ -75,8 +73,7 @@
   "toastResetSuccess": "Đặt lại mật khẩu thành công",
   "toastOtpInvalid": "OTP không hợp lệ.",
   "toastSendOtpFailed": "Không thể gửi OTP. Vui lòng thử lại.",
-  "toastResetFailed": "Không thể đặt lại mật khẩu"
-  ,
+  "toastResetFailed": "Không thể đặt lại mật khẩu",
   "newPasswordPlaceholder": "Nhập mật khẩu mới",
   "success": {
     "loginSuccess": "Đăng nhập thành công",
@@ -95,7 +92,12 @@
     "facebookAppIdMissing": "Thiếu cấu hình VITE_FACEBOOK_APP_ID",
     "facebookNotReady": "Facebook SDK chưa sẵn sàng, vui lòng thử lại.",
     "facebookHttpsRequired": "Facebook login yêu cầu HTTPS. Vui lòng sử dụng HTTPS hoặc localhost.",
-    "facebookCancelled": "Đăng nhập Facebook bị hủy hoặc thất bại"
+    "facebookCancelled": "Đăng nhập Facebook bị hủy hoặc thất bại",
+    "invalidCredentials": "Email hoặc mật khẩu không đúng",
+    "emailAlreadyUsed": "Email đã được sử dụng",
+    "validationFailed": "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.",
+    "networkError": "Không thể kết nối. Vui lòng kiểm tra mạng.",
+    "serverError": "Lỗi máy chủ. Vui lòng thử lại sau."
   },
   "loading": {
     "facebookRedirect": "Chuyển hướng đến trang đăng nhập Facebook..."
@@ -104,5 +106,21 @@
     "title": "Đăng nhập với Google",
     "subtitle": "Chọn tài khoản Google để tiếp tục",
     "termsText": "Bằng cách đăng nhập, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi"
-  }
+  },
+  "phone": "Số điện thoại",
+  "optional": "tùy chọn",
+  "enterPhone": "Nhập số điện thoại",
+  "birthDate": "Ngày sinh",
+  "birthDateInvalid": "Ngày sinh không hợp lệ",
+  "gender": "Giới tính",
+  "genderUnspecified": "Không tiết lộ",
+  "genderMale": "Nam",
+  "genderFemale": "Nữ",
+  "genderOther": "Khác",
+  "and": "và",
+  "nameMaxLength": "Tên không được quá 50 ký tự",
+  "passwordMaxLength": "Mật khẩu không được quá 100 ký tự",
+  "phoneNotRegistered": "Số điện thoại không khớp với hồ sơ đã đăng ký. Vui lòng kiểm tra lại.",
+  "toastPhoneOtpSent": "Đã gửi mã OTP đến số điện thoại đã đăng ký.",
+  "toastSmsUnavailable": "Dịch vụ SMS chưa sẵn sàng. Vui lòng dùng email hoặc thử lại sau."
 }

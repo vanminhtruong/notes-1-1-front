@@ -1,4 +1,5 @@
 {
+  "noteActions": { "more": "More actions" },
   "e2ee": {
     "privateTitle": "🔒 Private note",
     "removeMedia": "Remove file",
@@ -1011,6 +1012,10 @@
     "editPermissions": "Edit permissions",
     "permissionsUpdated": "Permissions updated successfully",
     "permissionsUpdateFailed": "Failed to update permissions",
+    "dismissGroup": "Remove from my group list",
+    "confirmDismissGroup": "Remove this shared note from your list? The original note and other members' lists will remain unchanged.",
+    "dismissGroupSuccess": "Removed from your group list",
+    "deleteOriginal": "Delete original note",
     "confirmRemoveGroup": "Are you sure you want to remove this shared note from the group?",
     "viewNote": "View note",
     "editNote": "Edit note",

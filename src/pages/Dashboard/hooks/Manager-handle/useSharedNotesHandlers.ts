@@ -117,20 +117,27 @@ export const useSharedNotesHandlers = ({
     ]);
   }, [fetchSharedWithMe, fetchSharedByMe, fetchGroupSharedNotes, setError]);
 
-  const removeSharedNote = useCallback(async (sharedNoteId: number) => {
+  const removeSharedNote = useCallback(async (sharedNoteId: number, scope: 'received' | 'sent' = 'sent') => {
     try {
-      await notesService.removeSharedNote(sharedNoteId);
-      
-      // Remove from local state
+      if (scope === 'received') {
+        // Removing one's own received share requires no edit/delete permission
+        // and never deletes the original note owned by the sender.
+        await notesService.removeReceivedSharedNote(sharedNoteId);
+      } else {
+        await notesService.removeSharedNote(sharedNoteId);
+      }
+
       setSharedWithMe(prev => prev.filter(sn => sn.id !== sharedNoteId));
       setSharedByMe(prev => prev.filter(sn => sn.id !== sharedNoteId));
-      
       toast.success(t('sharedNotes.removeSuccess'));
+
+      // Keep count, pagination, and other devices consistent after removal.
+      await Promise.all([fetchSharedWithMe(1), fetchSharedByMe(1)]);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || t('sharedNotes.errors.removeFailed'));
       throw err;
     }
-  }, [t, setSharedWithMe, setSharedByMe]);
+  }, [t, setSharedWithMe, setSharedByMe, fetchSharedWithMe, fetchSharedByMe]);
 
   const changePageWithMe = useCallback(async (page: number) => {
     if (!isLoading) {

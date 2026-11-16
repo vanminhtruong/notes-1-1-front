@@ -208,13 +208,14 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
             </button>
           )}
           
-          {/* Remove button - always show for sent notes, only show for received notes if they have any permission */}
-          {(isSent || (isReceived && (sharedNote.canEdit || sharedNote.canDelete || sharedNote.canCreate))) && (
+          {/* Removing a received share never deletes the sender's original note, so view-only recipients may remove it too. */}
+          {(isSent || isReceived) && (
             <button
               onClick={handleRemove}
               disabled={isRemoving}
-              className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+              className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 disabled:opacity-50"
               title={t('sharedNotes.remove')}
+              aria-label={t('sharedNotes.remove')}
             >
               <Trash2 className="w-4 h-4" />
             </button>

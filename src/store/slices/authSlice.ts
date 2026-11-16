@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authService, type User, type LoginData, type RegisterData } from '@/services/authService';
 import toast from 'react-hot-toast';
 import i18n from '@/libs/i18n';
+import { getAuthErrorKey } from '@/utils/authError';
 
 export interface AuthState {
   user: User | null;
@@ -38,17 +39,10 @@ export const loginUser = createAsyncThunk(
       toast.success(i18n.t('auth:success.loginSuccess'));
       return response;
     } catch (error: any) {
-      let message: string = error.response?.data?.message || i18n.t('auth:errors.loginFailed');
-      // Normalize deactivated-account message to i18n key
-      try {
-        const low = String(message).toLowerCase();
-        if (low.includes('vô hiệu hóa') || low.includes('deactivated')) {
-          message = i18n.t('auth:errors.deactivated');
-        }
-      } catch {}
-      // Ensure login error toast stays visible longer and avoid flicker by using a stable toast id
-      toast.error(String(message), { duration: 10000, id: 'login-error' });
-      return rejectWithValue(String(message));
+      const errorKey = getAuthErrorKey(error, 'login');
+      // Store the translation key so the inline warning updates if language changes.
+      toast.error(i18n.t(errorKey), { duration: 10000, id: 'login-error' });
+      return rejectWithValue(errorKey);
     }
   }
 );
@@ -62,15 +56,9 @@ export const loginWithGoogle = createAsyncThunk(
       toast.success(i18n.t('auth:success.loginSuccess'));
       return response;
     } catch (error: any) {
-      let message: string = error.response?.data?.message || i18n.t('auth:errors.googleFailed');
-      try {
-        const low = String(message).toLowerCase();
-        if (low.includes('vô hiệu hóa') || low.includes('deactivated')) {
-          message = i18n.t('auth:errors.deactivated');
-        }
-      } catch {}
-      toast.error(String(message), { id: 'login-error' });
-      return rejectWithValue(String(message));
+      const errorKey = getAuthErrorKey(error, 'google');
+      toast.error(i18n.t(errorKey), { id: 'login-error' });
+      return rejectWithValue(errorKey);
     }
   }
 );
@@ -102,9 +90,9 @@ export const registerUser = createAsyncThunk(
       toast.success(i18n.t('auth:success.registerSuccess'));
       return response;
     } catch (error: any) {
-      const message = error.response?.data?.message || i18n.t('auth:errors.registerFailed');
-      toast.error(message);
-      return rejectWithValue(message);
+      const errorKey = getAuthErrorKey(error, 'register');
+      toast.error(i18n.t(errorKey), { id: 'register-error' });
+      return rejectWithValue(errorKey);
     }
   }
 );

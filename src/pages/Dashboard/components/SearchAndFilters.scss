@@ -1,0 +1,248 @@
+/*
+ * Notes workspace toolbar.
+ * Only structural controls are restyled here. The violet Filters button keeps
+ * its original gradient, sparkle and hover animations in SearchAndFilters.tsx.
+ */
+.dashboard-notes-toolbar {
+  --nt-panel: #ffffff;
+  --nt-panel-border: #e4e8ef;
+  --nt-field: #f8fafc;
+  --nt-field-hover: #ffffff;
+  --nt-field-border: #dbe2ea;
+  --nt-field-border-hover: #aab6c7;
+  --nt-text: #162235;
+  --nt-muted: #64748b;
+  --nt-create-bg: #edf1f5;
+  --nt-create-hover: #e3e9f0;
+  --nt-create-border: #d8e0e9;
+  --nt-divider: #e2e8f0;
+  position: relative;
+  width: 100%;
+  overflow: visible;
+  padding: 14px;
+  border: 1px solid var(--nt-panel-border);
+  border-radius: 18px;
+  background: var(--nt-panel);
+  box-shadow: 0 2px 8px rgba(16, 24, 40, .025), 0 10px 30px rgba(16, 24, 40, .045);
+}
+
+.dashboard-notes-toolbar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 14px;
+}
+
+.dashboard-notes-toolbar-search {
+  min-width: 0;
+}
+
+.dashboard-notes-toolbar .dashboard-notes-search-input {
+  width: 100%;
+  height: 52px;
+  padding-inline-start: 42px;
+  padding-inline-end: 40px;
+  border: 1px solid var(--nt-field-border);
+  border-radius: 12px;
+  background: var(--nt-field);
+  box-shadow: none;
+  color: var(--nt-text);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .005em;
+  outline: none;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.dashboard-notes-toolbar .dashboard-notes-search-input::placeholder {
+  color: var(--nt-muted);
+  opacity: .9;
+  font-weight: 400;
+}
+.dashboard-notes-toolbar .dashboard-notes-search-input:hover {
+  background: var(--nt-field-hover);
+  border-color: var(--nt-field-border-hover);
+}
+.dashboard-notes-toolbar .dashboard-notes-search-input:focus {
+  background: var(--nt-field-hover);
+  border-color: var(--nt-field-border-hover);
+  box-shadow: 0 0 0 3px rgba(100,116,139,.13);
+}
+
+.dashboard-notes-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+.dashboard-notes-toolbar-sort {
+  flex: 0 0 208px;
+  width: 208px;
+  min-width: 0;
+}
+.dashboard-notes-toolbar-sort .dashboard-sort-trigger {
+  width: 100%;
+  height: 52px;
+  min-width: 0;
+  flex: none;
+  border-radius: 12px;
+}
+.dashboard-notes-toolbar-filter {
+  flex: 0 0 auto;
+  height: 52px;
+}
+/* The button itself retains its original styling, colors and effects. */
+.dashboard-notes-toolbar-filter > .filters-magic-button {
+  min-height: 52px;
+  white-space: nowrap;
+}
+.dashboard-notes-toolbar-divider {
+  flex: 0 0 1px;
+  width: 1px;
+  height: 30px;
+  margin-inline: 2px;
+  background: var(--nt-divider);
+}
+.dashboard-notes-create {
+  flex: 0 0 auto;
+  min-width: 146px;
+  white-space: nowrap;
+  background: var(--nt-create-bg);
+  border-color: var(--nt-create-border);
+  color: var(--nt-text);
+  box-shadow: inset 0 1px rgba(255,255,255,.22);
+}
+.dashboard-notes-create:hover {
+  background: var(--nt-create-hover);
+  border-color: var(--nt-field-border-hover);
+  box-shadow: 0 4px 12px rgba(15,23,42,.08);
+}
+.dashboard-notes-create:active { box-shadow: none; }
+.dashboard-notes-create:focus-visible {
+  --tw-ring-color: rgba(100,116,139,.3);
+  outline: 2px solid var(--nt-field-border-hover);
+  outline-offset: 2px;
+}
+
+:root.dark:not(.dark-black) .dashboard-notes-toolbar {
+  --nt-panel: #202c3b;
+  --nt-panel-border: #3c4a5b;
+  --nt-field: #263547;
+  --nt-field-hover: #2c3b4f;
+  --nt-field-border: #48576a;
+  --nt-field-border-hover: #718199;
+  --nt-text: #f1f5f9;
+  --nt-muted: #b3c0d0;
+  --nt-create-bg: #334155;
+  --nt-create-hover: #405269;
+  --nt-create-border: #56677e;
+  --nt-divider: #49586c;
+  box-shadow: 0 10px 32px rgba(0,0,0,.12);
+}
+
+:root.dark-black .dashboard-notes-toolbar {
+  --nt-panel: #0a0a0a;
+  --nt-panel-border: #292929;
+  --nt-field: #111111;
+  --nt-field-hover: #171717;
+  --nt-field-border: #333333;
+  --nt-field-border-hover: #575757;
+  --nt-text: #f1f1f1;
+  --nt-muted: #999999;
+  --nt-create-bg: #242424;
+  --nt-create-hover: #303030;
+  --nt-create-border: #3c3c3c;
+  --nt-divider: #343434;
+  box-shadow: 0 9px 25px rgba(0,0,0,.26);
+}
+:root.dark-black .dashboard-notes-toolbar .dashboard-notes-search-input:focus {
+  box-shadow: 0 0 0 3px rgba(200,200,200,.11);
+}
+/* Keep the sort surface in the same visual layer as the other controls. */
+:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger {
+  background: #121212;
+  border-color: #333333;
+}
+:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger:hover,
+:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger[aria-expanded='true'] {
+  background: #1b1b1b;
+  border-color: #555555;
+}
+:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger-icon {
+  background: #252525;
+}
+:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger:hover .dashboard-sort-trigger-icon {
+  background: #333333;
+}
+
+@media (max-width: 1120px) {
+  .dashboard-notes-toolbar-layout {
+    grid-template-columns: minmax(0,1fr);
+    gap: 11px;
+  }
+  .dashboard-notes-toolbar-actions {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) max-content 1px max-content;
+    gap: 11px;
+  }
+  .dashboard-notes-toolbar-sort { width: auto; min-width: 0; }
+}
+
+@media (max-width: 560px) {
+  .dashboard-notes-toolbar {
+    padding: 10px;
+    border-radius: 16px;
+  }
+  .dashboard-notes-toolbar-layout { gap: 10px; }
+  .dashboard-notes-toolbar-actions {
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap: 9px;
+  }
+  .dashboard-notes-toolbar-sort {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .dashboard-notes-toolbar-filter {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+  }
+  .dashboard-notes-toolbar-divider { display: none; }
+  .dashboard-notes-create {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    width: 100%;
+    padding-inline: 8px;
+    gap: 7px;
+    font-size: 12px;
+  }
+  /* Show the action label rather than leaving icon-only buttons on phones. */
+  .dashboard-notes-toolbar-filter .filters-magic-button {
+    justify-content: center;
+  }
+  .dashboard-notes-toolbar-filter .filters-magic-button span {
+    display: inline;
+    white-space: nowrap;
+  }
+  .dashboard-notes-toolbar-filter .filters-magic-button .relative.flex {
+    min-width: 0;
+    gap: 7px;
+  }
+  .dashboard-notes-toolbar-actions:not(:has(.dashboard-notes-create)) .dashboard-notes-toolbar-filter {
+    grid-column: 1 / -1;
+  }
+  .dashboard-notes-toolbar .dashboard-notes-search-input {
+    font-size: 14px;
+    padding-inline-start: 38px;
+  }
+}
+@media (max-width: 350px) {
+  .dashboard-notes-toolbar { padding: 9px; }
+  .dashboard-notes-toolbar-actions { gap: 7px; }
+  .dashboard-notes-create { padding-inline: 6px; }
+  .dashboard-notes-toolbar-filter .filters-magic-button { padding-inline: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-notes-toolbar .dashboard-notes-search-input,
+  .dashboard-notes-create { transition: none; }
+}

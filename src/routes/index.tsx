@@ -77,6 +77,6 @@ const router = createBrowserRouter([
     path: '/forgot-password',
     element: <ForgotPassword />,
   },
-])
+], { basename: import.meta.env.BASE_URL })
 
 export default router

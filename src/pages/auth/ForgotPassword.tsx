@@ -1,85 +1,15 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '@/services/authService';
-import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Mail, KeyRound, Lock, ShieldCheck, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useForgotPasswordFlow } from './hooks/useForgotPasswordFlow';
+import ResetSteps from './components/ResetSteps';
 
-type Step = 'email' | 'otp' | 'reset';
 
 const ForgotPassword = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation('auth');
-  const [step, setStep] = useState<Step>('email');
-  const [method, setMethod] = useState<'email' | 'phone'>('email');
-  const [identifier, setIdentifier] = useState<{ type: 'email' | 'phone'; value: string }>({ type: 'email', value: '' });
-  const [otp, setOtp] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const emailForm = useForm<{ email?: string; phone?: string }>();
-  const otpForm = useForm<{ otp: string }>();
-  const resetForm = useForm<{ newPassword: string; confirmPassword: string }>();
-
-  const submitIdentifier = emailForm.handleSubmit(async (data) => {
-    try {
-      setLoading(true);
-      if (method === 'email') {
-        const email = String(data.email || '').trim().toLowerCase();
-        await authService.requestPasswordReset({ email });
-        setIdentifier({ type: 'email', value: email });
-      } else {
-        await authService.requestPasswordReset({ phone: String(data.phone) });
-        setIdentifier({ type: 'phone', value: String(data.phone) });
-      }
-      toast.success(t('toastRequestGeneric'));
-      setStep('otp');
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || t('toastSendOtpFailed'));
-    } finally {
-      setLoading(false);
-    }
-  });
-
-  const submitOtp = otpForm.handleSubmit(async (data) => {
-    try {
-      setLoading(true);
-      await authService.verifyOtp(
-        identifier.type === 'email'
-          ? { email: identifier.value, otp: data.otp }
-          : { phone: identifier.value, otp: data.otp }
-      );
-      setOtp(data.otp);
-      toast.success(t('toastOtpVerified'));
-      setStep('reset');
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || t('toastOtpInvalid'));
-    } finally {
-      setLoading(false);
-    }
-  });
-
-  const submitReset = resetForm.handleSubmit(async (data) => {
-    if (data.newPassword !== data.confirmPassword) {
-      toast.error(t('toastPasswordsMismatch'));
-      return;
-    }
-    try {
-      setLoading(true);
-      await authService.resetPassword(
-        identifier.type === 'email'
-          ? { email: identifier.value, otp, newPassword: data.newPassword }
-          : { phone: identifier.value, otp, newPassword: data.newPassword }
-      );
-      toast.success(t('toastResetSuccess'));
-      setTimeout(() => navigate('/login'), 800);
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || t('toastResetFailed'));
-    } finally {
-      setLoading(false);
-    }
-  });
+  const { step, method, setMethod, identifier, setStep, loading, emailForm, otpForm, resetForm,
+    phoneLookupError, submitIdentifier, submitOtp, submitReset } = useForgotPasswordFlow();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 md-down:py-10 sm-down:py-8 xs-down:py-6 relative">
@@ -97,23 +27,7 @@ const ForgotPassword = () => {
         </div>
 
         <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/30 p-8 md-down:p-7 sm-down:p-6 xs-down:p-5">
-          {/* Step indicators */}
-          <div className="flex items-center justify-between mb-8 xs-down:mb-6">
-            <div className={`flex items-center ${step !== 'email' ? 'text-blue-600' : 'text-gray-500'}`}>
-              <div className={`w-8 h-8 xs-down:w-7 xs-down:h-7 rounded-full flex items-center justify-center mr-2 ${step !== 'email' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>1</div>
-              <span className="text-sm xs-down:text-xs">{t('stepEmail')}</span>
-            </div>
-            <div className={`flex-1 mx-2 h-0.5 ${step === 'email' ? 'bg-gray-200 dark:bg-gray-700' : 'bg-blue-500'}`}></div>
-            <div className={`flex items-center ${step === 'reset' ? 'text-blue-600' : step === 'otp' ? 'text-blue-600' : 'text-gray-500'}`}>
-              <div className={`w-8 h-8 xs-down:w-7 xs-down:h-7 rounded-full flex items-center justify-center mr-2 ${step === 'reset' || step === 'otp' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>2</div>
-              <span className="text-sm xs-down:text-xs">{t('stepOtp')}</span>
-            </div>
-            <div className={`flex-1 mx-2 h-0.5 ${step === 'reset' ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'}`}></div>
-            <div className={`flex items-center ${step === 'reset' ? 'text-blue-600' : 'text-gray-500'}`}>
-              <div className={`w-8 h-8 xs-down:w-7 xs-down:h-7 rounded-full flex items-center justify-center mr-2 ${step === 'reset' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>3</div>
-              <span className="text-sm xs-down:text-xs">{t('stepNewPassword')}</span>
-            </div>
-          </div>
+          <ResetSteps step={step} />
 
           {step === 'email' && (
             <form onSubmit={submitIdentifier} className="space-y-6 xs-down:space-y-5">
@@ -163,7 +77,7 @@ const ForgotPassword = () => {
                     />
                   </div>
                   {emailForm.formState.errors.phone && (
-                    <p className="mt-1 text-sm text-red-600">{emailForm.formState.errors.phone.message as string}</p>
+                    <p role={phoneLookupError ? 'alert' : undefined} className="mt-2 rounded-lg border border-red-200 bg-red-50/90 px-3 py-2 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-300">{phoneLookupError ? t('phoneNotRegistered') : emailForm.formState.errors.phone.message as string}</p>
                   )}
                 </div>
               )}

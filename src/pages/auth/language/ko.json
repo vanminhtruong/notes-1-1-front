@@ -92,7 +92,12 @@
     "facebookAppIdMissing": "VITE_FACEBOOK_APP_ID 구성이 누락되었습니다",
     "facebookNotReady": "Facebook SDK가 아직 준비되지 않았습니다. 다시 시도해주세요.",
     "facebookHttpsRequired": "Facebook 로그인은 HTTPS가 필요합니다. HTTPS 또는 localhost를 사용하세요.",
-    "facebookCancelled": "Facebook 로그인이 취소되었거나 실패했습니다"
+    "facebookCancelled": "Facebook 로그인이 취소되었거나 실패했습니다",
+    "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다",
+    "emailAlreadyUsed": "이미 사용 중인 이메일입니다",
+    "validationFailed": "입력 정보가 올바르지 않습니다. 다시 확인해 주세요.",
+    "networkError": "연결할 수 없습니다. 네트워크를 확인해 주세요.",
+    "serverError": "서버 오류입니다. 잠시 후 다시 시도해 주세요."
   },
   "loading": {
     "facebookRedirect": "Facebook 로그인 페이지로 리디렉션 중..."
@@ -101,5 +106,21 @@
     "title": "Google로 로그인",
     "subtitle": "계속하려면 Google 계정을 선택하세요",
     "termsText": "로그인하면 서비스 약관 및 개인정보 처리방침에 동의하는 것입니다"
-  }
+  },
+  "phone": "전화번호",
+  "optional": "선택",
+  "enterPhone": "전화번호를 입력하세요",
+  "birthDate": "생년월일",
+  "birthDateInvalid": "유효하지 않은 생년월일",
+  "gender": "성별",
+  "genderUnspecified": "밝히지 않음",
+  "genderMale": "남성",
+  "genderFemale": "여성",
+  "genderOther": "기타",
+  "and": "및",
+  "nameMaxLength": "이름은 50자를 초과할 수 없습니다",
+  "passwordMaxLength": "비밀번호는 100자를 초과할 수 없습니다",
+  "phoneNotRegistered": "입력한 전화번호가 등록된 계정 정보와 일치하지 않습니다. 다시 확인해 주세요.",
+  "toastPhoneOtpSent": "등록된 전화번호로 OTP를 전송했습니다.",
+  "toastSmsUnavailable": "SMS 서비스를 사용할 수 없습니다. 이메일을 사용하거나 나중에 다시 시도해 주세요."
 }

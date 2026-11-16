@@ -1,4 +1,5 @@
 {
+  "noteActions": { "more": "更多操作" },
   "e2ee": {
     "privateTitle": "🔒 私人筆記",
     "removeMedia": "移除檔案",
@@ -991,6 +992,10 @@
     "editPermissions": "編輯權限",
     "permissionsUpdated": "權限更新成功",
     "permissionsUpdateFailed": "權限更新失敗",
+    "dismissGroup": "從我的群組清單移除",
+    "confirmDismissGroup": "要從自己的清單移除此共用筆記嗎？原始筆記與其他成員的清單不受影響。",
+    "dismissGroupSuccess": "已從您的群組清單移除",
+    "deleteOriginal": "刪除原始筆記",
     "confirmRemoveGroup": "確定要從群組中移除此共用筆記嗎？",
     "viewNote": "查看筆記",
     "editNote": "編輯筆記",

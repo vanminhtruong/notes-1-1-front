@@ -151,6 +151,7 @@ export const useSharedNotesEffects = ({
     socket.on('note_updated', handleNoteUpdated);
     socket.on('note_deleted', handleNoteDeleted);
     socket.on('group_note_removed', handleGroupNoteRemoved);
+    socket.on('group_note_dismissed', handleGroupNoteRemoved);
     socket.on('shared_note_removed', handleSharedNoteRemoved);
 
     return () => {
@@ -164,6 +165,7 @@ export const useSharedNotesEffects = ({
       socket.off('note_updated', handleNoteUpdated);
       socket.off('note_deleted', handleNoteDeleted);
       socket.off('group_note_removed', handleGroupNoteRemoved);
+      socket.off('group_note_dismissed', handleGroupNoteRemoved);
       socket.off('shared_note_removed', handleSharedNoteRemoved);
     };
   }, [fetchSharedWithMe, fetchSharedByMe, fetchGroupSharedNotes, setSharedWithMe, setSharedByMe, setGroupSharedNotes]);

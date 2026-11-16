@@ -1,28 +1,13 @@
-import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { getProfile } from '@/store/slices/authSlice';
 import { Mail, User, ArrowLeft, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import EditProfileModal from './EditProfileModal';
 import AvatarPreviewModal from './components/AvatarPreviewModal';
 import LazyLoad from '@/components/LazyLoad';
+import { useAccountPage } from './hooks/useAccountPage';
 
 export default function Account() {
   const { t } = useTranslation('account');
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useAppSelector((s) => s.auth);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-
-  useEffect(() => {
-    if (isAuthenticated && !user) {
-      dispatch(getProfile());
-    }
-  }, [dispatch, isAuthenticated, user]);
-
-  
+  const { navigate, user, previewOpen, setPreviewOpen, editOpen, setEditOpen } = useAccountPage();
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-900/60 dark:to-gray-800 min-h-screen">

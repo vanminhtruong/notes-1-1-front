@@ -39,12 +39,6 @@ export default function NoteEncryptionDialog({ note, onClose }: Props) {
   const encrypted = !!note.isEncrypted;
 
   useEffect(() => {
-    const listener = (event: KeyboardEvent) => { if (event.key === 'Escape' && !busy) onClose(); };
-    document.addEventListener('keydown', listener);
-    return () => document.removeEventListener('keydown', listener);
-  }, [busy, onClose]);
-
-  useEffect(() => {
     // This dialog is portaled into body: prevent the desktop behind it from scrolling.
     const html = document.documentElement;
     const body = document.body;
@@ -288,7 +282,7 @@ export default function NoteEncryptionDialog({ note, onClose }: Props) {
   return <>
     {!editing && createPortal(
     <div className="note-e2ee-backdrop fixed inset-0 z-[12000] flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-5" role="presentation"
-      onMouseDown={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}>
+      onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
       <section role="dialog" aria-modal="true" aria-labelledby="note-e2ee-title"
         className="note-e2ee-dialog w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-800 shadow-2xl dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
         <header className="flex items-center justify-between gap-3 border-b border-slate-200 p-4 dark:border-slate-600 sm:p-5">
@@ -350,7 +344,6 @@ export default function NoteEncryptionDialog({ note, onClose }: Props) {
             {t('e2ee.disableWarning')}
           </p>}
           <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-200 pt-4 dark:border-slate-600">
-            <button type="button" onClick={onClose} disabled={busy} className={smallButton + ' border-slate-300 dark:border-slate-500'}>{t('e2ee.close')}</button>
             {unlocked ? (
               <>
                 <button type="button" disabled={busy} onClick={() => { if (editing) closeEdit(); else openEdit(); }}

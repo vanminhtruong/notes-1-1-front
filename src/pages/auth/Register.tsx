@@ -1,78 +1,26 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { registerUser } from '@/store/slices/authSlice';
-import { Eye, EyeOff, User, Mail, Lock, Sparkles, Phone, Calendar, UserCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Eye, EyeOff, User, Mail, Lock, Phone, Calendar, UserCircle } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-
-interface RegisterFormData {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  phone?: string | null;
-  birthDate?: string | null; // YYYY-MM-DD
-  gender?: 'male' | 'female' | 'other' | 'unspecified';
-}
+import RegisterHeader from './components/RegisterHeader';
+import { useRegisterForm } from './hooks/useRegisterForm';
 
 const Register = () => {
   const { t } = useTranslation('auth');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { isLoading, error } = useAppSelector((state) => state.auth);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    reset,
-  } = useForm<RegisterFormData>();
-
-  const password = watch('password');
-
-  const onSubmit = async (data: RegisterFormData) => {
-    if (data.password !== data.confirmPassword) {
-      return;
-    }
-
-    const payload = {
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      phone: data.phone && data.phone.trim() !== '' ? data.phone.trim() : null,
-      birthDate: data.birthDate && data.birthDate !== '' ? data.birthDate : null,
-      gender: (data.gender as RegisterFormData['gender']) || 'unspecified',
-    };
-
-    const result = await dispatch(registerUser(payload));
-
-    if (registerUser.fulfilled.match(result)) {
-      reset();
-      navigate('/login');
-    }
-  };
+  const { showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword,
+    isLoading, error, register, handleSubmit, errors, password, onSubmit } = useRegisterForm();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 py-12 xl-down:py-10 lg-down:py-9 md-down:py-8 sm-down:py-6 xs-down:py-5 xl-down:px-3.5 lg-down:px-3 md-down:px-2.5 sm-down:px-2 relative">
-      {/* Theme Toggle */}
-      <div className="fixed top-4 right-4 z-10 lg-down:top-3 lg-down:right-3 md-down:top-2.5 md-down:right-2.5 sm-down:top-2 sm-down:right-2">
+      {/* Auth controls: select language before signing in, without leaving the page. */}
+      <div className="fixed top-4 right-4 z-50 flex items-start gap-2 lg-down:top-3 lg-down:right-3 md-down:top-2.5 md-down:right-2.5 sm-down:top-2 sm-down:right-2">
+        <LanguageSwitcher inlineSubmenu />
         <ThemeToggle />
       </div>
       
       <div className="max-w-md w-full relative z-[1]">
-        {/* Header */}
-        <div className="text-center mb-8 lg-down:mb-7 md-down:mb-6 sm-down:mb-5 xs-down:mb-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mb-4 lg-down:w-14 lg-down:h-14 md-down:w-12 md-down:h-12 sm-down:w-10 sm-down:h-10 sm-down:mb-3 xs-down:mb-2.5">
-            <Sparkles className="w-8 h-8 text-white lg-down:w-7 lg-down:h-7 md-down:w-6 md-down:h-6 sm-down:w-5 sm-down:h-5" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 xl-down:text-2xl lg-down:text-xl md-down:text-lg sm-down:text-base sm-down:mb-1.5 xs-down:text-sm">{t('createAccount')}</h1>
-          <p className="text-gray-600 dark:text-gray-300 px-2 lg-down:text-sm md-down:text-sm sm-down:text-xs xs-down:px-1">{t('registerSubtitle')}</p>
-        </div>
+        <RegisterHeader />
 
         {/* Registration Form */}
         <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/30 p-8 xl-down:p-7 lg-down:p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
@@ -88,8 +36,9 @@ const Register = () => {
                 </div>
                 <input
                   {...register('name', {
-                    required: t('nameRequired'),
-                    minLength: { value: 2, message: t('nameMinLength') }
+                    required: 'nameRequired',
+                    minLength: { value: 2, message: 'nameMinLength' },
+                    maxLength: { value: 50, message: 'nameMaxLength' }
                   })}
                   type="text"
                   id="name"
@@ -98,7 +47,7 @@ const Register = () => {
                 />
               </div>
               {errors.name && (
-                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{errors.name.message}</p>
+                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{t(errors.name.message ?? '')}</p>
               )}
             </div>
 
@@ -113,10 +62,10 @@ const Register = () => {
                 </div>
                 <input
                   {...register('email', {
-                    required: t('emailRequired'),
+                    required: 'emailRequired',
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: t('emailInvalid')
+                      message: 'emailInvalid'
                     }
                   })}
                   type="email"
@@ -126,14 +75,14 @@ const Register = () => {
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{errors.email.message}</p>
+                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{t(errors.email.message ?? '')}</p>
               )}
             </div>
 
             {/* Phone Field (optional) */}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs sm-down:mb-1.5">
-                {t('phone', 'Số điện thoại')} <span className="text-gray-400">({t('optional', 'tùy chọn')})</span>
+                {t('phone')} <span className="text-gray-400">({t('optional')})</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none lg-down:pl-2.5 sm-down:pl-2">
@@ -141,23 +90,23 @@ const Register = () => {
                 </div>
                 <input
                   {...register('phone', {
-                    validate: (v) => !v || v.trim() === '' || /^[+\d][\d\s\-()]{5,20}$/.test(v) || t('phoneInvalid', 'Số điện thoại không hợp lệ'),
+                    validate: (v) => !v || v.trim() === '' || /^[+\d][\d\s\-()]{5,20}$/.test(v) || 'phoneInvalid',
                   })}
                   type="tel"
                   id="phone"
                   className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 lg-down:pl-9 lg-down:py-2.5 md-down:py-2.5 md-down:text-sm sm-down:pl-8 sm-down:py-2 sm-down:text-sm xs-down:text-xs"
-                  placeholder={t('enterPhone', 'Nhập số điện thoại')}
+                  placeholder={t('enterPhone')}
                 />
               </div>
               {errors.phone && (
-                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{errors.phone.message as string}</p>
+                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{t(errors.phone.message as string)}</p>
               )}
             </div>
 
             {/* Birth Date Field (optional) */}
             <div>
               <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs sm-down:mb-1.5">
-                {t('birthDate', 'Ngày sinh')} <span className="text-gray-400">({t('optional', 'tùy chọn')})</span>
+                {t('birthDate')} <span className="text-gray-400">({t('optional')})</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none lg-down:pl-2.5 sm-down:pl-2">
@@ -175,7 +124,7 @@ const Register = () => {
             {/* Gender Field (optional) */}
             <div>
               <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs sm-down:mb-1.5">
-                {t('gender', 'Giới tính')} <span className="text-gray-400">({t('optional', 'tùy chọn')})</span>
+                {t('gender')} <span className="text-gray-400">({t('optional')})</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none lg-down:pl-2.5 sm-down:pl-2">
@@ -187,10 +136,10 @@ const Register = () => {
                   className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white lg-down:pl-9 lg-down:py-2.5 md-down:py-2.5 md-down:text-sm sm-down:pl-8 sm-down:py-2 sm-down:text-sm xs-down:text-xs"
                   defaultValue="unspecified"
                 >
-                  <option value="unspecified">{t('genderUnspecified', 'Không tiết lộ')}</option>
-                  <option value="male">{t('genderMale', 'Nam')}</option>
-                  <option value="female">{t('genderFemale', 'Nữ')}</option>
-                  <option value="other">{t('genderOther', 'Khác')}</option>
+                  <option value="unspecified">{t('genderUnspecified')}</option>
+                  <option value="male">{t('genderMale')}</option>
+                  <option value="female">{t('genderFemale')}</option>
+                  <option value="other">{t('genderOther')}</option>
                 </select>
               </div>
             </div>
@@ -206,8 +155,9 @@ const Register = () => {
                 </div>
                 <input
                   {...register('password', {
-                    required: t('passwordRequired'),
-                    minLength: { value: 6, message: t('passwordMinLength') }
+                    required: 'passwordRequired',
+                    minLength: { value: 6, message: 'passwordMinLength' },
+                    maxLength: { value: 100, message: 'passwordMaxLength' }
                   })}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -227,7 +177,7 @@ const Register = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{errors.password.message}</p>
+                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{t(errors.password.message ?? '')}</p>
               )}
             </div>
 
@@ -242,8 +192,8 @@ const Register = () => {
                 </div>
                 <input
                   {...register('confirmPassword', {
-                    required: t('confirmPasswordRequired'),
-                    validate: (value) => value === password || t('passwordMismatch')
+                    required: 'confirmPasswordRequired',
+                    validate: (value) => value === password || 'passwordMismatch'
                   })}
                   type={showConfirmPassword ? 'text' : 'password'}
                   id="confirmPassword"
@@ -263,7 +213,7 @@ const Register = () => {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{errors.confirmPassword.message}</p>
+                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{t(errors.confirmPassword.message ?? '')}</p>
               )}
             </div>
 
@@ -285,8 +235,8 @@ const Register = () => {
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 lg-down:p-3.5 md-down:p-3 sm-down:p-2.5">
-                <p className="text-sm text-red-600 md-down:text-xs">{error}</p>
+              <div role="alert" className="rounded-xl border border-red-200 bg-red-50/90 p-4 transition-colors duration-200 dark:border-red-800/60 dark:bg-red-950/40 lg-down:p-3.5 md-down:p-3 sm-down:p-2.5">
+                <p className="text-sm text-red-700 dark:text-red-300 md-down:text-xs">{t(error)}</p>
               </div>
             )}
           </form>
@@ -310,7 +260,7 @@ const Register = () => {
           <p className="text-sm text-gray-500 dark:text-gray-400 lg-down:text-sm md-down:text-xs sm-down:text-xs">
 {t('agreeTerms')}{' '}
             <a href="#" className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300">{t('termsOfService')}</a>
-            {' '}và{' '}
+            {' '}{t('and')}{' '}
             <a href="#" className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300">{t('privacyPolicy')}</a>
           </p>
         </div>

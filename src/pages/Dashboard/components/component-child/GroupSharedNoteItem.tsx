@@ -1,4 +1,4 @@
-import { Users, FileText, Calendar, Eye, Edit2, Trash2, Plus, CheckSquare, Square } from 'lucide-react';
+import { Users, FileText, Calendar, Eye, Edit2, Trash2, FileX2, Plus, CheckSquare, Square } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useState, memo } from 'react';
 import type { GroupSharedNote } from '@/services/notesService';
@@ -15,9 +15,10 @@ interface GroupSharedNoteItemProps {
   onCreateFromNote?: (noteId: number) => void;
   onDeleteNote?: (noteId: number) => Promise<void>;
   onRemove?: (id: number) => Promise<void>;
+  onDismiss?: (id: number) => Promise<void>;
 }
 
-export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onViewNote, onEditNote, onCreateFromNote, onDeleteNote, onRemove }: GroupSharedNoteItemProps) => {
+export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onViewNote, onEditNote, onCreateFromNote, onDeleteNote, onRemove, onDismiss }: GroupSharedNoteItemProps) => {
   const { t, i18n } = useTranslation('dashboard');
   const [isEditingPermissions, setIsEditingPermissions] = useState(false);
   const [localPermissions, setLocalPermissions] = useState({
@@ -98,9 +99,9 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
 
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isRemoving || !onRemove) return;
+    if (isRemoving || !(isOwner ? onRemove : onDismiss)) return;
 
-    const confirmMessage = t('sharedNotes.confirmRemoveGroup') || 'Bạn có chắc muốn xóa ghi chú chia sẻ này khỏi nhóm?';
+    const confirmMessage = isOwner ? t('sharedNotes.confirmRemoveGroup') : t('sharedNotes.confirmDismissGroup');
 
     toast.custom((toastData) => {
       const containerClass = `max-w-sm w-full rounded-xl shadow-lg border ${toastData.visible ? 'animate-enter' : 'animate-leave'} bg-white/90 dark:bg-gray-800/95 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 p-4`;
@@ -123,8 +124,9 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
                 toast.remove(toastData.id);
                 try {
                   setIsRemoving(true);
-                  await onRemove(groupSharedNote.id);
-                  toast.success(t('sharedNotes.removeSuccess'));
+                  if (isOwner) await onRemove?.(groupSharedNote.id);
+                  else await onDismiss?.(groupSharedNote.id);
+                  toast.success(t(isOwner ? 'sharedNotes.removeSuccess' : 'sharedNotes.dismissGroupSuccess'));
                 } catch (err: any) {
                   toast.error(err?.response?.data?.message || t('sharedNotes.errors.removeFailed'));
                 } finally {
@@ -317,9 +319,10 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
               onClick={handleDeleteNote}
               disabled={isRemoving}
               className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
-              title={t('notes.delete')}
+              title={t('sharedNotes.deleteOriginal')}
+              aria-label={t('sharedNotes.deleteOriginal')}
             >
-              <Trash2 className="w-4 h-4" />
+              <FileX2 className="w-4 h-4" />
             </button>
           )}
 
@@ -336,7 +339,21 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
             </button>
           )}
           
-          {/* Owner buttons - permissions management and delete */}
+          {/* Members may hide a group note from their own list, independent of edit/delete rights. */}
+          {isMember && !!onDismiss && (
+            <button
+              type="button"
+              onClick={handleRemove}
+              disabled={isRemoving}
+              className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 disabled:opacity-50"
+              title={t('sharedNotes.dismissGroup')}
+              aria-label={t('sharedNotes.dismissGroup')}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Owner buttons - permissions management and remove the group-wide share */}
           {isOwner && !isEditingPermissions && (
             <>
               <button

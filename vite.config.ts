@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Use a repository subpath only for GitHub Pages builds.
+  base: process.env.GITHUB_PAGES === 'true' ? '/notes-1-1-front/' : '/',
   resolve: {
     alias: (() => {
       const rootDir = fileURLToPath(new URL('.', import.meta.url))

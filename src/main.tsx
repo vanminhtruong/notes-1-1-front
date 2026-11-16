@@ -17,7 +17,8 @@ import AnimatedBackground from '@/components/AnimatedBackground'
 import { preloadAnimatedBackgrounds } from '~/utils/preload'
 
 // Offline PWA shell is served in production/preview only. Never cache authenticated APIs.
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+// Keep existing PWA worker on root deployments; Pages uses a repo subpath.
+if (import.meta.env.PROD && import.meta.env.BASE_URL === '/' && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     void navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(error => {
       console.warn('[PWA] Service worker registration failed', error);

@@ -81,12 +81,12 @@ export const authService = {
     return response.data;
   },
 
-  async verifyOtp(data: { email?: string; phone?: string; otp: string }): Promise<{ message: string }> {
+  async verifyOtp(data: { email?: string; phone?: string; otp: string }): Promise<{ message: string; resetToken?: string }> {
     const response = await api.post('/auth/verify-otp', data);
     return response.data;
   },
 
-  async resetPassword(data: { email?: string; phone?: string; otp: string; newPassword: string }): Promise<{ message: string }> {
+  async resetPassword(data: { email?: string; phone?: string; otp: string; resetToken?: string; newPassword: string }): Promise<{ message: string }> {
     const response = await api.post('/auth/reset-password', data);
     return response.data;
   },

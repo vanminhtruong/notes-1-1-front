@@ -1,4 +1,5 @@
 {
+  "noteActions": { "more": "更多操作" },
   "e2ee": {
     "privateTitle": "🔒 私人笔记",
     "removeMedia": "移除文件",
@@ -991,6 +992,10 @@
     "editPermissions": "编辑权限",
     "permissionsUpdated": "权限更新成功",
     "permissionsUpdateFailed": "权限更新失败",
+    "dismissGroup": "从我的群组列表移除",
+    "confirmDismissGroup": "要从自己的列表移除此共享笔记吗？原始笔记和其他成员的列表不会受影响。",
+    "dismissGroupSuccess": "已从您的群组列表移除",
+    "deleteOriginal": "删除原始笔记",
     "confirmRemoveGroup": "确定要从群组中移除此共享笔记吗？",
     "viewNote": "查看笔记",
     "editNote": "编辑笔记",

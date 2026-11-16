@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useEffect } from 'react';
-import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play, FolderInput, FolderOutput, Palette, LockKeyhole, LockOpen } from 'lucide-react';
+import { Archive, ArchiveRestore, Trash2, Pencil, Bell, Eye, Clock, Check, Play, FolderInput, FolderOutput, Palette, LockKeyhole, LockOpen, MoreHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY, getTextColorForBackground, getTextColorForImageBackground } from '@/utils/utils';
 import { extractYouTubeId } from '@/utils/youtube';
@@ -10,6 +10,7 @@ import TagBadge from './TagBadge';
 import TagSelector from './TagSelector';
 import BackgroundPicker from './BackgroundPicker';
 import NoteEncryptionDialog from './NoteEncryptionDialog';
+import './NoteCardActions.scss';
 import { useNoteBackgroundHandler } from '../hooks/Manager-handle/useNoteBackgroundHandler';
 import type { Note as ServiceNote, NoteTag } from '@/services/notesService';
 import type { NoteCategory } from '@/services/notesService';
@@ -72,6 +73,8 @@ const NoteCard = memo(({
   const { t } = useTranslation('dashboard');
   const [isHovered, setIsHovered] = useState(false);
   const [showEncryption, setShowEncryption] = useState(false);
+  const [moreActionsOpen, setMoreActionsOpen] = useState(false);
+  const moreActionsRef = useRef<HTMLDivElement>(null);
   const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
   const [isBackgroundPickerOpen, setIsBackgroundPickerOpen] = useState(false);
   const tagsContainerRef = useRef<HTMLDivElement>(null);
@@ -87,6 +90,22 @@ const NoteCard = memo(({
   const textColors = bgImage 
     ? getTextColorForImageBackground() 
     : getTextColorForBackground(bgColor);
+
+  useEffect(() => {
+    if (!moreActionsOpen) return;
+    const onOutside = (event: PointerEvent) => {
+      if (!moreActionsRef.current?.contains(event.target as Node)) setMoreActionsOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMoreActionsOpen(false);
+    };
+    document.addEventListener('pointerdown', onOutside);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onOutside);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [moreActionsOpen]);
 
   // Đồng bộ khi note props thay đổi
   useEffect(() => {
@@ -119,7 +138,7 @@ const NoteCard = memo(({
 
   return (
     <div 
-      className={`note-dashboard-card ${note.isEncrypted ? 'note-e2ee-card' : ''} relative flex flex-col h-full min-w-0 overflow-visible z-[5000] hover:z-[10000] ${hasBg ? 'bg-transparent dark:bg-transparent' : 'bg-white/70 dark:bg-gray-800/90'} backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3`}
+      className={`note-dashboard-card ${note.isEncrypted ? 'note-e2ee-card' : ''} relative flex flex-col h-full min-w-0 overflow-visible z-[5000] hover:z-[10000] ${moreActionsOpen ? 'z-[10000]' : ''} ${hasBg ? 'bg-transparent dark:bg-transparent' : 'bg-white/70 dark:bg-gray-800/90'} backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3`}
       style={{
         backgroundColor: note.isEncrypted ? undefined : bgColor || undefined,
         backgroundImage: !note.isEncrypted && bgImage ? `url(${bgImage})` : 'none',
@@ -169,7 +188,7 @@ const NoteCard = memo(({
           <button type="button" onClick={() => setShowEncryption(true)}
             aria-label={note.isEncrypted ? t('e2ee.unlockAction') : t('e2ee.enableAction')}
             title={note.isEncrypted ? t('e2ee.unlockAction') : t('e2ee.enableAction')}
-            className="note-e2ee-trigger rounded-lg border border-transparent p-1 text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:hover:text-white sm-down:p-0.5">
+            className="note-e2ee-trigger xl:hidden rounded-lg border border-transparent p-1 text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:hover:text-white sm-down:p-0.5">
             {note.isEncrypted ? <LockKeyhole className="h-4 w-4 md-down:h-3.5 md-down:w-3.5" /> : <LockOpen className="h-4 w-4 md-down:h-3.5 md-down:w-3.5" />}
           </button>
           {showReminder && (
@@ -192,7 +211,7 @@ const NoteCard = memo(({
             <button
               onClick={onArchive}
               title={t('actions.restore')}
-              className="p-1 text-gray-400 hover:text-green-600 transition-colors duration-200 sm-down:p-0.5"
+              className="xl:hidden p-1 text-gray-400 hover:text-green-600 transition-colors duration-200 sm-down:p-0.5"
             >
               <ArchiveRestore className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
             </button>
@@ -200,7 +219,7 @@ const NoteCard = memo(({
             <button
               onClick={onArchive}
               title={t('actions.archive')}
-              className="p-1 text-gray-400 hover:text-orange-600 transition-colors duration-200 sm-down:p-0.5"
+              className="xl:hidden p-1 text-gray-400 hover:text-orange-600 transition-colors duration-200 sm-down:p-0.5"
             >
               <Archive className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
             </button>
@@ -214,10 +233,61 @@ const NoteCard = memo(({
           </button>
           <button
             onClick={onDelete}
-            className="p-1 text-gray-400 hover:text-red-600 transition-colors duration-200 sm-down:p-0.5"
+            className="xl:hidden p-1 text-gray-400 hover:text-red-600 transition-colors duration-200 sm-down:p-0.5"
           >
             <Trash2 className="w-4 h-4 md-down:w-3.5 md-down:h-3.5 xs-down:w-3 xs-down:h-3" />
           </button>
+          {/* View and edit remain visible; encryption, archive and delete live in the desktop menu. */}
+          <div ref={moreActionsRef} className="note-card-actions relative hidden xl:block">
+            <button
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={moreActionsOpen}
+              aria-label={t('noteActions.more')}
+              title={t('noteActions.more')}
+              className={moreActionsOpen ? 'note-card-actions-trigger is-open' : 'note-card-actions-trigger'}
+              onClick={() => setMoreActionsOpen(open => !open)}
+            >
+              <MoreHorizontal size={18} strokeWidth={2} aria-hidden="true" />
+            </button>
+            {moreActionsOpen && (
+              <div
+                role="menu"
+                aria-label={t('noteActions.more')}
+                className="note-card-actions-menu absolute right-0 top-full z-[10030] mt-2 w-48 rounded-xl border p-1.5"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="note-card-actions-item"
+                  onClick={() => { setMoreActionsOpen(false); setShowEncryption(true); }}
+                >
+                  {note.isEncrypted ? <LockKeyhole size={16} aria-hidden="true" /> : <LockOpen size={16} aria-hidden="true" />}
+                  <span>{t(note.isEncrypted ? 'e2ee.unlockAction' : 'e2ee.enableAction')}</span>
+                </button>
+                <div className="note-card-actions-divider" role="separator" />
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="note-card-actions-item"
+                  onClick={() => { setMoreActionsOpen(false); onArchive(); }}
+                >
+                  {showArchived ? <ArchiveRestore size={16} aria-hidden="true" /> : <Archive size={16} aria-hidden="true" />}
+                  <span>{t(showArchived ? 'actions.restore' : 'actions.archive')}</span>
+                </button>
+                <div className="note-card-actions-divider" role="separator" />
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="note-card-actions-item note-card-actions-danger"
+                  onClick={() => { setMoreActionsOpen(false); onDelete(); }}
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                  <span>{t('actions.delete')}</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

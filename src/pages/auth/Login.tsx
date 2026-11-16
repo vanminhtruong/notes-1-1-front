@@ -1,194 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { authService } from '@/services/authService';
-import { loginUser, loginWithGoogle } from '@/store/slices/authSlice';
-import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Eye, EyeOff, Mail, Lock, Check } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GoogleSignInModal from '@/components/GoogleSignInModal';
-import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-
-declare global {
-  interface Window {
-    google?: any;
-  }
-}
-
-interface LoginFormData {
-  email: string;
-  password: string;
-  remember?: boolean;
-}
+import LoginHeader from './components/LoginHeader';
+import { useLoginForm } from './hooks/useLoginForm';
+import { authService } from '@/services/authService';
 
 const Login = () => {
   const { t } = useTranslation('auth');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
-  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
-
-  const getRememberFromCookie = () => {
-    try {
-      const m = document.cookie.match(/(?:^|; )remember_ui=([^;]+)/);
-      return m ? decodeURIComponent(m[1]) === '1' : false;
-    } catch {
-      return false;
-    }
-  };
-
-  const getEmailFromCookie = () => {
-    try {
-      const m = document.cookie.match(/(?:^|; )last_email=([^;]+)/);
-      return m ? decodeURIComponent(m[1]) : '';
-    } catch {
-      return '';
-    }
-  };
-
-  const getPasswordFromCookie = () => {
-    try {
-      const m = document.cookie.match(/(?:^|; )last_password=([^;]+)/);
-      return m ? decodeURIComponent(m[1]) : '';
-    } catch {
-      return '';
-    }
-  };
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    defaultValues: { 
-      email: getRememberFromCookie() ? getEmailFromCookie() : '', 
-      password: getRememberFromCookie() ? getPasswordFromCookie() : '',
-      remember: getRememberFromCookie() 
-    },
-  });
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, navigate]);
-
-  // On mount, if email cookie exists, sync remember from backend
-  useEffect(() => {
-    const email = getEmailFromCookie();
-    if (!email) return;
-    (async () => {
-      try {
-        const { remember } = await authService.getRememberPref(email);
-        setValue('remember', !!remember, { shouldDirty: true });
-      } catch {}
-    })();
-  }, []);
-
-
-  // Load Google Identity Services and initialize
-  useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) return;
-
-    const render = () => {
-      if (!window.google?.accounts?.id) return;
-
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: (response: any) => {
-          handleGoogleResponse(response);
-        },
-        auto_select: false,
-        cancel_on_tap_outside: true,
-      });
-    };
-
-    if (window.google?.accounts?.id) {
-      render();
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = render;
-    document.body.appendChild(script);
-
-    return () => {
-      script.onload = null;
-    };
-  }, [dispatch, navigate, GOOGLE_CLIENT_ID]);
-
-
-  const handleGoogleClick = () => {
-    if (!GOOGLE_CLIENT_ID) {
-      toast.error(t('errors.googleClientIdMissing'));
-      return;
-    }
-    if (!window.google?.accounts?.id) {
-      toast.error(t('errors.googleNotReady'));
-      return;
-    }
-    setShowGoogleModal(true);
-  };
-
-  const handleGoogleSuccess = async (credential: string) => {
-    setShowGoogleModal(false);
-    await handleGoogleResponse({ credential });
-  };
-
-
-  const handleGoogleResponse = async (response: any) => {
-    const idToken = response?.credential;
-    if (!idToken) return;
-    const result = await dispatch(loginWithGoogle(idToken));
-    if (loginWithGoogle.fulfilled.match(result)) {
-      navigate('/dashboard');
-    }
-  };
-
-
-  const onSubmit = async (data: LoginFormData) => {
-    // Save credentials to cookies if remember is checked
-    if (data.remember) {
-      document.cookie = `last_email=${encodeURIComponent(data.email)}; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=Strict`;
-      document.cookie = `last_password=${encodeURIComponent(data.password)}; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=Strict`;
-      document.cookie = `remember_ui=1; max-age=${365 * 24 * 60 * 60}; path=/; SameSite=Strict`;
-    } else {
-      // Clear cookies if remember is unchecked
-      document.cookie = 'last_email=; max-age=0; path=/; SameSite=Strict';
-      document.cookie = 'last_password=; max-age=0; path=/; SameSite=Strict';
-      document.cookie = 'remember_ui=; max-age=0; path=/; SameSite=Strict';
-    }
-
-    const result = await dispatch(loginUser(data));
-    
-    if (loginUser.fulfilled.match(result)) {
-      navigate('/dashboard');
-    }
-  };
+  const { showPassword, setShowPassword, showGoogleModal, setShowGoogleModal,
+    isLoading, error, register, handleSubmit, errors, handleGoogleClick,
+    handleGoogleSuccess, onSubmit, GOOGLE_CLIENT_ID, setValue } = useLoginForm();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 py-12 xl-down:py-10 lg-down:py-9 md-down:py-8 sm-down:py-6 xs-down:py-5 xl-down:px-3.5 lg-down:px-3 md-down:px-2.5 sm-down:px-2 relative">
-      {/* Theme Toggle */}
-      <div className="fixed top-4 right-4 z-10 lg-down:top-3 lg-down:right-3 md-down:top-2.5 md-down:right-2.5 sm-down:top-2 sm-down:right-2">
+      {/* Auth controls: select language before signing in, without leaving the page. */}
+      <div className="fixed top-4 right-4 z-50 flex items-start gap-2 lg-down:top-3 lg-down:right-3 md-down:top-2.5 md-down:right-2.5 sm-down:top-2 sm-down:right-2">
+        <LanguageSwitcher inlineSubmenu />
         <ThemeToggle />
       </div>
       
       <div className="max-w-md w-full relative z-[1]">
-        {/* Header */}
-        <div className="text-center mb-8 lg-down:mb-7 md-down:mb-6 sm-down:mb-5 xs-down:mb-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4 lg-down:w-14 lg-down:h-14 md-down:w-12 md-down:h-12 sm-down:w-10 sm-down:h-10 sm-down:mb-3 xs-down:mb-2.5">
-            <LogIn className="w-8 h-8 text-white lg-down:w-7 lg-down:h-7 md-down:w-6 md-down:h-6 sm-down:w-5 sm-down:h-5" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 xl-down:text-2xl lg-down:text-xl md-down:text-lg sm-down:text-base sm-down:mb-1.5 xs-down:text-sm">{t('welcomeBack')}</h1>
-          <p className="text-gray-600 dark:text-gray-300 px-2 lg-down:text-sm md-down:text-sm sm-down:text-xs xs-down:px-1">{t('loginSubtitle')}</p>
-        </div>
+        <LoginHeader />
 
         {/* Login Form */}
         <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/30 p-8 xl-down:p-7 lg-down:p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
@@ -196,7 +31,7 @@ const Login = () => {
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs sm-down:mb-1.5">
-                Email
+                {t('email')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none lg-down:pl-2.5 sm-down:pl-2">
@@ -204,10 +39,10 @@ const Login = () => {
                 </div>
                 <input
                   {...register('email', {
-                    required: t('emailRequired'),
+                    required: 'emailRequired',
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: t('emailInvalid')
+                      message: 'emailInvalid'
                     }
                   })}
                   type="email"
@@ -228,7 +63,7 @@ const Login = () => {
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{errors.email.message}</p>
+                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{t(errors.email.message ?? '')}</p>
               )}
             </div>
 
@@ -243,7 +78,7 @@ const Login = () => {
                 </div>
                 <input
                   {...register('password', {
-                    required: t('passwordRequired')
+                    required: 'passwordRequired'
                   })}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -263,23 +98,35 @@ const Login = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{errors.password.message}</p>
+                <p className="mt-1 text-sm text-red-600 md-down:text-xs">{t(errors.password.message ?? '')}</p>
               )}
             </div>
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between sm-down:flex-col sm-down:gap-3 sm-down:items-start">
-              <div className="flex items-center">
+              <label
+                htmlFor="remember"
+                className="group relative inline-flex min-h-10 max-w-full cursor-pointer select-none items-center gap-2.5 rounded-xl border border-slate-200/80 bg-white/60 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-slate-900/5 transition-all duration-200 hover:border-blue-300 hover:bg-blue-50/80 hover:shadow-md dark:border-slate-600/70 dark:bg-slate-800/70 dark:text-slate-200 dark:hover:border-blue-500/60 dark:hover:bg-slate-700/80 md-down:text-xs sm-down:gap-2 sm-down:px-2.5 sm-down:py-1.5"
+              >
                 <input
                   id="remember"
                   {...register('remember')}
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded sm-down:h-3.5 sm-down:w-3.5"
+                  className="peer sr-only"
                 />
-                <label htmlFor="remember" className="ml-2 block text-sm text-gray-700 dark:text-gray-200 md-down:text-xs sm-down:ml-1.5">
-{t('rememberMe')}
-                </label>
-              </div>
+                <span
+                  aria-hidden="true"
+                  className="flex h-[21px] w-[21px] shrink-0 items-center justify-center rounded-[7px] border-2 border-slate-300 bg-white shadow-sm transition-all duration-200 group-hover:border-blue-400 peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:shadow-[0_2px_7px_rgba(37,99,235,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-500 dark:border-slate-500 dark:bg-slate-900 dark:group-hover:border-blue-400 dark:peer-checked:border-blue-500 dark:peer-checked:bg-blue-500"
+                />
+                <Check
+                  aria-hidden="true"
+                  strokeWidth={3}
+                  className="pointer-events-none absolute left-[15px] h-[15px] w-[15px] scale-75 text-white opacity-0 transition-all duration-200 peer-checked:scale-100 peer-checked:opacity-100 sm-down:left-[13px]"
+                />
+                <span className="leading-snug transition-colors duration-200 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                  {t('rememberMe')}
+                </span>
+              </label>
               <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500 transition-colors duration-200 md-down:text-xs">
 {t('forgotPasswordLink')}
               </Link>
@@ -303,8 +150,8 @@ t('login')
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 lg-down:p-3.5 md-down:p-3 sm-down:p-2.5">
-                <p className="text-sm text-red-600 md-down:text-xs">{error}</p>
+              <div role="alert" className="rounded-xl border border-red-200 bg-red-50/90 p-4 transition-colors duration-200 dark:border-red-800/60 dark:bg-red-950/40 lg-down:p-3.5 md-down:p-3 sm-down:p-2.5">
+                <p className="text-sm text-red-700 dark:text-red-300 md-down:text-xs">{t(error)}</p>
               </div>
             )}
           </form>
