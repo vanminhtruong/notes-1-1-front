@@ -34,6 +34,9 @@ jobs:
       - name: Build for GitHub Pages
         env:
           GITHUB_PAGES: 'true'
+          # Public OAuth identifiers (not secrets). .env is gitignored, so CI must provide them.
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID || '330597757388-cdngesnvlcn7uiev2ptar27bu1gco9bt.apps.googleusercontent.com' }}
+          VITE_FACEBOOK_APP_ID: ${{ vars.VITE_FACEBOOK_APP_ID || '2945366952313177' }}
         run: npm run build
       - name: Prepare SPA fallback and prevent Jekyll processing
         run: |
