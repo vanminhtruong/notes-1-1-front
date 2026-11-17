@@ -58,7 +58,7 @@ export function useLoginForm() {
   const {
     register,
     handleSubmit,
-    setValue,
+    setValue, watch,
     formState: { errors },
   } = useForm<LoginFormData>({
     defaultValues: { 
@@ -172,5 +172,5 @@ export function useLoginForm() {
 
   return { showPassword, setShowPassword, showGoogleModal, setShowGoogleModal,
     isLoading, error, register, handleSubmit, errors, handleGoogleClick,
-    handleGoogleSuccess, onSubmit, GOOGLE_CLIENT_ID, setValue };
+    handleGoogleSuccess, onSubmit, GOOGLE_CLIENT_ID, setValue, remember: watch('remember') };
 }

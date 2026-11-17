@@ -1,183 +1,227 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import ThemeToggle from '@/components/ThemeToggle';
-import { Mail, KeyRound, Lock, ShieldCheck, Phone } from 'lucide-react';
+import { Mail, KeyRound, Lock, Phone, ArrowRight, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useForgotPasswordFlow } from './hooks/useForgotPasswordFlow';
 import ResetSteps from './components/ResetSteps';
+import AuthShell from './components/AuthShell';
+import {
+  labelClass, iconWrapClass, iconClass, eyeButtonClass, inputClass,
+  primaryButtonClass, secondaryButtonClass, linkClass, FieldError, ErrorBanner,
+} from './components/authUi';
 
+const Spinner = () => (
+  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+);
 
 const ForgotPassword = () => {
   const { t } = useTranslation('auth');
   const { step, method, setMethod, identifier, setStep, loading, emailForm, otpForm, resetForm,
     phoneLookupError, submitIdentifier, submitOtp, submitReset } = useForgotPasswordFlow();
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const methods = [
+    { value: 'email', label: 'methodEmail', icon: Mail },
+    { value: 'phone', label: 'methodPhone', icon: Phone },
+  ] as const;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-black dark:to-gray-800 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 md-down:py-10 sm-down:py-8 xs-down:py-6 relative">
-      <div className="fixed top-4 right-4 z-10">
-        <ThemeToggle />
-      </div>
+    <AuthShell
+      title={t('forgotTitle')}
+      subtitle={t('forgotSubtitle')}
+      heroTitleKey="forgotHeroTitle"
+      heroSubtitleKey="forgotHeroSubtitle"
+    >
+      <ResetSteps step={step} />
 
-      <div className="max-w-md w-full relative z-[1]">
-        <div className="text-center mb-8 xs-down:mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
-            <ShieldCheck className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl sm-down:text-2xl xs-down:text-xl font-bold text-gray-900 dark:text-white mb-2">{t('forgotTitle')}</h1>
-          <p className="text-gray-600 dark:text-gray-300 xs-down:text-sm px-2">{t('forgotSubtitle')}</p>
-        </div>
+      {/* Step 1: email / phone */}
+      {step === 'email' && (
+        <form onSubmit={submitIdentifier} noValidate>
+          <div className="reg-grid grid gap-y-5">
+            <div role="tablist" className="grid grid-cols-2 gap-1 rounded-xl border border-gray-200 bg-gray-100/80 p-1 dark:border-white/10 dark:bg-white/5">
+              {methods.map(({ value, label, icon: Icon }) => {
+                const selected = method === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setMethod(value)}
+                    className={[
+                      'flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400',
+                      selected
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md shadow-purple-500/40 ring-1 ring-white/30'
+                        : 'text-gray-600 hover:bg-purple-100 hover:text-purple-700 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white',
+                    ].join(' ')}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {t(label)}
+                  </button>
+                );
+              })}
+            </div>
 
-        <div className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/30 p-8 md-down:p-7 sm-down:p-6 xs-down:p-5">
-          <ResetSteps step={step} />
-
-          {step === 'email' && (
-            <form onSubmit={submitIdentifier} className="space-y-6 xs-down:space-y-5">
-              <div className="flex gap-2 mb-2">
-                <button type="button" onClick={() => setMethod('email')} className={`flex-1 py-2 xs-down:py-1.5 rounded-lg border ${method === 'email' ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}>{t('methodEmail')}</button>
-                <button type="button" onClick={() => setMethod('phone')} className={`flex-1 py-2 xs-down:py-1.5 rounded-lg border ${method === 'phone' ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}>{t('methodPhone')}</button>
-              </div>
-
-              {method === 'email' ? (
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{t('labelEmail')}</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      {...emailForm.register('email', {
-                        required: t('emailRequired'),
-                        pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: t('emailInvalid') },
-                      })}
-                      type="email"
-                      id="email"
-                      className="block w-full pl-10 pr-3 py-3 xs-down:py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                      placeholder={t('placeholderEmailRegistered')}
-                    />
-                  </div>
-                  {emailForm.formState.errors.email && (
-                    <p className="mt-1 text-sm text-red-600">{emailForm.formState.errors.email.message as string}</p>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{t('labelPhone')}</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Phone className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      {...emailForm.register('phone', {
-                        required: t('phoneRequired'),
-                        validate: (v) => Boolean(v) && /^[+\d][\d\s\-()]{5,20}$/.test(String(v)) || t('phoneInvalid'),
-                      })}
-                      type="tel"
-                      id="phone"
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                      placeholder={t('placeholderPhoneRegistered')}
-                    />
-                  </div>
-                  {emailForm.formState.errors.phone && (
-                    <p role={phoneLookupError ? 'alert' : undefined} className="mt-2 rounded-lg border border-red-200 bg-red-50/90 px-3 py-2 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-300">{phoneLookupError ? t('phoneNotRegistered') : emailForm.formState.errors.phone.message as string}</p>
-                  )}
-                </div>
-              )}
-
-              <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 xs-down:py-2.5 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
-                {loading ? t('sendingOtp') : t('sendOtp')}
-              </button>
-            </form>
-          )}
-
-          {step === 'otp' && (
-            <form onSubmit={submitOtp} className="space-y-6 xs-down:space-y-5">
-              <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{t('otpInputLabel')}</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <KeyRound className="h-5 w-5 text-gray-400" />
-                  </div>
+            {method === 'email' ? (
+              <div className="relative min-w-0">
+                <label htmlFor="email" className={labelClass}>{t('labelEmail')}</label>
+                <div className="group relative">
+                  <span className={iconWrapClass}><Mail className={iconClass} /></span>
                   <input
-                    {...otpForm.register('otp', {
-                      required: t('otpRequired'),
-                      pattern: { value: /^\d{6}$/, message: t('otpInvalid') },
+                    {...emailForm.register('email', {
+                      required: t('emailRequired'),
+                      pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: t('emailInvalid') },
                     })}
-                    inputMode="numeric"
-                    maxLength={6}
-                    id="otp"
-                    className="block w-full pl-10 pr-3 py-3 xs-down:py-2.5 tracking-widest uppercase border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                    placeholder={t('otpPlaceholder')}
+                    type="email"
+                    id="email"
+                    aria-invalid={!!emailForm.formState.errors.email}
+                    className={inputClass(!!emailForm.formState.errors.email)}
+                    placeholder={t('placeholderEmailRegistered')}
                   />
                 </div>
-                {otpForm.formState.errors.otp && (
-                  <p className="mt-1 text-sm text-red-600">{otpForm.formState.errors.otp.message}</p>
-                )}
-                <p className="mt-2 text-xs text-gray-500">{t('sentTo')} <span className="font-medium">{identifier.value}</span></p>
+                <FieldError message={emailForm.formState.errors.email?.message as string | undefined} />
               </div>
+            ) : (
+              <div className="relative min-w-0">
+                <label htmlFor="phone" className={labelClass}>{t('labelPhone')}</label>
+                <div className="group relative">
+                  <span className={iconWrapClass}><Phone className={iconClass} /></span>
+                  <input
+                    {...emailForm.register('phone', {
+                      required: t('phoneRequired'),
+                      validate: (v) => (Boolean(v) && /^[+\d][\d\s\-()]{5,20}$/.test(String(v))) || t('phoneInvalid'),
+                    })}
+                    type="tel"
+                    id="phone"
+                    aria-invalid={!!emailForm.formState.errors.phone}
+                    className={inputClass(!!emailForm.formState.errors.phone)}
+                    placeholder={t('placeholderPhoneRegistered')}
+                  />
+                </div>
+                {emailForm.formState.errors.phone && !phoneLookupError && (
+                  <FieldError message={emailForm.formState.errors.phone.message as string} />
+                )}
+              </div>
+            )}
+          </div>
 
-              <div className="flex items-center justify-between">
-                <button type="button" onClick={() => setStep('email')} className="text-sm xs-down:text-xs text-gray-600 dark:text-gray-300 hover:underline">{t('back')}</button>
-                <button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 xs-down:py-2.5 px-5 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
-                  {loading ? t('verifyingOtp') : t('verifyOtp')}
+          {method === 'phone' && phoneLookupError && emailForm.formState.errors.phone && (
+            <div className="mt-4"><ErrorBanner message={t('phoneNotRegistered')} /></div>
+          )}
+
+          <button type="submit" disabled={loading} className={`${primaryButtonClass} mt-6`}>
+            {loading ? (<><Spinner />{t('sendingOtp')}</>) : (
+              <>{t('sendOtp')}<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" /></>
+            )}
+          </button>
+        </form>
+      )}
+
+      {/* Step 2: OTP */}
+      {step === 'otp' && (
+        <form onSubmit={submitOtp} noValidate>
+          <div className="relative min-w-0">
+            <label htmlFor="otp" className={labelClass}>{t('otpInputLabel')}</label>
+            <div className="group relative">
+              <span className={iconWrapClass}><KeyRound className={iconClass} /></span>
+              <input
+                {...otpForm.register('otp', {
+                  required: t('otpRequired'),
+                  pattern: { value: /^\d{6}$/, message: t('otpInvalid') },
+                })}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                id="otp"
+                aria-invalid={!!otpForm.formState.errors.otp}
+                className={`${inputClass(!!otpForm.formState.errors.otp)} font-semibold tracking-[0.4em]`}
+                placeholder={t('otpPlaceholder')}
+              />
+            </div>
+            <FieldError message={otpForm.formState.errors.otp?.message} />
+          </div>
+          <p className="mt-6 flex flex-wrap items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+            {t('sentTo')}
+            <span className="rounded-full bg-purple-100 px-2.5 py-0.5 font-medium text-purple-700 dark:bg-purple-500/20 dark:text-purple-200">{identifier.value}</span>
+          </p>
+
+          <div className="mt-5 flex items-center gap-3">
+            <button type="button" onClick={() => setStep('email')} className={secondaryButtonClass}>
+              <ArrowLeft className="h-4 w-4" />{t('back')}
+            </button>
+            <button type="submit" disabled={loading} className={`${primaryButtonClass} flex-1`}>
+              {loading ? (<><Spinner />{t('verifyingOtp')}</>) : (
+                <>{t('verifyOtp')}<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" /></>
+              )}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Step 3: new password */}
+      {step === 'reset' && (
+        <form onSubmit={submitReset} noValidate>
+          <div className="reg-grid grid gap-y-5">
+            <div className="relative min-w-0">
+              <label htmlFor="newPassword" className={labelClass}>{t('newPassword')}</label>
+              <div className="group relative">
+                <span className={iconWrapClass}><Lock className={iconClass} /></span>
+                <input
+                  {...resetForm.register('newPassword', { required: t('newPasswordRequired'), minLength: { value: 6, message: t('min6Chars') } })}
+                  type={showNew ? 'text' : 'password'}
+                  id="newPassword"
+                  autoComplete="new-password"
+                  aria-invalid={!!resetForm.formState.errors.newPassword}
+                  className={inputClass(!!resetForm.formState.errors.newPassword, 'pr-11')}
+                  placeholder={t('newPasswordPlaceholder', { defaultValue: ' ' }) || ''}
+                />
+                <button type="button" onClick={() => setShowNew(!showNew)} aria-label={t('newPassword')} aria-pressed={showNew} className={eyeButtonClass}>
+                  {showNew ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
                 </button>
               </div>
-            </form>
-          )}
+              <FieldError message={resetForm.formState.errors.newPassword?.message} />
+            </div>
 
-          {step === 'reset' && (
-            <form onSubmit={submitReset} className="space-y-6 xs-down:space-y-5">
-              <div>
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{t('newPassword')}</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    {...resetForm.register('newPassword', { required: t('newPasswordRequired'), minLength: { value: 6, message: t('min6Chars') } })}
-                    type="password"
-                    id="newPassword"
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                    placeholder={t('newPasswordPlaceholder', { defaultValue: ' ' }) || ''}
-                  />
-                </div>
-                {resetForm.formState.errors.newPassword && (
-                  <p className="mt-1 text-sm text-red-600">{resetForm.formState.errors.newPassword.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">{t('confirmPassword')}</label>
+            <div className="relative min-w-0">
+              <label htmlFor="confirmPassword" className={labelClass}>{t('confirmPassword')}</label>
+              <div className="group relative">
+                <span className={iconWrapClass}><Lock className={iconClass} /></span>
                 <input
                   {...resetForm.register('confirmPassword', { required: t('confirmPasswordRequired') })}
-                  type="password"
+                  type={showConfirm ? 'text' : 'password'}
                   id="confirmPassword"
-                  className="block w-full py-3 xs-down:py-2.5 px-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-gray-700/50 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                  autoComplete="new-password"
+                  aria-invalid={!!resetForm.formState.errors.confirmPassword}
+                  className={inputClass(!!resetForm.formState.errors.confirmPassword, 'pr-11')}
                   placeholder={t('confirmPasswordPlaceholder')}
                 />
-                {resetForm.formState.errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{resetForm.formState.errors.confirmPassword.message}</p>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between">
-                <button type="button" onClick={() => setStep('otp')} className="text-sm xs-down:text-xs text-gray-600 dark:text-gray-300 hover:underline">{t('back')}</button>
-                <button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 xs-down:py-2.5 px-5 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
-                  {loading ? t('resettingPassword') : t('resetPassword')}
+                <button type="button" onClick={() => setShowConfirm(!showConfirm)} aria-label={t('confirmPassword')} aria-pressed={showConfirm} className={eyeButtonClass}>
+                  {showConfirm ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
                 </button>
               </div>
-            </form>
-          )}
-
-          <div className="mt-8 xs-down:mt-6 text-center">
-            <p className="text-sm xs-down:text-xs text-gray-600 dark:text-gray-300">
-              {t('rememberedPassword')}{' '}
-              <Link to="/login" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors duration-200">
-                {t('loginCta')}
-              </Link>
-            </p>
+              <FieldError message={resetForm.formState.errors.confirmPassword?.message} />
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
+
+          <div className="mt-6 flex items-center gap-3">
+            <button type="button" onClick={() => setStep('otp')} className={secondaryButtonClass}>
+              <ArrowLeft className="h-4 w-4" />{t('back')}
+            </button>
+            <button type="submit" disabled={loading} className={`${primaryButtonClass} flex-1`}>
+              {loading ? (<><Spinner />{t('resettingPassword')}</>) : (
+                <>{t('resetPassword')}<ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" /></>
+              )}
+            </button>
+          </div>
+        </form>
+      )}
+
+      <p className="reg-login mt-5 text-center text-sm text-gray-600 dark:text-gray-300">
+        {t('rememberedPassword')}{' '}
+        <Link to="/login" className={linkClass}>{t('loginCta')}</Link>
+      </p>
+    </AuthShell>
   );
 };
 

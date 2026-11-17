@@ -44,7 +44,19 @@ export function useForgotPasswordFlow() {
         setPhoneLookupError(true);
         emailForm.setError('phone', { type: 'server', message: t('phoneNotRegistered') });
       } else {
-        toast.error(t(e?.response?.status === 503 ? 'toastSmsUnavailable' : 'toastSendOtpFailed'));
+        const code = e?.response?.data?.code;
+        const errorKey = code === 'EMAIL_NOT_CONFIGURED' ? 'toastEmailNotConfigured'
+          : code === 'EMAIL_UNAVAILABLE' ? 'toastEmailUnavailable'
+          : method === 'email' && !e?.response && typeof window !== 'undefined' && window.location.hostname.endsWith('github.io') ? 'toastBackendOffline'
+          : method === 'email' && e?.response?.status === 503 ? 'toastEmailUnavailable'
+          : code === 'SMS_GATEWAY_NOT_READY' ? 'toastSmsGatewayNotReady'
+          : code === 'SMS_KEY_REJECTED' ? 'toastSmsKeyRejected'
+          : code === 'SMS_QUOTA_EXCEEDED' ? 'toastSmsQuotaExceeded'
+          : code === 'SMS_NOT_CONFIGURED' ? 'toastSmsNotConfigured'
+          : (method === 'phone' && !e?.response && typeof window !== 'undefined' && window.location.hostname.endsWith('github.io'))
+            ? 'toastBackendOffline'
+          : e?.response?.status === 503 ? 'toastSmsUnavailable' : 'toastSendOtpFailed';
+        toast.error(t(errorKey));
       }
     } finally {
       setLoading(false);

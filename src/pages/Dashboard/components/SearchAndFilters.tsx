@@ -441,23 +441,25 @@ const SearchAndFilters = memo(({
       {/* Main Search Bar with Toggle Button */}
       <div className="dashboard-notes-toolbar">
         <div className="dashboard-notes-toolbar-layout">
-          {/* Search Input */}
-          <div className="dashboard-notes-toolbar-search">
-            <div className="relative min-w-0">
-              <SearchAutocomplete
-                onSearch={setSearchTerm}
-                placeholder={t('search.placeholder')}
-                inputClassName="dashboard-notes-search-input !h-[52px] !py-0 !rounded-xl"
-              />
+          {/* One unified field: search + sort live in the same bar, split by a hairline divider. */}
+          <div className="dashboard-notes-toolbar-field">
+            <div className="dashboard-notes-toolbar-search">
+              <div className="relative min-w-0">
+                <SearchAutocomplete
+                  onSearch={setSearchTerm}
+                  placeholder={t('search.placeholder')}
+                  inputClassName="dashboard-notes-search-input !h-[52px] !py-0 !rounded-xl"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Related controls are grouped separately from the search field. */}
-          <div className="dashboard-notes-toolbar-actions">
             <div className="dashboard-notes-toolbar-sort">
               <NoteSortSelect value={sortKey} onChange={onSortChange} />
             </div>
+          </div>
 
+          {/* Actions are grouped separately from the field. */}
+          <div className="dashboard-notes-toolbar-actions">
           {/* Original Filters styling and animations are intentionally untouched. */}
           <div className="dashboard-notes-toolbar-filter relative group transition-all duration-300 transform hover:scale-105 hover:-translate-y-0.5 z-10">
             <button
@@ -507,17 +509,15 @@ const SearchAndFilters = memo(({
             )}
           </div>
 
-          {/* A restrained secondary action keeps Filters as the visual accent. */}
-          {!showArchived && (
-            <span className="dashboard-notes-toolbar-divider" aria-hidden="true" />
-          )}
           {!showArchived && (
             <button
               onClick={onCreateNote}
               type="button"
-              className="dashboard-notes-create group relative flex h-[52px] items-center justify-center gap-2.5 overflow-hidden rounded-xl border px-4 text-sm font-semibold transition-[background-color,border-color,box-shadow,color] duration-200 focus-visible:outline-none focus-visible:ring-2"
+              className="dashboard-notes-create group relative flex h-[52px] items-center justify-center gap-2.5 overflow-hidden rounded-xl border px-4 text-sm font-semibold transition-[background-color,border-color,box-shadow,color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2"
             >
-              <Plus aria-hidden="true" className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
+              <span aria-hidden="true" className="dashboard-notes-create-icon flex h-6 w-6 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-hover:rotate-90">
+                <Plus className="h-4 w-4" strokeWidth={2.25} />
+              </span>
               <span className="min-w-0 truncate whitespace-nowrap">{t('actions.createNote')}</span>
             </button>
           )}

@@ -1,28 +1,54 @@
+import { Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 type Step = 'email' | 'otp' | 'reset';
+
+const ORDER: Step[] = ['email', 'otp', 'reset'];
+const LABELS = ['stepEmail', 'stepOtp', 'stepNewPassword'] as const;
+
+/** 3-step progress: done = check, current = gradient + ring, upcoming = muted. */
 export default function ResetSteps({ step }: { step: Step }) {
   const { t } = useTranslation('auth');
-  return (
-    <>
-          {/* Step indicators */}
-          <div className="flex items-center justify-between mb-8 xs-down:mb-6">
-            <div className={`flex items-center ${step !== 'email' ? 'text-blue-600' : 'text-gray-500'}`}>
-              <div className={`w-8 h-8 xs-down:w-7 xs-down:h-7 rounded-full flex items-center justify-center mr-2 ${step !== 'email' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>1</div>
-              <span className="text-sm xs-down:text-xs">{t('stepEmail')}</span>
-            </div>
-            <div className={`flex-1 mx-2 h-0.5 ${step === 'email' ? 'bg-gray-200 dark:bg-gray-700' : 'bg-blue-500'}`}></div>
-            <div className={`flex items-center ${step === 'reset' ? 'text-blue-600' : step === 'otp' ? 'text-blue-600' : 'text-gray-500'}`}>
-              <div className={`w-8 h-8 xs-down:w-7 xs-down:h-7 rounded-full flex items-center justify-center mr-2 ${step === 'reset' || step === 'otp' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>2</div>
-              <span className="text-sm xs-down:text-xs">{t('stepOtp')}</span>
-            </div>
-            <div className={`flex-1 mx-2 h-0.5 ${step === 'reset' ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'}`}></div>
-            <div className={`flex items-center ${step === 'reset' ? 'text-blue-600' : 'text-gray-500'}`}>
-              <div className={`w-8 h-8 xs-down:w-7 xs-down:h-7 rounded-full flex items-center justify-center mr-2 ${step === 'reset' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>3</div>
-              <span className="text-sm xs-down:text-xs">{t('stepNewPassword')}</span>
-            </div>
-          </div>
+  const current = ORDER.indexOf(step);
 
-    </>
+  return (
+    <ol className="mb-6 flex items-center" aria-label={t('forgotTitle')}>
+      {LABELS.map((label, i) => {
+        const done = i < current;
+        const active = i === current;
+        return (
+          <li key={label} className={`flex items-center ${i < LABELS.length - 1 ? 'flex-1' : ''}`} aria-current={active ? 'step' : undefined}>
+            <div className="flex items-center gap-2">
+              <span
+                className={[
+                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300',
+                  done || active
+                    ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white shadow-md shadow-purple-500/30'
+                    : 'bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-gray-400',
+                  active ? 'ring-4 ring-purple-500/20' : '',
+                ].join(' ')}
+              >
+                {done ? <Check className="h-4 w-4" strokeWidth={3} /> : i + 1}
+              </span>
+              <span
+                className={`text-sm font-medium transition-colors duration-300 sm-down:hidden ${
+                  active ? 'text-gray-900 dark:text-white' : done ? 'text-purple-600 dark:text-purple-400' : 'text-gray-500 dark:text-gray-400'
+                }`}
+              >
+                {t(label)}
+              </span>
+            </div>
+            {i < LABELS.length - 1 && (
+              <span
+                aria-hidden="true"
+                className={`mx-3 h-0.5 flex-1 rounded-full transition-colors duration-300 ${
+                  done ? 'bg-gradient-to-r from-purple-600 to-blue-600' : 'bg-gray-200 dark:bg-white/10'
+                }`}
+              />
+            )}
+          </li>
+        );
+      })}
+    </ol>
   );
 }

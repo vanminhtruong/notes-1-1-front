@@ -27,9 +27,10 @@ export function useRegisterForm() {
     formState: { errors },
     watch,
     reset,
-  } = useForm<RegisterFormData>();
+  } = useForm<RegisterFormData>({ defaultValues: { gender: 'unspecified' } });
 
   const password = watch('password');
+  const confirmPassword = watch('confirmPassword'); const gender = watch('gender');
 
   const onSubmit = async (data: RegisterFormData) => {
     if (data.password !== data.confirmPassword) {
@@ -54,5 +55,5 @@ export function useRegisterForm() {
   };
 
   return { showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword,
-    isLoading, error, register, handleSubmit, errors, password, onSubmit };
+    isLoading, error, register, handleSubmit, errors, password, confirmPassword, gender, onSubmit };
 }

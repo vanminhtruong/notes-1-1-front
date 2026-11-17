@@ -1,90 +1,155 @@
 /*
  * Notes workspace toolbar.
- * Only structural controls are restyled here. The violet Filters button keeps
- * its original gradient, sparkle and hover animations in SearchAndFilters.tsx.
+ *
+ * Layout:  [ search | sort ]  [ Filters ]  [ + Create note ]
+ *  - Search and sort share ONE field (single border, single focus ring, hairline divider),
+ *    instead of a panel full of separately boxed controls.
+ *  - The violet Filters button keeps its original gradient, sparkle and hover animations
+ *    (see SearchAndFilters.tsx); only its size/position is set here.
+ *  - Three themes are tokenised below: light, dark (blue-gray) and dark-black (pure black).
  */
 .dashboard-notes-toolbar {
-  --nt-panel: #ffffff;
-  --nt-panel-border: #e4e8ef;
-  --nt-field: #f8fafc;
-  --nt-field-hover: #ffffff;
-  --nt-field-border: #dbe2ea;
-  --nt-field-border-hover: #aab6c7;
+  --nt-accent: 139, 92, 246; // same violet family as the Filters button
+  --nt-accent-solid: #8b5cf6;
+  --nt-surface: #ffffff;
+  --nt-surface-hover: #f8fafc;
+  --nt-border: #dfe5ee;
+  --nt-border-hover: #c3cddb;
   --nt-text: #162235;
-  --nt-muted: #64748b;
-  --nt-create-bg: #edf1f5;
-  --nt-create-hover: #e3e9f0;
-  --nt-create-border: #d8e0e9;
-  --nt-divider: #e2e8f0;
+  --nt-muted: #7a8799;
+  --nt-divider: #e3e8f0;
+  --nt-seg-hover: #f1f5f9;
+  --nt-chip: #eef2f7;
+  --nt-chip-hover: #e2e8f0;
+  --nt-shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 6px 16px -8px rgba(16, 24, 40, .1);
   position: relative;
   width: 100%;
   overflow: visible;
-  padding: 14px;
-  border: 1px solid var(--nt-panel-border);
-  border-radius: 18px;
-  background: var(--nt-panel);
-  box-shadow: 0 2px 8px rgba(16, 24, 40, .025), 0 10px 30px rgba(16, 24, 40, .045);
 }
 
 .dashboard-notes-toolbar-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) max-content;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+}
+
+/* ───────── Unified search + sort field ───────── */
+.dashboard-notes-toolbar-field {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  height: 52px;
+  overflow: visible;
+  border: 1px solid var(--nt-border);
+  border-radius: 12px;
+  background: var(--nt-surface);
+  box-shadow: var(--nt-shadow);
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+
+  &:hover {
+    border-color: var(--nt-border-hover);
+  }
+
+  &:focus-within {
+    border-color: rgba(var(--nt-accent), .6);
+    box-shadow: 0 0 0 4px rgba(var(--nt-accent), .13), var(--nt-shadow);
+  }
 }
 
 .dashboard-notes-toolbar-search {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
-.dashboard-notes-toolbar .dashboard-notes-search-input {
+/* Search icon: inset a little more and tint it while the field is active. */
+.dashboard-notes-toolbar-search .pointer-events-none {
+  padding-left: 16px !important;
+}
+.dashboard-notes-toolbar-search .pointer-events-none svg {
+  color: var(--nt-muted) !important;
+  transition: color .18s ease;
+}
+.dashboard-notes-toolbar-field:focus-within .dashboard-notes-toolbar-search .pointer-events-none svg {
+  color: var(--nt-accent-solid) !important;
+}
+
+/* The input becomes a transparent surface inside the shared field. */
+.dashboard-notes-toolbar .dashboard-notes-toolbar-field .dashboard-notes-search-input {
   width: 100%;
-  height: 52px;
-  padding-inline-start: 42px;
+  height: 50px !important;
+  padding-inline-start: 48px;
   padding-inline-end: 40px;
-  border: 1px solid var(--nt-field-border);
-  border-radius: 12px;
-  background: var(--nt-field);
-  box-shadow: none;
+  border: 0 !important;
+  border-radius: 11px 0 0 11px !important;
+  background: transparent !important;
+  box-shadow: none !important;
   color: var(--nt-text);
   font-size: 14px;
   font-weight: 500;
   letter-spacing: .005em;
-  outline: none;
-  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+  outline: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
 }
-.dashboard-notes-toolbar .dashboard-notes-search-input::placeholder {
+.dashboard-notes-toolbar .dashboard-notes-toolbar-field .dashboard-notes-search-input::placeholder {
   color: var(--nt-muted);
-  opacity: .9;
+  opacity: 1;
   font-weight: 400;
 }
-.dashboard-notes-toolbar .dashboard-notes-search-input:hover {
-  background: var(--nt-field-hover);
-  border-color: var(--nt-field-border-hover);
+
+/* Sort: inset pill that sits on the right of the field, split by a hairline. */
+.dashboard-notes-toolbar-sort {
+  position: relative;
+  display: flex;
+  flex: 0 0 214px;
+  width: 214px;
+  min-width: 0;
+  padding: 4px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 13px;
+    bottom: 13px;
+    width: 1px;
+    background: var(--nt-divider);
+  }
 }
-.dashboard-notes-toolbar .dashboard-notes-search-input:focus {
-  background: var(--nt-field-hover);
-  border-color: var(--nt-field-border-hover);
-  box-shadow: 0 0 0 3px rgba(100,116,139,.13);
+.dashboard-notes-toolbar-sort .dashboard-sort-trigger {
+  flex: 1 1 auto;
+  width: 100%;
+  height: auto;
+  align-self: stretch;
+  min-width: 0;
+  border-radius: 9px;
+  border-color: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+.dashboard-notes-toolbar-sort .dashboard-sort-trigger:hover,
+.dashboard-notes-toolbar-sort .dashboard-sort-trigger[aria-expanded='true'] {
+  background-color: var(--nt-seg-hover) !important;
+}
+.dashboard-notes-toolbar-sort .dashboard-sort-trigger:focus-visible {
+  outline: 2px solid rgba(var(--nt-accent), .55);
+  outline-offset: -2px;
+}
+.dashboard-notes-toolbar-sort .dashboard-sort-trigger-icon {
+  background-color: var(--nt-chip) !important;
+  color: var(--nt-text);
+}
+.dashboard-notes-toolbar-sort .dashboard-sort-trigger:hover .dashboard-sort-trigger-icon,
+.dashboard-notes-toolbar-sort .dashboard-sort-trigger[aria-expanded='true'] .dashboard-sort-trigger-icon {
+  background-color: var(--nt-chip-hover) !important;
 }
 
+/* ───────── Actions ───────── */
 .dashboard-notes-toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   min-width: 0;
-}
-.dashboard-notes-toolbar-sort {
-  flex: 0 0 208px;
-  width: 208px;
-  min-width: 0;
-}
-.dashboard-notes-toolbar-sort .dashboard-sort-trigger {
-  width: 100%;
-  height: 52px;
-  min-width: 0;
-  flex: none;
-  border-radius: 12px;
 }
 .dashboard-notes-toolbar-filter {
   flex: 0 0 auto;
@@ -95,128 +160,123 @@
   min-height: 52px;
   white-space: nowrap;
 }
-.dashboard-notes-toolbar-divider {
-  flex: 0 0 1px;
-  width: 1px;
-  height: 30px;
-  margin-inline: 2px;
-  background: var(--nt-divider);
-}
+
 .dashboard-notes-create {
   flex: 0 0 auto;
-  min-width: 146px;
+  min-width: 156px;
   white-space: nowrap;
-  background: var(--nt-create-bg);
-  border-color: var(--nt-create-border);
+  background: var(--nt-surface);
+  border-color: var(--nt-border);
   color: var(--nt-text);
-  box-shadow: inset 0 1px rgba(255,255,255,.22);
+  box-shadow: var(--nt-shadow);
+
+  &:hover {
+    background: var(--nt-surface-hover);
+    border-color: rgba(var(--nt-accent), .5);
+    box-shadow: var(--nt-shadow), 0 8px 20px -10px rgba(var(--nt-accent), .55);
+  }
+  &:active {
+    transform: scale(.985);
+  }
+  &:focus-visible {
+    --tw-ring-color: rgba(var(--nt-accent), .4);
+    outline: none;
+  }
 }
-.dashboard-notes-create:hover {
-  background: var(--nt-create-hover);
-  border-color: var(--nt-field-border-hover);
-  box-shadow: 0 4px 12px rgba(15,23,42,.08);
+.dashboard-notes-create-icon {
+  background: var(--nt-chip);
+  color: var(--nt-text);
 }
-.dashboard-notes-create:active { box-shadow: none; }
-.dashboard-notes-create:focus-visible {
-  --tw-ring-color: rgba(100,116,139,.3);
-  outline: 2px solid var(--nt-field-border-hover);
-  outline-offset: 2px;
+/* On hover the plus picks up the same gradient as the Filters button. */
+.dashboard-notes-create:hover .dashboard-notes-create-icon {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+  color: #fff;
 }
 
+/* ───────── Dark (blue-gray) ───────── */
 :root.dark:not(.dark-black) .dashboard-notes-toolbar {
-  --nt-panel: #202c3b;
-  --nt-panel-border: #3c4a5b;
-  --nt-field: #263547;
-  --nt-field-hover: #2c3b4f;
-  --nt-field-border: #48576a;
-  --nt-field-border-hover: #718199;
+  --nt-surface: #263244;
+  --nt-surface-hover: #2d3b50;
+  --nt-border: #3f4e63;
+  --nt-border-hover: #5b6c84;
   --nt-text: #f1f5f9;
-  --nt-muted: #b3c0d0;
-  --nt-create-bg: #334155;
-  --nt-create-hover: #405269;
-  --nt-create-border: #56677e;
-  --nt-divider: #49586c;
-  box-shadow: 0 10px 32px rgba(0,0,0,.12);
+  --nt-muted: #9fb0c5;
+  --nt-divider: #435268;
+  --nt-seg-hover: #31415a;
+  --nt-chip: #35465a;
+  --nt-chip-hover: #475569;
+  --nt-shadow: 0 1px 2px rgba(0, 0, 0, .18), 0 8px 20px -10px rgba(0, 0, 0, .4);
 }
 
+/* ───────── Dark black (pure black) ───────── */
 :root.dark-black .dashboard-notes-toolbar {
-  --nt-panel: #0a0a0a;
-  --nt-panel-border: #292929;
-  --nt-field: #111111;
-  --nt-field-hover: #171717;
-  --nt-field-border: #333333;
-  --nt-field-border-hover: #575757;
+  --nt-surface: #0e0e0e;
+  --nt-surface-hover: #171717;
+  --nt-border: #2a2a2a;
+  --nt-border-hover: #484848;
   --nt-text: #f1f1f1;
-  --nt-muted: #999999;
-  --nt-create-bg: #242424;
-  --nt-create-hover: #303030;
-  --nt-create-border: #3c3c3c;
-  --nt-divider: #343434;
-  box-shadow: 0 9px 25px rgba(0,0,0,.26);
-}
-:root.dark-black .dashboard-notes-toolbar .dashboard-notes-search-input:focus {
-  box-shadow: 0 0 0 3px rgba(200,200,200,.11);
-}
-/* Keep the sort surface in the same visual layer as the other controls. */
-:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger {
-  background: #121212;
-  border-color: #333333;
-}
-:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger:hover,
-:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger[aria-expanded='true'] {
-  background: #1b1b1b;
-  border-color: #555555;
-}
-:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger-icon {
-  background: #252525;
-}
-:root.dark-black .dashboard-notes-toolbar-sort .dashboard-sort-trigger:hover .dashboard-sort-trigger-icon {
-  background: #333333;
+  --nt-muted: #8f8f8f;
+  --nt-divider: #2c2c2c;
+  --nt-seg-hover: #1a1a1a;
+  --nt-chip: #212121;
+  --nt-chip-hover: #2e2e2e;
+  --nt-shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 8px 22px -10px rgba(0, 0, 0, .75);
 }
 
+/* ───────── Tablet: field on top, actions share the next row ───────── */
 @media (max-width: 1120px) {
   .dashboard-notes-toolbar-layout {
-    grid-template-columns: minmax(0,1fr);
-    gap: 11px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
   }
   .dashboard-notes-toolbar-actions {
     display: grid;
-    grid-template-columns: minmax(0,1fr) max-content 1px max-content;
-    gap: 11px;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 10px;
   }
-  .dashboard-notes-toolbar-sort { width: auto; min-width: 0; }
-}
-
-@media (max-width: 560px) {
-  .dashboard-notes-toolbar {
-    padding: 10px;
-    border-radius: 16px;
-  }
-  .dashboard-notes-toolbar-layout { gap: 10px; }
-  .dashboard-notes-toolbar-actions {
-    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
-    gap: 9px;
-  }
-  .dashboard-notes-toolbar-sort {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
-  .dashboard-notes-toolbar-filter {
-    grid-column: 1;
-    grid-row: 2;
-    width: 100%;
-  }
-  .dashboard-notes-toolbar-divider { display: none; }
   .dashboard-notes-create {
-    grid-column: 2;
-    grid-row: 2;
     min-width: 0;
     width: 100%;
+  }
+}
+
+/* ───────── Phone: search and sort stack inside the same field ───────── */
+@media (max-width: 560px) {
+  .dashboard-notes-toolbar-field {
+    flex-direction: column;
+    height: auto;
+  }
+  .dashboard-notes-toolbar-sort {
+    flex: none;
+    width: 100%;
+    height: 50px;
+
+    &::before {
+      left: 14px;
+      right: 14px;
+      top: 0;
+      bottom: auto;
+      width: auto;
+      height: 1px;
+    }
+  }
+  .dashboard-notes-toolbar .dashboard-notes-toolbar-field .dashboard-notes-search-input {
+    font-size: 14px;
+    padding-inline-start: 44px;
+    border-radius: 11px 11px 0 0 !important;
+  }
+  .dashboard-notes-toolbar-search .pointer-events-none {
+    padding-left: 14px !important;
+  }
+  .dashboard-notes-create {
     padding-inline: 8px;
     gap: 7px;
     font-size: 12px;
   }
   /* Show the action label rather than leaving icon-only buttons on phones. */
+  .dashboard-notes-toolbar-filter {
+    width: 100%;
+  }
   .dashboard-notes-toolbar-filter .filters-magic-button {
     justify-content: center;
   }
@@ -228,21 +288,14 @@
     min-width: 0;
     gap: 7px;
   }
-  .dashboard-notes-toolbar-actions:not(:has(.dashboard-notes-create)) .dashboard-notes-toolbar-filter {
-    grid-column: 1 / -1;
-  }
-  .dashboard-notes-toolbar .dashboard-notes-search-input {
-    font-size: 14px;
-    padding-inline-start: 38px;
-  }
 }
 @media (max-width: 350px) {
-  .dashboard-notes-toolbar { padding: 9px; }
   .dashboard-notes-toolbar-actions { gap: 7px; }
   .dashboard-notes-create { padding-inline: 6px; }
   .dashboard-notes-toolbar-filter .filters-magic-button { padding-inline: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .dashboard-notes-toolbar .dashboard-notes-search-input,
-  .dashboard-notes-create { transition: none; }
+  .dashboard-notes-toolbar-field,
+  .dashboard-notes-create,
+  .dashboard-notes-create-icon { transition: none; }
 }

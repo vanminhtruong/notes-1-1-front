@@ -1,0 +1,24 @@
+/*
+ * Register page: keep the whole card inside the viewport on short desktop windows
+ * (e.g. 1366x768 laptops) so it never needs a scrollbar. Tablet/mobile keep the normal flow.
+ * Selectors are prefixed with .reg-root so they beat the equivalent Tailwind utilities.
+ */
+@media (min-width: 1024px) and (max-height: 700px) {
+  .reg-root .reg-form-col { padding: 1.25rem 1.5rem; }
+  .reg-root .reg-header { margin-bottom: 0.875rem; }
+  .reg-root .reg-header-sub { display: none; }
+  .reg-root .reg-grid { row-gap: 1rem; }
+  .reg-root .reg-label { margin-bottom: 0.25rem; }
+  .reg-root .reg-input { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .reg-root .reg-submit { margin-top: 1.25rem; padding-top: 0.625rem; padding-bottom: 0.625rem; }
+  .reg-root .reg-login { margin-top: 0.625rem; }
+  .reg-root .reg-terms { margin-top: 0.25rem; }
+  .reg-root .reg-hero-sub,
+  .reg-root .reg-feature-desc { display: none; }
+}
+
+@media (min-width: 1024px) and (max-height: 600px) {
+  .reg-root .reg-terms { display: none; }
+  .reg-root .reg-header { margin-bottom: 0.625rem; }
+  .reg-root .reg-grid { row-gap: 0.875rem; }
+}
