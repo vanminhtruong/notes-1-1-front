@@ -89,24 +89,24 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm-down:p-3 xs-down:p-2.5 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl md-down:rounded-xl shadow-2xl w-full max-w-md md-down:max-w-sm xs-down:max-w-[92%] max-h-[90vh] flex flex-col overflow-hidden transform transition-all">
+    <div className="pm-overlay z-50">
+      <div className="pm-panel pm-panel--md" role="dialog" aria-modal="true">
         {/* Header - Fixed */}
-        <div className="flex items-center justify-between p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl md-down:text-lg sm-down:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+        <div className="pm-header">
+          <h2 className="pm-title">
             <Tag className="cat-icon-modal-tag w-5 h-5 md-down:w-4.5 md-down:h-4.5 sm-down:w-4 sm-down:h-4" />
             {t('createCategory')}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 md-down:p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="pm-close"
           >
             <X className="cat-icon-close w-5 h-5 md-down:w-4 md-down:h-4 text-gray-500" />
           </button>
         </div>
 
         {/* Content - Scrollable */}
-        <ModalScrollArea className="flex-1 p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
+        <ModalScrollArea className="pm-body">
           <form onSubmit={handleSubmit} id="create-category-form" className="space-y-4 md-down:space-y-3.5 sm-down:space-y-3 xs-down:space-y-3">
             {/* Category Name */}
             <div>
@@ -182,12 +182,12 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
         </ModalScrollArea>
 
         {/* Footer - Fixed */}
-        <div className="p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex gap-3 sm-down:flex-col sm-down:gap-2">
+        <div className="pm-footer">
+          <div className="pm-actions">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 md-down:px-3 md-down:py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm md-down:text-xs"
+              className="pm-btn pm-btn--ghost"
               disabled={isSubmitting}
             >
               {t('cancel')}
@@ -195,7 +195,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onSubmit }: CreateCategoryModalP
             <button
               type="submit"
               form="create-category-form"
-              className="flex-1 px-4 py-2 md-down:px-3 md-down:py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm md-down:text-xs"
+              className="pm-btn pm-btn--primary"
               disabled={isSubmitting || !name.trim()}
             >
               {isSubmitting ? t('saving') : t('save')}

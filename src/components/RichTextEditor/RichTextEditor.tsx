@@ -95,14 +95,14 @@ const RichTextEditor = memo(({ editor, placeholder: _placeholder, className = ''
       el?.select();
     }, []);
     return (
-      <div className="max-w-sm w-[360px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg p-3 flex items-center gap-2">
+      <div className="w-[360px] max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg p-3 flex items-center gap-2">
         <input
           ref={inputRef}
           id={`link-url-${toastId}`}
           type="url"
           defaultValue={defaultValue}
           placeholder={t('editor.link.placeholder', { defaultValue: 'https://...' })}
-          className="flex-1 px-2 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+          className="flex-1 min-w-0 px-2 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               const value = (e.currentTarget as HTMLInputElement).value;

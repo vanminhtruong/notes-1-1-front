@@ -166,7 +166,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
         <div className="flex items-center gap-1 flex-shrink-0">
           <button
             onClick={handleView}
-            className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors opacity-0 group-hover:opacity-100"
+            className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
             title={t('sharedNotes.viewNote')}
           >
             <Eye className="w-4 h-4" />
@@ -176,7 +176,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
           {isReceived && sharedNote.canEdit && onEditNote && (
             <button
               onClick={handleEdit}
-              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-0 group-hover:opacity-100"
+              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
               title={t('sharedNotes.editNote')}
             >
               <Edit2 className="w-4 h-4" />
@@ -187,7 +187,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
           {isReceived && sharedNote.canCreate && onCreateFromNote && (
             <button
               onClick={handleAddNote}
-              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-0 group-hover:opacity-100"
+              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
               title={t('sharedNotes.addNote')}
             >
               <Plus className="w-4 h-4" />
@@ -201,7 +201,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
                 e.stopPropagation();
                 setIsEditingPermissions(true);
               }}
-              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-0 group-hover:opacity-100"
+              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
               title={t('sharedNotes.editPermissions') || 'Chỉnh sửa quyền'}
             >
               <Edit2 className="w-4 h-4" />
@@ -329,7 +329,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
           ) : (
             <>
               {isReceived && (
-                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
                   {sharedNote.canEdit && (
                     <span className="flex items-center gap-1 whitespace-nowrap">
                       <Edit2 className="w-3 h-3 flex-shrink-0" />
@@ -357,7 +357,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
                 </div>
               )}
               {isSent && (
-                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
                   {sharedNote.canEdit && (
                     <span className="flex items-center gap-1 whitespace-nowrap">
                       <Edit2 className="w-3 h-3 flex-shrink-0" />

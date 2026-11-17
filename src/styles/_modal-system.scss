@@ -1,0 +1,821 @@
+/* ==========================================================================
+   Modal design system — add / edit dialogs
+   --------------------------------------------------------------------------
+   One shared look for every create/edit modal, synced with the three themes
+   of the app: light · dark · dark-black (pure monochrome).
+
+   Structure (class hooks used by the modals):
+     .pm-overlay            full-screen backdrop (keep the z-* utility beside it)
+       .pm-panel            dialog card  (+ .pm-panel--sm|md|lg|xl|2xl width)
+         .pm-header         top bar      (.pm-title + .pm-close)
+         .pm-body           scrolling content (usually <ModalScrollArea>)
+         .pm-footer         action bar   (.pm-actions + .pm-btn--ghost|primary)
+
+   Brand accent follows the app: blue → indigo → purple gradient in light and
+   dark, neutral grayscale in dark-black.
+   ========================================================================== */
+
+.pm-overlay {
+  /* ── Light ─────────────────────────────────────────────── */
+  --pm-overlay: rgba(15, 23, 42, .55);
+  --pm-surface: #ffffff;
+  --pm-surface-2: #f8fafc;
+  --pm-header-bg: linear-gradient(180deg, #f5f8ff 0%, #ffffff 100%);
+  --pm-field: #ffffff;
+  --pm-hover: #f1f5f9;
+  --pm-line: #e5e7eb;
+  --pm-line-strong: #d1d5db;
+  --pm-title: #111827;
+  --pm-text: #374151;
+  --pm-muted: #6b7280;
+  --pm-accent: #2563eb;
+  --pm-accent-soft: #eff6ff;
+  --pm-accent-line: #bfdbfe;
+  --pm-ring: rgba(37, 99, 235, .20);
+  --pm-ring-strong: rgba(37, 99, 235, .55);
+  --pm-glow: rgba(79, 70, 229, .45);
+  --pm-grad: linear-gradient(135deg, #2563eb 0%, #4f46e5 55%, #7c3aed 100%);
+  --pm-on-accent: #ffffff;
+  --pm-shadow: 0 28px 70px -12px rgba(15, 23, 42, .35), 0 10px 24px -8px rgba(15, 23, 42, .18);
+
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 3vw, 24px)
+           max(clamp(10px, 3vw, 24px), env(safe-area-inset-right, 0px))
+           max(clamp(10px, 3vw, 24px), env(safe-area-inset-bottom, 0px))
+           max(clamp(10px, 3vw, 24px), env(safe-area-inset-left, 0px));
+  background: var(--pm-overlay);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  backdrop-filter: blur(8px) saturate(1.1);
+  overscroll-behavior: contain;
+  animation: pm-fade .18s ease-out backwards;
+}
+
+/* ── Dark ──────────────────────────────────────────────── */
+.dark .pm-overlay {
+  --pm-overlay: rgba(3, 7, 18, .68);
+  --pm-surface: #1f2937;
+  --pm-surface-2: #18212f;
+  --pm-header-bg: linear-gradient(180deg, #243247 0%, #1f2937 100%);
+  --pm-field: #111827;
+  --pm-hover: #2b3748;
+  --pm-line: #374151;
+  --pm-line-strong: #4b5563;
+  --pm-title: #f9fafb;
+  --pm-text: #e5e7eb;
+  --pm-muted: #9ca3af;
+  --pm-accent: #60a5fa;
+  --pm-accent-soft: rgba(96, 165, 250, .14);
+  --pm-accent-line: rgba(96, 165, 250, .35);
+  --pm-ring: rgba(96, 165, 250, .28);
+  --pm-ring-strong: rgba(147, 197, 253, .7);
+  --pm-glow: rgba(99, 102, 241, .5);
+  --pm-grad: linear-gradient(135deg, #3b82f6 0%, #6366f1 55%, #8b5cf6 100%);
+  --pm-shadow: 0 28px 70px -12px rgba(0, 0, 0, .6), 0 10px 24px -8px rgba(0, 0, 0, .4);
+}
+
+/* ── Dark-black: same palette as theme-variants in global.scss ──
+   base #000 · elevated #0a0a0a · card #1a1a1a · hover #2a2a2a
+   border-hover #4a4a4a · text #e5e7eb · muted #9ca3af
+   Buttons stay dark gray (never white), like every other button of the theme. */
+.dark-black .pm-overlay {
+  --pm-overlay: rgba(0, 0, 0, .8);
+  --pm-surface: #0a0a0a;
+  --pm-surface-2: #111111;
+  --pm-header-bg: linear-gradient(180deg, #161616 0%, #0a0a0a 100%);
+  --pm-field: #1a1a1a;
+  --pm-hover: #2a2a2a;
+  --pm-line: #2a2a2a;
+  --pm-line-strong: #4a4a4a;
+  --pm-title: #f3f4f6;
+  --pm-text: #e5e7eb;
+  --pm-muted: #9ca3af;
+  --pm-accent: #e5e7eb;
+  --pm-accent-soft: #1a1a1a;
+  --pm-accent-line: #4a4a4a;
+  --pm-ring: rgba(255, 255, 255, .12);
+  --pm-ring-strong: rgba(255, 255, 255, .5);
+  --pm-glow: rgba(255, 255, 255, .06);
+  --pm-grad: linear-gradient(135deg, #2f2f2f 0%, #1a1a1a 100%);
+  --pm-strip: linear-gradient(90deg, #1a1a1a 0%, #4a4a4a 50%, #1a1a1a 100%);
+  --pm-primary-border: #4a4a4a;
+  --pm-on-accent: #f3f4f6;
+  --pm-shadow: 0 28px 70px -12px rgba(0, 0, 0, .9), 0 0 0 1px #1a1a1a;
+}
+
+.pm-overlay,
+.pm-overlay *,
+.pm-overlay *::before,
+.pm-overlay *::after { box-sizing: border-box; }
+
+/* ── Panel ─────────────────────────────────────────────── */
+.pm-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 448px;
+  max-height: min(90vh, 900px);
+  max-height: min(90dvh, 900px);
+  overflow: hidden;
+  background: var(--pm-surface);
+  color: var(--pm-text);
+  border: 1px solid var(--pm-line);
+  border-radius: 20px;
+  box-shadow: var(--pm-shadow);
+  /* "backwards" (not "both"): a lingering transform would turn this panel into the containing block of fixed-position dropdowns inside it. */
+  animation: pm-pop .26s cubic-bezier(.2, .8, .2, 1) backwards;
+}
+.pm-panel::before {            /* thin brand strip on top */
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--pm-strip, var(--pm-grad));
+  z-index: 2;
+  pointer-events: none;
+}
+.pm-panel--sm  { max-width: 400px; }
+.pm-panel--md  { max-width: 448px; }
+.pm-panel--lg  { max-width: 540px; }
+.pm-panel--xl  { max-width: 640px; }
+.pm-panel--2xl { max-width: 704px; }
+
+/* ── Header ────────────────────────────────────────────── */
+.pm-panel .pm-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 22px 22px 16px 24px;
+  background: var(--pm-header-bg);
+  border-bottom: 1px solid var(--pm-line);
+}
+.pm-panel .pm-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--pm-title) !important;
+  overflow-wrap: anywhere;
+}
+/* Leading icon of the title becomes a soft accent tile. */
+.pm-panel .pm-title > svg {
+  flex: 0 0 auto;
+  box-sizing: content-box;
+  width: 20px !important;
+  height: 20px !important;
+  padding: 9px;
+  border-radius: 13px;
+  color: var(--pm-accent) !important;
+  background: var(--pm-accent-soft);
+  border: 1px solid var(--pm-accent-line);
+}
+.pm-panel .pm-close {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0 !important;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent !important;
+  color: var(--pm-muted) !important;
+  cursor: pointer;
+  transition: background-color .16s, color .16s, border-color .16s, transform .16s;
+}
+.pm-panel .pm-close svg {
+  width: 18px !important;
+  height: 18px !important;
+  color: inherit !important;
+}
+.pm-panel .pm-close:hover:not(:disabled) {
+  background: var(--pm-hover) !important;
+  border-color: var(--pm-line);
+  color: var(--pm-title) !important;
+}
+.pm-panel .pm-close:active:not(:disabled) { transform: scale(.94); }
+.pm-panel .pm-close:focus-visible { outline: 3px solid var(--pm-ring-strong); outline-offset: 2px; }
+
+/* ── Body ──────────────────────────────────────────────── */
+.pm-panel .pm-body,
+.pm-panel .pm-body.modal-scroll-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 22px 14px 22px 24px;
+}
+.pm-panel .pm-stack > * + * { margin-top: 18px; }   /* uniform rhythm between fields */
+
+.pm-panel .pm-body :is(label.block, label.flex) {
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: .005em;
+  color: var(--pm-title) !important;
+}
+.pm-panel .pm-body p.text-xs,
+.pm-panel .pm-body p.text-sm.text-gray-500 { color: var(--pm-muted) !important; }
+
+/* Bordered text fields (the pattern every add/edit form already uses). */
+.pm-panel .pm-body :is(input, textarea, select):is([class*="border-gray-300"], .pm-input):where(:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [type="color"])) {
+  border: 1px solid var(--pm-line-strong) !important;
+  border-radius: 12px !important;
+  background-color: var(--pm-field) !important;
+  color: var(--pm-title) !important;
+  box-shadow: none;
+  transition: border-color .16s, box-shadow .16s, background-color .16s;
+}
+.pm-panel .pm-body :is(input, textarea, select):is([class*="border-gray-300"], .pm-input):hover:not(:disabled):not(:focus) {
+  border-color: var(--pm-muted) !important;
+}
+.pm-panel .pm-body :is(input, textarea, select):is([class*="border-gray-300"], .pm-input):focus,
+.pm-panel .pm-body :is(input, textarea, select):is([class*="border-gray-300"], .pm-input):focus-visible {
+  border-color: var(--pm-accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 4px var(--pm-ring) !important;
+}
+.pm-panel .pm-body :is(input, textarea, select):is([class*="border-gray-300"], .pm-input):disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  background-color: var(--pm-surface-2) !important;
+}
+.pm-panel .pm-body :is(input, textarea)::placeholder {
+  color: var(--pm-muted);
+  opacity: .75;
+}
+.pm-panel .pm-body input[type="checkbox"],
+.pm-panel .pm-body input[type="radio"] { accent-color: var(--pm-accent); }
+
+/* Selected state of colour / icon pickers. */
+.pm-panel .pm-body button[class*="ring-blue"] {
+  --tw-ring-color: var(--pm-ring-strong) !important;
+  --tw-ring-offset-color: var(--pm-surface) !important;
+}
+.pm-panel .pm-body button[class*="border-blue-500"] {
+  border-color: var(--pm-accent) !important;
+  background-color: var(--pm-accent-soft) !important;
+}
+.pm-panel .pm-body button[class*="border-gray-300"]:not([class*="border-blue"]):hover {
+  border-color: var(--pm-muted) !important;
+}
+
+/* Colour swatches: the ring follows the panel surface instead of a hard-coded white. */
+.pm-panel .pm-body button[style*="border-color"] {
+  border-color: var(--pm-surface) !important;
+}
+/* Native file inputs: the button part must follow the theme too. */
+.pm-panel .pm-body input[type="file"] { color: var(--pm-text) !important; }
+.pm-panel .pm-body input[type="file"]::file-selector-button {
+  margin-right: 14px;
+  padding: 8px 16px;
+  border: 1px solid var(--pm-accent-line) !important;
+  border-radius: 10px;
+  background: var(--pm-accent-soft) !important;
+  color: var(--pm-accent) !important;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .16s, border-color .16s;
+}
+.pm-panel .pm-body input[type="file"]:hover::file-selector-button {
+  border-color: var(--pm-accent) !important;
+  background: var(--pm-hover) !important;
+}
+
+/* Read-only fields look inert; upload "pill" labels match the buttons. */
+.pm-panel .pm-body :is(input, textarea)[readonly]:is([class*="border-gray-300"], .pm-input) {
+  background-color: var(--pm-surface-2) !important;
+  color: var(--pm-muted) !important;
+  cursor: not-allowed;
+}
+.pm-panel .pm-body label[class*="cursor-pointer"][class*="border-gray-300"] {
+  border: 1px solid var(--pm-line-strong) !important;
+  border-radius: 12px !important;
+  color: var(--pm-text) !important;
+  background: var(--pm-surface);
+  font-weight: 600;
+  transition: background-color .16s, border-color .16s;
+}
+.pm-panel .pm-body label[class*="cursor-pointer"][class*="border-gray-300"]:hover {
+  background: var(--pm-hover) !important;
+  border-color: var(--pm-muted) !important;
+}
+/* Inset cards (inline forms, list rows) and the dashed "add" button. */
+.pm-panel .pm-body .pm-card {
+  background: var(--pm-surface-2) !important;
+  border: 1px solid var(--pm-line) !important;
+  border-radius: 14px !important;
+}
+.pm-panel .pm-body .pm-card:not(.pm-card--row) { padding: 16px; }
+.pm-panel .pm-body .pm-card--row { transition: background-color .16s, border-color .16s; }
+.pm-panel .pm-body .pm-card--row:hover {
+  background: var(--pm-hover) !important;
+  border-color: var(--pm-line-strong) !important;
+}
+.pm-panel .pm-dashed-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 2px dashed var(--pm-line-strong);
+  border-radius: 14px;
+  background: transparent !important;
+  color: var(--pm-muted) !important;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .16s, color .16s, background-color .16s;
+}
+.pm-panel .pm-dashed-btn:hover {
+  border-color: var(--pm-accent);
+  color: var(--pm-accent) !important;
+  background: var(--pm-accent-soft) !important;
+}
+.pm-panel .pm-dashed-btn:focus-visible { outline: 3px solid var(--pm-ring-strong); outline-offset: 2px; }
+/* Underline tabs (media picker). */
+.pm-panel .pm-tabs { border-bottom: 1px solid var(--pm-line) !important; gap: 4px; }
+.pm-panel .pm-tabs > button { border-radius: 10px 10px 0 0; }
+.pm-panel .pm-tabs > button:hover { background: var(--pm-hover); }
+/* Header extras: gradient tile + subtitle (group editor). */
+.pm-panel .pm-tile {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--pm-grad);
+  color: var(--pm-on-accent);
+  box-shadow: 0 8px 18px -8px var(--pm-glow);
+}
+.pm-panel .pm-tile svg { color: inherit !important; }
+.pm-panel .pm-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--pm-muted) !important;
+}
+.pm-panel .pm-body :is(label.block, label.flex) > svg { color: var(--pm-accent) !important; }
+
+/* File-picker pill. */
+.pm-panel .pm-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 9px 16px;
+  border: 2px dashed var(--pm-accent-line);
+  border-radius: 12px;
+  background: var(--pm-accent-soft) !important;
+  color: var(--pm-accent) !important;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .16s, background-color .16s, transform .16s;
+}
+.pm-panel .pm-upload:hover { border-color: var(--pm-accent); transform: translateY(-1px); }
+.pm-panel .pm-upload:focus-within { outline: 3px solid var(--pm-ring-strong); outline-offset: 2px; }
+/* ── Footer ────────────────────────────────────────────── */
+.pm-panel .pm-footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--pm-surface-2);
+  border-top: 1px solid var(--pm-line);
+}
+.pm-panel .pm-footer--end { justify-content: flex-end; }
+.pm-panel .pm-actions { display: flex; gap: 12px; width: 100%; }
+
+/* ── Buttons ───────────────────────────────────────────── */
+.pm-panel .pm-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color .16s, border-color .16s, color .16s,
+              box-shadow .2s, transform .16s, filter .16s;
+}
+.pm-panel .pm-footer--end > .pm-btn { flex: 0 0 auto; min-width: 120px; }
+.pm-panel .pm-btn:active:not(:disabled) { transform: translateY(0) scale(.985); }
+.pm-panel .pm-btn:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+.pm-panel .pm-btn:focus-visible { outline: 3px solid var(--pm-ring-strong); outline-offset: 2px; }
+
+.pm-panel .pm-btn--ghost {
+  background: var(--pm-surface) !important;
+  border-color: var(--pm-line-strong) !important;
+  color: var(--pm-text) !important;
+}
+.pm-panel .pm-btn--ghost:hover:not(:disabled) {
+  background: var(--pm-hover) !important;
+  border-color: var(--pm-muted) !important;
+  color: var(--pm-title) !important;
+}
+
+.pm-panel .pm-btn--primary {
+  background: var(--pm-grad) !important;
+  border-color: var(--pm-primary-border, transparent) !important;
+  color: var(--pm-on-accent) !important;
+  box-shadow: 0 8px 18px -8px var(--pm-glow);
+}
+.pm-panel .pm-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px -8px var(--pm-glow);
+}
+
+.pm-panel .pm-btn--sm { min-height: 38px; padding: 7px 14px; font-size: 13px; border-radius: 10px; }
+/* ══════════════════════════════════════════════════════════
+   Product-grade layout layer (SaaS look: calm, aligned, consistent)
+   Overrides the earlier defaults; colours still come from --pm-* tokens.
+   ══════════════════════════════════════════════════════════ */
+.pm-panel { border-radius: 16px; }
+.pm-panel::before { height: 2px; }
+
+/* Header: flat, roomy, icon tile + title on one baseline. */
+.pm-panel .pm-header {
+  position: relative;
+  gap: 16px;
+  padding: 20px 20px 18px 24px;
+  background: var(--pm-surface);
+}
+.pm-panel .pm-title { gap: 14px; font-size: 17px; font-weight: 650; letter-spacing: -.015em; }
+.pm-panel .pm-title > svg { border-radius: 12px; }
+.pm-panel .pm-close { width: 34px; height: 34px; border-radius: 10px; }
+
+/* Body: one vertical rhythm for every form. */
+.pm-panel .pm-body,
+.pm-panel .pm-body.modal-scroll-area { padding: 24px 16px 24px 24px; }
+.pm-panel .pm-stack > * + *,
+.pm-panel .pm-body form > * + * { margin-top: 20px !important; }
+.pm-panel .pm-body p.text-xs { margin-top: 6px; font-size: 12px; line-height: 1.45; }
+
+/* Fields: same height, radius and type size everywhere. */
+.pm-panel .pm-body :is(input, select):is([class*="border-gray-300"], .pm-input):where(:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [type="color"])) {
+  min-height: 44px;
+  padding-block: 10px !important;
+  font-size: 14px !important;
+  line-height: 1.4;
+  border-radius: 10px !important;
+}
+.pm-panel .pm-body :is(input, select):is([class*="border-gray-300"], .pm-input):where(:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [type="color"])):not([class*="pl-"]) {
+  padding-inline: 14px;
+}
+.pm-panel .pm-body textarea:is([class*="border-gray-300"], .pm-input) {
+  min-height: 96px;
+  padding: 12px 14px;
+  font-size: 14px !important;
+  line-height: 1.55;
+  border-radius: 10px !important;
+}
+
+/* Colour / icon pickers: cells stretch to the width, always square. */
+.pm-panel .pm-body .grid.grid-cols-6 {
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)) !important;
+  gap: 10px !important;
+}
+.pm-panel .pm-body .grid.grid-cols-6 > button {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1;
+}
+
+/* Footer: actions aligned right, natural width (not stretched across). */
+.pm-panel .pm-footer {
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+}
+.pm-panel .pm-actions { justify-content: flex-end; }
+.pm-panel .pm-btn {
+  flex: 0 0 auto;
+  min-width: 112px;
+  min-height: 42px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* Phones & small tablets. */
+@media (max-width: 560px) {
+  .pm-panel .pm-header { padding: 28px 14px 14px 18px; }
+  .pm-panel .pm-header::before {            /* bottom-sheet grab handle */
+    content: '';
+    position: absolute;
+    top: 9px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--pm-line-strong);
+    transform: translateX(-50%);
+  }
+  .pm-panel .pm-body,
+  .pm-panel .pm-body.modal-scroll-area { padding: 18px 10px 18px 18px; }
+  .pm-panel .pm-footer .pm-btn,
+  .pm-panel .pm-actions .pm-btn { flex: 1 1 0; min-width: 0; }
+  .pm-panel .pm-body .grid.grid-cols-6 { gap: 8px !important; }
+}
+@media (max-width: 480px) {
+  .pm-panel .pm-body .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+}
+
+/* ── Animations ────────────────────────────────────────── */
+@keyframes pm-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pm-pop {
+  from { opacity: 0; transform: translateY(14px) scale(.965); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pm-sheet {
+  from { opacity: .6; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 700px) {
+  /* 16px stops iOS Safari from zooming into focused fields. */
+  .pm-panel .pm-body :is(input, textarea, select):is([class*="border-gray-300"], .pm-input) { font-size: 16px !important; }
+}
+
+/* Phones: dialog becomes a bottom sheet (thumb-friendly). */
+@media (max-width: 560px) {
+  .pm-overlay { align-items: flex-end; padding: 0; }
+  .pm-panel {
+    max-width: none !important;
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+    border-radius: 22px 22px 0 0;
+    border-bottom: 0;
+    animation-name: pm-sheet;
+  }
+  .pm-panel .pm-header { padding: 18px 14px 14px 18px; }
+  .pm-panel .pm-title { font-size: 17px; }
+  .pm-panel .pm-body,
+  .pm-panel .pm-body.modal-scroll-area { padding: 18px 10px 18px 18px; }
+  .pm-panel .pm-footer {
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+}
+@media (max-width: 400px) {
+  .pm-panel .pm-footer,
+  .pm-panel .pm-actions { flex-direction: column-reverse; align-items: stretch; }
+  .pm-panel .pm-footer--end > .pm-btn { width: 100%; }
+}
+
+/* Touch screens: make the close button easy to hit. */
+@media (pointer: coarse) {
+  .pm-panel .pm-close { width: 44px; height: 44px; }
+}
+
+/* Short landscape phones: keep the whole dialog reachable. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .pm-overlay { align-items: center; padding: 8px; }
+  .pm-panel {
+    max-width: min(100%, 640px) !important;
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+    border-radius: 16px;
+    border-bottom: 1px solid var(--pm-line);
+    animation-name: pm-pop;
+  }
+  .pm-panel .pm-header { padding: 12px 14px 10px 18px; }
+  .pm-panel .pm-footer { padding: 10px 18px; flex-direction: row; }
+  .pm-panel .pm-actions { flex-direction: row; }
+  .pm-panel .pm-btn { min-height: 40px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-overlay, .pm-panel { animation-duration: .01ms !important; }
+  .pm-panel .pm-btn, .pm-panel .pm-close { transition-duration: .01ms !important; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   v2 · Modern product look  (keep this block LAST: it must win
+   over every earlier rule and media query above)
+   ══════════════════════════════════════════════════════════ */
+.pm-overlay {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.pm-panel {
+  border-radius: 22px;
+  border: 1px solid var(--pm-line);
+}
+.pm-panel::before { display: none; }          /* no brand strip */
+
+.pm-panel .pm-header {
+  padding: 24px 22px 18px 26px;
+  background: var(--pm-surface);
+  border-bottom: 1px solid var(--pm-line);
+}
+.pm-panel .pm-title { font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+.pm-panel .pm-title > svg {
+  width: 22px !important;
+  height: 22px !important;
+  padding: 10px;
+  border-radius: 14px;
+}
+.pm-panel .pm-close { width: 36px; height: 36px; border-radius: 12px; }
+
+.pm-panel .pm-body,
+.pm-panel .pm-body.modal-scroll-area { padding: 26px 18px 26px 26px; }
+
+/* Filled, soft fields: tinted surface, hairline border, clear focus. */
+.pm-panel .pm-body :is(input, textarea, select):is([class*="border-gray-300"], .pm-input):where(:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [type="color"])) {
+  border: 1px solid var(--pm-line) !important;
+  background-color: var(--pm-surface-2) !important;
+  border-radius: 12px !important;
+}
+.pm-panel .pm-body :is(input, textarea, select):is([class*="border-gray-300"], .pm-input):where(:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [type="color"])):hover:not(:focus) {
+  border-color: var(--pm-line-strong) !important;
+}
+.pm-panel .pm-body :is(input, textarea, select):is([class*="border-gray-300"], .pm-input):where(:not([type="checkbox"], [type="radio"], [type="file"], [type="range"], [type="color"])):focus {
+  background-color: var(--pm-field) !important;
+  border-color: var(--pm-accent) !important;
+}
+
+.pm-panel .pm-footer {
+  padding: 18px 26px 22px;
+  background: var(--pm-surface);
+  border-top: 1px solid var(--pm-line);
+}
+.pm-panel .pm-btn { min-height: 44px; border-radius: 12px; }
+.pm-panel .pm-btn--ghost {
+  background: transparent !important;
+  border-color: var(--pm-line-strong) !important;
+}
+
+/* Phones: a floating card with breathing room on every side. */
+@media (max-width: 560px) {
+  .pm-overlay {
+    align-items: flex-end;
+    padding: 14px 14px max(14px, env(safe-area-inset-bottom, 0px));
+  }
+  .pm-panel {
+    width: 100%;
+    max-width: 100% !important;
+    max-height: calc(100vh - 28px);
+    max-height: calc(100dvh - 28px);
+    border: 1px solid var(--pm-line);
+    border-radius: 24px;
+  }
+  .pm-panel .pm-header { padding: 28px 14px 14px 20px; border-bottom: 0; }
+  .pm-panel .pm-body,
+  .pm-panel .pm-body.modal-scroll-area { padding: 6px 10px 16px 20px; }
+  .pm-panel .pm-footer { padding: 14px 20px 20px; }
+}
+/* Landscape phones / very short screens: centred, never edge to edge. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .pm-overlay { align-items: center; padding: 10px 16px; }
+  .pm-panel { border-radius: 18px; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   Note modals (create / edit): segmented media picker, drop
+   zone, dropdown triggers, popups, rich-text editor
+   ══════════════════════════════════════════════════════════ */
+/* Segmented control (media tabs) */
+.pm-panel .pm-segment {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--pm-hover);
+}
+.pm-panel .pm-segment__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--pm-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color .16s, color .16s, box-shadow .16s, border-color .16s;
+}
+.pm-panel .pm-segment__btn svg { flex: 0 0 auto; width: 16px; height: 16px; }
+.pm-panel .pm-segment__btn span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pm-panel .pm-segment__btn:hover:not(.is-active) { color: var(--pm-title); }
+.pm-panel .pm-segment__btn.is-active {
+  background: var(--pm-surface);
+  border-color: var(--pm-line);
+  color: var(--pm-accent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 4px 10px -4px rgba(0, 0, 0, .18);
+}
+.pm-panel .pm-segment__btn:focus-visible { outline: 3px solid var(--pm-ring-strong); outline-offset: 1px; }
+@media (max-width: 400px) {
+  .pm-panel .pm-segment__btn { flex-direction: column; gap: 4px; min-height: 52px; font-size: 12px; }
+}
+
+/* Drop zone look for native file inputs + preview thumbnails */
+.pm-panel .pm-body input[type="file"] {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1.5px dashed var(--pm-line-strong);
+  border-radius: 12px;
+  background: var(--pm-field);
+  font-size: 13px;
+  cursor: pointer;
+}
+.pm-panel .pm-body input[type="file"]:hover { border-color: var(--pm-accent); }
+.pm-panel .pm-body :is(img, video).w-16 {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  border: 1px solid var(--pm-line-strong) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px -6px rgba(0, 0, 0, .35);
+}
+
+/* Category / priority triggers look like the other fields */
+.pm-panel .pm-body button.w-full[class*="border-gray-300"] {
+  min-height: 44px;
+  padding: 10px 14px !important;
+  border: 1px solid var(--pm-line) !important;
+  border-radius: 12px !important;
+  background-color: var(--pm-surface-2) !important;
+  color: var(--pm-title) !important;
+  font-size: 14px !important;
+  text-align: left;
+  transition: border-color .16s, box-shadow .16s, background-color .16s;
+}
+.pm-panel .pm-body button.w-full[class*="border-gray-300"]:hover { border-color: var(--pm-line-strong) !important; }
+.pm-panel .pm-body button.w-full[class*="border-gray-300"]:focus-visible {
+  outline: none;
+  border-color: var(--pm-accent) !important;
+  background-color: var(--pm-field) !important;
+  box-shadow: 0 0 0 4px var(--pm-ring);
+}
+.pm-panel .pm-body button.w-full[class*="border-gray-300"] > svg:last-child { color: var(--pm-muted); }
+
+/* Dropdown popups (category / priority) */
+.pm-panel .pm-body .absolute.z-20[class*="border-gray-300"] {
+  border: 1px solid var(--pm-line-strong) !important;
+  border-radius: 14px !important;
+  background-color: var(--pm-surface) !important;
+  box-shadow: var(--pm-shadow) !important;
+}
+.pm-panel .pm-body .absolute.z-20[class*="border-gray-300"] button:hover { background-color: var(--pm-hover) !important; }
+.pm-panel .pm-body .absolute.z-20[class*="border-gray-300"] input {
+  border: 1px solid var(--pm-line) !important;
+  border-radius: 10px !important;
+  background-color: var(--pm-surface-2) !important;
+  color: var(--pm-title) !important;
+}
+
+/* Rich-text editor: one rounded frame, toolbar tinted like the card */
+.pm-panel .pm-body div[class*="border-gray-300"][class*="overflow-hidden"] {
+  border: 1px solid var(--pm-line) !important;
+  border-radius: 14px !important;
+  background-color: var(--pm-field);
+  transition: border-color .16s, box-shadow .16s;
+}
+.pm-panel .pm-body div[class*="border-gray-300"][class*="overflow-hidden"]:focus-within {
+  border-color: var(--pm-accent) !important;
+  box-shadow: 0 0 0 4px var(--pm-ring);
+}
+.pm-panel .pm-body div[class*="border-gray-300"][class*="overflow-hidden"] > div[class*="flex-wrap"] {
+  gap: 2px;
+  padding: 8px;
+  border-bottom: 1px solid var(--pm-line) !important;
+  background-color: var(--pm-surface-2) !important;
+}
+.pm-panel .pm-body div[class*="border-gray-300"][class*="overflow-hidden"] > div[class*="flex-wrap"] button { border-radius: 8px; }
+.pm-panel .pm-body div[class*="border-gray-300"][class*="overflow-hidden"] > div[class*="flex-wrap"] button:hover { background-color: var(--pm-hover) !important; }
+.pm-panel .pm-body div[class*="border-gray-300"][class*="overflow-hidden"] > div[class*="flex-wrap"] .w-px { background-color: var(--pm-line-strong) !important; }
+.pm-panel .pm-body .ProseMirror { min-height: 140px; color: var(--pm-text); }

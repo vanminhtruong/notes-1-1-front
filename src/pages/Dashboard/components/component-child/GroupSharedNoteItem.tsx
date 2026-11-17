@@ -260,7 +260,7 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400">
                 {groupSharedNote.canEdit && (
                   <span className="flex items-center gap-1 whitespace-nowrap">
                     <Edit2 className="w-3 h-3 flex-shrink-0" />
@@ -294,7 +294,7 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
         <div className="flex items-start gap-1 ml-2">
           <button
             onClick={() => onViewNote(groupSharedNote.noteId)}
-            className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors opacity-0 group-hover:opacity-100"
+            className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
             title={t('sharedNotes.viewNote')}
           >
             <Eye className="w-4 h-4" />
@@ -307,7 +307,7 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
                 e.stopPropagation();
                 onEditNote(groupSharedNote.noteId);
               }}
-              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-0 group-hover:opacity-100"
+              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
               title={t('sharedNotes.editNote')}
             >
               <Edit2 className="w-4 h-4" />
@@ -318,7 +318,7 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
             <button
               onClick={handleDeleteNote}
               disabled={isRemoving}
-              className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+              className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 disabled:opacity-50"
               title={t('sharedNotes.deleteOriginal')}
               aria-label={t('sharedNotes.deleteOriginal')}
             >
@@ -332,7 +332,7 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
                 e.stopPropagation();
                 onCreateFromNote(groupSharedNote.noteId);
               }}
-              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-0 group-hover:opacity-100"
+              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
               title={t('sharedNotes.createFromNote')}
             >
               <Plus className="w-4 h-4" />
@@ -358,7 +358,7 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
             <>
               <button
                 onClick={() => setIsEditingPermissions(true)}
-                className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-0 group-hover:opacity-100"
+                className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
                 title={t('sharedNotes.editPermissions') || 'Chỉnh sửa quyền'}
               >
                 <Edit2 className="w-4 h-4" />
@@ -366,7 +366,7 @@ export const GroupSharedNoteItem = memo(({ groupSharedNote, currentUserId, onVie
               <button
                 onClick={handleRemove}
                 disabled={isRemoving}
-                className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 disabled:opacity-50"
                 title={t('sharedNotes.remove')}
               >
                 <Trash2 className="w-4 h-4" />

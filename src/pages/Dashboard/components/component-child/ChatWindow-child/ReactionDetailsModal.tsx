@@ -74,9 +74,9 @@ const ReactionDetailsModal = memo(function ReactionDetailsModal({ open, onClose,
           </button>
         </div>
         {/* Body */}
-        <div className="flex h-[380px]">
+        <div className="flex h-[380px] max-h-[calc(100vh-8rem)]">
           {/* Left tabs */}
-          <div className="w-40 border-r border-gray-200 p-2 dark:border-gray-800">
+          <div className="w-40 shrink-0 overflow-y-auto border-r border-gray-200 p-2 dark:border-gray-800 sm-down:w-28">
             <SidebarItem
               active={selected === 'all'}
               icon={null}
@@ -108,10 +108,10 @@ const ReactionDetailsModal = memo(function ReactionDetailsModal({ open, onClose,
                   const u = it.user ? { id: it.user.id, name: it.user.name || fallback?.name || `User ${it.userId}`, avatar: it.user.avatar ?? fallback?.avatar } : fallback;
                   const resolved = u || { id: it.userId, name: fallback?.name || `User ${it.userId}`, avatar: fallback?.avatar ?? null };
                   return (
-                    <li key={`${it.userId}-${it.type}-${idx}`} className="flex items-center justify-between gap-3 p-2">
+                    <li key={`${it.userId}-${it.type}-${idx}`} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 p-2">
                       <button
                         type="button"
-                        className="flex items-center gap-3 hover:opacity-90"
+                        className="flex min-w-0 items-center gap-3 hover:opacity-90"
                         onClick={() => {
                           if (!resolved?.id) return;
                           if (currentUserId && resolved.id === currentUserId) {
@@ -127,7 +127,7 @@ const ReactionDetailsModal = memo(function ReactionDetailsModal({ open, onClose,
                         aria-label={t('chat.chatView.viewProfile', 'Xem thông tin')}
                       >
                         <Avatar src={resolved?.avatar ?? null} name={resolved?.name || `User ${it.userId}`} />
-                        <div className="text-sm font-medium">{resolved?.name || `User ${it.userId}`}</div>
+                        <div className="min-w-0 truncate text-sm font-medium">{resolved?.name || `User ${it.userId}`}</div>
                       </button>
                       <div className="flex items-center gap-3">
                         {currentUserId && resolved?.id !== currentUserId ? (
@@ -188,13 +188,13 @@ function SidebarItem({ active, icon, label, count, onClick }: { active: boolean;
   return (
     <button
       onClick={onClick}
-      className={`group flex w-full items-center justify-between rounded-md px-2 py-2 text-left text-sm ${active ? 'bg-gray-200 dark:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-800/70'}`}
+      className={`group flex w-full items-center justify-between gap-1 rounded-md px-2 py-2 text-left text-sm ${active ? 'bg-gray-200 dark:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-800/70'}`}
     >
-      <span className="flex items-center gap-2">
-        {icon ? <span>{icon}</span> : null}
-        <span>{label}</span>
+      <span className="flex min-w-0 items-center gap-2">
+        {icon ? <span className="shrink-0">{icon}</span> : null}
+        <span className="truncate">{label}</span>
       </span>
-      <span className="text-xs text-gray-600 dark:text-gray-400">{count}</span>
+      <span className="shrink-0 text-xs text-gray-600 dark:text-gray-400">{count}</span>
     </button>
   );
 }

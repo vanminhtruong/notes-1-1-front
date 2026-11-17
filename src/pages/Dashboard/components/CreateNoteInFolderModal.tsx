@@ -1,11 +1,12 @@
 import ModalScrollArea from '@/components/ModalScrollArea';
 import { useTranslation } from 'react-i18next';
 import { useState, memo, useEffect, useCallback, useRef } from 'react';
-import { X, ChevronDown, Search, Loader2 } from 'lucide-react';
+import { X, ChevronDown, Search, Loader2, FilePlus2, Image as ImageIcon, Video, Youtube } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { notesService, type NoteCategory } from '@/services/notesService';
 import { RichTextEditor, useRichTextEditor } from '@/components/RichTextEditor';
 import PriorityDropdown from './PriorityDropdown';
+import './NoteCategoryDropdown.scss';
 
 // MediaTabs Component
 const MediaTabs = memo(({ newNote, setNewNote, t }: { newNote: any; setNewNote: (note: any) => void; t: any }) => {
@@ -14,39 +15,36 @@ const MediaTabs = memo(({ newNote, setNewNote, t }: { newNote: any; setNewNote: 
   return (
     <div>
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 dark:border-gray-600 mb-3">
+      <div className="pm-segment mb-4" role="tablist">
         <button
           type="button"
+          role="tab"
+          aria-selected={activeTab === 'image'}
           onClick={() => setActiveTab('image')}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'image'
-              ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
+          className={`pm-segment__btn ${activeTab === 'image' ? 'is-active' : ''}`}
         >
-          📷 {t('modals.create.fields.image')}
+          <ImageIcon />
+          <span>{t('modals.create.fields.image')}</span>
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={activeTab === 'video'}
           onClick={() => setActiveTab('video')}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'video'
-              ? 'border-b-2 border-green-600 text-green-600 dark:text-green-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
+          className={`pm-segment__btn ${activeTab === 'video' ? 'is-active' : ''}`}
         >
-          🎬 {t('modals.create.fields.video')}
+          <Video />
+          <span>{t('modals.create.fields.video')}</span>
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={activeTab === 'youtube'}
           onClick={() => setActiveTab('youtube')}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'youtube'
-              ? 'border-b-2 border-red-600 text-red-600 dark:text-red-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-          }`}
+          className={`pm-segment__btn ${activeTab === 'youtube' ? 'is-active' : ''}`}
         >
-          📺 {t('modals.create.fields.youtube')}
+          <Youtube />
+          <span>{t('modals.create.fields.youtube')}</span>
         </button>
       </div>
 
@@ -241,15 +239,17 @@ const CategoryDropdown = memo(({ value, onChange, categories: initialCategories,
             </div>
 
             {/* Categories List */}
-            <ModalScrollArea className="max-h-60">
+            <ModalScrollArea className="note-category-list max-h-60">
               {/* None option */}
               <button
                 type="button"
+                data-selected={value === undefined}
+                aria-pressed={value === undefined}
                 onClick={() => {
                   onChange(undefined);
                   handleClose();
                 }}
-                className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm text-gray-700 dark:text-gray-300 transition-colors"
+                className="note-category-option note-category-option--none text-sm text-gray-700 dark:text-gray-300"
               >
                 {placeholder}
               </button>
@@ -266,13 +266,12 @@ const CategoryDropdown = memo(({ value, onChange, categories: initialCategories,
                         onChange(cat.id);
                         handleClose();
                       }}
-                      className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-sm flex items-center gap-2 transition-colors"
-                      style={{ 
-                        backgroundColor: value === cat.id ? `${cat.color}15` : undefined 
-                      }}
+                      className="note-category-option text-sm"
+                      data-selected={value === cat.id}
+                      aria-pressed={value === cat.id}
                     >
                       <Icon className="w-4 h-4 flex-shrink-0" style={{ color: cat.color }} />
-                      <span style={{ color: cat.color }}>{cat.name}</span>
+                      <span className="min-w-0 flex-1 truncate" style={{ color: cat.color }} title={cat.name}>{cat.name}</span>
                     </button>
                   );
                 })
@@ -364,25 +363,26 @@ const CreateNoteInFolderModal = memo(({ isOpen, onClose, newNote, setNewNote, on
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 xl-down:p-3.5 lg-down:p-3 md-down:p-2.5 sm-down:p-2 xs-down:p-1.5 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl xl-down:rounded-xl lg-down:rounded-xl md-down:rounded-lg sm-down:rounded-lg xs-down:rounded-lg shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 pt-6 pb-3 xl-down:px-5 xl-down:pt-5 xl-down:pb-2.5 lg-down:px-5 lg-down:pt-5 lg-down:pb-2.5 md-down:px-4 md-down:pt-4 md-down:pb-2 sm-down:px-3.5 sm-down:pt-3.5 sm-down:pb-2 xs-down:px-3 xs-down:pt-3 xs-down:pb-1.5">
+    <div className="pm-overlay z-50">
+      <div className="pm-panel pm-panel--xl" role="dialog" aria-modal="true">
+        <div className="pm-header">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white xl-down:text-lg lg-down:text-lg md-down:text-base sm-down:text-base xs-down:text-sm">{t('modals.create.title')}</h2>
+            <h2 className="pm-title">
+            <FilePlus2 />{t('modals.create.title')}</h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {t('folders.inFolder')}: <span className="font-medium">{folderName}</span>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 md-down:p-0.5 xs-down:p-0.5"
+            className="pm-close"
             title="Đóng"
           >
             <X className="w-5 h-5 md-down:w-4 md-down:h-4 xs-down:w-3.5 xs-down:h-3.5" />
           </button>
         </div>
         
-        <ModalScrollArea className="space-y-3 px-6 pb-6 xl-down:space-y-2.5 xl-down:px-5 xl-down:pb-5 lg-down:space-y-2.5 lg-down:px-5 lg-down:pb-5 md-down:space-y-2 md-down:px-4 md-down:pb-4 sm-down:space-y-2 sm-down:px-3.5 sm-down:pb-3.5 xs-down:space-y-1.5 xs-down:px-3 xs-down:pb-3">
+        <ModalScrollArea className="pm-body pm-stack">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
               {t('modals.create.fields.title')}
@@ -411,7 +411,9 @@ const CreateNoteInFolderModal = memo(({ isOpen, onClose, newNote, setNewNote, on
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 md-down:text-xs md-down:mb-1.5 xs-down:text-[11px] xs-down:mb-1">
               {t('modals.create.fields.media')}
             </label>
-            <MediaTabs newNote={newNote} setNewNote={setNewNote} t={t} />
+            <div className="pm-card">
+              <MediaTabs newNote={newNote} setNewNote={setNewNote} t={t} />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 md-down:gap-3 sm-down:gap-2.5 xs-down:gap-2">
@@ -453,17 +455,17 @@ const CreateNoteInFolderModal = memo(({ isOpen, onClose, newNote, setNewNote, on
           </div>
         </ModalScrollArea>
 
-        <div className="flex gap-3 px-6 pb-6 pt-4 border-t border-gray-200 dark:border-gray-700 xl-down:gap-2.5 xl-down:px-5 xl-down:pb-5 xl-down:pt-3.5 lg-down:gap-2.5 lg-down:px-5 lg-down:pb-5 lg-down:pt-3.5 md-down:gap-2 md-down:px-4 md-down:pb-4 md-down:pt-3 sm-down:gap-2 sm-down:px-3.5 sm-down:pb-3.5 sm-down:pt-2.5 xs-down:gap-1.5 xs-down:px-3 xs-down:pb-3 xs-down:pt-2">
+        <div className="pm-footer">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 md-down:px-3 md-down:py-1.5 md-down:text-sm sm-down:px-2.5 sm-down:py-1.5 sm-down:text-sm xs-down:px-2 xs-down:py-1 xs-down:text-xs"
+            className="pm-btn pm-btn--ghost"
           >
             {t('actions.cancel')}
           </button>
           <button
             onClick={onSubmit}
             disabled={!newNote.title.trim()}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 md-down:px-3 md-down:py-1.5 md-down:text-sm sm-down:px-2.5 sm-down:py-1.5 sm-down:text-sm xs-down:px-2 xs-down:py-1 xs-down:text-xs"
+            className="pm-btn pm-btn--primary"
           >
             {t('actions.createNote')}
           </button>

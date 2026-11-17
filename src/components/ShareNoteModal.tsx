@@ -255,22 +255,22 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
   if (!isOpen || !note) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[99999]">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full h-[90vh] max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 sm-down:p-3 xs-down:p-2 z-[99999]">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl sm-down:rounded-xl max-w-md w-full h-[90vh] max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 shrink-0">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between gap-3 p-6 sm-down:p-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
+          <h3 className="min-w-0 text-lg sm-down:text-base font-semibold text-gray-900 dark:text-white">
             {t('notes.share.title') || 'Chia sẻ ghi chú'}
           </h3>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className="shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <ModalScrollArea className="flex-1 p-6 space-y-6">
+        <ModalScrollArea className="flex-1 p-6 space-y-6 sm-down:p-4 sm-down:space-y-4">
           {/* Note Preview */}
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
             <h4 className="font-medium text-gray-900 dark:text-white mb-2 line-clamp-1">
@@ -361,26 +361,26 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
           {/* Selected Target */}
           {selectedTarget && (
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center space-x-3">
                   {selectedTarget.avatar ? (
                     <img
                       src={selectedTarget.avatar}
                       alt={selectedTarget.name}
-                      className="w-8 h-8 rounded-full object-cover"
+                      className="w-8 h-8 shrink-0 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 shrink-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-medium">
                         {selectedTarget.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   )}
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white text-sm">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-gray-900 dark:text-white text-sm">
                       {selectedTarget.name}
                     </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                    <p className="truncate text-xs text-gray-600 dark:text-gray-400">
                       {selectedTarget.type === 'user' 
                         ? selectedTarget.email 
                         : `${selectedTarget.memberCount || 0} thành viên`
@@ -390,7 +390,7 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
                 </div>
                 <button
                   onClick={() => setSelectedTarget(null)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-2"
+                  className="shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex items-center gap-2"
                 >
                   <Users className="w-4 h-4" />
                   <span className="text-sm">
@@ -425,20 +425,20 @@ const ShareNoteModal = memo(({ isOpen, onClose, note, onSuccess }: ShareNoteModa
                         <img
                           src={target.avatar}
                           alt={target.name}
-                          className="w-8 h-8 rounded-full object-cover"
+                          className="w-8 h-8 shrink-0 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 shrink-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                           <span className="text-white text-sm font-medium">
                             {target.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
-                      <div className="ml-3 text-left">
-                        <p className="font-medium text-gray-900 dark:text-white text-sm">
+                      <div className="ml-3 min-w-0 text-left">
+                        <p className="truncate font-medium text-gray-900 dark:text-white text-sm">
                           {target.name}
                         </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <p className="truncate text-xs text-gray-600 dark:text-gray-400">
                           {target.type === 'user' 
                             ? target.email 
                             : `${target.memberCount || 0} thành viên`

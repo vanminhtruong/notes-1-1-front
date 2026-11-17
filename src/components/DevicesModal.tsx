@@ -212,28 +212,28 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden border border-gray-200 dark:border-gray-700">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm-down:p-3 xs-down:p-2 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl sm-down:rounded-xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden border border-gray-200 dark:border-gray-700">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-800">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between gap-3 p-6 md-down:p-5 sm-down:p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-800">
+          <div className="min-w-0">
+            <h2 className="text-2xl sm-down:text-xl font-bold text-gray-900 dark:text-white">
               {t('devices.title')}
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+            <p className="text-sm sm-down:text-xs text-gray-600 dark:text-gray-300 mt-1">
               {t('devices.subtitle')}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-700 transition-colors"
+            className="shrink-0 p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-700 transition-colors"
           >
-            <X className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+            <X className="w-6 h-6 sm-down:w-5 sm-down:h-5 text-gray-600 dark:text-gray-300" />
           </button>
         </div>
 
         {/* Content */}
-        <ModalScrollArea className="p-6 max-h-[calc(85vh-200px)]">
+        <ModalScrollArea className="p-6 md-down:p-5 sm-down:p-3.5 max-h-[calc(85vh-200px)]">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -255,14 +255,14 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
                   reAnimate={true}
                 >
                   <div
-                    className={`p-4 rounded-xl border transition-all ${
+                    className={`p-4 sm-down:p-3 rounded-xl border transition-all ${
                     session.isCurrent
                       ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700'
                       : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-lg ${
+                  <div className="flex items-start gap-4 sm-down:gap-2.5">
+                    <div className={`shrink-0 p-3 sm-down:p-2 rounded-lg ${
                       session.isCurrent
                         ? 'bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-300'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
@@ -271,19 +271,19 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+                        <h3 className="min-w-0 break-words font-semibold text-gray-900 dark:text-white sm-down:text-sm">
                           {session.deviceName}
                         </h3>
                         {session.isCurrent && (
-                          <span className="px-2 py-0.5 text-xs font-medium bg-blue-600 text-white rounded-full">
+                          <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-blue-600 text-white rounded-full">
                             {t('devices.current')}
                           </span>
                         )}
                       </div>
 
-                      <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
-                        <div className="flex items-center gap-2">
+                      <div className="space-y-1 text-sm sm-down:text-xs text-gray-600 dark:text-gray-300">
+                        <div className="flex flex-wrap items-center gap-x-2">
                           <span className="font-medium">{session.browser}</span>
                           <span>•</span>
                           <span>{session.os}</span>
@@ -291,13 +291,13 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
 
                         {session.ipAddress && (
                           <div className="flex items-center gap-2">
-                            <MapPin className="w-3.5 h-3.5" />
-                            <span className="text-xs">{session.ipAddress}</span>
+                            <MapPin className="w-3.5 h-3.5 shrink-0" />
+                            <span className="text-xs break-all">{session.ipAddress}</span>
                           </div>
                         )}
 
-                        <div className="flex items-center gap-2 text-xs">
-                          <Clock className="w-3.5 h-3.5" />
+                        <div className="flex items-start gap-2 text-xs">
+                          <Clock className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                           <span>{t('devices.lastActive')}: {formatDate(session.lastActivityAt)}</span>
                         </div>
                       </div>
@@ -306,7 +306,7 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
                     <button
                       onClick={() => handleDeleteSession(session.id)}
                       disabled={deletingId === session.id}
-                      className="p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+                      className="shrink-0 p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
                       title={session.isCurrent ? t('devices.deleteCurrentWarning') : t('devices.deleteDevice')}
                     >
                       {deletingId === session.id ? (
@@ -325,7 +325,7 @@ const DevicesModal = memo(({ isOpen, onClose }: DevicesModalProps) => {
 
         {/* Footer */}
         {!loading && sessions.length > 1 && (
-          <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className="p-6 md-down:p-5 sm-down:p-3.5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
             <button
               onClick={handleDeleteAllOthers}
               disabled={deletingAll}

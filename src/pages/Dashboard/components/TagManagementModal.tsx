@@ -97,27 +97,27 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm-down:p-3 xs-down:p-2.5 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl md-down:rounded-xl shadow-2xl w-full max-w-2xl md-down:max-w-xl sm-down:max-w-md xs-down:max-w-[92%] max-h-[90vh] flex flex-col overflow-hidden transform transition-all">
+    <div className="pm-overlay z-50">
+      <div className="pm-panel pm-panel--2xl" role="dialog" aria-modal="true">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl md-down:text-lg sm-down:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+        <div className="pm-header">
+          <h2 className="pm-title">
             <Tag className="w-5 h-5 md-down:w-4.5 md-down:h-4.5 sm-down:w-4 sm-down:h-4" />
             {t('tags.manage')}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 md-down:p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="pm-close"
           >
             <X className="w-5 h-5 md-down:w-4 md-down:h-4 text-gray-500" />
           </button>
         </div>
 
         {/* Content */}
-        <ModalScrollArea className="flex-1 p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5">
+        <ModalScrollArea className="pm-body">
           {/* Create/Edit Form */}
           {isCreating && (
-            <form onSubmit={handleSubmit} className="mb-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+            <form onSubmit={handleSubmit} className="pm-card mb-4">
               <div className="space-y-3">
                 <div>
                   <label className="block text-sm md-down:text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -161,13 +161,13 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-sm md-down:text-xs"
+                    className="pm-btn pm-btn--ghost pm-btn--sm"
                   >
                     {t('tags.cancel')}
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm md-down:text-xs"
+                    className="pm-btn pm-btn--primary pm-btn--sm"
                     disabled={!formData.name.trim()}
                   >
                     {editingTag ? t('tags.save') : t('tags.save')}
@@ -181,7 +181,7 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
           {!isCreating && (
             <button
               onClick={() => setIsCreating(true)}
-              className="w-full mb-4 px-4 py-2 md-down:px-3 md-down:py-1.5 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center justify-center gap-2 text-sm md-down:text-xs"
+              className="pm-dashed-btn w-full mb-4"
             >
               <Plus className="w-4 h-4" />
               {t('tags.create')}
@@ -212,7 +212,7 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
               {filteredTags.map((tag) => (
                 <div
                   key={tag.id}
-                  className="flex items-center justify-between p-3 md-down:p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="pm-card pm-card--row flex items-center justify-between p-3 md-down:p-2.5"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     {tag.isPinned && (
@@ -263,10 +263,10 @@ const TagManagementModal = ({ isOpen, onClose }: TagManagementModalProps) => {
         </ModalScrollArea>
 
         {/* Footer */}
-        <div className="p-6 md-down:p-5 sm-down:p-4 xs-down:p-3.5 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+        <div className="pm-footer pm-footer--end">
           <button
             onClick={onClose}
-            className="px-6 py-2 md-down:px-5 md-down:py-1.5 sm-down:px-4 sm-down:py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm md-down:text-xs font-medium flex items-center gap-2"
+            className="pm-btn pm-btn--ghost"
           >
             <X className="w-4 h-4 md-down:w-3.5 md-down:h-3.5" />
             {t('common.close')}

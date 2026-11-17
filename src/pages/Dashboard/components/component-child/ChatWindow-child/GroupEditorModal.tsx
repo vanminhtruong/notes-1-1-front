@@ -124,21 +124,21 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
 
   return (
     <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn"
+      className="pm-overlay z-50"
     >
       <div 
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-[540px] max-w-[95vw] max-h-[90vh] overflow-hidden mx-3 animate-slideUp" 
+        className="pm-panel pm-panel--lg" role="dialog" aria-modal="true" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+        <div className="pm-header">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-md">
-              <Users className="w-5 h-5 text-white" />
+            <div className="pm-tile">
+              <Users className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              <h3 className="pm-title">{title}</h3>
+              <p className="pm-subtitle">
                 {isEdit ? t('chat.groups.editor.subtitle.edit', 'Chỉnh sửa thông tin nhóm') : t('chat.groups.editor.subtitle.create', 'Tạo nhóm mới để kết nối')}
               </p>
             </div>
@@ -146,14 +146,14 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
           <button
             onClick={onClose}
             disabled={submitting}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-all duration-200 disabled:opacity-50"
+            className="pm-close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <ModalScrollArea className="p-6 max-h-[calc(90vh-180px)]">
+        <ModalScrollArea className="pm-body">
           {/* Group Name */}
           <div className="mb-6">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -166,7 +166,7 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('chat.groups.editor.placeholders.name')}
-              className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200 placeholder:text-gray-400"
+              className="pm-input w-full px-4 py-2.5"
               autoFocus
             />
           </div>
@@ -193,7 +193,7 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
                 )}
               </div>
               <div className="flex-1">
-                <label className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border-2 border-dashed border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 cursor-pointer transition-all duration-200">
+                <label className="pm-upload">
                   <Upload className="w-4 h-4" />
                   {t('chat.groups.editor.actions.chooseImage')}
                   <input type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
@@ -231,7 +231,7 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
                   </div>
                 )}
               </div>
-              <label className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border-2 border-dashed border-purple-300 dark:border-purple-600 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 cursor-pointer transition-all duration-200">
+              <label className="pm-upload">
                 <Upload className="w-4 h-4" />
                 {t('chat.groups.editor.actions.chooseImage')}
                 <input type="file" accept="image/*" className="hidden" onChange={onPickBackground} />
@@ -244,18 +244,18 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
         </ModalScrollArea>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <div className="pm-footer pm-footer--end">
           <button
             onClick={onClose}
             disabled={submitting}
-            className="px-5 py-2.5 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-all duration-200"
+            className="pm-btn pm-btn--ghost"
           >
             {t('chat.groups.editor.actions.cancel')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitting || !name.trim()}
-            className="px-6 py-2.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
+            className="pm-btn pm-btn--primary"
           >
             {submitting ? (
               <>

@@ -1,6 +1,7 @@
 @use './theme-variants' as theme-variants;
 @use './icon-hover';
 @use './scrollbar';
+@use './modal-system';
 
 @tailwind base;
 @tailwind components;

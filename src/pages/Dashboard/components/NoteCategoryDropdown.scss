@@ -1,0 +1,98 @@
+/* Dropdown category options shared by create/edit note dialogs. */
+.modal-scroll-area.modal-scroll-area.note-category-list {
+  padding: 4px 0;
+  scrollbar-gutter: auto; /* Do not reserve a blank strip beside the hover state. */
+  overflow-x: hidden;
+}
+
+.note-category-list .note-category-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 0;
+  text-align: left;
+  background: transparent;
+  transition: background-color .15s ease;
+}
+
+.note-category-list .note-category-option--none {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 3px;
+}
+
+.note-category-list .note-category-option:hover,
+.note-category-list .note-category-option:focus-visible {
+  background-color: #f1f5f9;
+}
+
+.note-category-list .note-category-option[data-selected='true'] {
+  background-color: #eff6ff;
+}
+
+.note-category-list .note-category-option[data-selected='true']:hover,
+.note-category-list .note-category-option[data-selected='true']:focus-visible {
+  background-color: #dbeafe;
+}
+
+.note-category-list .note-category-option[data-selected='true']::after {
+  content: '✓';
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.note-category-list .note-category-option:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: -2px;
+}
+
+.dark .note-category-list .note-category-option--none {
+  border-bottom-color: #4b5563;
+}
+
+.dark .note-category-list .note-category-option:hover,
+.dark .note-category-list .note-category-option:focus-visible {
+  background-color: #374151;
+}
+
+.dark .note-category-list .note-category-option[data-selected='true'] {
+  background-color: #25364c;
+}
+
+.dark .note-category-list .note-category-option[data-selected='true']:hover,
+.dark .note-category-list .note-category-option[data-selected='true']:focus-visible {
+  background-color: #334c6a;
+}
+
+.dark .note-category-list .note-category-option[data-selected='true']::after {
+  color: #93c5fd;
+}
+
+/* Pure-black theme keeps the selection and hover neutral. */
+.dark-black .note-category-list .note-category-option--none {
+  border-bottom-color: #2a2a2a;
+}
+
+.dark-black .note-category-list .note-category-option:hover,
+.dark-black .note-category-list .note-category-option:focus-visible {
+  background-color: #2a2a2a;
+}
+
+.dark-black .note-category-list .note-category-option[data-selected='true'] {
+  background-color: #202020;
+}
+
+.dark-black .note-category-list .note-category-option[data-selected='true']:hover,
+.dark-black .note-category-list .note-category-option[data-selected='true']:focus-visible {
+  background-color: #353535;
+}
+
+.dark-black .note-category-list .note-category-option[data-selected='true']::after {
+  color: #e5e7eb;
+}
