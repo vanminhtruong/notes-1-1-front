@@ -1,0 +1,43 @@
+/* Floating Messenger card: slides/fades in from the right instead of a flush edge-to-edge slab. */
+.chat-float {
+  transform-origin: top right;
+  animation: chat-float-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  box-shadow:
+    0 24px 60px -12px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+@keyframes chat-float-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes chat-float-in-mobile {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .chat-float {
+    animation-name: chat-float-in-mobile;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-float {
+    animation: none;
+  }
+}

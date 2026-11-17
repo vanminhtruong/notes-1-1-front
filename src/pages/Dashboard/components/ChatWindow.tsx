@@ -1,6 +1,7 @@
 import { useMemo, useCallback, memo } from 'react';
 import { type ChatWindowProps, toast, useTranslation, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
 import * as DashboardHooks from '../hooks';
+import './ChatWindowFloat.css';
 
 const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   const { t } = useTranslation('dashboard');
@@ -402,7 +403,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
 
   return (
     <div
-      className="fixed inset-y-0 right-0 w-[32rem] max-w-full bg-white dark:bg-gray-900 shadow-2xl border-l border-gray-200 dark:border-gray-700 flex flex-col z-50 transition-all duration-300 xl-down:w-[28rem] lg-down:w-[26rem] md-down:inset-0 md-down:w-full md-down:h-full md-down:max-h-screen md-down:shadow-none md-down:border-0 md-down:rounded-none md-down:bg-white/95 md-down:dark:bg-gray-900/95 md-down:backdrop-blur sm-down:bg-white sm-down:dark:bg-gray-900"
+      className="chat-float fixed top-4 right-4 bottom-4 w-[28rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex flex-col z-50 xl-down:w-[26rem] lg-down:w-[24rem] md-down:inset-0 md-down:w-full md-down:max-w-none md-down:h-full md-down:max-h-screen md-down:border-0 md-down:rounded-none md-down:bg-white/95 md-down:dark:bg-gray-900/95 md-down:backdrop-blur sm-down:bg-white sm-down:dark:bg-gray-900"
     >
       {/* Header */}
       <ChatHeader
