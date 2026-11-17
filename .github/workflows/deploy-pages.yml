@@ -35,8 +35,8 @@ jobs:
         env:
           GITHUB_PAGES: 'true'
           # Public HTTPS backend URL (repo variables). Empty -> app falls back to its default.
-          VITE_BACKEND_HTTP_URL: ${{ vars.VITE_BACKEND_HTTP_URL }}
-          VITE_BACKEND_WS_URL: ${{ vars.VITE_BACKEND_WS_URL || vars.VITE_BACKEND_HTTP_URL }}
+          VITE_BACKEND_HTTP_URL: ${{ vars.VITE_BACKEND_HTTP_URL || 'https://laptop-l7qb89bs.taile16c9b.ts.net:8443' }}
+          VITE_BACKEND_WS_URL: ${{ vars.VITE_BACKEND_WS_URL || vars.VITE_BACKEND_HTTP_URL || 'https://laptop-l7qb89bs.taile16c9b.ts.net:8443' }}
           # Public OAuth identifiers (not secrets). .env is gitignored, so CI must provide them.
           VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID || '330597757388-cdngesnvlcn7uiev2ptar27bu1gco9bt.apps.googleusercontent.com' }}
           VITE_FACEBOOK_APP_ID: ${{ vars.VITE_FACEBOOK_APP_ID || '2945366952313177' }}
