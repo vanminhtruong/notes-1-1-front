@@ -1,11 +1,18 @@
 @use './theme-variants' as theme-variants;
 @use './icon-hover';
+@use './scrollbar';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Global styles */
+
+/* Always reserve space for the vertical scrollbar so locking body scroll
+   (chat / modals set overflow: hidden) doesn't make the page jump sideways. */
+html {
+  scrollbar-gutter: stable;
+}
 
 /* Line clamp utilities for text truncation with ellipsis */
 .line-clamp-1 {

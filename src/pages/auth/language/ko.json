@@ -103,6 +103,9 @@
     "facebookRedirect": "Facebook 로그인 페이지로 리디렉션 중..."
   },
   "googleModal": {
+    "secure": "안전한 로그인",
+    "noPassword": "비밀번호 불필요",
+    "fast": "빠르고 간편",
     "title": "Google로 로그인",
     "subtitle": "계속하려면 Google 계정을 선택하세요",
     "termsText": "로그인하면 서비스 약관 및 개인정보 처리방침에 동의하는 것입니다"

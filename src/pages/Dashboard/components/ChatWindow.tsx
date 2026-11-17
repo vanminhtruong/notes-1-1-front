@@ -1,4 +1,4 @@
-import { useMemo, useCallback, memo } from 'react';
+import { useMemo, useCallback, useEffect, useRef, useState, memo } from 'react';
 import { type ChatWindowProps, toast, useTranslation, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
 import * as DashboardHooks from '../hooks';
 import './ChatWindowFloat.css';
@@ -6,6 +6,28 @@ import './ChatWindowFloat.css';
 const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   const { t } = useTranslation('dashboard');
   const currentUser = getCachedUser();
+
+  // Closing: play the exit animation first, then really close (unmount) the window.
+  const [closing, setClosing] = useState(false);
+  const closeTimerRef = useRef<number | null>(null);
+  const requestClose = useCallback(() => {
+    if (closeTimerRef.current !== null) return; // already closing
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) {
+      onClose();
+      return;
+    }
+    setClosing(true);
+    closeTimerRef.current = window.setTimeout(() => {
+      closeTimerRef.current = null;
+      onClose();
+    }, 460); // keep in sync with chat-float-out duration in ChatWindowFloat.css
+  }, [onClose]);
+  useEffect(() => () => {
+    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+  }, []);
 
   // State hooks
   const chatWindowState = DashboardHooks.useChatWindowState();
@@ -403,7 +425,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
 
   return (
     <div
-      className="chat-float fixed top-4 right-4 bottom-4 w-[28rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex flex-col z-50 xl-down:w-[26rem] lg-down:w-[24rem] md-down:inset-0 md-down:w-full md-down:max-w-none md-down:h-full md-down:max-h-screen md-down:border-0 md-down:rounded-none md-down:bg-white/95 md-down:dark:bg-gray-900/95 md-down:backdrop-blur sm-down:bg-white sm-down:dark:bg-gray-900"
+      className={`chat-float${closing ? ' chat-float--closing' : ''} fixed top-4 right-4 bottom-4 w-[28rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex flex-col z-50 xl-down:w-[26rem] lg-down:w-[24rem] md-down:inset-0 md-down:w-full md-down:max-w-none md-down:h-full md-down:max-h-screen md-down:border-0 md-down:rounded-none md-down:bg-white/95 md-down:dark:bg-gray-900/95 md-down:backdrop-blur sm-down:bg-white sm-down:dark:bg-gray-900`}
     >
       {/* Header */}
       <ChatHeader
@@ -415,7 +437,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
         notificationLoading={bellNotificationState.bellLoading}
         searchTerm={chatWindowState.searchTerm}
         activeTab={chatWindowState.activeTab}
-        onClose={onClose}
+        onClose={requestClose}
         onItemClick={handleBellItemClick}
         onItemDismissed={(id) => bellNotificationHandler.handleBellItemDismiss(id, bellNotificationHandler.loadBellFeed)}
         onLoadMoreNotifications={handleLoadMoreNotifications}

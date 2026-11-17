@@ -103,6 +103,9 @@
     "facebookRedirect": "正在跳转至Facebook登录..."
   },
   "googleModal": {
+    "secure": "安全登录",
+    "noPassword": "无需密码",
+    "fast": "快速便捷",
     "title": "使用Google登录",
     "subtitle": "选择您的Google账户以继续",
     "termsText": "登录即表示同意我们的服务条款和隐私政策"

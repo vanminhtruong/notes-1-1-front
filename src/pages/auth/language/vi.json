@@ -103,6 +103,9 @@
     "facebookRedirect": "Chuyển hướng đến trang đăng nhập Facebook..."
   },
   "googleModal": {
+    "secure": "Đăng nhập an toàn",
+    "noPassword": "Không cần mật khẩu",
+    "fast": "Nhanh chóng, tiện lợi",
     "title": "Đăng nhập với Google",
     "subtitle": "Chọn tài khoản Google để tiếp tục",
     "termsText": "Bằng cách đăng nhập, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi"

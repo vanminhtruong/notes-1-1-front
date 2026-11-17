@@ -1,0 +1,129 @@
+/**
+ * Global desktop scrollbar
+ *
+ * - Applies to the page scrollbar and every scrollable container (`*`), desktop pointers only,
+ *   so touch devices keep their native overlay scrollbars.
+ * - Three themes driven by the same root classes as the rest of the project:
+ *     light        -> :root
+ *     dark         -> :root.dark
+ *     dark-black   -> :root.dark-black
+ * - Chromium / Safari / Edge use ::-webkit-scrollbar (rounded gradient pill, soft violet on hover).
+ *   Firefox falls back to scrollbar-width / scrollbar-color.
+ * - Components with their own scrollbar styling (ModalScrollArea, NoteSortSelect, ChatPanel ...)
+ *   use class selectors, which are more specific than `*` and keep winning.
+ */
+
+// ───────── Theme tokens ─────────
+:root {
+  --sb-size: 10px;
+  --sb-page-size: 12px;
+
+  // Track (the page-level track is faintly tinted so the gutter blends with the background)
+  --sb-track: transparent;
+  --sb-page-track: rgba(148, 163, 184, 0.1);
+  --sb-page-line: rgba(15, 23, 42, 0.06);
+
+  // Thumb: idle -> hover -> active
+  --sb-thumb-a: #cbd5e1;
+  --sb-thumb-b: #b4c0d0;
+  --sb-thumb-hover-a: #a78bfa;
+  --sb-thumb-hover-b: #8b5cf6;
+  --sb-thumb-active-a: #8b5cf6;
+  --sb-thumb-active-b: #7c3aed;
+
+  // Solid fallbacks (Firefox can't draw gradients)
+  --sb-thumb-solid: #c3cedb;
+}
+
+:root.dark {
+  --sb-page-track: rgba(255, 255, 255, 0.035);
+  --sb-page-line: rgba(255, 255, 255, 0.06);
+
+  --sb-thumb-a: #4b5563;
+  --sb-thumb-b: #3b4350;
+  --sb-thumb-hover-a: #a78bfa;
+  --sb-thumb-hover-b: #8b5cf6;
+  --sb-thumb-active-a: #c4b5fd;
+  --sb-thumb-active-b: #a78bfa;
+
+  --sb-thumb-solid: #4b5563;
+}
+
+// Must come after `.dark` (dark-black may carry both classes).
+:root.dark-black {
+  --sb-page-track: rgba(255, 255, 255, 0.02);
+  --sb-page-line: rgba(255, 255, 255, 0.05);
+
+  --sb-thumb-a: #333333;
+  --sb-thumb-b: #262626;
+  --sb-thumb-hover-a: #9d7bf7;
+  --sb-thumb-hover-b: #7c3aed;
+  --sb-thumb-active-a: #c4b5fd;
+  --sb-thumb-active-b: #a78bfa;
+
+  --sb-thumb-solid: #333333;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  // ───────── Chromium / Safari / Edge ─────────
+  *::-webkit-scrollbar {
+    width: var(--sb-size);
+    height: var(--sb-size);
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--sb-track);
+    margin-block: 4px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    min-height: 40px;
+    min-width: 40px;
+    background-image: linear-gradient(180deg, var(--sb-thumb-a), var(--sb-thumb-b));
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
+
+    &:hover {
+      background-image: linear-gradient(180deg, var(--sb-thumb-hover-a), var(--sb-thumb-hover-b));
+    }
+
+    &:active {
+      background-image: linear-gradient(180deg, var(--sb-thumb-active-a), var(--sb-thumb-active-b));
+    }
+  }
+
+  *::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  // The page (viewport) scrollbar: a touch wider, with a faint track and hairline.
+  html::-webkit-scrollbar {
+    width: var(--sb-page-size);
+    height: var(--sb-page-size);
+  }
+
+  html::-webkit-scrollbar-track {
+    margin-block: 0;
+    background: var(--sb-page-track);
+    box-shadow: inset 1px 0 0 var(--sb-page-line);
+  }
+
+  // ───────── Firefox ─────────
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--sb-thumb-solid) transparent;
+    }
+
+    html {
+      scrollbar-color: var(--sb-thumb-solid) var(--sb-page-track);
+    }
+  }
+}

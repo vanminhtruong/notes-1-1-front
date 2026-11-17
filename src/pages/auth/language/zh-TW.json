@@ -103,6 +103,9 @@
     "facebookRedirect": "正在導向至Facebook登入..."
   },
   "googleModal": {
+    "secure": "安全登入",
+    "noPassword": "無需密碼",
+    "fast": "快速便捷",
     "title": "使用Google登入",
     "subtitle": "選擇您的Google帳戶以繼續",
     "termsText": "登入即表示同意我們的服務條款和隱私政策"
