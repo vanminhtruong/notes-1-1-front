@@ -325,6 +325,8 @@
     },
     "view": {
       "title": "笔记详情",
+      "emptyContentTitle": "暂无内容",
+      "emptyContentDescription": "此笔记尚无文字内容。",
       "share": {
         "title": "分享到聊天",
         "modeUser": "私聊",

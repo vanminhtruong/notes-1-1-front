@@ -325,6 +325,8 @@
     },
     "view": {
       "title": "筆記詳情",
+      "emptyContentTitle": "尚無內容",
+      "emptyContentDescription": "這則筆記尚無文字內容。",
       "share": {
         "title": "分享到聊天",
         "modeUser": "私訊",

@@ -10,6 +10,7 @@ import { Mail, User, X } from 'lucide-react';
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSaved?: () => void;
   initial?: {
     name?: string | null;
     email?: string | null;
@@ -20,7 +21,7 @@ interface EditProfileModalProps {
   };
 }
 
-const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, initial }) => {
+const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, onSaved, initial }) => {
   const { t } = useTranslation('account');
   const dispatch = useAppDispatch();
 
@@ -91,6 +92,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, in
         gender,
       })).unwrap();
 
+      onSaved?.();
       onClose();
     } catch (err: any) {
       // Errors are already toasted in authSlice.updateProfile

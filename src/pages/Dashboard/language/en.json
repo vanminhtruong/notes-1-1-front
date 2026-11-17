@@ -325,6 +325,8 @@
     },
     "view": {
       "title": "Note details",
+      "emptyContentTitle": "No content yet",
+      "emptyContentDescription": "This note does not have any text content yet.",
       "share": {
         "title": "Share to chat",
         "modeUser": "1-1",

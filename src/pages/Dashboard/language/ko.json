@@ -304,6 +304,8 @@
     },
     "view": {
       "title": "노트 상세",
+      "emptyContentTitle": "아직 내용이 없습니다",
+      "emptyContentDescription": "이 노트에는 아직 텍스트 내용이 없습니다.",
       "share": {
         "title": "채팅에 공유",
         "modeUser": "1-1",

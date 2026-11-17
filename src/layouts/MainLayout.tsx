@@ -29,6 +29,9 @@ export default function MainLayout() {
   const [chatOpen, setChatOpen] = useState(false);
   const [devicesOpen, setDevicesOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  // Email is fetched only for the authenticated user and kept in component memory.
+  // It must never be copied into the login payload, JWT or localStorage.
+  const [accountEmail, setAccountEmail] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const socketConnectedRef = useRef(false);
@@ -42,6 +45,25 @@ export default function MainLayout() {
       dispatch(getProfile());
     }
   }, [dispatch, isAuthenticated, token, user]);
+
+  // The login response intentionally omits email. Load it using the private
+  // authenticated profile endpoint, and discard it on logout/account change.
+  useEffect(() => {
+    if (!isAuthenticated || !token) {
+      setAccountEmail(null);
+      return;
+    }
+    let cancelled = false;
+    setAccountEmail(null);
+    authService.getPrivateProfile()
+      .then(({ profile }) => {
+        if (!cancelled) setAccountEmail(profile.email || '');
+      })
+      .catch(() => {
+        if (!cancelled) setAccountEmail('');
+      });
+    return () => { cancelled = true; };
+  }, [isAuthenticated, token, user?.id]);
 
   // Global socket connection - only once for authenticated users
   useEffect(() => {
@@ -290,7 +312,7 @@ export default function MainLayout() {
                           <p className="text-sm font-semibold text-gray-900 dark:text-white truncate md-down:text-xs">{user?.name || t('user.account')}</p>
                           <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300 md-down:text-[11px]">
                             <Mail className="w-3.5 h-3.5 md-down:w-3 md-down:h-3" />
-                            <span className="truncate">{user?.email || '—'}</span>
+                            <span className="truncate" title={accountEmail || undefined}>{accountEmail === null ? '…' : accountEmail || '—'}</span>
                           </div>
                         </div>
                       </div>

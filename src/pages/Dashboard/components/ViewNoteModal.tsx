@@ -1,6 +1,6 @@
 import ModalScrollArea from '@/components/ModalScrollArea';
 import { memo, useState, useEffect } from 'react';
-import { Clock, X } from 'lucide-react';
+import { Clock, FileText, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDateMDYY } from '@/utils/utils';
 import { type Note } from './NoteCard';
@@ -11,6 +11,15 @@ import { socketService } from '@/services/socketService';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import type { NoteTag } from '@/services/notesService';
 import * as LucideIcons from 'lucide-react';
+
+// Rich-text editors may save an empty paragraph, <br>, or &nbsp; instead of an empty string.
+// Embedded media in the HTML is still meaningful content.
+const hasVisibleNoteContent = (html: string | null | undefined): boolean => {
+  if (!html) return false;
+  const document = new DOMParser().parseFromString(html, 'text/html');
+  const text = document.body.textContent?.replace(/[\u00a0\u200b-\u200d\ufeff]/g, '').trim();
+  return Boolean(text || document.body.querySelector('img, video, audio, iframe, svg, canvas, object, embed'));
+};
 
 interface ViewNoteModalProps {
   isOpen: boolean;
@@ -70,6 +79,8 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
 
   if (!isOpen || !note) return null;
 
+  const hasContent = hasVisibleNoteContent(note.content);
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 xl-down:p-3.5 lg-down:p-3 md-down:p-2.5 sm-down:p-2 xs-down:p-1.5 z-[99999]">
       <div className="bg-white dark:bg-gray-800 rounded-2xl xl-down:rounded-xl lg-down:rounded-xl md-down:rounded-lg sm-down:rounded-lg shadow-xl max-w-2xl md-down:max-w-md sm-down:max-w-sm w-full p-6 xl-down:p-5 lg-down:p-5 md-down:p-4 sm-down:p-3.5 xs-down:p-3 max-h-[85vh] flex flex-col overflow-hidden">
@@ -88,12 +99,22 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
           <div>
             <h3 className="text-lg xl-down:text-base md-down:text-base sm-down:text-sm font-semibold text-gray-900 dark:text-white mb-3">{note.title}</h3>
             <div className="bg-gray-50 dark:bg-gray-900/40 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div 
-                className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-200"
-                dangerouslySetInnerHTML={{ 
-                  __html: note.content || `<p class="text-gray-500 dark:text-gray-400 italic">${t('messages.noContent')}</p>` 
-                }}
-              />
+              {hasContent ? (
+                <div
+                  className="prose prose-sm dark:prose-invert max-w-none break-words text-gray-700 dark:text-gray-200"
+                  dangerouslySetInnerHTML={{ __html: note.content }}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-2 py-8 text-center sm-down:py-6" role="status">
+                  <FileText aria-hidden="true" className="h-8 w-8 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                    {t('modals.view.emptyContentTitle')}
+                  </p>
+                  <p className="max-w-sm text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                    {t('modals.view.emptyContentDescription')}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

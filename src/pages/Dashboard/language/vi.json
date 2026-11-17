@@ -306,6 +306,8 @@
     },
     "view": {
       "title": "Chi tiết ghi chú",
+      "emptyContentTitle": "Chưa có nội dung",
+      "emptyContentDescription": "Ghi chú này chưa có nội dung văn bản.",
       "share": {
         "title": "Chia sẻ vào chat",
         "modeUser": "1-1",

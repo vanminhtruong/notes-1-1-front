@@ -7,7 +7,7 @@ import { useAccountPage } from './hooks/useAccountPage';
 
 export default function Account() {
   const { t } = useTranslation('account');
-  const { navigate, user, previewOpen, setPreviewOpen, editOpen, setEditOpen } = useAccountPage();
+  const { navigate, user, phone, privateAccount, onProfileSaved, previewOpen, setPreviewOpen, editOpen, setEditOpen } = useAccountPage();
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-900/60 dark:to-gray-800 min-h-screen">
@@ -32,6 +32,7 @@ export default function Account() {
               </div>
               <button
                 type="button"
+                disabled={!privateAccount}
                 onClick={() => setEditOpen(true)}
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 lg-down:px-2.5 lg-down:py-1.5 lg-down:text-sm md-down:px-2 md-down:py-1 md-down:text-xs sm-down:gap-1.5"
               >
@@ -87,7 +88,7 @@ export default function Account() {
                 <div className="relative">
                   <input
                     type="email"
-                    value={user?.email || ''}
+                    value={privateAccount?.email || ''}
                     readOnly
                     className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-100/80 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:outline-none cursor-not-allowed lg-down:pl-8 lg-down:px-2.5 lg-down:py-1.5 md-down:text-sm sm-down:pl-7 sm-down:text-xs"
                   />
@@ -103,19 +104,19 @@ export default function Account() {
               <div className="col-span-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 md-down:text-xs">{t('form.phone', { defaultValue: 'Số điện thoại' })}</label>
                 <div className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 lg-down:px-2.5 lg-down:py-1.5 md-down:text-sm sm-down:text-xs">
-                  {user?.phone || '-'}
+                  {phone || '-'}
                 </div>
               </div>
               <div className="col-span-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 md-down:text-xs">{t('form.birthDate', { defaultValue: 'Ngày sinh' })}</label>
                 <div className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 lg-down:px-2.5 lg-down:py-1.5 md-down:text-sm sm-down:text-xs">
-                  {user?.birthDate || '-'}
+                  {privateAccount?.birthDate || '-'}
                 </div>
               </div>
               <div className="col-span-1">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 md-down:text-xs">{t('form.gender', { defaultValue: 'Giới tính' })}</label>
                 <div className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 lg-down:px-2.5 lg-down:py-1.5 md-down:text-sm sm-down:text-xs">
-                  {user?.gender ? t(`form.gender.${user.gender}` as any, { defaultValue: user.gender }) : t('form.gender.unspecified', { defaultValue: 'Không tiết lộ' })}
+                  {privateAccount?.gender ? t(`form.gender.${privateAccount.gender}` as any, { defaultValue: privateAccount.gender }) : t('form.gender.unspecified', { defaultValue: 'Không tiết lộ' })}
                 </div>
               </div>
             </div>
@@ -133,13 +134,14 @@ export default function Account() {
         <EditProfileModal
           isOpen={editOpen}
           onClose={() => setEditOpen(false)}
+          onSaved={onProfileSaved}
           initial={{
             name: user?.name ?? '',
-            email: user?.email ?? '',
+            email: privateAccount?.email ?? '',
             avatar: user?.avatar || null,
-            phone: user?.phone ?? '',
-            birthDate: user?.birthDate ?? '',
-            gender: (user?.gender as any) ?? 'unspecified',
+            phone: phone ?? '',
+            birthDate: privateAccount?.birthDate ?? '',
+            gender: (privateAccount?.gender as any) ?? 'unspecified',
           }}
         />
       </section>

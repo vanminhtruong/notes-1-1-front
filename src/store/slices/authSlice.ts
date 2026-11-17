@@ -12,10 +12,24 @@ export interface AuthState {
   error: string | null;
 }
 
+// Never persist contact details in localStorage (including from older API responses).
+const sanitizeAuthUser = (user: User): User => {
+  const safe = { ...user };
+  for (const field of ['phone', 'email', 'birthDate', 'gender', 'phoneHash', 'password', 'e2eePinHash'] as const) {
+    delete (safe as unknown as Record<string, unknown>)[field];
+  }
+  return safe;
+};
+
 const getUserFromStorage = (): User | null => {
   try {
     const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr) return null;
+    const user: User = JSON.parse(userStr);
+    const safe = sanitizeAuthUser(user);
+    // Rewrite data from older sessions to eliminate previously persisted sensitive fields.
+    localStorage.setItem('user', JSON.stringify(safe));
+    return safe;
   } catch {
     return null;
   }
@@ -165,12 +179,12 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
+        state.user = sanitizeAuthUser(action.payload.user);
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
         // Save user info to localStorage
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        localStorage.setItem('user', JSON.stringify(sanitizeAuthUser(action.payload.user)));
         // Ensure E2EE starts locked on fresh login
         sessionStorage.removeItem('e2ee_unlocked');
         // Allow a single auto-prompt this session
@@ -190,12 +204,12 @@ const authSlice = createSlice({
       })
       .addCase(loginWithGoogle.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
+        state.user = sanitizeAuthUser(action.payload.user);
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
         // Save user info to localStorage
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        localStorage.setItem('user', JSON.stringify(sanitizeAuthUser(action.payload.user)));
         // Ensure E2EE starts locked on fresh login
         sessionStorage.removeItem('e2ee_unlocked');
         // Allow a single auto-prompt this session
@@ -241,9 +255,9 @@ const authSlice = createSlice({
       })
       .addCase(getProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
+        state.user = sanitizeAuthUser(action.payload.user);
         // Save user info to localStorage
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        localStorage.setItem('user', JSON.stringify(sanitizeAuthUser(action.payload.user)));
       })
       .addCase(getProfile.rejected, (state, action) => {
         state.isLoading = false;
@@ -256,9 +270,9 @@ const authSlice = createSlice({
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
+        state.user = sanitizeAuthUser(action.payload);
         // Save updated user info to localStorage
-        localStorage.setItem('user', JSON.stringify(action.payload));
+        localStorage.setItem('user', JSON.stringify(sanitizeAuthUser(action.payload)));
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.isLoading = false;

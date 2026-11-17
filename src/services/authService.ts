@@ -61,6 +61,16 @@ export const authService = {
     return response.data;
   },
 
+  async getPrivateProfile(): Promise<{ profile: Pick<User, 'email' | 'birthDate' | 'gender'> }> {
+    const response = await api.get('/auth/profile/private', { headers: { 'Cache-Control': 'no-store' } });
+    return response.data;
+  },
+
+  async getProfilePhone(): Promise<{ phone: string | null }> {
+    const response = await api.get('/auth/profile/phone', { headers: { 'Cache-Control': 'no-store' } });
+    return response.data;
+  },
+
   async getProfile(): Promise<{ user: User; totalNotes: number }> {
     const response = await api.get('/auth/profile');
     return response.data;
