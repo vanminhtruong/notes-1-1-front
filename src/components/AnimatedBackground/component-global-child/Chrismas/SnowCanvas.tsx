@@ -8,7 +8,7 @@ const SnowCanvas = memo(() => {
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext('2d', { desynchronized: true });
     if (!context) return;
     const ctx: CanvasRenderingContext2D = context;
     let animationId = 0;
@@ -188,8 +188,15 @@ const SnowCanvas = memo(() => {
     let lastTime = 0;
     const animate = (now: number) => {
       animationId = requestAnimationFrame(animate);
+      // Hold the frame (no draw) while the page is scrolling; resumes seamlessly after.
+      if (document.documentElement.classList.contains('bg-scrolling')) {
+        lastTime = now;
+        return;
+      }
       const elapsed = now - lastTime;
-      if (lastTime && elapsed < 1000 / 60 - 0.5) return;
+      // Render on every display refresh (no 60fps cap). Motion is delta-time based, so
+      // speed is identical on 60Hz and smoother on 120/144Hz screens.
+      if (lastTime && elapsed <= 0) return;
       const step = lastTime ? Math.min(elapsed / (1000 / 60), 3) : 1;
       lastTime = now;
       t += step;

@@ -38,7 +38,7 @@ const HalloweenBackground = memo(() => {
   const batsOptions = useMemo(
     () => ({
       background: { color: { value: 'transparent' } },
-      fpsLimit: 60,
+      fpsLimit: 120,
       detectRetina: true,
       particles: {
         color: { value: ['#2b2b2b', '#3a3a3a', '#1f1f1f'] },
@@ -71,7 +71,7 @@ const HalloweenBackground = memo(() => {
   const embersOptions = useMemo(
     () => ({
       background: { color: { value: 'transparent' } },
-      fpsLimit: 60,
+      fpsLimit: 120,
       detectRetina: true,
       particles: {
         color: { value: ['#ff8400', '#ffb300', '#ff4800'] },

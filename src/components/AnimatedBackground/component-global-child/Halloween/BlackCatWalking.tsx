@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
 const BlackCatWalking = memo(() => (
-  <div className="absolute" style={{ bottom: '120px', right: '10%', zIndex: 7, animation: 'catWalk 8s linear infinite' }}>
+  <div className="absolute" style={{ bottom: '120px', right: '10%', zIndex: 7, willChange: 'transform', animation: 'catWalk 8s linear infinite' }}>
     <svg width="50" height="30" viewBox="0 0 50 30">
       <ellipse cx="25" cy="18" rx="12" ry="8" fill="#0a0a0a" />
       <circle cx="18" cy="14" r="6" fill="#0a0a0a" />

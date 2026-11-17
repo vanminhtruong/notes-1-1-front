@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState, useRef } from 'react';
 import { useAnimatedBackground } from '@/hooks/useAnimatedBackground';
 import type { AnimatedBackgroundTheme } from '@/hooks/useAnimatedBackground';
+import './performance.css';
 
 const ChristmasBackground = lazy(() => import('./ChristmasBackground'));
 const TetBackground = lazy(() => import('./TetBackground'));
@@ -39,6 +40,29 @@ const AnimatedBackground = () => {
     return () => window.clearTimeout(timer);
   }, [theme, shouldShow]);
 
+  const backgroundActive = shouldShow && theme !== 'none';
+
+  // Mark <html> while a themed background is rendered, and while the user scrolls, so
+  // performance.css can drop expensive glass blur and hold animations during scrolling.
+  useEffect(() => {
+    if (!backgroundActive) return;
+    const root = document.documentElement;
+    root.classList.add('has-animated-bg');
+    let timer = 0;
+    const onScroll = () => {
+      if (!root.classList.contains('bg-scrolling')) root.classList.add('bg-scrolling');
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => root.classList.remove('bg-scrolling'), 150);
+    };
+    // capture: also catches scrolling of inner containers (scroll events don't bubble).
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => {
+      document.removeEventListener('scroll', onScroll, { capture: true } as EventListenerOptions);
+      window.clearTimeout(timer);
+      root.classList.remove('has-animated-bg', 'bg-scrolling');
+    };
+  }, [backgroundActive]);
+
   if (!shouldShow || theme === 'none') {
     return null;
   }
@@ -62,6 +86,11 @@ const AnimatedBackground = () => {
           transition: 'opacity 0.3s ease-in-out',
           zIndex,
           pointerEvents: 'none',
+          // Isolate the whole animated scene on its own GPU layer so its repaints never
+          // touch the app UI (and vice versa). No visual change.
+          contain: 'layout paint style',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
         }}
       >
         <Suspense fallback={null}>

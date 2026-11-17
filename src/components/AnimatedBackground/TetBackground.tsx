@@ -175,7 +175,7 @@ const TetBackground = memo(() => {
         <div
           key={i}
           className="absolute"
-          style={{ left: l.left as string, bottom: l.bottom, zIndex: 3, animation: `lanternFloat 6s ease-in-out ${l.delay}s infinite alternate` }}
+          style={{ left: l.left as string, bottom: l.bottom, zIndex: 3, willChange: 'transform, opacity', animation: `lanternFloat 6s ease-in-out ${l.delay}s infinite alternate` }}
         >
           <div
             className="rounded-t-full rounded-b-md"
@@ -185,6 +185,7 @@ const TetBackground = memo(() => {
               background: 'linear-gradient(180deg, #ffdd55 0%, #ff9900 100%)',
               boxShadow: '0 6px 20px rgba(255,170,0,0.35), inset 0 0 18px rgba(255,255,200,0.6)',
               transformOrigin: 'top center',
+              willChange: 'transform',
               animation: 'lanternSway 4s ease-in-out infinite',
             }}
           >

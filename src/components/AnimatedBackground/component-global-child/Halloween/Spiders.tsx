@@ -57,7 +57,7 @@ const Spiders = memo(() => (
           <line x1="1.5" y1="5" x2="1.5" y2="145" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
         </svg>
 
-        <div style={{ animation: `spiderDrop 5s ease-in-out ${spider.delay}s infinite`, position: 'relative' }}>
+        <div style={{ willChange: 'transform', animation: `spiderDrop 5s ease-in-out ${spider.delay}s infinite`, position: 'relative' }}>
           <svg width="35" height="40" viewBox="0 0 35 40">
             <defs>
               <radialGradient id={`spiderBody${idx}`} cx="40%" cy="40%">

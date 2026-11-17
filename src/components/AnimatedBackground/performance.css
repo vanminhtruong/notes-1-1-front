@@ -1,0 +1,29 @@
+/*
+ * Scroll performance while an animated background is active.
+ * Classes are toggled on <html> by AnimatedBackground/index.tsx:
+ *   .has-animated-bg  -> a themed animated background is currently rendered
+ *   .bg-scrolling     -> the user is scrolling right now (removed ~150ms after the last scroll event)
+ */
+
+/*
+ * 1) Glass blur over a moving background is re-computed every frame while scrolling.
+ *    In dark mode these surfaces are already ~90% opaque (bg-gray-800/90), so the blur is
+ *    visually negligible but extremely expensive. Page-flow surfaces only; fixed overlays,
+ *    modals and dropdowns keep their blur.
+ */
+html.has-animated-bg header.sticky,
+html.has-animated-bg main [class*='backdrop-blur']:not(.fixed):not([class*='inset-0']),
+html.has-animated-bg main .stats-card {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/*
+ * 2) While the page is scrolling, hold the decorative animations for a moment so the
+ *    compositor/main thread is fully free for the scroll. They resume right after.
+ */
+html.bg-scrolling .animated-background-container *,
+html.bg-scrolling .animated-background-container *::before,
+html.bg-scrolling .animated-background-container *::after {
+  animation-play-state: paused !important;
+}

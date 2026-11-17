@@ -21,7 +21,7 @@ const EasterBackground = memo(() => {
   const options = useMemo(
     () => ({
       background: { color: { value: 'transparent' } },
-      fpsLimit: 60,
+      fpsLimit: 120,
       detectRetina: true,
       particles: {
         color: {
@@ -128,7 +128,7 @@ const EasterBackground = memo(() => {
         { left: '72%', bottom: 60, w: 34, h: 46, c1: '#c8f7c5', c2: '#98fb98', delay: 0.4 },
         { left: '86%', bottom: 48, w: 32, h: 44, c1: '#fff0b3', c2: '#ffe680', delay: 1.1 },
       ].map((e, i) => (
-        <div key={i} className="absolute" style={{ left: e.left as string, bottom: e.bottom, zIndex: 4, animation: `eggFloat 7s ease-in-out ${e.delay}s infinite alternate` }}>
+        <div key={i} className="absolute" style={{ left: e.left as string, bottom: e.bottom, zIndex: 4, willChange: 'transform', animation: `eggFloat 7s ease-in-out ${e.delay}s infinite alternate` }}>
           <div style={{ width: e.w, height: e.h, borderRadius: '50% 50% 45% 45% / 55% 55% 45% 45%', background: `linear-gradient(180deg, ${e.c1}, ${e.c2})`, boxShadow: '0 6px 18px rgba(0,0,0,0.25), inset 0 0 10px rgba(255,255,255,0.35)' }} />
         </div>
       ))}
