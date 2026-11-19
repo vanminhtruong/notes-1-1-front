@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { store } from '@/store';
 import { resetAuth } from '@/store/slices/authSlice';
 import i18n from '@/libs/i18n';
+import { getBackendOrigin, isNativeApp } from './backendOrigin';
 
 let socket: Socket | null = null;
 let socketToken: string | null = null;
@@ -16,10 +17,9 @@ export function getSocket(): Socket | null {
   disconnectSocket();
   socketToken = token;
 
-  // Prefer explicit env, otherwise use current hostname so cross-device works
   const envUrl = (import.meta as any).env?.VITE_BACKEND_WS_URL as string | undefined;
-  const host = (typeof window !== 'undefined' && window.location?.hostname) ? window.location.hostname : 'localhost';
-  const url = envUrl || `http://${host}:3000`;
+  const url = isNativeApp ? getBackendOrigin() : (envUrl || getBackendOrigin());
+  if (!url) return null;
 
   socket = io(url, {
     auth: { token },
@@ -33,7 +33,7 @@ export function getSocket(): Socket | null {
   });
 
   // Optional basic logs
-  console.log('[socket] connecting to:', url);
+  console.log(isNativeApp ? '[socket] connecting to configured Android backend' : '[socket] connecting to:', isNativeApp ? '' : url);
   socket.on('connect', () => console.log('[socket] connected:', socket?.id));
   socket.on('connect_error', (err) => {
     console.error('[socket] connect_error:', err.message);

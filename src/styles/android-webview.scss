@@ -1,0 +1,84 @@
+/*
+ * Android WebView-only responsive corrections.
+ * The Android Activity applies window insets to the native WebView container,
+ * so CSS does not add a second safe-area inset for the same system bars.
+ */
+html.capacitor-android {
+  scrollbar-gutter: auto;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html.capacitor-android body,
+html.capacitor-android #root {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  overflow-x: clip;
+}
+
+html.capacitor-android #root {
+  min-height: 100%;
+}
+
+html.capacitor-android img,
+html.capacitor-android video,
+html.capacitor-android canvas,
+html.capacitor-android svg {
+  max-width: 100%;
+}
+
+/* Keep focus fields at a size that won't trigger mobile WebView text zooming. */
+@media (max-width: 767px) {
+  html.capacitor-android input:not([type="checkbox"]):not([type="radio"]),
+  html.capacitor-android textarea,
+  html.capacitor-android select {
+    font-size: max(16px, 1em);
+  }
+
+  html.capacitor-android .chat-float {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    inset: 0;
+  }
+
+  html.capacitor-android .chat-float > .flex-1 {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  html.capacitor-android .ct-row,
+  html.capacitor-android .ch-row,
+  html.capacitor-android .mc-root {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  html.capacitor-android .pm-panel {
+    max-width: calc(100vw - 24px);
+  }
+
+  html.capacitor-android .dashboard-notes-toolbar-layout,
+  html.capacitor-android .dashboard-notes-toolbar-field,
+  html.capacitor-android .dashboard-notes-toolbar-search,
+  html.capacitor-android .dashboard-notes-toolbar-actions {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* Particularly narrow phones: avoid two controls fighting for one row. */
+@media (max-width: 360px) {
+  html.capacitor-android .dashboard-notes-toolbar-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  html.capacitor-android .dashboard-notes-toolbar-filter,
+  html.capacitor-android .dashboard-notes-create {
+    width: 100%;
+  }
+}

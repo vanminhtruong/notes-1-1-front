@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { authService } from '@/services/authService'
 import { lockBodyScroll, unlockBodyScroll } from '@/utils/scrollLock'
+import { useHideScrollbarWhenOpen } from '@/hooks/useHideScrollbarWhenOpen'
 import { socketService } from '@/services/socketService'
 import OfflineSyncCenter, { OfflineSyncMenuItem } from '@/offline/OfflineSyncCenter'
 
@@ -27,6 +28,7 @@ export default function MainLayout() {
   // Session & Account actions start collapsed on every page load.
   const [actionsOpen, setActionsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  useHideScrollbarWhenOpen(chatOpen);
   const [devicesOpen, setDevicesOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   // Email is fetched only for the authenticated user and kept in component memory.
@@ -222,9 +224,9 @@ export default function MainLayout() {
     setMobileNavOpen(false);
   }, [location.pathname]);
 
-  // Hide desktop scroll when chat or mobile nav is open (reference-counted)
+  // Lock desktop scroll only for the mobile nav; chat keeps the page scrollable but hides the scrollbar (reference-counted)
   useEffect(() => {
-    const shouldLock = chatOpen || mobileNavOpen;
+    const shouldLock = Boolean(mobileNavOpen);
     if (shouldLock) {
       lockBodyScroll('MainLayout');
       return () => {
@@ -232,7 +234,7 @@ export default function MainLayout() {
       };
     }
     return;
-  }, [chatOpen, mobileNavOpen]);
+  }, [mobileNavOpen]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">

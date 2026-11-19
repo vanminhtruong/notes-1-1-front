@@ -61,7 +61,7 @@ const ThemeToggle = memo(() => {
   // Detect small viewport (mobile breakpoints) to support desktop emulators
   useEffect(() => {
     try {
-      const mq = window.matchMedia('(max-width: 768px)');
+      const mq = window.matchMedia('(max-width: 1023px)');
       setIsMobileViewport(mq.matches);
       const handler = (e: MediaQueryListEvent) => setIsMobileViewport(e.matches);
       // @ts-ignore: Safari legacy
@@ -132,7 +132,7 @@ const ThemeToggle = memo(() => {
       </button>
 
       {isOpen && (
-        <div className={`absolute mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 lg-down:w-44 md-down:w-40 sm-down:w-36 ${
+        <div className={`absolute mt-2 w-48 max-w-[calc(100vw-1rem)] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 lg-down:w-44 md-down:w-40 lg-down:max-h-[calc(100dvh-5rem)] lg-down:overflow-y-auto lg-down:overscroll-contain ${
           isAuthPage ? 'left-0 -translate-x-[calc(100%-2.5rem)]' : 'right-0'
         }`}>
           {themeOptions.map((option) => {
@@ -144,7 +144,7 @@ const ThemeToggle = memo(() => {
                 key={option.value}
                 className="relative group"
                 onMouseEnter={() => {
-                  if (isDarkBlack && !isTouchDevice && localStorage.getItem('token')) {
+                  if (isDarkBlack && !isTouchDevice && !isMobileViewport && localStorage.getItem('token')) {
                     if (closeTimerRef.current) {
                       window.clearTimeout(closeTimerRef.current);
                       closeTimerRef.current = null;
@@ -154,7 +154,7 @@ const ThemeToggle = memo(() => {
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (isDarkBlack && !isTouchDevice) {
+                  if (isDarkBlack && !isTouchDevice && !isMobileViewport) {
                     const relatedTarget = e.relatedTarget as Element | null;
                     const toSubmenu = !!(relatedTarget && relatedTarget.closest && relatedTarget.closest('.theme-submenu'));
                     if (!toSubmenu) {
@@ -181,7 +181,7 @@ const ThemeToggle = memo(() => {
                         setIsOpen(false);
                       } else {
                         // Logged in: show submenu on touch/mobile
-                        if (isTouchDevice) {
+                        if (isTouchDevice || isMobileViewport) {
                           setHoveredTheme(prev => (prev === option.value ? null : option.value));
                           preloadAnimatedBackgrounds();
                         }
@@ -218,11 +218,13 @@ const ThemeToggle = memo(() => {
                 {/* Submenu for dark-black theme - only show when logged in */}
                 {isDarkBlack && hoveredTheme === option.value && localStorage.getItem('token') && (
                   <div 
-                    className={`theme-submenu absolute top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 lg-down:w-44 md-down:w-40 sm-down:w-36 ${
-                      isAuthPage ? 'right-full mr-1' : 'left-full ml-1 sm-down:left-auto sm-down:right-full sm-down:mr-1 sm-down:ml-0'
+                    className={`theme-submenu bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 ${
+                      isMobileViewport
+                        ? 'relative inset-auto mx-2 my-1 w-[calc(100%-1rem)] max-w-full rounded-md shadow-none'
+                        : 'absolute top-0 right-full mr-1 w-48'
                     }`}
                     onMouseEnter={() => {
-                      if (!isTouchDevice) {
+                      if (!isTouchDevice && !isMobileViewport) {
                         if (closeTimerRef.current) {
                           window.clearTimeout(closeTimerRef.current);
                           closeTimerRef.current = null;
@@ -231,7 +233,7 @@ const ThemeToggle = memo(() => {
                       }
                     }}
                     onMouseLeave={() => {
-                      if (!isTouchDevice) {
+                      if (!isTouchDevice && !isMobileViewport) {
                         if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
                         closeTimerRef.current = window.setTimeout(() => {
                           setHoveredTheme(null);
@@ -247,7 +249,7 @@ const ThemeToggle = memo(() => {
                         disabled={isLoading || isUpdating}
                         className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed md-down:px-3 md-down:py-1.5 sm-down:px-2.5"
                       >
-                        <span className="text-sm text-gray-700 dark:text-gray-200 md-down:text-xs">
+                        <span className="min-w-0 flex-1 break-words text-sm text-gray-700 dark:text-gray-200 md-down:text-xs">
                           {t(bgOption.labelKey)}
                         </span>
                         {theme === 'dark-black' && bgTheme === bgOption.value && (

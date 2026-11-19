@@ -65,6 +65,23 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
+  // ───────── Chat open: hide the page scrollbar, page still scrolls ─────────
+  html.chat-open-hide-scrollbar {
+    scrollbar-width: none; // Firefox
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+
+    // Keep the layout from jumping by reserving the width the scrollbar used to take.
+    body {
+      padding-right: var(--chat-scrollbar-compensation, 0px);
+    }
+  }
+
   // ───────── Chromium / Safari / Edge ─────────
   *::-webkit-scrollbar {
     width: var(--sb-size);

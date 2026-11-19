@@ -1,10 +1,8 @@
 import axios from 'axios';
+import { getBackendOrigin } from './backendOrigin';
 
-// Prefer explicit env, otherwise use current hostname so cross-device/LAN works
-const envBase = (import.meta as any).env?.VITE_BACKEND_HTTP_URL as string | undefined;
-const host = (typeof window !== 'undefined' && window.location?.hostname) ? window.location.hostname : 'localhost';
-const baseOrigin = envBase || `http://${host}:3000`;
-const API_BASE_URL = `${baseOrigin.replace(/\/$/, '')}/api/v1`;
+// Android uses a user-configured HTTPS backend; the website keeps its current behavior.
+const API_BASE_URL = `${getBackendOrigin().replace(/\/$/, '')}/api/v1`;
 
 // Create axios instance
 const api = axios.create({
