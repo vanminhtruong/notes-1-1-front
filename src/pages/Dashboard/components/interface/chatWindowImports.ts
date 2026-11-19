@@ -19,7 +19,7 @@ export { useChatData } from '../../hooks/Manager-useState/useChatDataState.ts';
 export { useMessageComposer } from '../../hooks/Manager-handle/useMessageComposerHandler.ts';
 export { useAttachmentDownloader } from '../../hooks/Manager-handle/useAttachmentDownloaderHandler.ts';
 export { useGroupedMessages } from '../../hooks/Manager-useState/useGroupedMessagesState.ts';
-export { useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useNotificationItems } from '../../hooks/Manager-handle/useChatComputationsHandler.ts';
+export { useFilteredUsers, useGroupOnline, useRemovableMembers } from '../../hooks/Manager-handle/useChatComputationsHandler.ts';
 export { useBellNavigation } from '../../hooks/Manager-Effects/useBellNavigationEffect.ts';
 export { usePreviewEscape } from '../../hooks/Manager-Effects/usePreviewEscapeEffect.ts';
 export { useVisibilityRefresh } from '../../hooks/Manager-Effects/useVisibilityRefreshEffect.ts';

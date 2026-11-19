@@ -32,7 +32,6 @@ export interface Message {
 export interface ChatListItem {
   friend: User;
   lastMessage: Message | null;
-  unreadCount: number;
   friendshipId: number;
 }
 
@@ -123,11 +122,6 @@ export const chatService = {
     return response.data;
   },
 
-  // Get unread count
-  async getUnreadCount() {
-    const response = await api.get('/chat/unread-count');
-    return response.data;
-  },
 
   // Recall messages
   async recallMessages(messageIds: number[], scope: 'self' | 'all') {

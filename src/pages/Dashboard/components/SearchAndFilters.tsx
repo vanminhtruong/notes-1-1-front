@@ -471,7 +471,7 @@ const SearchAndFilters = memo(({
                 flex items-center gap-2.5
                 px-5 py-3 md-down:px-4 md-down:py-2.5 sm-down:px-3 sm-down:py-2
                 text-white rounded-xl
-                disabled:cursor-wait
+                cursor-pointer disabled:cursor-pointer
                 overflow-hidden
                 w-full h-full
               `}

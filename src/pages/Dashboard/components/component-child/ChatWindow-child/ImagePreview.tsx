@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ImagePreviewProps } from '../../interface/ChatUI.interface';
@@ -5,9 +6,9 @@ import type { ImagePreviewProps } from '../../interface/ChatUI.interface';
 const ImagePreview = memo(({ previewImage, onClose }: ImagePreviewProps) => {
   const { t } = useTranslation('dashboard');
   if (!previewImage) return null;
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[10050] bg-black/70 flex items-center justify-center p-4"
     >
       <div className="relative max-w-[90vw] max-h-[90vh]">
         <button
@@ -27,7 +28,7 @@ const ImagePreview = memo(({ previewImage, onClose }: ImagePreviewProps) => {
         />
       </div>
     </div>
-  );
+  , document.body);
 });
 
 ImagePreview.displayName = 'ImagePreview';

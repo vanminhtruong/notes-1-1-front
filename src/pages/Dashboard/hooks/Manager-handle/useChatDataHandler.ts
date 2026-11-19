@@ -8,7 +8,6 @@ import type { GroupSummary } from '../../../../services/groupService';
 export type ChatListItem = {
   friend: User;
   lastMessage: Message | null;
-  unreadCount?: number;
   friendshipId?: number;
   isPinned?: boolean;
   nickname?: string | null;
@@ -152,7 +151,6 @@ export const useChatDataHandler = ({
         const items = (response.data || []).map((it: any) => ({
           friend: it.friend as User,
           lastMessage: it.lastMessage as Message | null,
-          unreadCount: it.unreadCount as number | undefined,
           friendshipId: it.friendshipId as number | undefined,
           isPinned: !!it.isPinned,
           nickname: it.nickname ?? null,

@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import ModalScrollArea from '@/components/ModalScrollArea';
 import React, { memo } from 'react';
 import NicknameModal from './NicknameModal';
@@ -56,12 +57,12 @@ const ReactionDetailsModal = memo(function ReactionDetailsModal({ open, onClose,
   const [showNickname, setShowNickname] = React.useState(false);
   const [initialNickname, setInitialNickname] = React.useState<string>('');
 
-  return (
-    <div className="fixed inset-0 z-[1000]">
+  return createPortal(
+    <div className="fixed inset-0 z-[10050]">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50" />
       {/* Modal */}
-      <div className="absolute left-1/2 top-1/2 w-[560px] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white text-gray-900 shadow-xl dark:bg-gray-900 dark:text-gray-100">
+      <div className="absolute left-1/2 top-1/2 w-[560px] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white text-gray-900 shadow-xl dark:bg-gray-900 dark-black:bg-black dark:text-gray-100">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
           <div className="text-sm font-semibold">{title}</div>
@@ -178,7 +179,7 @@ const ReactionDetailsModal = memo(function ReactionDetailsModal({ open, onClose,
         />
       </div>
     </div>
-  );
+  , document.body);
 });
 
 ReactionDetailsModal.displayName = 'ReactionDetailsModal';

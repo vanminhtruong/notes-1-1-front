@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { User, Message, GroupSummary } from '../../components/interface/chatWindowImports';
 
 export const useChatWindowState = () => {
-  const [activeTab, setActiveTab] = useState<'users' | 'chats' | 'unread' | 'groups' | 'sharedNotes'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'chats' | 'groups' | 'sharedNotes'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [friends, setFriends] = useState<User[]>([]);
   const [friendRequests, setFriendRequests] = useState<User[]>([]);
@@ -14,7 +14,7 @@ export const useChatWindowState = () => {
   const [messages, setMessages] = useState<(Message | any)[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [onlineIds, setOnlineIds] = useState<number[]>([]);
-  const [chatList, setChatList] = useState<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean }>>([]);
+  const [chatList, setChatList] = useState<Array<{ friend: User; lastMessage: Message | null; friendshipId?: number; isPinned?: boolean }>>([]);
   const [myGroups, setMyGroups] = useState<GroupSummary[]>([]);
   const [pendingInvites, setPendingInvites] = useState<Array<{ id: number; status: 'pending' | 'accepted' | 'declined'; group: any; inviter: any }>>([]);
   const [historyLoading, setHistoryLoading] = useState<boolean>(false);

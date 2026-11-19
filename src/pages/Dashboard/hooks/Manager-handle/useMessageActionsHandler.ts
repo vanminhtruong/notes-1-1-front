@@ -7,7 +7,7 @@ interface UseMessageActionsHandlerProps {
   selectedChat: User | null;
   selectedGroup: GroupSummary | null;
   setMessages: React.Dispatch<React.SetStateAction<(Message | any)[]>>;
-  setChatList: React.Dispatch<React.SetStateAction<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean }>>>;
+  setChatList: React.Dispatch<React.SetStateAction<Array<{ friend: User; lastMessage: Message | null; friendshipId?: number; isPinned?: boolean }>>>;
   setMenuOpenKey: React.Dispatch<React.SetStateAction<string | null>>;
   t: any;
 }

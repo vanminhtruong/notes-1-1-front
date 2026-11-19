@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import ModalScrollArea from '@/components/ModalScrollArea';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -41,12 +42,12 @@ const InviteMembersModal: React.FC<InviteMembersModalProps> = memo(({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 xl-down:p-3.5 lg-down:p-3 md-down:p-2.5 sm-down:p-2 xs-down:p-1.5 z-50 animate-fadeIn"
+      className="fixed inset-0 z-[10050] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 xl-down:p-3.5 lg-down:p-3 md-down:p-2.5 sm-down:p-2 xs-down:p-1.5 animate-fadeIn"
     >
       <div 
-        className="bg-white dark:bg-gray-800 rounded-2xl xl-down:rounded-xl lg-down:rounded-xl md-down:rounded-lg sm-down:rounded-lg xs-down:rounded-lg shadow-2xl w-[540px] max-w-full max-h-[90vh] overflow-hidden animate-slideUp flex flex-col"
+        className="bg-white dark:bg-gray-800 dark-black:bg-black rounded-2xl xl-down:rounded-xl lg-down:rounded-xl md-down:rounded-lg sm-down:rounded-lg xs-down:rounded-lg shadow-2xl w-[540px] max-w-full max-h-[90vh] overflow-hidden animate-slideUp flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -137,7 +138,7 @@ const InviteMembersModal: React.FC<InviteMembersModalProps> = memo(({
 
           {/* User List */}
           <div className="border-2 border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden md-down:rounded-lg xs-down:rounded-md">
-            <div className="bg-gray-50 dark:bg-gray-900/50 px-4 py-2 border-b border-gray-200 dark:border-gray-700 md-down:px-3 md-down:py-1.5 xs-down:px-2.5 xs-down:py-1">
+            <div className="bg-gray-50 dark:bg-gray-900 dark-black:bg-black/50 px-4 py-2 border-b border-gray-200 dark:border-gray-700 md-down:px-3 md-down:py-1.5 xs-down:px-2.5 xs-down:py-1">
               <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide md-down:text-[11px] xs-down:text-[10px]">
                 {t('chat.groups.invite.availableUsers', 'Người dùng khả dụng')}
               </p>
@@ -277,7 +278,7 @@ const InviteMembersModal: React.FC<InviteMembersModalProps> = memo(({
         }
       `}</style>
     </div>
-  );
+  , document.body);
 });
 
 InviteMembersModal.displayName = 'InviteMembersModal';

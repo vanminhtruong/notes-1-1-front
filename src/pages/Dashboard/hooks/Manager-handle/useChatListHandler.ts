@@ -7,7 +7,7 @@ interface UseChatListHandlerProps {
   friends: User[];
   users: User[];
   selectedChat: User | null;
-  setChatList: React.Dispatch<React.SetStateAction<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean }>>>;
+  setChatList: React.Dispatch<React.SetStateAction<Array<{ friend: User; lastMessage: Message | null; friendshipId?: number; isPinned?: boolean }>>>;
   setMessages: React.Dispatch<React.SetStateAction<(Message | any)[]>>;
   loadFriends: () => Promise<void>;
   loadChatList: () => Promise<void>;
@@ -61,7 +61,7 @@ export const useChatListHandler = ({
         toast.success(t('chat.success.messagesDeletedForMe', { name: friendName }));
         setChatList((prev) => prev.map((item) => 
           item.friend.id === friendId 
-            ? { ...item, lastMessage: null, unreadCount: 0 }
+            ? { ...item, lastMessage: null }
             : item
         ));
         if (selectedChat?.id === friendId) {

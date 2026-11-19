@@ -13,6 +13,7 @@ import EditSharedNoteModal from '@/components/EditSharedNoteModal';
 import ViewSharedNoteModal from '~/pages/Dashboard/components/component-child/ViewSharedNoteModal';
 import Pagination from '@/components/Pagination';
 import LazyLoad from '@/components/LazyLoad';
+import './ChatWindow-child/chat-tabs.css';
 
 export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTabProps) => {
   const { t } = useTranslation('dashboard');
@@ -277,21 +278,22 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
   const currentChangePage = subTab === 'received' ? changePage.withMe : subTab === 'sent' ? changePage.byMe : changePage.groups;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="ct flex flex-col h-full">
       {/* Sub-tabs */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex gap-2 overflow-x-auto">
+      <div className="ct-seg-wrap">
+        <div className="ct-seg" role="tablist">
           <button
             onClick={() => setSubTab('received')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+            aria-selected={subTab === 'received'}
+            role="tab" className={`ct-seg-btn ${
               subTab === 'received'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-white/70 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                ? 'is-active'
+                : ''
             }`}
           >
             {t('sharedNotes.received')}
             {totalWithMe > 0 && (
-              <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-white/20">
+              <span className="ct-seg-count">
                 {totalWithMe}
               </span>
             )}
@@ -299,15 +301,16 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
           
           <button
             onClick={() => setSubTab('sent')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+            aria-selected={subTab === 'sent'}
+            role="tab" className={`ct-seg-btn ${
               subTab === 'sent'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-white/70 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                ? 'is-active'
+                : ''
             }`}
           >
             {t('sharedNotes.sent')}
             {totalByMe > 0 && (
-              <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-white/20">
+              <span className="ct-seg-count">
                 {totalByMe}
               </span>
             )}
@@ -315,15 +318,16 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
 
           <button
             onClick={() => setSubTab('groups')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+            aria-selected={subTab === 'groups'}
+            role="tab" className={`ct-seg-btn ${
               subTab === 'groups'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-white/70 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                ? 'is-active'
+                : ''
             }`}
           >
             {t('sharedNotes.groups') || 'Groups'}
             {totalGroups > 0 && (
-              <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-white/20">
+              <span className="ct-seg-count">
                 {totalGroups}
               </span>
             )}
@@ -333,7 +337,7 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
         <button
           onClick={refreshSharedNotes}
           disabled={isLoading}
-          className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors disabled:opacity-50"
+          className="ct-icon-btn ct-refresh"
           title={t('sharedNotes.refresh')}
         >
           <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -342,20 +346,20 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
 
       {/* Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+        <div className="ct-scroll ct-list ct-list--cards">
         {isLoading && currentNotes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-            <Loader2 className="w-8 h-8 animate-spin mb-2" />
-            <p className="text-sm">{t('sharedNotes.loading')}</p>
+          <div className="ct-empty">
+            <Loader2 className="w-8 h-8 animate-spin mb-2" style={{ color: 'var(--ct-muted)' }} />
+            <p className="ct-empty-desc">{t('sharedNotes.loading')}</p>
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center h-full text-red-500 dark:text-red-400">
+          <div className="ct-error">
             <p className="text-sm">{error}</p>
           </div>
         ) : currentNotes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-            <Inbox className="w-12 h-12 mb-3 opacity-50" />
-            <p className="text-sm font-medium mb-1">
+          <div className="ct-empty">
+            <span className="ct-empty-icon"><Inbox className="w-8 h-8" strokeWidth={1.7} /></span>
+            <p className="ct-empty-title">
               {subTab === 'received' 
                 ? t('sharedNotes.noReceivedNotes')
                 : subTab === 'sent'
@@ -363,7 +367,7 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
                 : (t('sharedNotes.noGroupNotes') || 'No group shared notes')
               }
             </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500">
+            <p className="ct-empty-desc">
               {subTab === 'received'
                 ? t('sharedNotes.noReceivedNotesDesc')
                 : subTab === 'sent'
@@ -432,7 +436,7 @@ export const SharedNotesTab = memo(({ searchTerm, currentUserId }: SharedNotesTa
 
         {/* Pagination */}
         {!isLoading && currentNotes.length > 0 && (
-          <div className="border-t border-gray-200 dark:border-gray-700 px-2 py-1.5">
+          <div className="ct-pager">
             <div className="scale-75 origin-center">
               <Pagination
                 currentPage={currentPagination.currentPage}

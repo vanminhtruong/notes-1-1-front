@@ -97,20 +97,20 @@ const ViewNoteModal = memo(({ isOpen, onClose, note, onOpenShare, getPriorityCol
 
         <ModalScrollArea className="space-y-4 xl-down:space-y-3.5 lg-down:space-y-3 md-down:space-y-3 sm-down:space-y-2.5 min-h-0 flex-1">
           <div>
-            <h3 className="text-lg xl-down:text-base md-down:text-base sm-down:text-sm font-semibold text-gray-900 dark:text-white mb-3">{note.title}</h3>
-            <div className="bg-gray-50 dark:bg-gray-900/40 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <h3 className={`text-lg xl-down:text-base md-down:text-base sm-down:text-sm font-semibold text-gray-900 dark:text-white ${hasContent ? 'mb-3' : 'mb-2'}`}>{note.title}</h3>
+            <div className={`bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-700 ${hasContent ? 'p-4' : 'px-3 py-2.5 sm-down:px-2.5 sm-down:py-2'}`}>
               {hasContent ? (
                 <div
                   className="prose prose-sm dark:prose-invert max-w-none break-words text-gray-700 dark:text-gray-200"
                   dangerouslySetInnerHTML={{ __html: note.content }}
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center gap-2 py-8 text-center sm-down:py-6" role="status">
-                  <FileText aria-hidden="true" className="h-8 w-8 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                <div className="flex flex-col items-center justify-center gap-1 text-center" role="status">
+                  <FileText aria-hidden="true" className="h-5 w-5 text-gray-400 dark:text-gray-500" strokeWidth={1.5} />
+                  <p className="text-xs font-medium leading-5 text-gray-700 dark:text-gray-200">
                     {t('modals.view.emptyContentTitle')}
                   </p>
-                  <p className="max-w-sm text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                  <p className="max-w-sm text-[11px] leading-4 text-gray-500 dark:text-gray-400">
                     {t('modals.view.emptyContentDescription')}
                   </p>
                 </div>

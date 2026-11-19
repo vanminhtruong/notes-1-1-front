@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, UserPen } from 'lucide-react';
@@ -33,8 +34,8 @@ const NicknameModal = memo(function NicknameModal({ open, onClose, user, initial
     }
   };
 
-  return (
-    <div className="pm-overlay z-[1000]">
+  return createPortal(
+    <div className="pm-overlay z-[10060]">
       <div className="pm-panel pm-panel--sm" role="dialog" aria-modal="true">
         {/* Header */}
         <div className="pm-header">
@@ -91,7 +92,7 @@ const NicknameModal = memo(function NicknameModal({ open, onClose, user, initial
         </div>
       </div>
     </div>
-  );
+  , document.body);
 });
 
 NicknameModal.displayName = 'NicknameModal';

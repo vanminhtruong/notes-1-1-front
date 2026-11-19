@@ -133,13 +133,13 @@ const NotificationBell = memo(({ total, ring, ringSeq, items, pagination, isLoad
       <button
         key={ringSeq}
         onClick={() => setOpen((o) => !o)}
-        className={`relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${(hasUnread && (ring || periodic)) ? 'bell-shake' : ''}`}
+        className={`hd-orb ${(hasUnread && (ring || periodic)) ? 'bell-shake' : ''}`}
         aria-label={t('chat.notificationsBell.bellAria')}
       >
-        <Bell className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+        <Bell className="h-[18px] w-[18px]" strokeWidth={2} />
         {hasUnread && (
           <span
-            className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] leading-[18px] text-center shadow-lg badge-bounce"
+            className="hd-badge absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-white text-[10px] leading-[18px] text-center shadow-lg badge-bounce"
           >
             {total > 99 ? '99+' : total}
           </span>

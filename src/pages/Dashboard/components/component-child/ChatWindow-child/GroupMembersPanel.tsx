@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import ModalScrollArea from '@/components/ModalScrollArea';
 import { useEffect, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -148,13 +149,13 @@ const GroupMembersPanel = memo(function GroupMembersPanel({ open, groupId, onClo
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-40" role="dialog" aria-modal="true">
+  return createPortal(
+    <div className="fixed inset-0 z-[10050]" role="dialog" aria-modal="true">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/30" />
 
       {/* Panel */}
-      <div className="absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 shadow-2xl flex flex-col">
+      <div className="absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-gray-900 dark-black:bg-black border-l border-gray-200 dark:border-gray-700 shadow-2xl flex flex-col">
         <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <h4 className="text-base font-semibold text-gray-900 dark:text-white">{t('chat.groups.members.title', 'Thành viên nhóm')}</h4>
           <button
@@ -193,12 +194,12 @@ const GroupMembersPanel = memo(function GroupMembersPanel({ open, groupId, onClo
                               {m.avatar ? <img src={m.avatar} alt={m.name} className="w-full h-full object-cover" /> : (m.name || '').charAt(0)}
                             </div>
                             {m.role === 'owner' && (
-                              <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 border border-amber-300 dark:border-amber-600 shadow-sm">
+                              <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 dark-black:bg-black border border-amber-300 dark:border-amber-600 shadow-sm">
                                 <Key className="w-2.5 h-2.5 text-amber-500" />
                               </span>
                             )}
                             {m.role === 'admin' && (
-                              <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 shadow-sm">
+                              <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 dark-black:bg-black border border-gray-300 dark:border-gray-600 shadow-sm">
                                 <Key className="w-2.5 h-2.5 text-gray-500 dark:text-gray-300" />
                               </span>
                             )}
@@ -283,12 +284,12 @@ const GroupMembersPanel = memo(function GroupMembersPanel({ open, groupId, onClo
                             {m.avatar ? <img src={m.avatar} alt={m.name} className="w-full h-full object-cover" /> : (m.name || '').charAt(0)}
                           </div>
                           {m.role === 'owner' && (
-                            <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 border border-amber-300 dark:border-amber-600 shadow-sm">
+                            <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 dark-black:bg-black border border-amber-300 dark:border-amber-600 shadow-sm">
                               <Key className="w-2.5 h-2.5 text-amber-500" />
                             </span>
                           )}
                           {m.role === 'admin' && (
-                            <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 shadow-sm">
+                            <span className="absolute -bottom-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-gray-900 dark-black:bg-black border border-gray-300 dark:border-gray-600 shadow-sm">
                               <Key className="w-2.5 h-2.5 text-gray-500 dark:text-gray-300" />
                             </span>
                           )}
@@ -325,7 +326,7 @@ const GroupMembersPanel = memo(function GroupMembersPanel({ open, groupId, onClo
         </ModalScrollArea>
       </div>
     </div>
-  );
+  , document.body);
 });
 
 GroupMembersPanel.displayName = 'GroupMembersPanel';

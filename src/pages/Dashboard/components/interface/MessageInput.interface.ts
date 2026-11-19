@@ -16,4 +16,6 @@ export interface MessageInputProps {
   onClearReply?: () => void;
   // Recipient status
   recipientIsActive?: boolean;
+  // Group chat uses the compact unified composer layout.
+  isGroup?: boolean;
 }

@@ -519,11 +519,10 @@
       "left": "{{name}} 離開了群組"
     },
     "header": {
-      "title": "信使",
+      "title": "連結",
       "searchPlaceholder": "搜尋...",
       "tabs": {
         "all": "全部",
-        "unread": "未讀",
         "users": "用戶",
         "groups": "群組"
       }
@@ -804,6 +803,8 @@
       "removeFileAria": "移除檔案",
       "attachFileAria": "新增檔案",
       "placeholder": "Aa",
+      "groupPlaceholder": "傳送群組訊息...",
+      "messagePlaceholder": "\u8f38\u5165\u8a0a\u606f...",
       "recipientBanned": "帳戶因違反政策已被停用"
     },
     "blocked": {

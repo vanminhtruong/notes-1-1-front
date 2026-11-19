@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { ChatSettingsProps } from '../../interface/ChatSettings.interface';
 import BlockedUsersModal from './BlockedUsersModal';
 
-const ChatSettings: React.FC<ChatSettingsProps> = memo(({ readStatusEnabled, hidePhone, hideBirthDate, allowMessagesFromNonFriends, blockedUsers, onBack, onToggleReadStatus, onToggleHidePhone, onToggleHideBirthDate, onToggleAllowMessagesFromNonFriends, onUnblockUser }) => {
+const ChatSettings: React.FC<ChatSettingsProps> = memo(({ readStatusEnabled, hidePhone, hideBirthDate, blockedUsers, onBack, onToggleReadStatus, onToggleHidePhone, onToggleHideBirthDate, onUnblockUser }) => {
   const { t } = useTranslation('dashboard');
   
   const [showBlocked, setShowBlocked] = useState(false);
@@ -32,25 +32,6 @@ const ChatSettings: React.FC<ChatSettingsProps> = memo(({ readStatusEnabled, hid
           </div>
           <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
             {readStatusEnabled ? t('chat.settings.readStatus.enabled') : t('chat.settings.readStatus.disabled')}
-          </div>
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex-1 min-w-0 pr-3">
-              <div className="font-medium text-gray-900 dark:text-gray-100">{t('chat.settings.messagingFromNonFriends.title', 'Cho phép nhận tin nhắn từ người lạ')}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">{t('chat.settings.messagingFromNonFriends.description', 'Nếu bật, người chưa kết bạn vẫn có thể gửi tin nhắn cho bạn.')}</div>
-            </div>
-            <button
-              onClick={() => onToggleAllowMessagesFromNonFriends(!allowMessagesFromNonFriends)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${allowMessagesFromNonFriends ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-              aria-pressed={allowMessagesFromNonFriends}
-            >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${allowMessagesFromNonFriends ? 'translate-x-6' : 'translate-x-1'}`} />
-            </button>
-          </div>
-          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            {allowMessagesFromNonFriends ? t('chat.settings.messagingFromNonFriends.enabled', 'Đã cho phép nhận tin từ người lạ') : t('chat.settings.messagingFromNonFriends.disabled', 'Không cho phép nhận tin từ người lạ')}
           </div>
         </div>
 

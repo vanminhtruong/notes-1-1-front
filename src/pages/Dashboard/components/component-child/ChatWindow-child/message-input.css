@@ -1,0 +1,589 @@
+/* ==========================================================================
+   MessageInput — "Aurora Dock"
+   Ba chế độ: sáng (mặc định) · tối (.dark) · tối đen (.dark.dark-black)
+   Chỉ animate transform + opacity => mượt, không giật.
+   Không dùng class tailwind bg-blue / bg-gradient / ring-blue vì
+   _buttons.module.scss ép chúng thành xám ở dark-black.
+   ========================================================================== */
+
+/* ---------- Tokens: SÁNG ---------- */
+.mc-root,
+.mc-pop {
+  --mc-dock: #ffffff;
+  --mc-dock-line: rgba(15, 23, 42, 0.08);
+  --mc-surface: #f6f8fc;
+  --mc-surface-hi: #ffffff;
+  --mc-orb: #ffffff;
+  --mc-orb-hover: #eef2ff;
+  --mc-border: rgba(15, 23, 42, 0.1);
+  --mc-border-hi: rgba(15, 23, 42, 0.16);
+  --mc-sheen: rgba(255, 255, 255, 0.9);
+  --mc-text: #0f172a;
+  --mc-muted: #64748b;
+  --mc-placeholder: #94a3b8;
+  --mc-icon: #475569;
+  --mc-icon-hover: #4f46e5;
+  --mc-accent-1: #3b82f6;
+  --mc-accent-2: #8b5cf6;
+  --mc-accent-3: #06b6d4;
+  --mc-aurora: linear-gradient(120deg, var(--mc-accent-1), var(--mc-accent-2) 50%, var(--mc-accent-3));
+  --mc-send-bg: var(--mc-aurora);
+  --mc-send-fg: #ffffff;
+  --mc-send-shadow: 0 8px 18px -8px var(--mc-accent-2);
+  --mc-send-off-bg: rgba(15, 23, 42, 0.06);
+  --mc-send-off-icon: #94a3b8;
+  --mc-glow-opacity: 0.38;
+  --mc-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px -12px rgba(15, 23, 42, 0.18);
+  --mc-pop-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.28), 0 2px 6px rgba(15, 23, 42, 0.06);
+  --mc-danger-bg: #fef2f2;
+  --mc-danger-line: #fecaca;
+  --mc-danger-text: #b91c1c;
+}
+
+/* ---------- Tokens: TỐI ---------- */
+.dark .mc-root,
+.dark .mc-pop {
+  --mc-dock: #111317;
+  --mc-dock-line: rgba(255, 255, 255, 0.07);
+  --mc-surface: #1a1e26;
+  --mc-surface-hi: #222833;
+  --mc-orb: #262c37;
+  --mc-orb-hover: #303848;
+  --mc-border: rgba(255, 255, 255, 0.09);
+  --mc-border-hi: rgba(255, 255, 255, 0.16);
+  --mc-sheen: rgba(255, 255, 255, 0.07);
+  --mc-text: #f1f5f9;
+  --mc-muted: #94a3b8;
+  --mc-placeholder: #64748b;
+  --mc-icon: #a8b3c7;
+  --mc-icon-hover: #c4b5fd;
+  --mc-send-off-bg: rgba(255, 255, 255, 0.06);
+  --mc-send-off-icon: #566074;
+  --mc-glow-opacity: 0.45;
+  --mc-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -12px rgba(0, 0, 0, 0.6);
+  --mc-pop-shadow: 0 28px 56px -16px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --mc-danger-bg: rgba(127, 29, 29, 0.22);
+  --mc-danger-line: rgba(248, 113, 113, 0.3);
+  --mc-danger-text: #fca5a5;
+}
+
+/* ---------- Tokens: TỐI ĐEN (đứng sau .dark để thắng thứ tự) ---------- */
+.dark-black .mc-root,
+.dark-black .mc-pop {
+  --mc-dock: #000000;
+  --mc-dock-line: rgba(255, 255, 255, 0.08);
+  --mc-surface: #0a0a0a;
+  --mc-surface-hi: #141414;
+  --mc-orb: #121212;
+  --mc-orb-hover: #1d1d1d;
+  --mc-border: rgba(255, 255, 255, 0.1);
+  --mc-border-hi: rgba(255, 255, 255, 0.2);
+  --mc-sheen: rgba(255, 255, 255, 0.05);
+  --mc-placeholder: #5b6474;
+  --mc-send-off-bg: rgba(255, 255, 255, 0.05);
+  --mc-send-off-icon: #4a5262;
+  --mc-glow-opacity: 0.5;
+  --mc-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02), 0 12px 32px -14px rgba(0, 0, 0, 0.9);
+  --mc-pop-shadow: 0 30px 60px -16px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --mc-danger-bg: rgba(69, 10, 10, 0.5);
+  /* đơn sắc: bỏ sắc xanh-tím của chế độ tối thường */
+  --mc-accent-1: #f5f5f5;
+  --mc-accent-2: #a3a3a3;
+  --mc-accent-3: #525252;
+  --mc-aurora: linear-gradient(120deg, #fafafa, #8c8c8c 50%, #3d3d3d);
+  --mc-icon-hover: #ffffff;
+  --mc-orb-hover: #2a2a2a;
+  --mc-border-hi: #4a4a4a;
+  /* Nút gửi ở tối đen: xám đậm + viền xám (KHÔNG dùng trắng) — khớp $bg-card/$bg-hover/$border-hover */
+  --mc-send-bg: #1a1a1a;
+  --mc-send-fg: #f1f1f1;
+  --mc-send-shadow: 0 0 0 1px #4a4a4a;
+  --mc-glow-opacity: 0.2;
+}
+
+/* ---------- Dock ---------- */
+.mc-root {
+  position: relative;
+  z-index: 50;
+  flex-shrink: 0;
+  padding: 12px 14px 14px;
+  background: var(--mc-dock);
+  color: var(--mc-text);
+}
+/* hairline gradient mờ hai đầu thay cho border-top phẳng */
+.mc-root::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mc-dock-line) 18%, var(--mc-dock-line) 82%, transparent);
+  pointer-events: none;
+}
+
+.mc-shell {
+  position: relative;
+  min-width: 0;
+}
+
+/* Glow tĩnh: blur dựng 1 lần, chỉ đổi opacity => không repaint */
+.mc-glow {
+  position: absolute;
+  inset: 4px 10px -6px;
+  border-radius: 28px;
+  background: var(--mc-aurora);
+  filter: blur(16px);
+  opacity: 0;
+  transform: translateZ(0);
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.mc-shell:focus-within .mc-glow {
+  opacity: var(--mc-glow-opacity);
+}
+
+/* ---------- Capsule ---------- */
+.mc-capsule {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 22px;
+  background: var(--mc-surface);
+  box-shadow: inset 0 0 0 1px var(--mc-border), var(--mc-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+/* viền aurora: mask-composite, chỉ hiện khi focus */
+.mc-capsule::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--mc-aurora);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+/* sheen mép trên: cảm giác kính */
+.mc-capsule::after {
+  content: '';
+  position: absolute;
+  inset: 1px 18px auto 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mc-sheen), transparent);
+  pointer-events: none;
+}
+.mc-shell:focus-within .mc-capsule::before {
+  opacity: 1;
+}
+.mc-shell:focus-within .mc-capsule {
+  background: var(--mc-surface-hi);
+}
+.mc-capsule[data-filled='true']:not(:focus-within)::before {
+  opacity: 0.35;
+}
+
+/* ---------- Orb buttons (kẹp giấy / emoji / đóng) ---------- */
+.mc-icon-btn {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--mc-orb);
+  color: var(--mc-icon);
+  box-shadow: inset 0 0 0 1px var(--mc-border);
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.22s ease,
+    color 0.22s ease, box-shadow 0.22s ease;
+}
+.mc-icon-btn svg {
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.mc-icon-btn:hover {
+  background: var(--mc-orb-hover);
+  color: var(--mc-icon-hover);
+  box-shadow: inset 0 0 0 1px var(--mc-border-hi);
+  transform: translateY(-1px);
+}
+.mc-icon-btn:hover svg {
+  transform: rotate(-14deg) scale(1.08);
+}
+.mc-icon-btn:active {
+  transform: scale(0.92);
+}
+.mc-icon-btn--ghost {
+  background: transparent;
+  box-shadow: none;
+  width: 36px;
+  height: 36px;
+}
+.mc-icon-btn--ghost:hover {
+  background: var(--mc-orb-hover);
+  box-shadow: none;
+}
+.mc-icon-btn--ghost[aria-expanded='true'] {
+  color: var(--mc-icon-hover);
+  background: var(--mc-orb-hover);
+}
+.mc-icon-btn--sm {
+  width: 28px;
+  height: 28px;
+}
+
+.mc-icon-btn:focus-visible,
+.mc-send:focus-visible,
+.mc-emoji:focus-visible,
+.mc-chip-x:focus-visible {
+  outline: 2px solid var(--mc-accent-2);
+  outline-offset: 2px;
+}
+
+/* ---------- Input ---------- */
+.mc-field {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+}
+.mc-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 46px 0 12px;
+  border-width: 0;
+  border-style: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--mc-text);
+  font-size: 14.5px;
+  line-height: 24px;
+  letter-spacing: 0.005em;
+  caret-color: var(--mc-accent-2);
+  outline: none;
+  box-shadow: none;
+  text-overflow: ellipsis;
+}
+.mc-input::placeholder {
+  color: var(--mc-placeholder);
+  transition: opacity 0.25s ease;
+}
+.mc-input:focus::placeholder {
+  opacity: 0.55;
+}
+.mc-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.mc-field .mc-icon-btn--ghost {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  margin-top: -18px;
+}
+.mc-field .mc-icon-btn--ghost:hover {
+  transform: translateY(-1px);
+}
+.mc-field .mc-icon-btn--ghost:active {
+  transform: scale(0.92);
+}
+
+.mc-divider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 22px;
+  margin: 0 2px;
+  background: linear-gradient(180deg, transparent, var(--mc-border-hi), transparent);
+}
+
+/* ---------- Send ---------- */
+.mc-send {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 15px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--mc-send-off-bg);
+  color: var(--mc-send-off-icon);
+  cursor: not-allowed;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease;
+}
+.mc-send::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--mc-send-bg);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.mc-send svg {
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mc-send:not(:disabled) {
+  color: var(--mc-send-fg);
+  cursor: pointer;
+  box-shadow: var(--mc-send-shadow);
+}
+.mc-send:not(:disabled)::before {
+  opacity: 1;
+  transform: scale(1);
+}
+.mc-send:not(:disabled):hover {
+  transform: translateY(-1px) scale(1.04);
+}
+.mc-send:not(:disabled):hover svg {
+  transform: translate(2px, -2px);
+}
+.mc-send:not(:disabled):active {
+  transform: scale(0.92);
+}
+.dark-black .mc-send:not(:disabled):hover::before {
+  background: #2a2a2a;
+}
+
+/* ---------- Reply bar ---------- */
+.mc-reply {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 8px 8px 16px;
+  border-radius: 14px;
+  background: var(--mc-surface);
+  box-shadow: inset 0 0 0 1px var(--mc-border);
+  animation: mc-pop-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.mc-reply::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--mc-accent-1), var(--mc-accent-2));
+}
+.mc-reply-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 1px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mc-icon-hover);
+}
+.mc-reply-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--mc-muted);
+}
+
+/* ---------- Đính kèm chờ gửi ---------- */
+.mc-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.mc-thumb,
+.mc-file {
+  position: relative;
+  animation: mc-pop-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.mc-thumb img {
+  display: block;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px var(--mc-border);
+}
+.mc-file {
+  display: inline-flex;
+  max-width: 240px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 10px;
+  border-radius: 14px;
+  background: var(--mc-surface);
+  box-shadow: inset 0 0 0 1px var(--mc-border);
+  color: var(--mc-text);
+  font-size: 12.5px;
+}
+.mc-file svg {
+  flex-shrink: 0;
+  color: var(--mc-icon-hover);
+}
+.mc-file span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mc-chip-x {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--mc-surface-hi);
+  color: var(--mc-icon);
+  box-shadow: 0 0 0 1px var(--mc-border-hi), 0 4px 10px -2px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+}
+.mc-chip-x:hover {
+  transform: scale(1.15);
+  color: var(--mc-danger-text);
+}
+
+/* ---------- Banned ---------- */
+.mc-banned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--mc-danger-bg);
+  box-shadow: inset 0 1px 0 var(--mc-danger-line);
+  color: var(--mc-danger-text);
+  font-weight: 500;
+}
+
+/* ---------- Emoji picker (portal) ---------- */
+.mc-pop {
+  position: fixed;
+  z-index: 10080;
+  display: grid;
+  max-height: min(264px, 65dvh);
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 2px;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 20px;
+  background: var(--mc-surface-hi);
+  box-shadow: inset 0 0 0 1px var(--mc-border-hi), var(--mc-pop-shadow);
+  transform-origin: bottom right;
+  animation: mc-pop-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  overscroll-behavior: contain;
+}
+.mc-emoji {
+  display: flex;
+  height: 32px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.18s ease;
+}
+.mc-emoji:hover {
+  background: var(--mc-orb-hover);
+  transform: scale(1.22);
+}
+
+@keyframes mc-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 639px) {
+  .mc-root {
+    padding: 10px 10px 12px;
+  }
+  .mc-capsule {
+    gap: 4px;
+    padding: 5px;
+    border-radius: 20px;
+  }
+  .mc-icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+  .mc-icon-btn--ghost {
+    width: 32px;
+    height: 32px;
+  }
+  .mc-field .mc-icon-btn--ghost {
+    margin-top: -16px;
+  }
+  .mc-input {
+    height: 36px;
+    padding-right: 40px;
+    font-size: 14px;
+  }
+  .mc-send {
+    width: 38px;
+    height: 36px;
+    border-radius: 13px;
+  }
+  .mc-divider {
+    display: none;
+  }
+}
+
+/* ---------- Giảm chuyển động ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .mc-glow,
+  .mc-capsule,
+  .mc-capsule::before,
+  .mc-icon-btn,
+  .mc-icon-btn svg,
+  .mc-send,
+  .mc-send::before,
+  .mc-send svg,
+  .mc-emoji,
+  .mc-chip-x {
+    transition: none !important;
+  }
+  .mc-reply,
+  .mc-thumb,
+  .mc-file,
+  .mc-pop {
+    animation: none !important;
+  }
+}

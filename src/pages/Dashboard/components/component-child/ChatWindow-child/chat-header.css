@@ -1,0 +1,445 @@
+/* ==========================================================================
+   ChatView header — "Aurora Header"
+   Đồng bộ với message-input.css · 3 chế độ: sáng · tối (.dark) · tối đen (.dark.dark-black)
+   Chỉ animate transform + opacity. Không dùng class tailwind bg-blue/bg-gradient/ring-blue
+   (dark-black ép chúng thành xám).
+   ========================================================================== */
+
+/* ---------- Tokens: SÁNG ---------- */
+.ch-header {
+  --ch-bg: #ffffff;
+  --ch-line: rgba(15, 23, 42, 0.08);
+  --ch-surface: #f6f8fc;
+  --ch-surface-hi: #ffffff;
+  --ch-hover: #eceffd;
+  --ch-border: rgba(15, 23, 42, 0.1);
+  --ch-border-hi: rgba(15, 23, 42, 0.16);
+  --ch-text: #0f172a;
+  --ch-muted: #64748b;
+  --ch-icon: #475569;
+  --ch-icon-hover: #4f46e5;
+  --ch-accent-1: #3b82f6;
+  --ch-accent-2: #8b5cf6;
+  --ch-accent-3: #06b6d4;
+  --ch-aurora: linear-gradient(135deg, var(--ch-accent-1), var(--ch-accent-2) 50%, var(--ch-accent-3));
+  --ch-online: #10b981;
+  --ch-wash: rgba(99, 102, 241, 0.07);
+  --ch-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --ch-menu-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.28), 0 2px 6px rgba(15, 23, 42, 0.06);
+  --ch-danger: #dc2626;
+  --ch-danger-bg: rgba(220, 38, 38, 0.08);
+}
+
+/* ---------- Tokens: TỐI ---------- */
+.dark .ch-header {
+  --ch-bg: #111317;
+  --ch-line: rgba(255, 255, 255, 0.07);
+  --ch-surface: #1a1e26;
+  --ch-surface-hi: #222833;
+  --ch-hover: #303848;
+  --ch-border: rgba(255, 255, 255, 0.09);
+  --ch-border-hi: rgba(255, 255, 255, 0.16);
+  --ch-text: #f1f5f9;
+  --ch-muted: #94a3b8;
+  --ch-icon: #a8b3c7;
+  --ch-icon-hover: #c4b5fd;
+  --ch-online: #34d399;
+  --ch-wash: rgba(139, 92, 246, 0.1);
+  --ch-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --ch-menu-shadow: 0 28px 56px -16px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --ch-danger: #f87171;
+  --ch-danger-bg: rgba(248, 113, 113, 0.12);
+}
+
+/* ---------- Tokens: TỐI ĐEN ---------- */
+.dark-black .ch-header {
+  --ch-bg: #000000;
+  --ch-line: rgba(255, 255, 255, 0.08);
+  --ch-surface: #0a0a0a;
+  --ch-surface-hi: #141414;
+  --ch-hover: #1d1d1d;
+  --ch-border: rgba(255, 255, 255, 0.1);
+  --ch-border-hi: rgba(255, 255, 255, 0.2);
+  --ch-wash: rgba(139, 92, 246, 0.08);
+  --ch-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
+  --ch-menu-shadow: 0 30px 60px -16px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  /* đơn sắc: bỏ sắc xanh-tím của chế độ tối thường */
+  --ch-accent-1: #f5f5f5;
+  --ch-accent-2: #a3a3a3;
+  --ch-accent-3: #525252;
+  --ch-aurora: linear-gradient(135deg, #fafafa, #8c8c8c 50%, #3d3d3d);
+  --ch-icon-hover: #ffffff;
+  --ch-hover: #2a2a2a;
+  --ch-border-hi: #4a4a4a;
+  --ch-wash: rgba(255, 255, 255, 0.035);
+}
+
+/* ---------- Header ---------- */
+.ch-header {
+  position: relative;
+  z-index: 40;
+  padding: 10px 16px;
+  background:
+    radial-gradient(120% 220% at 0% 0%, var(--ch-wash), transparent 55%),
+    var(--ch-bg);
+  color: var(--ch-text);
+}
+/* hairline gradient mờ hai đầu thay cho border-b phẳng */
+.ch-header::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ch-line) 14%, var(--ch-line) 86%, transparent);
+  pointer-events: none;
+}
+.ch-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* ---------- Nút tròn ---------- */
+.ch-btn {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ch-icon);
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.22s ease,
+    color 0.22s ease;
+}
+.ch-btn svg {
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ch-btn:hover {
+  background: var(--ch-hover);
+  color: var(--ch-icon-hover);
+}
+.ch-btn:hover svg {
+  transform: scale(1.12) rotate(-8deg);
+}
+.ch-btn:active {
+  transform: scale(0.92);
+}
+.ch-back {
+  width: 36px;
+  height: 36px;
+  background: var(--ch-surface);
+  box-shadow: inset 0 0 0 1px var(--ch-border);
+}
+.ch-back:hover svg {
+  transform: translateX(-2px);
+}
+.ch-btn:focus-visible,
+.ch-menu-item:focus-visible {
+  outline: 2px solid var(--ch-accent-2);
+  outline-offset: 2px;
+}
+
+/* ---------- Avatar: vòng aurora xoay (online) / vòng tĩnh (offline) ---------- */
+.ch-avatar {
+  position: relative;
+  isolation: isolate;
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  padding: 5px; /* 2.5px vòng + 2.5px khe trong suốt */
+  border-radius: 999px;
+}
+/* Vòng viền: conic-gradient + mask => khe thật sự trong suốt, không lệ thuộc màu nền */
+.ch-avatar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 2.5px;
+  background: conic-gradient(
+    from 0deg,
+    var(--ch-accent-1),
+    var(--ch-accent-3),
+    var(--ch-accent-2),
+    var(--ch-accent-1)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0.4;
+  filter: saturate(0.35);
+  transition: opacity 0.4s ease, filter 0.4s ease;
+  pointer-events: none;
+}
+/* Quầng sáng tĩnh phía sau: blur dựng 1 lần, chỉ đổi opacity */
+.ch-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ch-aurora);
+  filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+.ch-avatar[data-online='true']::before {
+  opacity: 1;
+  filter: none;
+  /* xoay trên compositor (transform) => mượt, không repaint */
+  animation: ch-spin 7s linear infinite;
+}
+.ch-avatar[data-online='true']::after {
+  opacity: 0.32;
+}
+.ch-avatar:hover::before {
+  opacity: 1;
+  filter: none;
+}
+.ch-avatar:hover::after {
+  opacity: 0.5;
+}
+
+.ch-avatar-face {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: linear-gradient(150deg, var(--ch-surface-hi), var(--ch-surface));
+  box-shadow: inset 0 0 0 1px var(--ch-border);
+  color: var(--ch-text);
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.ch-avatar-face button {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ch-avatar:hover .ch-avatar-face button {
+  transform: scale(1.07);
+}
+/* viền sáng mỏng trên ảnh để ảnh tối không bị chìm vào nền */
+.ch-avatar-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 -8px 14px -10px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.ch-online {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--ch-online);
+  box-shadow: 0 0 0 3px var(--ch-bg);
+}
+/* vòng lan toả: chỉ transform + opacity => chạy trên compositor */
+.ch-online::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ch-online);
+  opacity: 0;
+  animation: ch-ping 2.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ---------- Tên + trạng thái ---------- */
+.ch-info {
+  min-width: 0;
+  flex: 1;
+}
+.ch-name {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ch-text);
+}
+.ch-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  line-height: 1.3;
+  color: var(--ch-muted);
+}
+.ch-status[data-online='true'] {
+  color: var(--ch-online);
+  font-weight: 500;
+}
+
+/* ---------- Cụm nút bên phải: capsule ---------- */
+.ch-actions {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--ch-surface);
+  box-shadow: inset 0 0 0 1px var(--ch-border), var(--ch-shadow);
+}
+.ch-actions .ch-btn {
+  width: 36px;
+  height: 36px;
+}
+.ch-actions .ch-btn:hover {
+  background: var(--ch-surface-hi);
+  box-shadow: inset 0 0 0 1px var(--ch-border-hi);
+}
+
+/* ---------- Menu ---------- */
+.ch-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 60;
+  min-width: 208px;
+  padding: 6px;
+  border-radius: 18px;
+  background: var(--ch-surface-hi);
+  box-shadow: inset 0 0 0 1px var(--ch-border-hi), var(--ch-menu-shadow);
+  transform-origin: top right;
+  animation: ch-pop-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.ch-menu-item {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ch-text);
+  font-size: 13.5px;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ch-menu-item:hover {
+  background: var(--ch-hover);
+  transform: translateX(2px);
+}
+.ch-menu-item--danger {
+  color: var(--ch-danger);
+}
+.ch-menu-item--danger:hover {
+  background: var(--ch-danger-bg);
+}
+
+@keyframes ch-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes ch-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes ch-ping {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.3);
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 767px) {
+  .ch-header {
+    padding: 8px 10px;
+  }
+  .ch-row {
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .ch-back {
+    width: 32px;
+    height: 32px;
+    margin-left: -2px;
+  }
+  .ch-avatar {
+    width: 44px;
+    height: 44px;
+    padding: 4.5px;
+  }
+  .ch-avatar::before {
+    padding: 2px;
+  }
+  .ch-name {
+    font-size: 15px;
+  }
+  .ch-status {
+    font-size: 11.5px;
+  }
+  .ch-actions {
+    padding: 2px;
+  }
+  .ch-actions .ch-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .ch-menu {
+    min-width: 188px;
+    max-width: calc(100vw - 24px);
+  }
+}
+
+/* ---------- Giảm chuyển động ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ch-btn,
+  .ch-btn svg,
+  .ch-menu-item,
+  .ch-avatar::before,
+  .ch-avatar::after,
+  .ch-avatar-face button {
+    transition: none !important;
+  }
+  .ch-menu,
+  .ch-online::after,
+  .ch-avatar::before {
+    animation: none !important;
+  }
+}

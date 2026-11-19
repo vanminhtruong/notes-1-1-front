@@ -519,11 +519,10 @@
       "left": "{{name}} left the group"
     },
     "header": {
-      "title": "Messenger",
+      "title": "Connect",
       "searchPlaceholder": "Search…",
       "tabs": {
         "all": "All",
-        "unread": "Unread",
         "users": "Users",
         "groups": "Groups"
       }
@@ -804,6 +803,8 @@
       "removeFileAria": "Remove file",
       "attachFileAria": "Attach files",
       "placeholder": "Aa",
+      "groupPlaceholder": "Message the group...",
+      "messagePlaceholder": "Write a message...",
       "recipientBanned": "Account has been deactivated due to policy violations"
     },
     "blocked": {

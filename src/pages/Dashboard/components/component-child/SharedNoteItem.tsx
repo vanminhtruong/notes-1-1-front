@@ -8,6 +8,7 @@ import { userService } from '@/services/userService';
 import { notesService } from '@/services/notesService';
 import { getTimeAgo } from '../../utils/timeUtils';
 import { sanitizeInlineHtml, getHtmlPreview } from '@/utils/htmlUtils';
+import './ChatWindow-child/chat-tabs.css';
 
 export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, onEditNote, onCreateFromNote }: SharedNoteItemProps) => {
   const { t, i18n } = useTranslation('dashboard');
@@ -44,10 +45,10 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
   
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-50 dark:bg-red-900/20';
-      case 'medium': return 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20';
-      case 'low': return 'text-green-600 bg-green-50 dark:bg-green-900/20';
-      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-900/20';
+      case 'high': return 'ct-tag--high';
+      case 'medium': return 'ct-tag--medium';
+      case 'low': return 'ct-tag--low';
+      default: return '';
     }
   };
 
@@ -132,7 +133,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
 
   return (
     <div 
-      className="bg-white/70 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200 cursor-pointer group"
+      className="ct-note group"
       onClick={(e) => {
         // Don't open modal when editing permissions
         if (isEditingPermissions) {
@@ -143,30 +144,30 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
       }}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
+      <div className="ct-note-head">
+        <div className="ct-note-who">
+          <div className="ct-avatar ct-avatar--sm">
             {avatarUrl ? (
               <img src={avatarUrl} alt={otherUser.name} className="w-full h-full object-cover" />
             ) : (
-              <User className="w-4 h-4 text-white" />
+              <User className="w-4 h-4" />
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+            <p className="ct-note-who-name">
               {otherUser.name}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="ct-note-who-sub">
               {isReceived ? t('sharedNotes.sharedBy') : t('sharedNotes.sharedWith')}
             </p>
           </div>
         </div>
         
         {/* Actions */}
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="ct-note-actions">
           <button
             onClick={handleView}
-            className="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
+            className="ct-icon-btn ct-icon-btn--info"
             title={t('sharedNotes.viewNote')}
           >
             <Eye className="w-4 h-4" />
@@ -176,7 +177,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
           {isReceived && sharedNote.canEdit && onEditNote && (
             <button
               onClick={handleEdit}
-              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
+              className="ct-icon-btn ct-icon-btn--ok"
               title={t('sharedNotes.editNote')}
             >
               <Edit2 className="w-4 h-4" />
@@ -187,7 +188,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
           {isReceived && sharedNote.canCreate && onCreateFromNote && (
             <button
               onClick={handleAddNote}
-              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
+              className="ct-icon-btn ct-icon-btn--ok"
               title={t('sharedNotes.addNote')}
             >
               <Plus className="w-4 h-4" />
@@ -201,7 +202,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
                 e.stopPropagation();
                 setIsEditingPermissions(true);
               }}
-              className="p-1.5 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
+              className="ct-icon-btn ct-icon-btn--ok"
               title={t('sharedNotes.editPermissions') || 'Chỉnh sửa quyền'}
             >
               <Edit2 className="w-4 h-4" />
@@ -213,7 +214,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
             <button
               onClick={handleRemove}
               disabled={isRemoving}
-              className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 disabled:opacity-50"
+              className="ct-icon-btn ct-icon-btn--danger"
               title={t('sharedNotes.remove')}
               aria-label={t('sharedNotes.remove')}
             >
@@ -224,17 +225,17 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
       </div>
 
       {/* Note Info */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate flex-1 min-w-0">
+      <div className="ct-note-panel">
+        <div className="ct-note-title">
+          <span className="ct-note-title-icon"><FileText className="w-4 h-4" /></span>
+          <h4>
             {sharedNote.note.title}
           </h4>
         </div>
 
         {sharedNote.note.content && (
           <div
-            className="text-xs text-gray-600 dark:text-gray-300 pl-6"
+            className="ct-note-content"
             style={{
               display: 'block',
               overflow: 'hidden',
@@ -249,13 +250,13 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
         )}
 
         {/* Tags */}
-        <div className="flex flex-wrap items-center gap-2 pl-6">
-          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(sharedNote.note.priority)}`}>
+        <div className="ct-tags">
+          <span className={`ct-tag ${getPriorityColor(sharedNote.note.priority)}`}>
             {t(`filters.priority.${sharedNote.note.priority}`)}
           </span>
           {sharedNote.note.category && typeof sharedNote.note.category === 'object' && sharedNote.note.category.name ? (
             <span 
-              className="px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1"
+              className="ct-tag"
               style={{ 
                 backgroundColor: `${sharedNote.note.category.color}20`,
                 color: sharedNote.note.category.color
@@ -268,45 +269,45 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
               {sharedNote.note.category.name}
             </span>
           ) : (
-            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+            <span className="ct-tag">
               {typeof sharedNote.note.category === 'string' ? (t(`filters.category.${sharedNote.note.category}`, 'General') || 'General') : 'General'}
             </span>
           )}
         </div>
 
         {/* Permissions Display / Edit */}
-        <div className="pl-6 space-y-2">
+        <div>
           {isSent && isEditingPermissions ? (
-            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-2">
-              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="ct-perm-edit">
+              <p>
                 {t('notes.share.permissions') || 'Quyền hạn'}:
               </p>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="ct-perm-opt">
                 <div onClick={() => setLocalPermissions(prev => ({ ...prev, canEdit: !prev.canEdit }))} className="cursor-pointer">
-                  {localPermissions.canEdit ? <CheckSquare className="w-4 h-4 text-green-600" /> : <Square className="w-4 h-4 text-gray-400" />}
+                  {localPermissions.canEdit ? <CheckSquare className="w-4 h-4 text-[var(--ct-accent)]" /> : <Square className="w-4 h-4 text-[var(--ct-faint)]" />}
                 </div>
-                <span className="text-xs text-gray-700 dark:text-gray-300">{t('notes.share.canEdit')}</span>
+                <span>{t('notes.share.canEdit')}</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="ct-perm-opt">
                 <div onClick={() => setLocalPermissions(prev => ({ ...prev, canDelete: !prev.canDelete }))} className="cursor-pointer">
-                  {localPermissions.canDelete ? <CheckSquare className="w-4 h-4 text-green-600" /> : <Square className="w-4 h-4 text-gray-400" />}
+                  {localPermissions.canDelete ? <CheckSquare className="w-4 h-4 text-[var(--ct-accent)]" /> : <Square className="w-4 h-4 text-[var(--ct-faint)]" />}
                 </div>
-                <span className="text-xs text-gray-700 dark:text-gray-300">{t('notes.share.canDelete')}</span>
+                <span>{t('notes.share.canDelete')}</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="ct-perm-opt">
                 <div onClick={() => setLocalPermissions(prev => ({ ...prev, canCreate: !prev.canCreate }))} className="cursor-pointer">
-                  {localPermissions.canCreate ? <CheckSquare className="w-4 h-4 text-green-600" /> : <Square className="w-4 h-4 text-gray-400" />}
+                  {localPermissions.canCreate ? <CheckSquare className="w-4 h-4 text-[var(--ct-accent)]" /> : <Square className="w-4 h-4 text-[var(--ct-faint)]" />}
                 </div>
-                <span className="text-xs text-gray-700 dark:text-gray-300">{t('notes.share.canCreate')}</span>
+                <span>{t('notes.share.canCreate')}</span>
               </label>
-              <div className="flex gap-2 pt-2">
+              <div className="ct-perm-actions">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSavePermissions();
                   }}
                   disabled={isSaving}
-                  className="px-3 py-1 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg disabled:opacity-50"
+                  className="ct-btn ct-btn--sm ct-btn--solid"
                 >
                   {isSaving ? t('actions.saving') || 'Đang lưu...' : t('actions.save') || 'Lưu'}
                 </button>
@@ -320,7 +321,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
                       canCreate: sharedNote.canCreate,
                     });
                   }}
-                  className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                  className="ct-btn ct-btn--sm ct-btn--ghost"
                 >
                   {t('actions.cancel') || 'Hủy'}
                 </button>
@@ -329,7 +330,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
           ) : (
             <>
               {isReceived && (
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                <div className="ct-perms">
                   {sharedNote.canEdit && (
                     <span className="flex items-center gap-1 whitespace-nowrap">
                       <Edit2 className="w-3 h-3 flex-shrink-0" />
@@ -357,7 +358,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
                 </div>
               )}
               {isSent && (
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                <div className="ct-perms">
                   {sharedNote.canEdit && (
                     <span className="flex items-center gap-1 whitespace-nowrap">
                       <Edit2 className="w-3 h-3 flex-shrink-0" />
@@ -389,7 +390,7 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
         </div>
 
         {/* Shared Time */}
-        <div className="flex items-center gap-1 pl-6 text-xs text-gray-500 dark:text-gray-400">
+        <div className="ct-perms">
           <Calendar className="w-3 h-3" />
           <span>
             {getTimeAgo(sharedNote.sharedAt, i18n.language)}
@@ -398,8 +399,8 @@ export const SharedNoteItem = memo(({ sharedNote, type, onRemove, onViewNote, on
 
         {/* Message */}
         {sharedNote.message && (
-          <div className="pl-6 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-start gap-1 text-xs text-gray-600 dark:text-gray-300">
+          <div className="ct-note-msg">
+            <div className="flex items-start gap-1.5">
               <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
               <span className="italic line-clamp-2">{sharedNote.message}</span>
             </div>

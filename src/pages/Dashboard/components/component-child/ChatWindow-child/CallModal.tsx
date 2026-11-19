@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useCallback, useEffect, useRef, memo } from 'react';
 import { Phone, PhoneIncoming, PhoneOutgoing, PhoneOff, X, Video, VideoOff, Mic, MicOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -114,10 +115,10 @@ const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0
   const hasRemoteVideo = !!(remoteStream && remoteStream.getVideoTracks && remoteStream.getVideoTracks().length);
   const hasVideo = mediaType === 'video' || hasLocalVideo || hasRemoteVideo;
 
-  return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center" role="dialog" aria-modal="true">
+  return createPortal(
+    <div className="fixed inset-0 z-[10050] flex items-center justify-center" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      <div className="relative mx-4 w-full max-w-sm rounded-2xl border border-white/20 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 shadow-[0_10px_40px_rgba(0,0,0,0.25)] overflow-hidden">
+      <div className="relative mx-4 w-full max-w-sm rounded-2xl border border-white/20 dark:border-gray-800 bg-white/80 dark:bg-gray-900 dark-black:bg-black/80 shadow-[0_10px_40px_rgba(0,0,0,0.25)] overflow-hidden">
         {/* Top gradient accent */}
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-fuchsia-500 to-purple-600" />
         <div className="px-6 py-6 text-center">
@@ -255,7 +256,7 @@ const CallModal = memo(({ open, mode, user, elapsedSeconds = 0, dialProgress = 0
         </div>
       </div>
     </div>
-  );
+  , document.body);
 });
 
 CallModal.displayName = 'CallModal';

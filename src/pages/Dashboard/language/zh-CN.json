@@ -519,11 +519,10 @@
       "left": "{{name}} 离开了群组"
     },
     "header": {
-      "title": "信使",
+      "title": "连接",
       "searchPlaceholder": "搜索...",
       "tabs": {
         "all": "全部",
-        "unread": "未读",
         "users": "用户",
         "groups": "群组"
       }
@@ -804,6 +803,8 @@
       "removeFileAria": "移除文件",
       "attachFileAria": "添加文件",
       "placeholder": "Aa",
+      "groupPlaceholder": "发送群聊消息...",
+      "messagePlaceholder": "\u8f93\u5165\u6d88\u606f...",
       "recipientBanned": "账户因违反政策已被停用"
     },
     "blocked": {

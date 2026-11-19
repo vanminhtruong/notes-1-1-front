@@ -1,0 +1,501 @@
+/* ==========================================================================
+   ChatHeader (danh sách hội thoại) — "Hub Header"
+   Đồng bộ với chat-header.css + message-input.css · sáng / tối (.dark) / tối đen (.dark.dark-black)
+   Chỉ animate transform + opacity (và width của thanh trượt tab, rất nhỏ).
+   Không dùng class tailwind bg-blue / bg-gradient / ring-blue / border-0 (dark-black ép lại).
+   ========================================================================== */
+
+/* ---------- Tokens: SÁNG ---------- */
+.hd-root {
+  --hd-bg: #ffffff;
+  --hd-line: rgba(15, 23, 42, 0.08);
+  --hd-surface: #f6f8fc;
+  --hd-surface-hi: #ffffff;
+  --hd-hover: #eceffd;
+  --hd-border: rgba(15, 23, 42, 0.1);
+  --hd-border-hi: rgba(15, 23, 42, 0.16);
+  --hd-text: #0f172a;
+  --hd-muted: #64748b;
+  --hd-placeholder: #94a3b8;
+  --hd-icon: #475569;
+  --hd-icon-hover: #4f46e5;
+  --hd-accent-1: #3b82f6;
+  --hd-accent-2: #8b5cf6;
+  --hd-accent-3: #06b6d4;
+  --hd-aurora: linear-gradient(135deg, var(--hd-accent-1), var(--hd-accent-2) 50%, var(--hd-accent-3));
+  --hd-tab-on-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(139, 92, 246, 0.16));
+  --hd-tab-on-ring: rgba(99, 102, 241, 0.32);
+  --hd-wash: rgba(99, 102, 241, 0.07);
+  --hd-glow-opacity: 0.34;
+  --hd-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --hd-badge: #ef4444;
+  --hd-mark-bg: var(--hd-aurora);
+  --hd-mark-fg: #ffffff;
+  --hd-mark-shadow: 0 8px 18px -8px var(--hd-accent-2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ---------- Tokens: TỐI ---------- */
+.dark .hd-root {
+  --hd-bg: #111317;
+  --hd-line: rgba(255, 255, 255, 0.07);
+  --hd-surface: #1a1e26;
+  --hd-surface-hi: #222833;
+  --hd-hover: #303848;
+  --hd-border: rgba(255, 255, 255, 0.09);
+  --hd-border-hi: rgba(255, 255, 255, 0.16);
+  --hd-text: #f1f5f9;
+  --hd-muted: #94a3b8;
+  --hd-placeholder: #64748b;
+  --hd-icon: #a8b3c7;
+  --hd-icon-hover: #c4b5fd;
+  --hd-tab-on-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(139, 92, 246, 0.26));
+  --hd-tab-on-ring: rgba(167, 139, 250, 0.4);
+  --hd-wash: rgba(139, 92, 246, 0.1);
+  --hd-glow-opacity: 0.42;
+  --hd-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Tokens: TỐI ĐEN ---------- */
+.dark-black .hd-root {
+  --hd-bg: #000000;
+  --hd-line: rgba(255, 255, 255, 0.08);
+  --hd-surface: #0a0a0a;
+  --hd-surface-hi: #141414;
+  --hd-hover: #1d1d1d;
+  --hd-border: rgba(255, 255, 255, 0.1);
+  --hd-border-hi: rgba(255, 255, 255, 0.2);
+  --hd-placeholder: #5b6474;
+  --hd-wash: rgba(139, 92, 246, 0.08);
+  --hd-glow-opacity: 0.48;
+  --hd-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
+  /* đơn sắc: bỏ sắc xanh-tím của chế độ tối thường */
+  --hd-accent-1: #f5f5f5;
+  --hd-accent-2: #a3a3a3;
+  --hd-accent-3: #525252;
+  --hd-aurora: linear-gradient(135deg, #fafafa, #8c8c8c 50%, #3d3d3d);
+  --hd-icon-hover: #ffffff;
+  --hd-hover: #2a2a2a;
+  --hd-border-hi: #4a4a4a;
+  --hd-tab-on-bg: rgba(255, 255, 255, 0.09);
+  --hd-tab-on-ring: rgba(255, 255, 255, 0.22);
+  --hd-wash: rgba(255, 255, 255, 0.035);
+  --hd-glow-opacity: 0.18;
+  --hd-mark-bg: #161616;
+  --hd-mark-fg: #f5f5f5;
+  --hd-mark-shadow: inset 0 0 0 1px #4a4a4a, 0 8px 18px -10px rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- Khung ---------- */
+.hd-root {
+  position: relative;
+  padding: 14px 16px 12px;
+  background:
+    radial-gradient(130% 200% at 0% 0%, var(--hd-wash), transparent 55%),
+    var(--hd-bg);
+  color: var(--hd-text);
+}
+.hd-root::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--hd-line) 14%, var(--hd-line) 86%, transparent);
+  pointer-events: none;
+}
+
+.hd-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* ---------- Thương hiệu + tiêu đề ---------- */
+.hd-brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+}
+.hd-mark {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  background: var(--hd-mark-bg);
+  color: var(--hd-mark-fg);
+  box-shadow: var(--hd-mark-shadow);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hd-mark svg {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+}
+.hd-brand:hover .hd-mark {
+  transform: rotate(-8deg) scale(1.06);
+}
+.hd-titles {
+  min-width: 0;
+}
+.hd-title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--hd-text);
+}
+.hd-sub {
+  margin: 2px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--hd-aurora);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ---------- Cụm nút: capsule ---------- */
+.hd-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--hd-surface);
+  box-shadow: inset 0 0 0 1px var(--hd-border), var(--hd-shadow);
+}
+.hd-orb {
+  /* dùng cho cả nút chuông (NotificationBell) */
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--hd-icon);
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.22s ease,
+    color 0.22s ease, box-shadow 0.22s ease;
+}
+.hd-orb svg {
+  pointer-events: none;
+  color: currentColor;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hd-orb:hover {
+  background: var(--hd-surface-hi);
+  color: var(--hd-icon-hover);
+  box-shadow: inset 0 0 0 1px var(--hd-border-hi);
+}
+.hd-orb:active {
+  transform: scale(0.92);
+}
+.hd-orb--gear:hover svg {
+  transform: rotate(75deg);
+}
+.hd-orb--close:hover svg {
+  transform: rotate(90deg);
+}
+.hd-orb[aria-pressed='true'] {
+  color: var(--hd-icon-hover);
+  background: var(--hd-tab-on-bg);
+  box-shadow: inset 0 0 0 1px var(--hd-tab-on-ring);
+}
+.hd-orb:focus-visible,
+.hd-tab:focus-visible,
+.hd-clear:focus-visible {
+  outline: 2px solid var(--hd-accent-2);
+  outline-offset: 2px;
+}
+.hd-bell {
+  display: inline-flex;
+}
+/* huy hiệu số thông báo của chuông */
+.hd-orb > .hd-badge {
+  background: var(--hd-badge) !important;
+  color: #fff;
+  box-shadow: 0 0 0 2px var(--hd-surface);
+}
+
+/* ---------- Tìm kiếm ---------- */
+.hd-search {
+  position: relative;
+  margin-bottom: 12px;
+}
+.hd-search-glow {
+  position: absolute;
+  inset: 4px 12px -6px;
+  border-radius: 24px;
+  background: var(--hd-aurora);
+  filter: blur(14px);
+  opacity: 0;
+  transform: translateZ(0);
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.hd-search:focus-within .hd-search-glow {
+  opacity: var(--hd-glow-opacity);
+}
+.hd-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--hd-surface);
+  box-shadow: inset 0 0 0 1px var(--hd-border), var(--hd-shadow);
+  transition: background-color 0.3s ease;
+}
+.hd-search-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--hd-aurora);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.hd-search:focus-within .hd-search-box {
+  background: var(--hd-surface-hi);
+}
+.hd-search:focus-within .hd-search-box::before {
+  opacity: 1;
+}
+.hd-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  margin-top: -9px;
+  pointer-events: none;
+  color: var(--hd-placeholder);
+  transition: color 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hd-search:focus-within .hd-search-icon {
+  color: var(--hd-icon-hover);
+  transform: scale(1.1);
+}
+.hd-search-input {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0 44px 0 44px;
+  border-width: 0;
+  border-style: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--hd-text);
+  font-size: 14px;
+  letter-spacing: 0.005em;
+  caret-color: var(--hd-accent-2);
+  outline: none;
+  box-shadow: none;
+}
+.hd-search-input::placeholder {
+  color: var(--hd-placeholder);
+  transition: opacity 0.25s ease;
+}
+.hd-search-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+.hd-search-input:focus::placeholder {
+  opacity: 0.55;
+}
+.hd-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  margin-top: -14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--hd-hover);
+  color: var(--hd-icon);
+  cursor: pointer;
+  animation: hd-pop-in 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: color 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hd-clear:hover {
+  color: var(--hd-icon-hover);
+  transform: scale(1.1);
+}
+
+/* ---------- Tab: thanh trượt ---------- */
+.hd-tabs {
+  /* Luôn vừa khung: không cuộn ngang, tab tự co lại theo ngôn ngữ */
+  overflow: hidden;
+  container-type: inline-size;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--hd-surface);
+  box-shadow: inset 0 0 0 1px var(--hd-border);
+}
+.hd-tabs-track {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  gap: 2px;
+}
+.hd-tab-ind {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--hd-tab-on-bg);
+  box-shadow: inset 0 0 0 1px var(--hd-tab-on-ring);
+  opacity: 0;
+  pointer-events: none;
+}
+.hd-tab-ind[data-ready='true'] {
+  opacity: 1;
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease;
+}
+.hd-tab {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--hd-muted);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.25s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hd-tab svg {
+  flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* Nhãn quá dài (vd. "Ghi chú chia sẻ") → rút gọn bằng "…" thay vì tràn */
+.hd-tab > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hd-tab:hover {
+  color: var(--hd-text);
+}
+.hd-tab:hover svg {
+  transform: scale(1.15);
+}
+.hd-tab:active {
+  transform: scale(0.96);
+}
+.hd-tab[aria-selected='true'] {
+  color: var(--hd-icon-hover);
+}
+
+@keyframes hd-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 767px) {
+  .hd-root {
+    padding: 12px 12px 10px;
+  }
+  .hd-top {
+    margin-bottom: 12px;
+  }
+  .hd-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+  }
+  .hd-title {
+    font-size: 18px;
+  }
+  .hd-search-box {
+    height: 42px;
+  }
+  .hd-tab {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 12.5px;
+  }
+}
+
+/* Theo bề rộng thực của thanh tab (không phụ thuộc màn hình): hẹp thì thu gọn dần */
+@container (max-width: 420px) {
+  .hd-tab {
+    padding: 0 8px;
+    gap: 4px;
+    font-size: 12.5px;
+  }
+}
+@container (max-width: 390px) {
+  .hd-tab {
+    padding: 0 6px;
+    font-size: 12px;
+  }
+  .hd-tab svg {
+    display: none;
+  }
+}
+
+/* ---------- Giảm chuyển động ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .hd-mark,
+  .hd-orb,
+  .hd-orb svg,
+  .hd-search-glow,
+  .hd-search-box::before,
+  .hd-search-icon,
+  .hd-tab,
+  .hd-tab svg,
+  .hd-tab-ind[data-ready='true'],
+  .hd-clear {
+    transition: none !important;
+  }
+  .hd-clear {
+    animation: none !important;
+  }
+}

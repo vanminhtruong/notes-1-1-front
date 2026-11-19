@@ -1,5 +1,7 @@
+import { createPortal } from 'react-dom';
 import { useRef, useEffect, useState, memo } from 'react';
-import { MoreVertical, ChevronDown, Pencil, Users, Video, Key } from 'lucide-react';
+import { MoreVertical, ChevronDown, ChevronLeft, Pencil, Phone, Users, Video, Key } from 'lucide-react';
+import './chat-header.css';
 import MessageBubble from './MessageBubble';
 import NicknameModal from './NicknameModal';
 import PinnedMessageBanner from './PinnedMessageBanner';
@@ -901,18 +903,17 @@ const ChatView = memo(({
   return (
     <>
       {/* Chat Header */}
-      <div className="px-4 py-3 md-down:px-3 md-down:py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 md-down:shadow-sm">
-        <div className="flex items-center gap-3 md-down:flex-nowrap md-down:gap-2">
+      <div className="ch-header">
+        <div className="ch-row">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors md-down:order-1 md-down:-ml-1"
+            className="ch-btn ch-back"
+            aria-label={t('chat.chatView.actions.back', 'Quay lại')}
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+            <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2.2} />
           </button>
-          <div className="relative md-down:order-2 md-down:w-10 md-down:h-10">
-            <div className="w-10 h-10 md-down:w-full md-down:h-full rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md">
+          <div className="ch-avatar" data-online={String(!!(isGroup ? groupOnline : selectedChat.isOnline))}>
+            <div className="ch-avatar-face">
               {/* DM: open user profile. Group: open members panel */}
               <button
                 type="button"
@@ -929,12 +930,12 @@ const ChatView = memo(({
               </button>
             </div>
             {(isGroup ? groupOnline === true : selectedChat.isOnline === true) && (
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
+              <div className="ch-online"></div>
             )}
           </div>
-          <div className="flex-1 min-w-0 md-down:order-3 md-down:w-auto md-down:pt-0">
-            <h3 className="font-semibold text-gray-900 dark:text-white md-down:text-base truncate">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 md-down:text-[11px] truncate">
+          <div className="ch-info">
+            <h3 className="ch-name">{!isGroup && aliasName ? aliasName : selectedChat.name}</h3>
+            <p className="ch-status" data-online={String(!!(isGroup ? groupOnline : selectedChat.isOnline))}>
               {(isGroup ? groupOnline : selectedChat.isOnline) ?
                 t('chat.chatView.status.online') :
                 (() => {
@@ -983,7 +984,7 @@ const ChatView = memo(({
             </p>
             {/* Set nickname action for 1-1 chats only; place a small button under name in profile modal as requested */}
           </div>
-          <div className="flex items-center gap-2 relative md-down:order-4 md-down:w-auto md-down:justify-end md-down:flex-nowrap md-down:gap-1">
+          <div className="ch-actions">
             {/* Keep existing header icons if needed */}
             {!isGroup && (
               <>
@@ -999,11 +1000,9 @@ const ChatView = memo(({
                   }}
                   title={t('chat.chatView.actions.voiceCall', 'Gọi thoại')}
                   aria-label={t('chat.chatView.actions.voiceCall', 'Gọi thoại')}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                  className="ch-btn"
                 >
-                  <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                  </svg>
+                  <Phone className="h-[18px] w-[18px]" strokeWidth={2} />
                 </button>
                 <button
                   onClick={() => {
@@ -1017,46 +1016,46 @@ const ChatView = memo(({
                   }}
                   title={t('chat.chatView.actions.videoCall', 'Gọi video')}
                   aria-label={t('chat.chatView.actions.videoCall', 'Gọi video')}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                  className="ch-btn"
                 >
-                  <Video className="w-5 h-5 text-blue-600" />
+                  <Video className="h-[18px] w-[18px]" strokeWidth={2} />
                 </button>
                 {/* Three dots menu for 1-1 chat */}
                 <button
                   onClick={() => setDmMenuOpen((v) => !v)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                  className="ch-btn"
                   title={t('chat.menu.options')}
                   aria-label={t('chat.menu.chatOptionsAria')}
                 >
-                  <MoreVertical className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                  <MoreVertical className="h-[18px] w-[18px]" strokeWidth={2} />
                 </button>
                 {dmMenuOpen && (
                   <div
-                    className="absolute right-0 top-10 z-[60] w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
+                    className="ch-menu"
                     onMouseLeave={() => setDmMenuOpen(false)}
                   >
                     <button
                       onClick={() => { setDmMenuOpen(false); setShowSearch(true); setSearchQuery(''); setSearchResults([]); }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="ch-menu-item"
                     >
                       {t('chat.menu.searchMessages', 'Search messages')}
                     </button>
                     <button
                       onClick={() => { setDmMenuOpen(false); onChangeBackground && onChangeBackground(); }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="ch-menu-item"
                     >
                       {t('chat.menu.changeBackground', 'Đổi ảnh nền')}
                     </button>
                     <button
                       onClick={() => { setDmMenuOpen(false); onChangeBackgroundForBoth && onChangeBackgroundForBoth(); }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="ch-menu-item"
                     >
                       {t('chat.menu.changeBackgroundForBoth', 'Đổi ảnh nền cho cả hai')}
                     </button>
                     {backgroundUrl ? (
                       <button
                         onClick={() => { setDmMenuOpen(false); onResetBackground && onResetBackground(); }}
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        className="ch-menu-item ch-menu-item--danger"
                       >
                         {t('chat.menu.resetBackground', 'Khôi phục nền mặc định')}
                       </button>
@@ -1070,25 +1069,25 @@ const ChatView = memo(({
               <>
                 <button
                   onClick={() => setHeaderMenuOpen((v) => !v)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                  className="ch-btn"
                   title={t('chat.menu.options')}
                   aria-label={t('chat.menu.chatOptionsAria')}
                 >
-                  <MoreVertical className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                  <MoreVertical className="h-[18px] w-[18px]" strokeWidth={2} />
                 </button>
                 {headerMenuOpen && (
-                  <div className="absolute right-0 top-10 z-[60] w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
+                  <div className="ch-menu"
                     onMouseLeave={() => setHeaderMenuOpen(false)}
                   >
                     <button
                       onClick={() => { openMembersPanel(); }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="ch-menu-item"
                     >
                       {t('chat.groups.actions.viewMembers', 'Xem thành viên')}
                     </button>
                     <button
                       onClick={() => { setHeaderMenuOpen(false); setShowSearch(true); setSearchQuery(''); setSearchResults([]); }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="ch-menu-item"
                     >
                       {t('chat.menu.searchMessages', 'Search messages')}
                     </button>
@@ -1106,7 +1105,7 @@ const ChatView = memo(({
                             toast.error(e?.response?.data?.message || t('chat.groups.errors.updateFailed'));
                           }
                         }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="ch-menu-item"
                       >
                         {((selectedChat as any)?.adminsOnly ? t('chat.groups.actions.adminsOnlyDisable', 'Cho phép mọi người nhắn tin') : t('chat.groups.actions.adminsOnlyEnable', 'Chỉ quản trị được gửi tin nhắn'))}
                       </button>
@@ -1114,7 +1113,7 @@ const ChatView = memo(({
                     {isGroupOwner && onEditGroup && (
                       <button
                         onClick={() => { setHeaderMenuOpen(false); onEditGroup(); }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="ch-menu-item"
                       >
                         {t('chat.groups.actions.edit')}
                       </button>
@@ -1122,7 +1121,7 @@ const ChatView = memo(({
                     {isGroupOwner && onRemoveMembers && (
                       <button
                         onClick={() => { setHeaderMenuOpen(false); onRemoveMembers(); }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="ch-menu-item"
                       >
                         {t('chat.groups.actions.removeMember', 'Xóa thành viên')}
                       </button>
@@ -1146,7 +1145,7 @@ const ChatView = memo(({
                             toast.error(e?.response?.data?.message || t('chat.errors.generic'));
                           }
                         }}
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        className="ch-menu-item ch-menu-item--danger"
                       >
                         {t('chat.groups.actions.deleteAllMessages', 'Xóa toàn bộ tin nhắn')}
                       </button>
@@ -1155,7 +1154,7 @@ const ChatView = memo(({
                       onDeleteGroup ? (
                         <button
                           onClick={() => { setHeaderMenuOpen(false); onDeleteGroup(); }}
-                          className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          className="ch-menu-item ch-menu-item--danger"
                         >
                           {t('chat.groups.actions.delete')}
                         </button>
@@ -1164,7 +1163,7 @@ const ChatView = memo(({
                     {!isGroupOwner && onLeaveGroup && (
                       <button
                         onClick={() => { setHeaderMenuOpen(false); onLeaveGroup(); }}
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        className="ch-menu-item ch-menu-item--danger"
                       >
                         {t('chat.groups.actions.leave')}
                       </button>
@@ -1179,7 +1178,7 @@ const ChatView = memo(({
 
       {/* Search Panel */}
       {showSearch && (
-        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90 backdrop-blur sticky top-0 z-50">
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90 dark-black:bg-black backdrop-blur sticky top-0 z-50">
           <div className="flex items-center gap-2">
             <input
               value={searchQuery}
@@ -1842,13 +1841,13 @@ const ChatView = memo(({
       </div>
 
       {/* Profile Modal */}
-      {profileUser && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center" role="dialog" aria-modal="true">
+      {profileUser && createPortal((
+        <div className="fixed inset-0 z-[10050] flex items-center justify-center" role="dialog" aria-modal="true">
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
 
           {/* Modal panel */}
-          <div className="relative mx-4 w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
+          <div className="relative mx-4 w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 dark-black:!bg-black shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
               <h4 className="text-base font-semibold text-gray-900 dark:text-white">{t('chat.chatView.profile.title', 'Thông tin người dùng')}</h4>
@@ -1960,14 +1959,14 @@ const ChatView = memo(({
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40">
+            <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40 dark-black:bg-black">
               <p className="text-xs text-gray-500 dark:text-gray-500">
                 {t('chat.chatView.profile.privacy', 'Một số thông tin có thể không hiển thị nếu người dùng không chia sẻ.')}
               </p>
             </div>
           </div>
         </div>
-      )}
+      ), document.body)}
 
       {/* Group Members Sidebar */}
       <GroupMembersPanel

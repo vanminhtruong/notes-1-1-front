@@ -10,8 +10,9 @@ import type { User, Message } from '../../interface/ChatTypes.interface';
 import { blockService, type BlockStatus } from '@/services/blockService';
 import { pinService } from '@/services/pinService';
 import LazyLoad from '@/components/LazyLoad';
+import './chat-tabs.css';
 
-const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, onRefreshBlockedUsers, onBulkRemoveFriends, onBulkBlock }: ChatListProps) => {
+const ChatList = memo(({ chatList, friends, currentUserId, onStartChat, onRemoveFriend, onDeleteMessages, onRefreshChatList, onRefreshBlockedUsers, onBulkRemoveFriends, onBulkBlock }: ChatListProps) => {
   const { t } = useTranslation('dashboard');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
@@ -272,28 +273,28 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
   };
 
   return (
-    <div className="h-full overflow-y-auto md-down:px-3 md-down:pb-24 md-down:pt-3">
-      {/* Multi-select Toolbar */}
+    <div className="ct ct-scroll h-full">
+      {/* Multi-select Toolbar: split controls and destructive actions into separate responsive rows. */}
       {chatList.length > 0 && (onBulkRemoveFriends || onBulkBlock) && (
-        <div className="sticky top-0 z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200/60 dark:border-gray-700/60 px-3 py-2 md-down:px-2">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
+        <div className="ct-bar">
+          <div className="flex min-w-0 flex-col gap-2.5">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
               <button
+                type="button"
                 onClick={toggleSelectMode}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all ${isSelectMode
-                  ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-transparent'
-                  }`}
+                disabled={bulkActionLoading}
+                aria-pressed={isSelectMode}
+                className={`ct-btn ${isSelectMode ? 'ct-btn--on' : ''}`}
               >
                 {isSelectMode ? (
                   <>
-                    <X className="w-4 h-4" />
-                    {t('chat.bulk.cancel', 'Cancel')}
+                    <X className="h-4 w-4 shrink-0" />
+                    <span>{t('chat.bulk.cancel', 'Cancel')}</span>
                   </>
                 ) : (
                   <>
-                    <CheckSquare className="w-4 h-4" />
-                    {t('chat.bulk.select', 'Select')}
+                    <CheckSquare className="h-4 w-4 shrink-0" />
+                    <span>{t('chat.bulk.select', 'Select')}</span>
                   </>
                 )}
               </button>
@@ -301,24 +302,30 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
               {isSelectMode && (
                 <>
                   <button
-                    onClick={selectedFriends.size === chatList.filter(i => i.friendshipId).length ? clearSelection : selectAllFriends}
-                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    type="button"
+                    onClick={selectedFriends.size > 0 && selectedFriends.size === chatList.filter(item => item.friendshipId).length ? clearSelection : selectAllFriends}
+                    disabled={bulkActionLoading}
+                    className="ct-btn ct-btn--ghost"
                   >
-                    {selectedFriends.size === chatList.filter(i => i.friendshipId).length ? (
+                    {selectedFriends.size > 0 && selectedFriends.size === chatList.filter(item => item.friendshipId).length ? (
                       <>
-                        <Square className="w-4 h-4" />
-                        {t('chat.bulk.deselectAll', 'Deselect All')}
+                        <Square className="h-4 w-4 shrink-0" />
+                        <span>{t('chat.bulk.deselectAll', 'Deselect All')}</span>
                       </>
                     ) : (
                       <>
-                        <CheckSquare className="w-4 h-4" />
-                        {t('chat.bulk.selectAll', 'Select All')}
+                        <CheckSquare className="h-4 w-4 shrink-0" />
+                        <span>{t('chat.bulk.selectAll', 'Select All')}</span>
                       </>
                     )}
                   </button>
 
                   {selectedFriends.size > 0 && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400 px-2">
+                    <span
+                      role="status"
+                      aria-live="polite"
+                      className="ct-pill-count"
+                    >
                       {t('chat.bulk.selected', { count: selectedFriends.size })}
                     </span>
                   )}
@@ -326,27 +333,29 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
               )}
             </div>
 
-            {/* Bulk Action Buttons */}
+            {/* Bulk actions always get their own row, and wrap on very narrow screens. */}
             {isSelectMode && selectedFriends.size > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex w-full min-w-0 flex-wrap items-stretch gap-2">
                 {onBulkRemoveFriends && (
                   <button
+                    type="button"
                     onClick={handleBulkUnfriend}
                     disabled={bulkActionLoading}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors disabled:opacity-50"
+                    className="ct-btn ct-btn--danger ct-btn--grow"
                   >
-                    <UserX className="w-4 h-4" />
-                    {t('chat.bulk.unfriend', 'Unfriend')}
+                    <UserX className="h-4 w-4 shrink-0" />
+                    <span>{t('chat.bulk.unfriend', 'Unfriend')}</span>
                   </button>
                 )}
                 {onBulkBlock && (
                   <button
+                    type="button"
                     onClick={handleBulkBlock}
                     disabled={bulkActionLoading}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors disabled:opacity-50"
+                    className="ct-btn ct-btn--grow"
                   >
-                    <Ban className="w-4 h-4" />
-                    {t('chat.bulk.block', 'Block')}
+                    <Ban className="h-4 w-4 shrink-0" />
+                    <span>{t('chat.bulk.block', 'Block')}</span>
                   </button>
                 )}
               </div>
@@ -354,11 +363,10 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
           </div>
         </div>
       )}
-
       {/* Chat List when no chat is selected */}
-      <div className="p-2 md-down:p-0 md-down:space-y-3">
+      <div className="ct-list">
         {/* Conversations List with previews */}
-        {chatList.map((item: { friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; isPinned?: boolean; nickname?: string | null }, index: number) => {
+        {chatList.map((item: { friend: User; lastMessage: Message | null; friendshipId?: number; isPinned?: boolean; nickname?: string | null }, index: number) => {
           const friend = item.friend;
           const displayName = (item as any).nickname && (item as any).nickname.trim().length > 0 ? (item as any).nickname : friend.name;
           const online = friends.find((f) => f.id === friend.id)?.isOnline ?? friend.isOnline;
@@ -379,8 +387,6 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
               }
             });
           const time = formatPreviewTime(item.lastMessage?.createdAt);
-          const count = (unreadMap[friend.id] ?? item.unreadCount ?? 0) as number;
-          const isUnread = count > 0;
           // Aggregate reactions of last message (any user, any type)
           const reactionCounts = (() => {
             const res: Record<string, number> = {};
@@ -398,13 +404,10 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
             .filter((k) => (reactionCounts[k] || 0) > 0)
             .map((k) => (
               <span key={k} className="inline-flex items-center gap-0.5">
-                <span className={isUnread ? 'leading-none' : 'leading-none opacity-80'}>{REACTION_EMOJI[k]}</span>
-                <span className={`text-[11px] leading-none ${isUnread ? 'font-semibold' : ''}`}>{reactionCounts[k]}</span>
+                <span className={'leading-none opacity-80'}>{REACTION_EMOJI[k]}</span>
+                <span className={`text-[11px] leading-none ${''}`}>{reactionCounts[k]}</span>
               </span>
             ));
-          const reactionContainerClass = `inline-flex items-center gap-1 text-xs ${isUnread ? 'text-gray-900 dark:text-white font-semibold' : 'text-gray-600 dark:text-gray-300'}`;
-          const previewClass = `text-sm truncate ${isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
-            }`;
           return (
             <LazyLoad
               key={friend.id}
@@ -422,16 +425,13 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                     onStartChat(friend);
                   }
                 }}
-                className={`flex items-center gap-3 p-3 md-down:p-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl cursor-pointer transition-colors md-down:bg-white/80 md-down:dark:bg-gray-800/80 md-down:backdrop-blur md-down:shadow-sm md-down:border md-down:border-gray-200/60 md-down:dark:border-gray-700/60 md-down:mb-3 md-down:last:mb-0 ${isSelectMode && selectedFriends.has(friend.id) ? 'bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-300 dark:ring-blue-700' : ''
+                className={`ct-row ${isSelectMode && selectedFriends.has(friend.id) ? 'ct-row--sel' : ''
                   }`}
               >
                 {/* Selection Checkbox */}
                 {isSelectMode && item.friendshipId && (
                   <div className="flex-shrink-0">
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedFriends.has(friend.id)
-                        ? 'bg-blue-600 border-blue-600 text-white'
-                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
-                      }`}>
+                    <div className="ct-check" data-on={selectedFriends.has(friend.id) ? 'true' : 'false'}>
                       {selectedFriends.has(friend.id) && (
                         <CheckSquare className="w-3.5 h-3.5" />
                       )}
@@ -439,8 +439,8 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                   </div>
                 )}
 
-                <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-md sm-down:w-10 sm-down:h-10">
+                <div className="ct-avatar-wrap">
+                  <div className="ct-avatar">
                     {friend.avatar ? (
                       <img src={friend.avatar} alt={displayName} className="w-full h-full object-cover" />
                     ) : (
@@ -448,40 +448,35 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                     )}
                   </div>
                   {online && !blockStatusMap[friend.id]?.blockedByMe && (
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
+                    <div className="ct-dot"></div>
                   )}
                   {blockStatusMap[friend.id]?.blockedByMe && (
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white dark:border-gray-900 flex items-center justify-center">
-                      <Ban className="w-3 h-3 text-white" />
+                    <div className="ct-dot ct-dot--blocked">
+                      <Ban className="w-3 h-3" />
                     </div>
                   )}
-                  {count > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[11px] leading-[18px] text-center shadow">
-                      {count}
-                    </span>
-                  )}
                 </div>
-                <div className="flex-1 min-w-0 md-down:space-y-0">
-                  <div className="flex items-center justify-between gap-2 md-down:flex-nowrap md-down:gap-2">
-                    <div className="flex items-center gap-1 md-down:w-full">
+                <div className="ct-body">
+                  <div className="ct-line">
+                    <div className="ct-name">
                       <p
-                        className={`${isUnread ? 'font-semibold text-gray-900 dark:text-white' : 'font-normal text-gray-800 dark:text-gray-300'} truncate leading-tight md-down:text-sm`}
+                        className="ct-name-text"
                       >
                         {displayName}
                       </p>
                       {(item as any).isPinned || pinStatusMap[friend.id] ? (
-                        <Pin className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                        <Pin className="ct-pin w-3.5 h-3.5" />
                       ) : null}
                     </div>
-                    <div className="flex items-center gap-1 md-down:w-full md-down:justify-end md-down:mt-0 md-down:leading-[0.9]">
-                      <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap md-down:text-[11px]">{time}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="ct-time">{time}</span>
                       {onRemoveFriend && item.friendshipId && (
                         <div className="relative">
                           <button
                             onClick={(e) => handleMenuToggle(friend.id, e)}
-                            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                            className="ct-icon-btn"
                           >
-                            <MoreVertical className="w-4 h-4 text-gray-400" />
+                            <MoreVertical className="w-4 h-4" />
                           </button>
                           {openMenuId === friend.id && menuPos && createPortal(
                             <>
@@ -495,7 +490,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                 }}
                               />
                               <div
-                                className="fixed z-[70] min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
+                                className="ct-menu fixed z-[70]"
                                 style={{ top: menuPos.top, right: menuPos.right }}
                               >
                                 {/* Pin / Unpin */}
@@ -505,7 +500,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                     e.stopPropagation();
                                     handleTogglePin(friend.id);
                                   }}
-                                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
+                                  className="ct-menu-item"
                                 >
                                   {pinStatusMap[friend.id] ? (
                                     <>
@@ -567,7 +562,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                       ), { duration: 8000 });
                                     }
                                   }}
-                                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
+                                  className="ct-menu-item"
                                 >
                                   <Ban className="w-4 h-4" />
                                   {blockStatusMap[friend.id]?.blockedByMe ? t('chat.actions.unblock', 'Unblock') : t('chat.actions.block', 'Block')}
@@ -605,7 +600,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                       setOpenMenuId(null);
                                       setMenuPos(null);
                                     }}
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-orange-600 dark:text-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                    className="ct-menu-item ct-menu-item--warn"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                     {t('chat.actions.deleteMessages')}
@@ -645,7 +640,7 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                                     setOpenMenuId(null);
                                     setMenuPos(null);
                                   }}
-                                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                  className="ct-menu-item ct-menu-item--danger"
                                 >
                                   <UserX className="w-4 h-4" />
                                   {t('chat.actions.removeFriend')}
@@ -658,13 +653,13 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-0.5 md-down:mt-1 md-down:flex-nowrap md-down:gap-1 min-w-0">
+                  <div className="ct-preview">
                     {reactionItems.length > 0 && (
-                      <div className={`${reactionContainerClass} md-down:text-[11px]`}>
+                      <div className="ct-reacts">
                         {reactionItems}
                       </div>
                     )}
-                    <p className={`${previewClass} md-down:text-xs md-down:max-w-full leading-snug flex-1 min-w-0`}>{preview}</p>
+                    <p className="flex-1">{preview}</p>
                   </div>
                 </div>
               </div>
@@ -674,10 +669,10 @@ const ChatList = memo(({ chatList, friends, unreadMap, currentUserId, onStartCha
 
         {/* Empty State */}
         {chatList.length === 0 && (
-          <div className="text-center py-8">
-            <MessageCircle className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 mb-2">{t('chat.chatList.empty.noChats')}</p>
-            <p className="text-sm text-gray-400">{t('chat.chatList.empty.addFriends')}</p>
+          <div className="ct-empty">
+            <span className="ct-empty-icon"><MessageCircle className="w-8 h-8" strokeWidth={1.7} /></span>
+            <p className="ct-empty-title">{t('chat.chatList.empty.noChats')}</p>
+            <p className="ct-empty-desc">{t('chat.chatList.empty.addFriends')}</p>
           </div>
         )}
       </div>

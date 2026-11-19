@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useEffect, useRef, useState, memo } from 'react';
-import { type ChatWindowProps, toast, useTranslation, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useUnreadChats, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
+import { type ChatWindowProps, toast, useTranslation, useChatSocket, useChatData, useMessageComposer, useAttachmentDownloader, useGroupedMessages, useFilteredUsers, useGroupOnline, useRemovableMembers, useBellNavigation, usePreviewEscape, useVisibilityRefresh, useAutoScroll, useChatOpeners, useChatSettingsStateOnly, useChatSettingsHandler, useChatSettingsEffects, useChatBackgroundState, useChatBackgroundHandler, useChatBackgroundEffects, useReadReceipts, useFriendRequestActions, useTypingAndGroupSync, ChatHeader, UsersList, ChatList, ChatView, MessageInput, ImagePreview, GroupsTab, GroupEditorModal, RemoveMembersModal, ChatSettings, SharedNotesTab, getCachedUser } from './interface/chatWindowImports';
 import * as DashboardHooks from '../hooks';
 import './ChatWindowFloat.css';
 
@@ -40,12 +40,8 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   // Chat settings - split into 3 hooks
   const chatSettingsState = useChatSettingsStateOnly();
 
-  // Notifications handler - unread per user + group + ring animation
-  const { unreadMap, ring, ringSeq, totalUnread, totalGroupUnread, markChatAsRead, markGroupAsRead, markAllRead, hydrateFromChatList } = DashboardHooks.useMessageNotificationsHandler({
-    currentUserId: currentUser?.id,
-    selectedChatId: chatWindowState.selectedChat?.id ?? null,
-    selectedGroupId: chatWindowState.selectedGroup?.id ?? null,
-  });
+  // Only read receipts are retained; unread counts and their subscriptions are removed.
+  const { markChatAsRead, markGroupAsRead } = DashboardHooks.useMessageNotificationsHandler();
 
   // Bell notification handler
   const bellNotificationHandler = DashboardHooks.useBellNotificationHandler({
@@ -71,7 +67,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
     }));
   }, [bellNotificationState.bellFeedItems]);
 
-  const unreadChats = useUnreadChats(chatWindowState.chatList, unreadMap);
+
   const filteredUsers = useFilteredUsers(chatWindowState.users, chatWindowState.friends, chatWindowState.friendRequests, chatWindowState.searchTerm, currentUser?.id, chatSettingsState.blockedUsers);
   const groupedMessages = useGroupedMessages(chatWindowState.messages);
   const isSelectedGroupOnline = useGroupOnline(chatWindowState.selectedGroup, chatWindowState.onlineIds, currentUser?.id);
@@ -186,10 +182,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
     setSearchTerm: chatWindowState.setSearchTerm,
   });
 
-  DashboardHooks.useChatListHydrateEffect({
-    chatList: chatWindowState.chatList,
-    hydrateFromChatList,
-  });
+
 
   // Use editMessage from messageActionsHandler
   const editMessage = messageActionsHandler.editMessage;
@@ -349,13 +342,8 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
 
   if (!isOpen) return null;
 
-  // Tổng badge: ưu tiên số liệu backend (DM + Group + FR + Invite).
-  // Fallback/phản hồi tức thời: nếu backend chưa kịp trả, dùng tổng local (DM + Group + Friend Requests)
-  const frCountLocal = Array.isArray(chatWindowState.friendRequests) ? chatWindowState.friendRequests.length : 0;
-  const bellTotal = Math.max(
-    Number(bellNotificationState.bellBadgeTotal || 0),
-    Number((totalUnread || 0) + (totalGroupUnread || 0) + (frCountLocal || 0))
-  );
+  // The bell badge now counts only friend requests and group invitations.
+  const bellTotal = Number(bellNotificationState.bellBadgeTotal || 0);
 
   // Use handleRemoveFriend from chatListHandler
   const handleRemoveFriend = chatListHandler.handleRemoveFriend;
@@ -387,7 +375,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
   const searchAndNotificationHandler = DashboardHooks.useSearchAndNotificationHandler({
     setSearchTerm: chatWindowState.setSearchTerm,
     loadUsers,
-    markAllRead,
+
     loadNotifications,
     loadPendingInvites,
     loadBellFeed: bellNotificationHandler.loadBellFeed,
@@ -425,13 +413,13 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
 
   return (
     <div
-      className={`chat-float${closing ? ' chat-float--closing' : ''} fixed top-4 right-4 bottom-4 w-[28rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex flex-col z-50 xl-down:w-[26rem] lg-down:w-[24rem] md-down:inset-0 md-down:w-full md-down:max-w-none md-down:h-full md-down:max-h-screen md-down:border-0 md-down:rounded-none md-down:bg-white/95 md-down:dark:bg-gray-900/95 md-down:backdrop-blur sm-down:bg-white sm-down:dark:bg-gray-900`}
+      className={`chat-float${closing ? ' chat-float--closing' : ''} fixed top-4 right-4 bottom-4 w-[28rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl bg-white dark:bg-gray-900 dark-black:!bg-black border border-gray-200 dark:border-gray-700 flex flex-col z-50 xl-down:w-[26rem] lg-down:w-[24rem] md-down:inset-0 md-down:w-full md-down:max-w-none md-down:h-full md-down:max-h-screen md-down:border-0 md-down:rounded-none md-down:bg-white/95 md-down:dark:bg-gray-900/95 md-down:dark-black:!bg-black md-down:backdrop-blur sm-down:bg-white sm-down:dark:bg-gray-900 sm-down:dark-black:!bg-black`}
     >
       {/* Header */}
       <ChatHeader
         totalUnread={bellTotal}
-        ring={ring}
-        ringSeq={ringSeq}
+        ring={false}
+        ringSeq={0}
         notificationItems={bellNotificationItems}
         notificationPagination={bellNotificationState.bellPagination}
         notificationLoading={bellNotificationState.bellLoading}
@@ -534,7 +522,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
                   <ChatList
                     chatList={chatWindowState.chatList}
                     friends={chatWindowState.friends}
-                    unreadMap={unreadMap}
+
                     currentUserId={currentUser?.id}
                     onStartChat={startChat}
                     onRemoveFriend={handleRemoveFriend}
@@ -548,23 +536,6 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
               </div>
             )}
 
-            {chatWindowState.activeTab === 'unread' && (
-              <div className="h-full flex flex-col">
-                <ChatList
-                  chatList={unreadChats}
-                  friends={chatWindowState.friends}
-                  unreadMap={unreadMap}
-                  currentUserId={currentUser?.id}
-                  onStartChat={startChat}
-                  onRemoveFriend={handleRemoveFriend}
-                  onDeleteMessages={handleDeleteMessages}
-                  onRefreshChatList={loadChatList}
-                  onRefreshBlockedUsers={chatSettingsHandler.refreshBlockedUsers}
-                  onBulkRemoveFriends={handleBulkRemoveFriends}
-                  onBulkBlock={handleBulkBlock}
-                />
-              </div>
-            )}
 
             {chatWindowState.activeTab === 'groups' && (
               <div className="h-full flex flex-col">
@@ -617,6 +588,7 @@ const ChatWindow = memo(({ isOpen, onClose }: ChatWindowProps) => {
                             pendingFiles={attachmentState.pendingFiles}
                             onMessageChange={messageInputState.setNewMessage}
                             onSendMessage={sendGroupMessage}
+                            isGroup
                             onFileChange={handleFileChange}
                             onRemoveImage={chatWindowCallbacksHandler.handleRemoveImage}
                             onRemoveFile={chatWindowCallbacksHandler.handleRemoveFile}

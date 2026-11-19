@@ -11,11 +11,11 @@ export function useChatOpeners(params: {
   users: User[];
   setSelectedChat: React.Dispatch<React.SetStateAction<User | null>>;
   setSelectedGroup: React.Dispatch<React.SetStateAction<GroupSummary | null>>;
-  setActiveTab: React.Dispatch<React.SetStateAction<'users' | 'chats' | 'unread' | 'groups' | 'sharedNotes'>>;
+  setActiveTab: React.Dispatch<React.SetStateAction<'users' | 'chats' | 'groups' | 'sharedNotes'>>;
   markChatAsRead: (userId: number, onSuccess?: () => void) => Promise<void>;
   markGroupAsRead: (groupId: number) => void;
   refreshChatList: () => Promise<void>;
-  setChatList: React.Dispatch<React.SetStateAction<Array<{ friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number }>>>;
+  setChatList: React.Dispatch<React.SetStateAction<Array<{ friend: User; lastMessage: Message | null; friendshipId?: number }>>>;
   setMenuOpenKey: React.Dispatch<React.SetStateAction<string | null>>;
   setMessages: React.Dispatch<React.SetStateAction<any[]>>;
   setHistoryLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -65,7 +65,7 @@ export function useChatOpeners(params: {
     setSelectedChat(updatedUser);
     setActiveTab('chats');
 
-    // Notify backend that we joined this 1-1 chat so it can mark unread and emit receipts
+    // Join the 1-1 room for real-time updates and read receipts.
     try {
       const socket = getSocket();
       if (socket) {
@@ -77,7 +77,6 @@ export function useChatOpeners(params: {
 
     await markChatAsRead(user.id, () => {
       // Optimistic local update for responsiveness
-      setChatList((prev) => prev.map((it) => (it.friend.id === user.id ? { ...it, unreadCount: 0 } : it)));
       // And immediately fetch authoritative counts from backend
       void refreshChatList();
     });
@@ -147,12 +146,7 @@ export function useChatOpeners(params: {
     setSelectedChat(null);
     setSelectedGroup(group);
     setActiveTab('groups');
-    // Update local unread map (notifications hook)
-    markGroupAsRead(group.id);
-    // Explicitly notify backend to mark as read for authoritative unread counts
-    try { await groupService.markGroupMessagesRead(group.id); } catch {}
-    // Notify other UI (e.g., GroupsTab list) to refresh unread badges
-    try { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('group_marked_read', { detail: { groupId: group.id } })); } catch {}
+    void markGroupAsRead(group.id);
 
     try {
       setHistoryLoading(true);

@@ -13,6 +13,7 @@ import { MoreVertical, Pin, PinOff, Search, X } from 'lucide-react';
 import type { GroupsTabProps, GroupItem, PendingInvite } from '../../interface/ChatUI.interface';
 import LazyLoad from '@/components/LazyLoad';
 import InviteMembersModal from './InviteMembersModal';
+import './chat-tabs.css';
 
 const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
   const { t } = useTranslation('dashboard');
@@ -33,8 +34,6 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
   const [loadingPinFor, setLoadingPinFor] = useState<number | null>(null);
   const [groupSearchTerm, setGroupSearchTerm] = useState('');
   const currentUserId = useAppSelector((state) => state.auth.user?.id);
-  // Override map to force unreadCount display (e.g., set to 0 immediately after read)
-  const [unreadOverride, setUnreadOverride] = useState<Record<number, number | undefined>>({});
 
   const loadGroups = async (search?: string) => {
     setLoading(true);
@@ -43,10 +42,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
       const res = await groupService.listMyGroups(search);
       if (res.success) {
         console.log('[GroupsTab] Groups loaded:', res.data);
-        const data = (res.data || []).map((g: any) => {
-          const ov = unreadOverride[g.id];
-          return ov !== undefined ? { ...g, unreadCount: ov } : g;
-        });
+        const data = res.data || [];
         setGroups(data);
         // Initialize pin status map from server (supports either isPinned or pinned flags)
         const initialPins: Record<number, boolean> = {};
@@ -93,50 +89,14 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
     const onMemberLeft = () => loadGroups(groupSearchTerm);
     const onGroupLeft = () => loadGroups(groupSearchTerm);
     const onGroupUpdated = () => loadGroups(groupSearchTerm);
-    // When any group message is marked read, refresh if it's me (to drop badge)
-    const onGroupMessageRead = (payload: { groupId: number; userId: number; messageId: number; readAt: string }) => {
-      try {
-        if (!payload) return;
-        if (Number(payload.userId) === Number(currentUserId)) {
-          const gid = Number(payload.groupId);
-          // Optimistically zero for this group without full reload
-          setGroups((prev) => prev.map((g) => (g.id === gid ? ({ ...g, unreadCount: 0 }) : g)));
-          setUnreadOverride((prev) => ({ ...prev, [gid]: 0 }));
-        }
-      } catch {}
-    };
-
     socket.on('group_created', onGroupCreated);
     socket.on('group_invited', onGroupInvited);
     socket.on('group_members_added', onMembersAdded);
     socket.on('group_member_left', onMemberLeft);
     socket.on('group_left', onGroupLeft);
     socket.on('group_updated', onGroupUpdated);
-    socket.on('group_message_read', onGroupMessageRead);
-    // Realtime: refresh unread badges when a new message arrives in any group
-    const onGroupMessage = (payload: any) => {
-      try {
-        if (!payload || typeof payload.groupId === 'undefined') return;
-        const gid = Number(payload.groupId);
-        // Nếu vừa đọc xong và đang force 0, thì tăng từ 0 → 1; ngược lại bỏ override để dùng số server
-        setUnreadOverride((prev) => {
-          const next = { ...prev } as Record<number, number | undefined>;
-          if (next[gid] !== undefined) {
-            next[gid] = Number(next[gid] || 0) + 1;
-          } else {
-            delete next[gid];
-          }
-          return next;
-        });
-        // Avoid full reload to prevent flicker; rely on override for badge display
-        // Optionally, we could optimistically bump local unreadCount as well
-        setGroups((prev) => prev.map((g) => (
-          g.id === gid
-            ? { ...g, unreadCount: (typeof unreadOverride[gid] === 'number' ? (unreadOverride[gid] as number) : (g.unreadCount || 0)) + 1 }
-            : g
-        )));
-      } catch {}
-    };
+    // Refresh conversation order when messages arrive; do not count unread messages.
+    const onGroupMessage = () => loadGroups(groupSearchTerm);
     socket.on('group_message', onGroupMessage);
 
     return () => {
@@ -146,32 +106,11 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
       socket.off('group_member_left', onMemberLeft);
       socket.off('group_left', onGroupLeft);
       socket.off('group_updated', onGroupUpdated);
-      socket.off('group_message_read', onGroupMessageRead);
+
       socket.off('group_message', onGroupMessage);
     };
   }, [groupSearchTerm]);
 
-  // Listen for cross-component event when a group is opened/read to refresh unread badges
-  useEffect(() => {
-    const onMarkedRead = (e: any) => {
-      try {
-        const gid = Number(e?.detail?.groupId);
-        if (Number.isFinite(gid) && gid > 0) {
-          // Optimistically zero the badge for this group
-          setGroups((prev) => prev.map((g) => (g.id === gid ? ({ ...g, unreadCount: 0 }) : g)));
-          setUnreadOverride((prev) => ({ ...prev, [gid]: 0 }));
-        }
-        // Then fetch authoritative data from backend
-        loadGroups(groupSearchTerm);
-      } catch {
-        loadGroups(groupSearchTerm);
-      }
-    };
-    if (typeof window !== 'undefined') {
-      window.addEventListener('group_marked_read', onMarkedRead as any);
-      return () => window.removeEventListener('group_marked_read', onMarkedRead as any);
-    }
-  }, [groupSearchTerm]);
 
   // Load available users for inviting (filters out current group members)
   const loadAvailableUsers = async (search = '') => {
@@ -384,33 +323,33 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
 
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('chat.groups.title')}</h2>
-          <button onClick={onCreateGroup} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-full transition-colors">
+    <div className="ct h-full flex flex-col">
+      <div className="ct-head">
+        <div className="ct-head-top">
+          <h2 className="ct-title">{t('chat.groups.title')}</h2>
+          <button onClick={onCreateGroup} className="ct-btn ct-btn--solid">
             {t('chat.groups.create')}
           </button>
         </div>
         
         {/* Search Bar */}
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-400" />
+          <div className="ct-field-icon">
+            <Search className="h-4 w-4" />
           </div>
           <input
             type="text"
             value={groupSearchTerm}
             onChange={(e) => setGroupSearchTerm(e.target.value)}
             placeholder={t('chat.groups.searchPlaceholder', 'Tìm kiếm nhóm...')}
-            className="w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm transition-all"
+            className="ct-field"
           />
           {groupSearchTerm && (
             <button
               onClick={() => setGroupSearchTerm('')}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="ct-field-clear"
             >
-              <X className="h-4 w-4 text-gray-400" />
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>
@@ -418,11 +357,11 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
 
       {/* Pending Group Invitations */}
       {pendingInvites.length > 0 && (
-        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        <div className="ct-invites">
+          <h3>
             {t('chat.groups.pendingInvites.title', 'Group Invitations')} ({pendingInvites.length})
           </h3>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2.5">
             {pendingInvites.map((invite, index) => (
               <LazyLoad
                 key={invite.id}
@@ -432,9 +371,9 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                 delay={index * 30}
                 reAnimate={true}
               >
-              <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+              <div className="ct-card ct-card--invite">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md flex-shrink-0">
+                  <div className="ct-avatar ct-avatar--sm ct-avatar--sq">
                     {invite.group.avatar ? (
                       <img src={invite.group.avatar} alt={invite.group.name} className="w-full h-full object-cover" />
                     ) : (
@@ -442,10 +381,10 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-900 dark:text-white truncate">
+                    <div className="ct-name-text">
                       {invite.group.name}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                    <div className="ct-members">
                       {t('chat.groups.pendingInvites.invitedBy', 'Invited by')} {invite.inviter.name}
                     </div>
                   </div>
@@ -453,13 +392,13 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleAcceptInvite(invite)}
-                    className="px-3 py-1 text-xs bg-green-600 hover:bg-green-700 text-white rounded-md"
+                    className="ct-btn ct-btn--sm ct-btn--ok"
                   >
                     {t('chat.groups.pendingInvites.accept', 'Accept')}
                   </button>
                   <button
                     onClick={() => handleDeclineInvite(invite)}
-                    className="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-md"
+                    className="ct-btn ct-btn--sm ct-btn--danger"
                   >
                     {t('chat.groups.pendingInvites.decline', 'Decline')}
                   </button>
@@ -471,19 +410,19 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
         </div>
       )}
 
-      <div className="flex-1 overflow-auto p-4">
+      <div className="ct-scroll p-3">
         {loading ? (
-          <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">Loading…</div>
+          <div className="ct-loading">Loading…</div>
         ) : groups.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
-            <div className="text-5xl mb-3">{groupSearchTerm ? '🔍' : '👥'}</div>
-            <p className="font-medium">
+          <div className="ct-empty">
+            <div className="ct-empty-icon" style={{ fontSize: 30 }}>{groupSearchTerm ? '🔍' : '👥'}</div>
+            <p className="ct-empty-title">
               {groupSearchTerm 
                 ? t('chat.groups.empty.noResults', 'Không tìm thấy nhóm nào')
                 : t('chat.groups.empty.noGroups')
               }
             </p>
-            <p className="text-sm mt-1">
+            <p className="ct-empty-desc">
               {groupSearchTerm 
                 ? t('chat.groups.empty.tryDifferent', 'Thử tìm kiếm với từ khóa khác')
                 : t('chat.groups.empty.createFirst')
@@ -491,7 +430,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
             </p>
           </div>
         ) : (
-          <ul className="space-y-2">
+          <ul className="flex flex-col gap-2.5">
             {groups.map((g, index) => (
               <LazyLoad
                 key={g.id}
@@ -502,44 +441,31 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                 reAnimate={true}
               >
               <li
-                className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                className="ct-card"
                 onClick={() => {
-                  // Optimistically reset unread count when opening the group
-                  setGroups((prev) => prev.map((x) => x.id === g.id ? ({ ...x, unreadCount: 0 }) : x));
-                  // Persist override so subsequent loadGroups() keeps 0 until a new message arrives
-                  setUnreadOverride((prev) => ({ ...prev, [g.id]: 0 }));
-                  // Notify backend to mark as read right away; then refresh list
-                  try { void groupService.markGroupMessagesRead(g.id).then(() => loadGroups(groupSearchTerm)).catch(() => loadGroups(groupSearchTerm)); } catch {}
                   onSelectGroup?.(g);
                 }}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Avatar wrapper to allow badge overflow without clipping */}
-                  <div className="relative w-10 h-10 flex-shrink-0">
-                    <div className="absolute inset-0 rounded-full overflow-hidden border border-white/30 dark:border-gray-700/40 bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center font-semibold shadow-md">
+                  <div className="ct-avatar-wrap">
+                    <div className="ct-avatar ct-avatar--sq">
                       {g.avatar ? (
                         <img src={g.avatar} alt={g.name} className="w-full h-full object-cover" />
                       ) : (
                         (g.name || '').charAt(0)
                       )}
                     </div>
-                    {(() => {
-                      const count = (unreadOverride[g.id] !== undefined) ? (unreadOverride[g.id] as number) : (((g as any).unreadCount) || 0);
-                      return count > 0 ? (
-                        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[11px] leading-[18px] text-center shadow">
-                          {count}
-                        </span>
-                      ) : null;
-                    })()}
+
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1 font-semibold text-gray-900 dark:text-white">
+                    <div className="ct-name">
                       <span className="truncate">{g.name}</span>
                       {(pinStatusMap[g.id] || (g as any).isPinned || (g as any).pinned) && (
-                        <Pin className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                        <Pin className="ct-pin w-3.5 h-3.5" />
                       )}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                    <div className="ct-members">
                       {t('chat.groups.status.membersCount', { count: g.members.length })}
                     </div>
                   </div>
@@ -549,7 +475,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                   {currentUserId === g.ownerId && (
                     <button
                       onClick={() => setShowInviteModal(g.id)}
-                      className="px-2 py-1 text-xs rounded border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                      className="ct-btn ct-btn--sm"
                     >
                       {t('chat.groups.actions.addMembers')}
                     </button>
@@ -559,9 +485,9 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                   <div className="relative">
                     <button
                       onClick={(e) => handleGroupMenuToggle(g.id, e)}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                      className="ct-icon-btn"
                     >
-                      <MoreVertical className="w-4 h-4 text-gray-400" />
+                      <MoreVertical className="w-4 h-4" />
                     </button>
                     {openMenuId === g.id && openMenuPos && createPortal(
                       <>
@@ -575,7 +501,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                           }}
                         />
                         <div
-                          className="fixed z-[9999] min-w-[180px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
+                          className="ct-menu fixed z-[9999]"
                           style={{ top: openMenuPos.top, left: openMenuPos.left }}
                         >
                           <button
@@ -584,7 +510,7 @@ const GroupsTab = memo(({ onSelectGroup }: GroupsTabProps) => {
                               e.stopPropagation();
                               handleToggleGroupPin(g.id);
                             }}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
+                            className="ct-menu-item"
                           >
                             {pinStatusMap[g.id] ? (
                               <>

@@ -7,7 +7,7 @@ interface UseChatWindowCallbacksHandlerProps {
   selectedGroup: GroupSummary | null;
   setSelectedChat: React.Dispatch<React.SetStateAction<User | null>>;
   setSelectedGroup: React.Dispatch<React.SetStateAction<GroupSummary | null>>;
-  setActiveTab: React.Dispatch<React.SetStateAction<'users' | 'chats' | 'unread' | 'groups' | 'sharedNotes'>>;
+  setActiveTab: React.Dispatch<React.SetStateAction<'users' | 'chats' | 'groups' | 'sharedNotes'>>;
   setReplyingToMessage: React.Dispatch<React.SetStateAction<any | null>>;
   setShowGroupEditor: React.Dispatch<React.SetStateAction<boolean>>;
   setShowRemoveMembers: React.Dispatch<React.SetStateAction<boolean>>;

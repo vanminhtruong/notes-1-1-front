@@ -13,7 +13,7 @@ import type { User, Message } from '../../components/interface/ChatTypes.interfa
 
 type TypingUser = { id: any; name: string; avatar?: string };
 
-type ChatListItem = { friend: User; lastMessage: Message | null; unreadCount?: number; friendshipId?: number; nickname?: string | null };
+type ChatListItem = { friend: User; lastMessage: Message | null; friendshipId?: number; nickname?: string | null };
 
 interface UseChatSocketParams {
   currentUser: User | null | undefined;

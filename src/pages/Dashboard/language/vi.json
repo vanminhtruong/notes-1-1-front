@@ -518,11 +518,10 @@
       "left": "{{name}} đã rời nhóm"
     },
     "header": {
-      "title": "Tin nhắn",
+      "title": "Kết nối",
       "searchPlaceholder": "Tìm kiếm…",
       "tabs": {
         "all": "Tất cả",
-        "unread": "Chưa đọc",
         "users": "Người dùng",
         "groups": "Nhóm"
       }
@@ -805,6 +804,8 @@
       "removeFileAria": "Xóa tệp",
       "attachFileAria": "Đính kèm tệp",
       "placeholder": "Aa",
+      "groupPlaceholder": "Nhắn tin cho nhóm...",
+      "messagePlaceholder": "Nh\u1eadp tin nh\u1eafn...",
       "recipientBanned": "Tài khoản bị vô hiệu hóa do vi phạm chính sách"
     },
     "blocked": {

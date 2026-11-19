@@ -4,7 +4,7 @@ import { notificationService } from '@/services/notificationService';
 interface UseSearchAndNotificationHandlerProps {
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   loadUsers: (term: string) => Promise<void>;
-  markAllRead: () => Promise<void>;
+
   loadNotifications: () => Promise<void>;
   loadPendingInvites: () => Promise<void>;
   loadBellFeed: (page: number) => Promise<void>;
@@ -13,7 +13,7 @@ interface UseSearchAndNotificationHandlerProps {
 export const useSearchAndNotificationHandler = ({
   setSearchTerm,
   loadUsers,
-  markAllRead,
+
   loadNotifications,
   loadPendingInvites,
   loadBellFeed,
@@ -25,13 +25,13 @@ export const useSearchAndNotificationHandler = ({
 
   const handleClearAll = useCallback(async () => {
     try {
-      await markAllRead();
+
       await notificationService.markAllRead();
       try { await loadNotifications(); } catch {}
       try { await loadPendingInvites(); } catch {}
       try { await loadBellFeed(1); } catch {}
     } catch {}
-  }, [markAllRead, loadNotifications, loadPendingInvites, loadBellFeed]);
+  }, [loadNotifications, loadPendingInvites, loadBellFeed]);
 
   return {
     handleSearchChange,

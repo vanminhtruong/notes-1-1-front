@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import ModalScrollArea from '@/components/ModalScrollArea';
 import React, { useEffect, useMemo, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -122,9 +123,9 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div 
-      className="pm-overlay z-50"
+      className="pm-overlay z-[10050]"
     >
       <div 
         className="pm-panel pm-panel--lg" role="dialog" aria-modal="true" 
@@ -296,7 +297,7 @@ const GroupEditorModal: React.FC<GroupEditorModalProps> = memo(({ isOpen, mode, 
         }
       `}</style>
     </div>
-  );
+  , document.body);
 });
 
 GroupEditorModal.displayName = 'GroupEditorModal';
